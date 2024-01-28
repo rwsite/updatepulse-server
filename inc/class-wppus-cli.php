@@ -86,7 +86,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus check_remote_package_update my-plugin plugin
+	 *     wp wppus check_remote_package_update my-package plugin
 	 */
 	public function check_remote_package_update( $args, $assoc_args ) {
 		$slug = $args[0];
@@ -117,7 +117,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus download_remote_package my-plugin plugin
+	 *     wp wppus download_remote_package my-package plugin
 	 */
 
 	public function download_remote_package( $args, $assoc_args ) {
@@ -145,7 +145,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus delete_package my-plugin
+	 *     wp wppus delete_package my-package
 	 */
 	public function delete_package( $args, $assoc_args ) {
 		$slug            = $args[0];
@@ -166,7 +166,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus get_package_info my-plugin
+	 *     wp wppus get_package_info my-package
 	 */
 	public function get_package_info( $args, $assoc_args ) {
 		$slug          = $args[0];
@@ -181,19 +181,19 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <true_nonce>
+	 * [--true_nonce=<true_nonce>]
 	 * : Whether to create a true nonce, or a reusable token.
 	 *
-	 * <expiry_length>
+	 * [--expiry_length=<expiry_length>]
 	 * : The expiry length.
 	 *
-	 * <data>
+	 * [--data=<data>]
 	 * : The data to store along the nonce, in JSON.
 	 *
-	 * <return_type>
+	 * [--return_type=<return_type>]
 	 * : The return type - nonce_only or nonce_info_array.
 	 *
-	 * <store>
+	 * [--store=<store>]
 	 * : Whether to store the nonce.
 	 *
 	 * ## EXAMPLES
@@ -253,16 +253,16 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <api_key_id>
+	 * [--api_key_id=<api_key_id>]
 	 * : The ID of the API key.
 	 *
-	 * <api_key>
+	 * [--api_key=<api_key>]
 	 * : The API key.
 	 *
-	 * <timestamp>
+	 * [--timestamp=<timestamp>]
 	 * : The timestamp.
 	 *
-	 * <payload>
+	 * [--payload=<payload>]
 	 * : The payload.
 	 *
 	 * ## EXAMPLES
@@ -289,9 +289,9 @@ class WPPUS_CLI extends WP_CLI_Command {
 		}
 
 		$result = wppus_build_nonce_api_signature(
-			$assoc_args['api_key_id,'],
-			$assoc_args['api_key,'],
-			$assoc_args['timestamp,'],
+			$assoc_args['api_key_id'],
+			$assoc_args['api_key'],
+			$assoc_args['timestamp'],
 			$assoc_args['payload']
 		);
 
