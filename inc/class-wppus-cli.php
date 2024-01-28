@@ -381,12 +381,12 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <browse_query>
-	 * : The browse query, as JSON
+	 * <license_query>
+	 * : The License Query, as JSON
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus browse_licenses <browse_query>
+	 *     wp wppus browse_licenses <license_query>
 	 */
 	public function browse_licenses( $args, $assoc_args ) {
 		$result          = wppus_browse_licenses( $args[0] );
@@ -437,8 +437,13 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *     wp wppus add_license <license_data>
 	 */
 	public function add_license( $args, $assoc_args ) {
-		$result        = wppus_add_license( $args[0] );
+		$payload       = json_decode( $args[0], true );
+		$result        = wppus_add_license( $payload );
 		$error_message = 'Unable to add the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
@@ -456,8 +461,13 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *     wp wppus edit_license <license_data>
 	 */
 	public function edit_license( $args, $assoc_args ) {
-		$result        = wppus_edit_license( $args[0] );
+		$payload       = json_decode( $args[0], true );
+		$result        = wppus_edit_license( $payload );
 		$error_message = 'Unable to edit the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
@@ -513,6 +523,10 @@ class WPPUS_CLI extends WP_CLI_Command {
 		$result        = wppus_check_license( $license_data );
 		$error_message = 'Unable to check the license';
 
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
+
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
 
@@ -524,21 +538,28 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 * <license_key>
 	 * : The license key.
 	 *
+	 * <package-slug>
+	 * : The package slug.
+	 *
 	 * <domain>
 	 * : The domain.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus activate_license <license_key> <domain>
+	 *     wp wppus activate_license <license_key> <package-slug> <domain>
 	 */
 	public function activate_license( $args, $assoc_args ) {
-		$license_data = array(
-			'license_key' => $args[0],
-			'domain'      => $args[1],
+		$license_data  = array(
+			'license_key'     => $args[0],
+			'package_slug'    => $args[1],
+			'allowed_domains' => $args[2],
 		);
-
 		$result        = wppus_activate_license( $license_data );
 		$error_message = 'Unable to activate the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
@@ -551,21 +572,28 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 * <license_key>
 	 * : The license key.
 	 *
+	 * <package-slug>
+	 * : The package slug.
+	 *
 	 * <domain>
 	 * : The domain.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus deactivate_license <license_key> <domain>
+	 *     wp wppus deactivate_license <license_key> <package-slug> <domain>
 	 */
 	public function deactivate_license( $args, $assoc_args ) {
-		$license_data = array(
-			'license_key' => $args[0],
-			'domain'      => $args[1],
+		$license_data  = array(
+			'license_key'     => $args[0],
+			'package_slug'    => $args[1],
+			'allowed_domains' => $args[2],
 		);
-
 		$result        = wppus_deactivate_license( $license_data );
 		$error_message = 'Unable to deactivate the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
