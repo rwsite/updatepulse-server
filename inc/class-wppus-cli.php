@@ -86,7 +86,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus check_remote_package_update my-plugin plugin
+	 *     wp wppus check_remote_package_update my-package plugin
 	 */
 	public function check_remote_package_update( $args, $assoc_args ) {
 		$slug = $args[0];
@@ -117,7 +117,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus download_remote_package my-plugin plugin
+	 *     wp wppus download_remote_package my-package plugin
 	 */
 
 	public function download_remote_package( $args, $assoc_args ) {
@@ -145,7 +145,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus delete_package my-plugin
+	 *     wp wppus delete_package my-package
 	 */
 	public function delete_package( $args, $assoc_args ) {
 		$slug            = $args[0];
@@ -166,7 +166,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus get_package_info my-plugin
+	 *     wp wppus get_package_info my-package
 	 */
 	public function get_package_info( $args, $assoc_args ) {
 		$slug          = $args[0];
@@ -181,19 +181,19 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <true_nonce>
+	 * [--true_nonce=<true_nonce>]
 	 * : Whether to create a true nonce, or a reusable token.
 	 *
-	 * <expiry_length>
+	 * [--expiry_length=<expiry_length>]
 	 * : The expiry length.
 	 *
-	 * <data>
+	 * [--data=<data>]
 	 * : The data to store along the nonce, in JSON.
 	 *
-	 * <return_type>
+	 * [--return_type=<return_type>]
 	 * : The return type - nonce_only or nonce_info_array.
 	 *
-	 * <store>
+	 * [--store=<store>]
 	 * : Whether to store the nonce.
 	 *
 	 * ## EXAMPLES
@@ -253,16 +253,16 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <api_key_id>
+	 * [--api_key_id=<api_key_id>]
 	 * : The ID of the API key.
 	 *
-	 * <api_key>
+	 * [--api_key=<api_key>]
 	 * : The API key.
 	 *
-	 * <timestamp>
+	 * [--timestamp=<timestamp>]
 	 * : The timestamp.
 	 *
-	 * <payload>
+	 * [--payload=<payload>]
 	 * : The payload.
 	 *
 	 * ## EXAMPLES
@@ -289,9 +289,9 @@ class WPPUS_CLI extends WP_CLI_Command {
 		}
 
 		$result = wppus_build_nonce_api_signature(
-			$assoc_args['api_key_id,'],
-			$assoc_args['api_key,'],
-			$assoc_args['timestamp,'],
+			$assoc_args['api_key_id'],
+			$assoc_args['api_key'],
+			$assoc_args['timestamp'],
 			$assoc_args['payload']
 		);
 
@@ -381,12 +381,12 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <browse_query>
-	 * : The browse query, as JSON
+	 * <license_query>
+	 * : The License Query, as JSON
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus browse_licenses <browse_query>
+	 *     wp wppus browse_licenses <license_query>
 	 */
 	public function browse_licenses( $args, $assoc_args ) {
 		$result          = wppus_browse_licenses( $args[0] );
@@ -437,8 +437,13 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *     wp wppus add_license <license_data>
 	 */
 	public function add_license( $args, $assoc_args ) {
-		$result        = wppus_add_license( $args[0] );
+		$payload       = json_decode( $args[0], true );
+		$result        = wppus_add_license( $payload );
 		$error_message = 'Unable to add the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
@@ -456,8 +461,13 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *     wp wppus edit_license <license_data>
 	 */
 	public function edit_license( $args, $assoc_args ) {
-		$result        = wppus_edit_license( $args[0] );
+		$payload       = json_decode( $args[0], true );
+		$result        = wppus_edit_license( $payload );
 		$error_message = 'Unable to edit the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
@@ -513,6 +523,10 @@ class WPPUS_CLI extends WP_CLI_Command {
 		$result        = wppus_check_license( $license_data );
 		$error_message = 'Unable to check the license';
 
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
+
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
 
@@ -524,21 +538,28 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 * <license_key>
 	 * : The license key.
 	 *
+	 * <package-slug>
+	 * : The package slug.
+	 *
 	 * <domain>
 	 * : The domain.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus activate_license <license_key> <domain>
+	 *     wp wppus activate_license <license_key> <package-slug> <domain>
 	 */
 	public function activate_license( $args, $assoc_args ) {
-		$license_data = array(
-			'license_key' => $args[0],
-			'domain'      => $args[1],
+		$license_data  = array(
+			'license_key'     => $args[0],
+			'package_slug'    => $args[1],
+			'allowed_domains' => $args[2],
 		);
-
 		$result        = wppus_activate_license( $license_data );
 		$error_message = 'Unable to activate the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
@@ -551,21 +572,28 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 * <license_key>
 	 * : The license key.
 	 *
+	 * <package-slug>
+	 * : The package slug.
+	 *
 	 * <domain>
 	 * : The domain.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus deactivate_license <license_key> <domain>
+	 *     wp wppus deactivate_license <license_key> <package-slug> <domain>
 	 */
 	public function deactivate_license( $args, $assoc_args ) {
-		$license_data = array(
-			'license_key' => $args[0],
-			'domain'      => $args[1],
+		$license_data  = array(
+			'license_key'     => $args[0],
+			'package_slug'    => $args[1],
+			'allowed_domains' => $args[2],
 		);
-
 		$result        = wppus_deactivate_license( $license_data );
 		$error_message = 'Unable to deactivate the license';
+
+		if ( ! is_object( $result ) ) {
+			$result = new WP_Error( self::DEFAULT_ERROR, print_r( $result, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		}
 
 		$this->process_result( $result, $result, $error_message, self::DEFAULT_ERROR, 'error' );
 	}

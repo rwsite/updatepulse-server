@@ -199,6 +199,7 @@ $params = array(
 	'action'          => 'activate',             // Action to perform when calling the License API (required)
 	'license_key'     => 'test-license',         // The key of the license to activate for the provided domain (required)
 	'allowed_domains' => array( 'example.com' ), // Domain name for which the license needs to be activated - can be a string (required)
+	'package_slug'    => 'test-package',         // The package slug - only alphanumeric characters and dashes are allowed (required)
 );
 ```
 
@@ -261,6 +262,7 @@ $params = array(
 	'action'          => 'deactivate',           // Action to perform when calling the License API (required)
 	'license_key'     => 'test-license',         // The key of the license to activate for the provided domain (required)
 	'allowed_domains' => array( 'example.com' ), // Domain name for which the license needs to be deactivated - can be a string (required)
+	'package_slug'    => 'test-package',         // The package slug - only alphanumeric characters and dashes are allowed (required)
 );
 ```
 
