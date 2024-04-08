@@ -94,7 +94,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			if ( ! wp_doing_ajax() ) {
 				require_once ABSPATH . 'wp-admin/includes/file.php';
 
-				$this->init_package_type();
+				$this->init_package_type( $package_prefix );
 
 				if ( 'plugin' === $this->package_type ) {
 					require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -112,7 +112,8 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 					$this->package_dir  = $theme_info->get_stylesheet_directory();
 				}
 
-				if ( ! is_null( $this->package_type ) ) {
+				if ( $this->package_type ) {
+					$this->package_prefix     = $package_prefix;
 					$current_recorded_version = get_option( $package_prefix . '_' . $this->package_type . '_version' );
 
 					if ( ! version_compare( $current_recorded_version, $latest_version, '>=' ) ) {
@@ -124,9 +125,8 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 							load_theme_textdomain( 'wp-update-migrate', $i10n_path );
 						}
 
-						$this->package_prefix = $package_prefix;
-						$this->from_version   = $current_recorded_version;
-						$this->to_version     = $latest_version;
+						$this->from_version = $current_recorded_version;
+						$this->to_version   = $latest_version;
 
 						$this->update();
 					}
@@ -297,13 +297,15 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			}
 		}
 
-		protected function init_package_type() {
+		protected function init_package_type( $package_prefix ) {
 			$hook = current_filter();
 
 			if ( 'plugins_loaded' === $hook ) {
 				$this->package_type = 'plugin';
 			} elseif ( 'after_setup_theme' === $hook ) {
 				$this->package_type = 'theme';
+			} else {
+				$this->package_type = apply_filters( 'wpum_package_type', false, $package_prefix );
 			}
 		}
 
