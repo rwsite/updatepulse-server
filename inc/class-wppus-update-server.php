@@ -459,7 +459,7 @@ class WPPUS_Update_Server extends Wpup_UpdateServer {
 			return $response;
 		}
 
-		if ( 200 !== absint( wp_remote_retrieve_response_code( $response ) ) ) {
+		if ( 200 !== abs( intval( wp_remote_retrieve_response_code( $response ) ) ) ) {
 			wp_delete_file( $local_filename );
 
 			return new WP_Error( 'http_404', trim( wp_remote_retrieve_response_message( $response ) ) );

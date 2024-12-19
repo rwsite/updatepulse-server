@@ -231,7 +231,7 @@ class WPPUS_Package_Manager {
 				$error_text = __( 'Make sure the uploaded file is a zip archive.', 'wppus' );
 			}
 
-			if ( $valid && 0 !== absint( $package_info['error'] ) ) {
+			if ( $valid && 0 !== abs( intval( $package_info['error'] ) ) ) {
 				$valid = false;
 
 				switch ( $package_info['error'] ) {

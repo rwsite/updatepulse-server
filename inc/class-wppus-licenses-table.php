@@ -70,7 +70,7 @@ class WPPUS_Licenses_Table extends WP_List_Table {
 
 			if ( is_numeric( $search ) ) {
 				$where      = ' WHERE id = %d';
-				$where_args = array( absint( $search ) );
+				$where_args = array( abs( intval( $search ) ) );
 			} else {
 				$where      = " WHERE
 					license_key = %s OR

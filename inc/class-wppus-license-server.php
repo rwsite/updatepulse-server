@@ -506,7 +506,7 @@ class WPPUS_License_Server {
 		if ( ! is_numeric( $payload['offset'] ) ) {
 			$payload['offset'] = self::$browsing_query['offset'];
 		} else {
-			$payload['offset'] = absint( $payload['offset'] );
+			$payload['offset'] = abs( intval( $payload['offset'] ) );
 		}
 
 		if ( ! in_array( $payload['order_by'], array_keys( self::$license_definition ), true ) ) {
