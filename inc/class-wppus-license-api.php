@@ -262,23 +262,32 @@ class WPPUS_License_API {
 		$result       = array();
 		$raw_result   = array();
 		$license      = $this->license_server->read_license( $license_data );
+		$domain       = false;
 
 		do_action( 'wppus_pre_activate_license', $license );
 
-		if ( ! isset( $license_data['allowed_domains'] ) ) {
-			$license_data['allowed_domains'] = array();
-		} elseif ( ! is_array( $license_data['allowed_domains'] ) ) {
-			$license_data['allowed_domains'] = array( $license_data['allowed_domains'] );
-		} else {
-			$license_data['allowed_domains'] = array( reset( $license_data['allowed_domains'] ) );
+		if ( isset( $license_data['allowed_domains'] ) ) {
+
+			if (
+				is_array( $license_data['allowed_domains'] ) &&
+				1 === count( $license_data['allowed_domains'] )
+			) {
+				$domain = $license_data['allowed_domains'][0];
+			} elseif ( is_string( $license_data['allowed_domains'] ) ) {
+				$domain = $license_data['allowed_domains'];
+			}
 		}
 
-		if ( is_object( $license ) && ! empty( $license_data['allowed_domains'] ) && $request_slug === $license->package_slug ) {
-			$domain_count = count( $license_data['allowed_domains'] ) + count( $license->allowed_domains );
+		if (
+			is_object( $license ) &&
+			$domain &&
+			$request_slug === $license->package_slug
+		) {
+			$domain_count = count( $license->allowed_domains ) + 1;
 
 			if ( in_array( $license->status, array( 'expired', 'blocked', 'on-hold' ), true ) ) {
 				$result['status'] = $license->status;
-			} elseif ( $domain_count > absint( $license->max_allowed_domains ) ) {
+			} elseif ( $domain_count > abs( intval( $license->max_allowed_domains ) ) ) {
 				$result['max_allowed_domains'] = $license->max_allowed_domains;
 			}
 
@@ -286,14 +295,20 @@ class WPPUS_License_API {
 				$payload = array(
 					'id'              => $license->id,
 					'status'          => 'activated',
-					'allowed_domains' => array_unique( array_merge( $license_data['allowed_domains'], $license->allowed_domains ) ),
+					'allowed_domains' => array_unique(
+						array_merge( array( $domain ), $license->allowed_domains )
+					),
 				);
 				$result  = $this->license_server->edit_license(
 					apply_filters( 'wppus_activate_license_payload', $payload )
 				);
 
 				if ( is_object( $result ) ) {
-					$result->license_signature = $this->license_server->generate_license_signature( $license, reset( $license_data['allowed_domains'] ) );
+					$result->license_signature = $this->license_server->generate_license_signature(
+						$license,
+						$domain
+					);
+					$raw_result                = clone $result;
 
 					unset( $result->hmac_key );
 					unset( $result->crypto_key );
@@ -302,8 +317,6 @@ class WPPUS_License_API {
 					unset( $result->email );
 					unset( $result->company_name );
 					unset( $result->id );
-
-					$raw_result = clone $result;
 				} else {
 					$raw_result = $result;
 				}
@@ -333,18 +346,25 @@ class WPPUS_License_API {
 		$license      = $this->license_server->read_license( $license_data );
 		$result       = array();
 		$raw_result   = array();
+		$domain       = false;
 
 		do_action( 'wppus_pre_deactivate_license', $license );
 
-		if ( ! isset( $license_data['allowed_domains'] ) ) {
-			$license_data['allowed_domains'] = array();
-		} elseif ( ! is_array( $license_data['allowed_domains'] ) ) {
-			$license_data['allowed_domains'] = array( $license_data['allowed_domains'] );
+		if ( isset( $license_data['allowed_domains'] ) ) {
+
+			if (
+				is_array( $license_data['allowed_domains'] ) &&
+				1 === count( $license_data['allowed_domains'] )
+			) {
+				$domain = $license_data['allowed_domains'][0];
+			} elseif ( is_string( $license_data['allowed_domains'] ) ) {
+				$domain = $license_data['allowed_domains'];
+			}
 		}
 
 		if (
 			is_object( $license ) &&
-			! empty( $license_data['allowed_domains'] ) &&
+			$domain &&
 			$request_slug === $license->package_slug
 		) {
 
@@ -354,10 +374,10 @@ class WPPUS_License_API {
 			} elseif ( 'blocked' === $license->status || 'on-hold' === $license->status ) {
 				$result['status'] = $license->status;
 			} elseif (
-					'deactivated' === $license->status ||
-					empty( array_intersect( $license_data['allowed_domains'], $license->allowed_domains ) )
+				'deactivated' === $license->status ||
+				empty( array_intersect( array( $domain ), $license->allowed_domains ) )
 			) {
-				$result['allowed_domains'] = $license_data['allowed_domains'];
+				$result['allowed_domains'] = array( $domain );
 			} elseif (
 				isset( $license->data, $license->data['next_deactivate'] ) &&
 				$license->data['next_deactivate'] > time()
@@ -367,8 +387,17 @@ class WPPUS_License_API {
 
 			if ( empty( $result ) ) {
 				$data                    = isset( $license->data ) ? $license->data : array();
-				$data['next_deactivate'] = (bool) ( constant( 'WP_DEBUG' ) ) ? time() : time() + MONTH_IN_SECONDS;
-				$allowed_domains         = array_diff( $license->allowed_domains, $license_data['allowed_domains'] );
+				$data['next_deactivate'] = apply_filters(
+					'wppus_deactivate_license_next_deactivate',
+					(bool) ( constant( 'WP_DEBUG' ) ) ?
+						time() :
+						time() + MONTH_IN_SECONDS,
+					$license
+				);
+				$allowed_domains         = array_diff(
+					$license->allowed_domains,
+					array( $domain )
+				);
 				$payload                 = array(
 					'id'              => $license->id,
 					'status'          => empty( $allowed_domains ) ? 'deactivated' : $license->status,
@@ -380,7 +409,11 @@ class WPPUS_License_API {
 				);
 
 				if ( is_object( $result ) ) {
-					$result->license_signature = $this->license_server->generate_license_signature( $license, reset( $license_data['allowed_domains'] ) );
+					$result->license_signature = $this->license_server->generate_license_signature(
+						$license,
+						$domain
+					);
+					$raw_result                = clone $result;
 
 					unset( $result->hmac_key );
 					unset( $result->crypto_key );
@@ -389,14 +422,14 @@ class WPPUS_License_API {
 					unset( $result->email );
 					unset( $result->company_name );
 					unset( $result->id );
-
-					$raw_result = clone $result;
 				} else {
 					$raw_result = $result;
 				}
 			}
 		} else {
-			$result['license_key'] = isset( $license_data['license_key'] ) ? $license_data['license_key'] : false;
+			$result['license_key'] = isset( $license_data['license_key'] ) ?
+				$license_data['license_key'] :
+				false;
 			$raw_result            = $result;
 		}
 
@@ -521,8 +554,11 @@ class WPPUS_License_API {
 		);
 
 		if ( ! is_object( $result ) ) {
-			// translators: %s is operation slug
-			$description = sprintf( esc_html__( 'An error occured for License operation `%s` on WPPUS.' ), $event );
+			$description = sprintf(
+				// translators: %s is operation slug
+				esc_html__( 'An error occured for License operation `%s` on WPPUS.' ),
+				$event
+			);
 			$content     = array(
 				'error'   => true,
 				'result'  => $result,
