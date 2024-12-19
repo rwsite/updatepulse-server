@@ -68,9 +68,9 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *     wp wppus cleanup-all
 	 */
 	public function cleanup_all() {
-		$this->cleanup( 'cache', 'cache - OK', 'cache - Cleanup failed' );
-		$this->cleanup( 'logs', 'logs - OK', 'logs - Cleanup failed' );
-		$this->cleanup( 'tmp', 'tmp - OK', 'tmp - Cleanup failed' );
+		$this->cleanup( 'cache' );
+		$this->cleanup( 'logs' );
+		$this->cleanup( 'tmp' );
 	}
 
 	/**
@@ -307,8 +307,8 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 */
 	public function clear_nonces() {
 		$result          = wppus_clear_nonces();
-		$success_message = 'OK - Expired nonce cleared';
-		$error_message   = 'Unable to clear nonces';
+		$success_message = 'Expired nonce cleared';
+		$error_message   = 'Unable to create nonce';
 
 		$this->process_result( $result, $success_message, $error_message, self::DEFAULT_ERROR, 'error' );
 	}
@@ -602,9 +602,11 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 * Protected methods
 	 *******************************************************************/
 
-	protected function cleanup( $method, $success_message = 'OK', $error_message = 'Cleanup failed' ) {
-		$method = 'wppus_force_cleanup_' . $method;
-		$result = $method();
+	protected function cleanup( $method ) {
+		$method          = 'wppus_force_cleanup_' . $method;
+		$result          = $method();
+		$success_message = 'OK';
+		$error_message   = 'Cleanup failed';
 
 		$this->process_result( $result, $success_message, $error_message );
 	}
