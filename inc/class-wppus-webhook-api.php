@@ -230,7 +230,6 @@ class WPPUS_Webhook_API {
 				'blocking' => false,
 				'headers'  => array(
 					'X-WPPUS-Action'        => $action,
-					'X-WPPUS-Signature'     => 'sha1=' . hash_hmac( 'sha1', $body, $secret ),
 					'X-WPPUS-Signature-256' => 'sha256=' . hash_hmac( 'sha256', $body, $secret ),
 				),
 				'body'     => $body,

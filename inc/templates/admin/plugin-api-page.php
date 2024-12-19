@@ -153,15 +153,14 @@
 						</div>
 						<input type="hidden" class="webhook-values" id="wppus_webhooks" name="wppus_webhooks" value="<?php echo esc_attr( get_option( 'wppus_webhooks', '{}' ) ); ?>">
 						<p class="description">
-							<?php esc_html_e( 'Webhooks are event notifications sent to arbitrary URLs during the next cron job (within 1 minute after the event occurs, depending on the server configuration) with a payload of data for third party services integration.', 'wppus' ); ?>
+							<?php esc_html_e( 'Webhooks are event notifications sent to arbitrary URLs during the next cron job (within 1 minute after the event occurs with a server cron configuration schedule to execute every minute). The event is sent along with a payload of data for third party services integration.', 'wppus' ); ?>
 							<br>
 							<br>
 							<?php
 							printf(
-								// translators: %1$s is <code>secret</code>, %2$s is <code>X-WPPUS-Signature</code>, %3$s is <code>X-WPPUS-Signature-256</code>
-								esc_html__( 'To allow the recipients to authenticate the notifications, the payload is signed with a %1$s secret key using the SHA-1 and SHA-256 algorithms ; the resulting hashes are made available in the %2$s and %3$s headers respectively.', 'wppus' ),
+								// translators: %1$s is <code>secret</code>, %2$s is <code>X-WPPUS-Signature-256</code>
+								esc_html__( 'To allow the recipients to authenticate the notifications, the payload is signed with a %1$s secret key using the SHA-256 algorithm ; the resulting hash is made available in the %2$s header.', 'wppus' ),
 								'<code>secret-key</code>',
-								'<code>X-WPPUS-Signature</code>',
 								'<code>X-WPPUS-Signature-256</code>'
 							);
 							?>
@@ -170,7 +169,7 @@
 							<?php
 							printf(
 								// translators: %s is '<code>secret-key</code>'
-								esc_html__( 'The %s must be a minimum of 16 characters long, preferably a random string', 'wppus' ),
+								esc_html__( 'The %s must be a minimum of 16 characters long, preferably a random string.', 'wppus' ),
 								'<code>secret-key</code>'
 							);
 							?>

@@ -259,8 +259,8 @@ To get more help on a specific subcommand, use `wp wppus <subcommand> --help`.
 ___
 ## Consuming Webhooks
 
-Webhooks's payload is sent in JSON format via a POST request and is signed with a `secret-key` secret key using `sha1` algorithm and `sha256` algorithm.  
-The resulting hashes are made available in the `X-WPPUS-Signature` and `X-WPPUS-Signature-256` headers respectively.  
+Webhooks's payload is sent in JSON format via a POST request and is signed with a `secret-key` secret key using the `sha256` algorithm.  
+The resulting hash is made available in the `X-WPPUS-Signature-256` header.  
 
 Below is an example of how to consume a Webhook on another installation of WordPress with a plugin (webhooks can however be consumed by any system):
 
@@ -325,7 +325,6 @@ add_action( 'plugins_loaded', function() {
 						array(
 							'headers' => array(
 								'X-WPPUS-Action'        => $_SERVER['HTTP_X_WPPUS_ACTION'],
-								'X-WPPUS-Signature'     => $_SERVER['HTTP_X_WPPUS_SIGNATURE'],
 								'X-WPPUS-Signature-256' => $_SERVER['HTTP_X_WPPUS_SIGNATURE_256'],
 							),
 							'body' => $payload,
@@ -618,7 +617,7 @@ wppus_fire_webhook( string $url, string $secret, string $body, string $action )
 ```
 
 **Description**  
-Immediately send a event notification to `$url`, signed with `$secret` in `X-WPPUS-Signature` and `X-WPPUS-Signature-256`, with `$action` in `X-WPPUS-Action`.  
+Immediately send a event notification to `$url`, signed with `$secret` with resulting has stored in `X-WPPUS-Signature-256`, with `$action` in `X-WPPUS-Action`.  
 
 **Parameters**  
 `$url`
