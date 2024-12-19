@@ -1,7 +1,7 @@
 # WP Packages Update Server - Generic Updates Integration - Developer documentation
 (Looking for the main documentation page instead? [See here](https://github.com/froger-me/wp-packages-update-server/blob/main/README.md))
 
-API calls can be used by generic client packages to interact with the Anyape Update Server from any language or framework to request updates.  
+API calls can be used by generic client packages to interact with the WP Update Server from any language or framework to request updates.  
 This document focuses on generic packages - WordPress plugins and themes are supported out of the box, and full integration examples are provided.  
 
 In this document, only 3 types of API calls are described:
@@ -12,7 +12,7 @@ In this document, only 3 types of API calls are described:
 The rest of the API (License, Package, Nonce) follows the same pattern as described here for all languages, as all the examples rely on `wp_remote_get` or `wp_remote_post` to make the API calls.  
 Similarly, the actual update process, persisting license key & signature, security concerns such as validating the integrity of the package once it has been downloaded, and the scheduling of the update checks are not addressed here: they vary depending on the package and are the responsibility of the developer of the package.
 
-Also of note, in the context of a generic package, the "domain" added to or removed from the list of `allowed_domains` needs not be an internet domain name, but can be any string that uniquely identifies the client.
+Also of note, in the context of a generic package, the "domain" added to or removed from the list of `allowed_domains` needs not be an internet domain name, but can be any string that uniquely identifies the client (referred to as `allowedClientIdentifier` throughout the examples).
 
 * [WP Packages Update Server - Generic Updates Integration - Developer documentation](#wp-packages-update-server---generic-updates-integration---developer-documentation)
     * [Using the provided examples](#using-the-provided-examples)
