@@ -216,7 +216,7 @@ class WPPUS_Package_API {
 
 	public function add_endpoints() {
 		add_rewrite_rule(
-			'^wppus-package-api/(plugin|theme)/(.+)/*?$',
+			'^wppus-package-api/(plugin|theme|generic)/(.+)/*?$',
 			'index.php?type=$matches[1]&package_id=$matches[2]&$matches[3]&__wppus_package_api=1&',
 			'top'
 		);
