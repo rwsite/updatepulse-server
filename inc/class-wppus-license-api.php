@@ -90,8 +90,6 @@ class WPPUS_License_API {
 							$license->data['api_owner'] !== $this->api_key_id
 						) {
 							unset( $result[ $index ] );
-						} else {
-							unset( $result[ $index ]->id );
 						}
 					}
 				}
@@ -139,16 +137,11 @@ class WPPUS_License_API {
 			} else {
 				$this->http_response_code = 400;
 			}
-		} else {
-
-			if ( ! isset( $result->license_key ) ) {
-				$this->http_response_code = 404;
-				$result                   = array(
-					'message' => __( 'License not found.', 'wppus' ),
-				);
-			}
-
-			unset( $result->id );
+		} elseif ( ! isset( $result->license_key ) ) {
+			$this->http_response_code = 404;
+			$result                   = array(
+				'message' => __( 'License not found.', 'wppus' ),
+			);
 		}
 
 		return $result;
@@ -165,16 +158,11 @@ class WPPUS_License_API {
 			} else {
 				$this->http_response_code = 400;
 			}
-		} else {
-
-			if ( ! isset( $result->license_key ) ) {
-				$this->http_response_code = 404;
-				$result                   = array(
-					'message' => __( 'License not found.', 'wppus' ),
-				);
-			}
-
-			unset( $result->id );
+		} elseif ( ! isset( $result->license_key ) ) {
+			$this->http_response_code = 404;
+			$result                   = array(
+				'message' => __( 'License not found.', 'wppus' ),
+			);
 		}
 
 		return $result;
@@ -192,8 +180,6 @@ class WPPUS_License_API {
 			$result->result  = 'success';
 			$result->message = 'License successfully created';
 			$result->key     = $result->license_key;
-
-			unset( $result->id );
 		} else {
 			$this->http_response_code = 400;
 		}
@@ -234,7 +220,6 @@ class WPPUS_License_API {
 			unset( $result->owner_name );
 			unset( $result->email );
 			unset( $result->company_name );
-			unset( $result->id );
 		} else {
 			$result     = array(
 				'license_key' => isset( $license_data['license_key'] ) ?
@@ -289,6 +274,11 @@ class WPPUS_License_API {
 				$result['status'] = $license->status;
 			} elseif ( $domain_count > abs( intval( $license->max_allowed_domains ) ) ) {
 				$result['max_allowed_domains'] = $license->max_allowed_domains;
+			} elseif (
+				'activated' === $license->status &&
+				! empty( array_intersect( array( $domain ), $license->allowed_domains ) )
+			) {
+				$result['allowed_domains'] = array( $domain );
 			}
 
 			if ( empty( $result ) ) {
@@ -316,7 +306,6 @@ class WPPUS_License_API {
 					unset( $result->owner_name );
 					unset( $result->email );
 					unset( $result->company_name );
-					unset( $result->id );
 				} else {
 					$raw_result = $result;
 				}
@@ -421,7 +410,6 @@ class WPPUS_License_API {
 					unset( $result->owner_name );
 					unset( $result->email );
 					unset( $result->company_name );
-					unset( $result->id );
 				} else {
 					$raw_result = $result;
 				}
@@ -559,19 +547,12 @@ class WPPUS_License_API {
 				esc_html__( 'An error occured for License operation `%s` on WPPUS.' ),
 				$event
 			);
-			$content     = array(
+			$content = array(
 				'error'   => true,
 				'result'  => $result,
 				'payload' => $payload,
 			);
 		} else {
-
-			if ( null !== $original ) {
-				unset( $original->id );
-			}
-
-			unset( $result->id );
-
 			$content = null !== $original ?
 				array(
 					'new'      => $result,
