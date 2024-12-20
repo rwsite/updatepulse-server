@@ -326,6 +326,29 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				} else {
 					$this->delete_option( 'licenseSignature' );
 				}
+
+				$license_data->may_deactivate  = true;
+				$license_data->deactivate_text = __( 'Deactivate', 'wp-package-updater' );
+
+				if ( isset( $license_data->next_deactivate ) ) {
+					$this->update_option( 'licenseNextDeactivate', $license_data->next_deactivate );
+
+					if ( time() < $license_data->next_deactivate ) {
+						$timezone = new DateTimeZone( wp_timezone_string() );
+						$date     = new DateTime( 'now', $timezone );
+
+						$date->setTimestamp( intval( $license_data->next_deactivate ) );
+
+						$license_data->may_deactivate  = false;
+						$license_data->deactivate_text = sprintf(
+							// translators: the next posible deactivation date
+							__( 'Deactivation is possible after %s.', 'wp-package-updater' ),
+							$date->format( get_option( 'date_format' ) . ' H:i:s' )
+						);
+					}
+				} else {
+					$this->delete_option( 'licenseNextDeactivate' );
+				}
 			} else {
 				$error = new WP_Error( 'License', $license_data->message );
 
@@ -351,6 +374,12 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 					$this->update_option( 'licenseSignature', '' );
 				} else {
 					$this->delete_option( 'licenseSignature' );
+				}
+
+				if ( isset( $license_data->next_deactivate ) ) {
+					$this->update_option( 'licenseNextDeactivate', $license_data->next_deactivate );
+				} else {
+					$this->delete_option( 'licenseNextDeactivate' );
 				}
 			} else {
 				$error = new WP_Error( 'License', $license_data->message );
@@ -791,17 +820,38 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		protected function get_license_form() {
-			$license = $this->get_option( 'licenseKey' );
+			$license         = $this->get_option( 'licenseKey' );
+			$next_deactivate = $this->get_option( 'licenseNextDeactivate' );
+			$may_deactivate  = false;
+			$deactivate_text = '';
+
+			if ( time() < $next_deactivate ) {
+				$timezone = new DateTimeZone( wp_timezone_string() );
+				$date     = new DateTime( 'now', $timezone );
+
+				$date->setTimestamp( intval( $next_deactivate ) );
+
+				$deactivate_text = sprintf(
+					// translators: the next posible deactivation date
+					__( 'Deactivation is possible after %s.', 'wp-package-updater' ),
+					$date->format( get_option( 'date_format' ) . ' H:i:s' )
+				);
+			} else {
+				$may_deactivate  = true;
+				$deactivate_text = __( 'Deactivate', 'wp-package-updater' );
+			}
 
 			ob_start();
 
 			$this->get_template(
 				'license-form.php',
 				array(
-					'license'      => $license,
-					'package_id'   => $this->package_id,
-					'package_slug' => $this->package_slug,
-					'show_license' => ( ! empty( $license ) ),
+					'license'         => $license,
+					'package_id'      => $this->package_id,
+					'package_slug'    => $this->package_slug,
+					'show_license'    => ( ! empty( $license ) ),
+					'may_deactivate'  => $may_deactivate,
+					'deactivate_text' => $deactivate_text,
 				)
 			);
 

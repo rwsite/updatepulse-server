@@ -2,10 +2,10 @@
 /* global WP_PackageUpdater */
 jQuery(document).ready(function ($) {
 
-	$('body').on('click', '.wrap-license .activate-license', function(e) {
+	$('body').on('click', '.wrap-license .activate-license', function (e) {
 		e.preventDefault();
 
-		var licenseContainer = $(this).parent().parent(),
+		var licenseContainer = $(this).closest('.wrap-license'),
 			data             = {
 			'nonce' : licenseContainer.data('nonce'),
 			'license_key' : licenseContainer.find('.license').val(),
@@ -17,13 +17,23 @@ jQuery(document).ready(function ($) {
 			url: WP_PackageUpdater.ajax_url,
 			data: data,
 			type: 'POST',
-			success: function(response) {
+			success: function (response) {
 
 				if (response.success) {
 					licenseContainer.find('.current-license').html(licenseContainer.find('.license').val());
 					licenseContainer.find('.current-license-error').addClass('hidden');
 					licenseContainer.find('.license-message').removeClass('hidden');
-					$( '.license-error-' + licenseContainer.data('package_slug') + '.notice' ).addClass('hidden');
+					licenseContainer.find('.deactivate-license-container').removeClass('hidden');
+					licenseContainer.find('.activate-license-container').addClass('hidden');
+					$('.license-error-' + licenseContainer.data('package_slug') + '.notice').addClass('hidden');
+
+					if (response.data.may_deactivate) {
+						licenseContainer.find('.deactivate-license').prop('disabled', false);
+					} else {
+						licenseContainer.find('.deactivate-license').prop('disabled', true);
+					}
+
+					licenseContainer.find('.deactivate-license').val(response.data.deactivate_text);
 				} else {
 					var errorContainer = licenseContainer.find('.current-license-error');
 
@@ -43,10 +53,10 @@ jQuery(document).ready(function ($) {
 		});
 	});
 
-	$('body').on('click', '.wrap-license .deactivate-license', function(e) {
+	$('body').on('click', '.wrap-license .deactivate-license', function (e) {
 		e.preventDefault();
 
-		var licenseContainer = $(this).parent().parent(),
+		var licenseContainer = $(this).closest('.wrap-license'),
 			data             = {
 			'nonce' : licenseContainer.data('nonce'),
 			'license_key' : licenseContainer.find('.license').val(),
@@ -58,12 +68,14 @@ jQuery(document).ready(function ($) {
 			url: WP_PackageUpdater.ajax_url,
 			data: data,
 			type: 'POST',
-			success: function(response) {
+			success: function (response) {
 
 				if (response.success) {
 					licenseContainer.find('.current-license').html('');
 					licenseContainer.find('.current-license-error').addClass('hidden');
 					licenseContainer.find('.license-message').addClass('hidden');
+					licenseContainer.find('.deactivate-license-container').addClass('hidden');
+					licenseContainer.find('.activate-license-container').removeClass('hidden');
 				} else {
 					var errorContainer = licenseContainer.find('.current-license-error');
 
