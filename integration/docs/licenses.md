@@ -53,6 +53,8 @@ WP Packages Update Server provides an API and offers a series of functions, acti
 		* [wppus\_check\_license\_result](#wppus_check_license_result)
 		* [wppus\_activate\_license\_result](#wppus_activate_license_result)
 		* [wppus\_deactivate\_license\_result](#wppus_deactivate_license_result)
+		* [wppus\_activate\_license\_next\_deactivate](#wppus_activate_license_next_deactivate)
+		* [wppus\_deactivate\_license\_next\_deactivate](#wppus_deactivate_license_next_deactivate)
 		* [wppus\_check\_license\_dirty\_payload](#wppus_check_license_dirty_payload)
 		* [wppus\_activate\_license\_dirty\_payload](#wppus_activate_license_dirty_payload)
 		* [wppus\_deactivate\_license\_dirty\_payload](#wppus_deactivate_license_dirty_payload)
@@ -196,10 +198,10 @@ ___
 
 ```php
 $params = array(
-	'action'          => 'activate',             // Action to perform when calling the License API (required)
-	'license_key'     => 'test-license',         // The key of the license to activate for the provided domain (required)
-	'allowed_domains' => array( 'example.com' ), // Domain name for which the license needs to be activated - can be a string (required)
-	'package_slug'    => 'test-package',         // The package slug - only alphanumeric characters and dashes are allowed (required)
+	'action'          => 'activate',     // Action to perform when calling the License API (required)
+	'license_key'     => 'test-license', // The key of the license to activate for the provided domain (required)
+	'allowed_domains' => 'example.com',  // Domain name for which the license needs to be activated (required)
+	'package_slug'    => 'test-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
 );
 ```
 
@@ -1261,6 +1263,44 @@ Fired during client license API request.
 **Parameters**  
 `$maybe_license`
 > (mixed) a license object record or an empty array
+
+___
+### wppus_activate_license_next_deactivate
+
+```php
+apply_filters( 'wppus_activate_license_next_deactivate', int $next_deactivate, mixed $license );
+```
+
+**Description**  
+Filter the next allowed deactivation timestamp when activating a license.
+Fired during client license API request.
+
+**Parameters**  
+`$next_deactivate`
+> (int) the timestamp of the next deactivation ; default `time()`
+
+**Parameters**  
+`$license`
+> (mixed) a license object record
+
+___
+### wppus_deactivate_license_next_deactivate
+
+```php
+apply_filters( 'wppus_deactivate_license_next_deactivate', int $next_deactivate, mixed $license );
+```
+
+**Description**  
+Filter the next allowed deactivation timestamp upon deactivating a license.
+Fired during client license API request.
+
+**Parameters**  
+`$next_deactivate`
+> (int) the timestamp of the next deactivation ; default `time() + MONTH_IN_SECONDS`, or `time() + MINUTE_IN_SECONDS` if `WP_DEBUG` is set to `true`
+
+**Parameters**  
+`$license`
+> (mixed) a license object record
 
 ___
 ### wppus_check_license_dirty_payload

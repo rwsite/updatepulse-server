@@ -65,7 +65,7 @@ jQuery(document).ready(function ($) {
 				wppus_license_date_renewed: { licenseDate: true },
 				wppus_license_max_allowed_domains: { required: true }
 			},
-			submitHandler: function(form) {
+			submitHandler: function (form) {
 				var domainElements = $('.wppus-domains-list li:not(.wppus-domain-template) .wppus-domain-value'),
 					values = {
 						'id': $('#wppus_license_id').html(),
@@ -77,7 +77,7 @@ jQuery(document).ready(function ($) {
 						'email': $('#wppus_license_registered_email').val(),
 						'company_name': $('#wppus_license_owner_company').val(),
 						'txn_id': $('#wppus_license_transaction_id').val(),
-						'data': $('#wppus_license_data').val(),
+						'data': editor.codemirror.getValue(),
 						'date_created': $('#wppus_license_date_created').val(),
 						'date_renewed': $('#wppus_license_date_renewed').val(),
 						'date_expiry': $('#wppus_license_date_expiry').val(),

@@ -282,12 +282,23 @@ class WPPUS_License_API {
 			}
 
 			if ( empty( $result ) ) {
+				$data = isset( $license->data ) ? $license->data : array();
+
+				if ( ! isset( $data['next_deactivate'] ) || time() > $data['next_deactivate'] ) {
+					$data['next_deactivate'] = apply_filters(
+						'wppus_activate_license_next_deactivate',
+						time(),
+						$license
+					);
+				}
+
 				$payload = array(
 					'id'              => $license->id,
 					'status'          => 'activated',
 					'allowed_domains' => array_unique(
 						array_merge( array( $domain ), $license->allowed_domains )
 					),
+					'data'            => $data,
 				);
 				$result  = $this->license_server->edit_license(
 					apply_filters( 'wppus_activate_license_payload', $payload )
@@ -298,6 +309,7 @@ class WPPUS_License_API {
 						$license,
 						$domain
 					);
+					$result->next_deactivate   = $data['next_deactivate'];
 					$raw_result                = clone $result;
 
 					unset( $result->hmac_key );
@@ -379,7 +391,7 @@ class WPPUS_License_API {
 				$data['next_deactivate'] = apply_filters(
 					'wppus_deactivate_license_next_deactivate',
 					(bool) ( constant( 'WP_DEBUG' ) ) ?
-						time() :
+						time() + MINUTE_IN_SECONDS :
 						time() + MONTH_IN_SECONDS,
 					$license
 				);
@@ -402,6 +414,7 @@ class WPPUS_License_API {
 						$license,
 						$domain
 					);
+					$result->next_deactivate   = $data['next_deactivate'];
 					$raw_result                = clone $result;
 
 					unset( $result->hmac_key );
