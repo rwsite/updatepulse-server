@@ -309,8 +309,8 @@ class WPPUS_License_API {
 						$license,
 						$domain
 					);
-					$result->next_deactivate   = $data['next_deactivate'];
 					$raw_result                = clone $result;
+					$result->next_deactivate   = $data['next_deactivate'];
 
 					unset( $result->hmac_key );
 					unset( $result->crypto_key );
@@ -414,8 +414,8 @@ class WPPUS_License_API {
 						$license,
 						$domain
 					);
-					$result->next_deactivate   = $data['next_deactivate'];
 					$raw_result                = clone $result;
+					$result->next_deactivate   = $data['next_deactivate'];
 
 					unset( $result->hmac_key );
 					unset( $result->crypto_key );
