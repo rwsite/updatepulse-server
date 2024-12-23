@@ -11,7 +11,7 @@
 			<input type="button" value="<?php esc_attr_e( 'Activate', 'wp-package-updater' ); ?>" class="button-primary activate-license" />
 		</span>
 		<span class="deactivate-license-container">
-			<input type="button" value="<?php echo esc_html( $deactivate_text ); ?>" class="button deactivate-license" <?php echo ( $may_deactivate ) ? '' : 'disabled'; ?> />
+			<input data-next_deactivate="<?php echo esc_attr( $next_deactivate ); ?>" data-date_format="<?php echo esc_attr( $date_format ); ?>" type="button" value="<?php echo esc_html( $deactivate_text ); ?>" class="button deactivate-license" <?php echo ( $may_deactivate ) ? '' : 'disabled'; ?> />
 		</span>
 	</div>
 </div>

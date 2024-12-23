@@ -334,17 +334,9 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 					$this->update_option( 'licenseNextDeactivate', $license_data->next_deactivate );
 
 					if ( time() < $license_data->next_deactivate ) {
-						$timezone = new DateTimeZone( wp_timezone_string() );
-						$date     = new DateTime( 'now', $timezone );
-
-						$date->setTimestamp( intval( $license_data->next_deactivate ) );
-
 						$license_data->may_deactivate  = false;
-						$license_data->deactivate_text = sprintf(
-							// translators: the next posible deactivation date
-							__( 'Deactivation is possible after %s.', 'wp-package-updater' ),
-							$date->format( get_option( 'date_format' ) . ' H:i:s' )
-						);
+						$license_data->deactivate_text = __( 'Deactivation is possible after:', 'wp-package-updater' );
+						$license_data->date_format     = get_option( 'date_format' ) . ' H:i:s';
 					}
 				} else {
 					$this->delete_option( 'licenseNextDeactivate' );
@@ -397,7 +389,10 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 
 		public function set_license_error_notice_content( $package_info, $result ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
-			if ( isset( $package_info->license_error ) && ! empty( $package_info->license_error ) ) {
+			if (
+				isset( $package_info->license_error ) &&
+				is_object( $package_info->license_error )
+			) {
 				$license_data = $this->handle_license_errors( $package_info->license_error );
 
 				$this->update_option( 'licenseError', $package_info->name . ': ' . $license_data->message );
@@ -761,15 +756,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 					$license_data->clear_key = true;
 					$license_data->message   = __( 'The license is already inactive for this domain.', 'wp-package-updater' );
 				} elseif ( isset( $license_data->next_deactivate ) ) {
-					$date = new DateTime( 'now', $timezone );
-
-					$date->setTimestamp( intval( $license_data->next_deactivate ) );
-
-					$license_data->message = sprintf(
-						// translators: the next posible deactivation date
-						__( 'The license may not be deactivated before %s.', 'wp-package-updater' ),
-						$date->format( get_option( 'date_format' ) . ' H:i:s' )
-					);
+					$license_data->message = __( 'The license may not be deactivated yet.', 'wp-package-updater' );
 				}
 			}
 
@@ -800,6 +787,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				$license_data->clear_key = true;
 				$license_data->message   = __( 'The provided license key does not appear to be valid. Please use another license key.', 'wp-package-updater' );
 			} elseif ( 1 === count( (array) $license_data ) ) {
+				// debug track - calling method
 
 				if ( 'Plugin' === $this->type ) {
 					$license_data->message = __( 'An active license is required to update the plugin. Please provide a valid license key in Plugins > Installed Plugins.', 'wp-package-updater' );
@@ -826,16 +814,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			$deactivate_text = '';
 
 			if ( time() < $next_deactivate ) {
-				$timezone = new DateTimeZone( wp_timezone_string() );
-				$date     = new DateTime( 'now', $timezone );
-
-				$date->setTimestamp( intval( $next_deactivate ) );
-
-				$deactivate_text = sprintf(
-					// translators: the next posible deactivation date
-					__( 'Deactivation is possible after %s.', 'wp-package-updater' ),
-					$date->format( get_option( 'date_format' ) . ' H:i:s' )
-				);
+				$deactivate_text = __( 'Deactivation is possible after:', 'wp-package-updater' );
 			} else {
 				$may_deactivate  = true;
 				$deactivate_text = __( 'Deactivate', 'wp-package-updater' );
@@ -852,6 +831,8 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 					'show_license'    => ( ! empty( $license ) ),
 					'may_deactivate'  => $may_deactivate,
 					'deactivate_text' => $deactivate_text,
+					'next_deactivate' => intval( $next_deactivate ),
+					'date_format'     => get_option( 'date_format' ) . ' H:i:s',
 				)
 			);
 
