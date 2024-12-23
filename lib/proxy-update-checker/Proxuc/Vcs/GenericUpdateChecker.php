@@ -48,7 +48,7 @@ if ( ! class_exists(Proxuc_Vcs_GenericUpdateChecker::class, false) ):
 			return trailingslashit($this->genericAbsolutePath);
 		}
 
-		public function requestInfo($unused = null) {
+		public function requestInfo() {
 			$update = $this->requestUpdate();
 			$info   = null;
 

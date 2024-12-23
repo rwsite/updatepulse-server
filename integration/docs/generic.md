@@ -212,8 +212,7 @@ In case a valid license key is provided:
         "package_slug": "dummy-generic",
         "package_type": "generic",
         "result": "success",
-        "message": "License key details retrieved.",
-        "product_ref": "dummy-generic\/dummy-generic.json"
+        "message": "License key details retrieved."
     },
     "request_time_elapsed": "0.274"
 }

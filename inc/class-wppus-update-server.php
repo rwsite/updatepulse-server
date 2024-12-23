@@ -361,6 +361,90 @@ class WPPUS_Update_Server extends Wpup_UpdateServer {
 
 	// Misc. -------------------------------------------------------
 
+	protected static function build_update_checker(
+		$metadata_url,
+		$slug,
+		$file_name,
+		$type,
+		$package_container,
+		$self_hosted = false,
+		$option_name = ''
+	) {
+
+		if ( 'Plugin' !== $type && 'Theme' !== $type && 'Generic' !== $type ) {
+			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				sprintf(
+					'Proxuc does not support packages of type %s',
+					esc_html( $type )
+				),
+				E_USER_ERROR
+			);
+		}
+
+		$service       = null;
+		$api_class     = null;
+		$checker_class = null;
+
+		if ( $self_hosted ) {
+			$service = 'GitLab';
+		} else {
+			$host                = wp_parse_url( $metadata_url, PHP_URL_HOST );
+			$path                = wp_parse_url( $metadata_url, PHP_URL_PATH );
+			$username_repo_regex = '@^/?([^/]+?)/([^/#?&]+?)/?$@';
+
+			if ( preg_match( $username_repo_regex, $path ) ) {
+				$known_services = array(
+					'github.com'    => 'GitHub',
+					'bitbucket.org' => 'BitBucket',
+					'gitlab.com'    => 'GitLab',
+				);
+
+				if ( isset( $known_services[ $host ] ) ) {
+					$service = $known_services[ $host ];
+				}
+			}
+		}
+
+		if ( $service ) {
+			$checker_class = 'Proxuc_Vcs_' . $type . 'UpdateChecker';
+			$api_class     = $service . 'Api';
+		} else {
+			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				sprintf(
+					'Proxuc could not find a supported service for %s',
+					esc_html( $metadata_url )
+				),
+				E_USER_ERROR
+			);
+		}
+
+		require WPPUS_PLUGIN_PATH . '/lib/plugin-update-checker/Puc/v5p3/Vcs/' . $api_class . '.php';
+
+		$api_class = 'YahnisElsts\PluginUpdateChecker\v5p3\Vcs\\' . $api_class;
+		$params    = array();
+
+		if ( $file_name ) {
+			$params = array(
+				new $api_class( $metadata_url ),
+				$slug,
+				$file_name,
+				$package_container,
+				$option_name,
+			);
+		} else {
+			$params = array(
+				new $api_class( $metadata_url ),
+				$slug,
+				$package_container,
+				$option_name,
+			);
+		}
+
+		$update_checker = new $checker_class( ...$params );
+
+		return $update_checker;
+	}
+
 	protected function init_update_checker( $slug ) {
 
 		if ( $this->update_checker ) {
@@ -369,39 +453,22 @@ class WPPUS_Update_Server extends Wpup_UpdateServer {
 
 		require_once WPPUS_PLUGIN_PATH . 'lib/proxy-update-checker/proxy-update-checker.php';
 
-		if ( $this->repository_service_self_hosted ) {
+		$package_file_name = null;
 
-			if ( 'Plugin' === $this->type ) {
-				$this->update_checker = new Proxuc_Vcs_PluginUpdateChecker(
-					new GitLabApi( trailingslashit( $this->repository_service_url ) . $slug ),
-					$slug,
-					$slug,
-					$this->packageDirectory // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				);
-			} elseif ( 'Theme' === $this->type ) {
-				$this->update_checker = new Proxuc_Vcs_ThemeUpdateChecker(
-					new GitLabApi( trailingslashit( $this->repository_service_url ) . $slug ),
-					$slug,
-					$slug,
-					$this->packageDirectory // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				);
-			} elseif ( 'Generic' === $this->type ) {
-				$this->update_checker = new Proxuc_Vcs_GenericUpdateChecker(
-					new GitLabApi( trailingslashit( $this->repository_service_url ) . $slug ),
-					$slug,
-					$slug,
-					$this->packageDirectory // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				);
-			}
-		} else {
-			$this->update_checker = Proxuc_Factory::buildUpdateChecker(
-				trailingslashit( $this->repository_service_url ) . $slug,
-				$slug,
-				$slug,
-				$this->type,
-				$this->packageDirectory // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			);
+		if ( 'Plugin' === $this->type ) {
+			$package_file_name = $slug;
+		} elseif ( 'Generic' === $this->type ) {
+			$package_file_name = 'wppus';
 		}
+
+		$this->update_checker = self::build_update_checker(
+			trailingslashit( $this->repository_service_url ) . $slug,
+			$slug,
+			$package_file_name,
+			$this->type,
+			$this->packageDirectory, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$this->repository_service_self_hosted
+		);
 
 		if ( $this->update_checker ) {
 
