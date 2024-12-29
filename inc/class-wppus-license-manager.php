@@ -24,8 +24,6 @@ class WPPUS_License_Manager {
 
 				add_filter( 'wppus_packages_table_columns', array( $this, 'wppus_packages_table_columns' ), 10, 1 );
 				add_filter( 'wppus_packages_table_sortable_columns', array( $this, 'wppus_packages_table_sortable_columns' ), 10, 1 );
-				add_filter( 'wppus_packages_table_bulk_actions', array( $this, 'wppus_packages_table_bulk_actions' ), 10, 1 );
-				add_filter( 'wppus_packages_table_row_actions', array( $this, 'wppus_packages_table_row_actions' ), 10, 4 );
 			}
 
 			add_filter( 'wppus_admin_scripts', array( $this, 'wppus_admin_scripts' ), 10, 1 );
@@ -35,8 +33,6 @@ class WPPUS_License_Manager {
 			add_filter( 'wppus_admin_tab_links', array( $this, 'wppus_admin_tab_links' ), 20, 1 );
 			add_filter( 'wppus_admin_tab_states', array( $this, 'wppus_admin_tab_states' ), 20, 2 );
 			add_action( 'load-wp-packages-update-server_page_wppus-page-licenses', array( $this, 'add_page_options' ), 10, 0 );
-			add_action( 'wppus_udpdate_manager_request_action', array( $this, 'wppus_udpdate_manager_request_action' ), 10, 2 );
-			add_action( 'wppus_package_manager_deleted_packages_bulk', array( $this, 'wppus_package_manager_deleted_packages_bulk' ), 10, 1 );
 			add_action( 'wppus_added_license_check', array( $this, 'wppus_license_check_action' ), 10, 1 );
 			add_action( 'wppus_removed_license_check', array( $this, 'wppus_license_check_action' ), 10, 1 );
 
@@ -178,19 +174,6 @@ class WPPUS_License_Manager {
 		}
 	}
 
-	public function wppus_udpdate_manager_request_action( $action, $packages ) {
-
-		if ( $packages && 'enable_license' === $action ) {
-			$this->change_packages_license_status_bulk( $packages, true );
-		} elseif ( $packages && 'disable_license' === $action ) {
-			$this->change_packages_license_status_bulk( $packages, false );
-		}
-	}
-
-	public function wppus_package_manager_deleted_packages_bulk( $deleted_package_slugs ) {
-		$this->change_packages_license_status_bulk( $deleted_package_slugs, false );
-	}
-
 	public function wppus_admin_styles( $styles ) {
 		$styles['license'] = array(
 			'path' => WPPUS_PLUGIN_PATH . 'css/admin/license' . wppus_assets_suffix() . '.css',
@@ -248,10 +231,6 @@ class WPPUS_License_Manager {
 			__( 'Are you sure you want to do this?', 'wppus' ),
 		);
 
-		if ( 3 < count( $l10n['deletePackagesConfirm'] ) ) {
-			array_splice( $l10n['deletePackagesConfirm'], -3, 0, __( 'License status will need to be re-applied manually for all packages.', 'wppus' ) );
-		}
-
 		return $l10n;
 	}
 
@@ -267,29 +246,11 @@ class WPPUS_License_Manager {
 		return $columns;
 	}
 
-	public function wppus_packages_table_bulk_actions( $actions ) {
-		$actions['enable_license']  = __( 'Require License', 'wppus' );
-		$actions['disable_license'] = __( 'Do not Require License', 'wppus' );
-
-		return $actions;
-	}
-
-	public function wppus_packages_table_row_actions( $actions, $args, $query_string, $record_key ) {
-		$use_license                = in_array( $record_key, get_option( 'wppus_licensed_package_slugs', array() ), true );
-		$license_action             = ( ! $use_license ) ? 'enable_license' : 'disable_license';
-		$license_action_text        = ( ! $use_license ) ? __( 'Require License', 'wppus' ) : __( 'Do not Require License', 'wppus' );
-		$args[1]                    = $license_action;
-		$args[ count( $args ) - 1 ] = $license_action_text;
-		$actions['change_license']  = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
-
-		return $actions;
-	}
-
 	public function wppus_packages_table_cell( $column_name, $record, $record_key ) {
-		$use_license = in_array( $record_key, get_option( 'wppus_licensed_package_slugs', array() ), true );
+		$use_license = wppus_is_package_require_license( $record_key );
 
 		if ( 'col_use_license' === $column_name ) {
-			echo esc_html( ( $use_license ) ? __( 'Requires License', 'wppus' ) : __( 'Does not Require License', 'wppus' ) );
+			echo esc_html( ( $use_license ) ? __( 'Required', 'wppus' ) : __( 'Not Required', 'wppus' ) );
 		}
 	}
 
@@ -413,35 +374,6 @@ class WPPUS_License_Manager {
 		return true;
 	}
 
-	protected function change_packages_license_status_bulk( $package_slugs, $add ) {
-		$package_slugs          = is_array( $package_slugs ) ? $package_slugs : array( $package_slugs );
-		$licensed_package_slugs = get_option( 'wppus_licensed_package_slugs', array() );
-		$changed                = false;
-
-		foreach ( $package_slugs as $package_slug ) {
-
-			if ( $add && ! in_array( $package_slug, $licensed_package_slugs, true ) ) {
-				$licensed_package_slugs[] = $package_slug;
-				$changed                  = true;
-
-				do_action( 'wppus_added_license_check', $package_slug );
-			} elseif ( ! $add && in_array( $package_slug, $licensed_package_slugs, true ) ) {
-				$key     = array_search( $package_slug, $licensed_package_slugs, true );
-				$changed = true;
-
-				unset( $licensed_package_slugs[ $key ] );
-
-				do_action( 'wppus_removed_license_check', $package_slug );
-			}
-		}
-
-		if ( $changed ) {
-			$licensed_package_slugs = array_values( $licensed_package_slugs );
-
-			update_option( 'wppus_licensed_package_slugs', $licensed_package_slugs, true );
-		}
-	}
-
 	protected function plugin_options_handler() {
 		$errors = array();
 		$result = false;
@@ -491,7 +423,6 @@ class WPPUS_License_Manager {
 	}
 
 	protected function get_submitted_options() {
-
 		return apply_filters(
 			'wppus_submitted_licenses_config',
 			array(

@@ -9,11 +9,7 @@
  */
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
-/**
- * Since v5 all classes have been moved into namespaces
- */
 use YahnisElsts\PluginUpdateChecker\v5p3\PucFactory;
-use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\UpdateChecker;
 
 /* ================================================================================================ */
 /*                                     WP Package Updater                                           */
@@ -25,12 +21,18 @@ use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\UpdateChecker;
 *
 * WARNING - READ FIRST:
 *
-* Before deploying the plugin or theme, make sure to change the following values in wppus.json:
-* - server          => The URL of the server where WP Packages Update Server is installed ; required
-* - requireLicense  => Whether the package requires a license ; true or false ; optional
+* Before deploying the plugin or theme, make sure to change the value of `server` in wppus.json
+* with the URL of the server where WP Packages Update Server is installed.
 *
 * Also change $prefix_updater below - replace "prefix" in this variable's name with a unique prefix
 *
+* If the plugin or theme requires a license, change the header `Require License` to either `yes`, `true`, or `1`
+* in the main plugin file or the `style.css` file.
+*
+* If the plugin or theme uses the license of another plugin or theme, add the header `Licensed With`
+* with the slug of the plugin or theme that provides the license in the main plugin file or the `style.css` file.
+*
+**/
 
 /** Enable updates **/
 /* phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -56,7 +58,7 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		private $package_url;
 		private $update_checker;
 		private $type;
-		private $use_license;
+		private $require_license;
 		private $package_id;
 		private $json_options;
 
@@ -80,65 +82,83 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				);
 			}
 
-			$update_server_url = $this->get_option( 'server' );
-			$use_license       = ! empty( $this->get_option( 'requireLicense' ) );
+			$info               = array();
+			$update_server_url  = $this->get_option( 'server' );
+			$file_path          = '';
+			$package_path_parts = explode( '/', $package_path );
 
 			$this->set_type();
 
-			$package_path_parts = explode( '/', $package_path );
-
 			if ( 'Plugin' === $this->type ) {
-				$package_slug = $package_path_parts[ count( $package_path_parts ) - 2 ];
+				$package_slug      = $package_path_parts[ count( $package_path_parts ) - 2 ];
+				$this->package_url = plugin_dir_url( $package_file_path );
+				$file_path         = $package_file_path;
 			} elseif ( 'Theme' === $this->type ) {
-				$package_slug = $package_path_parts[ count( $package_path_parts ) - 1 ];
+				$package_slug      = $package_path_parts[ count( $package_path_parts ) - 1 ];
+				$this->package_url = trailingslashit( get_theme_root_uri() ) . $package_slug;
+				$file_path         = dirname( $package_file_path ) . '/style.css';
 			}
 
+			if ( function_exists( 'get_file_data' ) ) {
+				$info = get_file_data(
+					$file_path,
+					array(
+						'licensed_with'   => 'Licensed With',
+						'require_license' => 'Require License',
+					)
+				);
+			}
+
+			$require_license         = (
+				isset( $info['require_license'] ) &&
+				(
+					strtolower( $info['require_license'] ) === 'yes' ||
+					strtolower( $info['require_license'] ) === 'true'
+				)
+			);
 			$package_file_path_parts = explode( '/', $package_file_path );
 			$package_id_parts        = array_slice( $package_file_path_parts, -2, 2 );
 			$package_id              = implode( '/', $package_id_parts );
 			$this->package_id        = $package_id;
 			$this->update_server_url = trailingslashit( $update_server_url ) . 'wppus-update-api/';
 			$this->package_slug      = $package_slug;
-			$this->use_license       = $use_license;
+			$this->require_license   = $require_license;
+			$metadata_url            = trailingslashit( $this->update_server_url ) . '?action=get_metadata&package_id=';
+			$metadata_url           .= rawurlencode( $this->package_slug );
 
 			if ( ! class_exists( 'PucFactory' ) ) {
 				require $this->package_path . 'lib/plugin-update-checker/plugin-update-checker.php';
 			}
 
-			$metadata_url  = trailingslashit( $this->update_server_url ) . '?action=get_metadata&package_id=';
-			$metadata_url .= rawurlencode( $this->package_slug );
-
 			$this->update_checker = PucFactory::buildUpdateChecker( $metadata_url, $package_file_path );
-
-			$this->set_type();
-
-			if ( 'Plugin' === $this->type ) {
-				$this->package_url = plugin_dir_url( $package_file_path );
-			} elseif ( 'Theme' === $this->type ) {
-				$this->package_url = trailingslashit( get_theme_root_uri() ) . $package_slug;
-			}
 
 			$this->update_checker->addQueryArgFilter( array( $this, 'filter_update_checks' ) );
 
-			if ( $this->use_license ) {
+			if ( $this->require_license ) {
 				$this->license_server_url = trailingslashit( $update_server_url ) . 'wppus-license-api/';
 
 				$this->update_checker->addResultFilter( array( $this, 'set_license_error_notice_content' ) );
 
-				if ( 'Plugin' === $this->type ) {
-					add_action( 'after_plugin_row_' . $this->package_id, array( $this, 'print_license_under_plugin' ), 10, 3 );
-				} elseif ( 'Theme' === $this->type ) {
-					add_action( 'admin_menu', array( $this, 'setup_theme_admin_menus' ), 10, 0 );
+				if ( ! isset( $info['licensed_with'] ) || empty( $info['licensed_with'] ) ) {
 
-					add_filter( 'custom_menu_order', array( $this, 'alter_admin_appearence_submenu_order' ), 10, 1 );
-					add_filter( 'wp_prepare_themes_for_js', array( $this, 'wp_prepare_themes_for_js' ), 10, 1 );
+					if ( 'Plugin' === $this->type ) {
+						add_action( 'after_plugin_row_' . $this->package_id, array( $this, 'print_license_under_plugin' ), 10, 3 );
+					} elseif ( 'Theme' === $this->type ) {
+						add_action( 'admin_menu', array( $this, 'setup_theme_admin_menus' ), 10, 0 );
+
+						add_filter( 'custom_menu_order', array( $this, 'alter_admin_appearence_submenu_order' ), 10, 1 );
+						add_filter( 'wp_prepare_themes_for_js', array( $this, 'wp_prepare_themes_for_js' ), 10, 1 );
+					}
+
+					add_action( 'wp_ajax_wppu_' . $this->package_id . '_activate_license', array( $this, 'activate_license' ), 10, 0 );
+					add_action( 'wp_ajax_wppu_' . $this->package_id . '_deactivate_license', array( $this, 'deactivate_license' ), 10, 0 );
+					add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ), 99, 1 );
+					add_action( 'admin_notices', array( $this, 'show_license_error_notice' ), 10, 0 );
+					add_action( 'init', array( $this, 'load_textdomain' ), 10, 0 );
+				} else {
+					$this->update_option( 'licensed_with', $info['licensed_with'] );
 				}
 
-				add_action( 'wp_ajax_wppu_' . $this->package_id . '_activate_license', array( $this, 'activate_license' ), 10, 0 );
-				add_action( 'wp_ajax_wppu_' . $this->package_id . '_deactivate_license', array( $this, 'deactivate_license' ), 10, 0 );
-				add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ), 99, 1 );
-				add_action( 'admin_notices', array( $this, 'show_license_error_notice' ), 10, 0 );
-				add_action( 'init', array( $this, 'load_textdomain' ), 10, 0 );
 				add_action( 'upgrader_process_complete', array( $this, 'upgrader_process_complete' ), 10, 2 );
 
 				add_filter( 'upgrader_pre_install', array( $this, 'upgrader_pre_install' ), 10, 2 );
@@ -287,15 +307,20 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 		}
 
 		public function filter_update_checks( $query_args ) {
+			$licensed_with = $this->get_option( 'licensed_with' );
 
-			if ( $this->use_license ) {
+			if ( ! empty( $licensed_with ) ) {
+				$query_args['licensed_with'] = $licensed_with;
+				$license                     = $this->get_option( 'licenseKey', $licensed_with );
+				$license_signature           = $this->get_option( 'licenseSignature', $licensed_with );
+			} elseif ( $this->require_license ) {
 				$license           = $this->get_option( 'licenseKey' );
 				$license_signature = $this->get_option( 'licenseSignature' );
+			}
 
-				if ( $license ) {
-					$query_args['license_key']       = rawurlencode( $license );
-					$query_args['license_signature'] = rawurlencode( $license_signature );
-				}
+			if ( $license && $license_signature ) {
+				$query_args['license_key']       = rawurlencode( $license );
+				$query_args['license_signature'] = rawurlencode( $license_signature );
 			}
 
 			$query_args['update_type'] = $this->type;
@@ -520,8 +545,10 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			$plugin_dir    = wp_normalize_path( WP_PLUGIN_DIR );
 			$mu_plugin_dir = wp_normalize_path( WPMU_PLUGIN_DIR );
 
-			if ( ( 0 === strpos( $absolute_path, $plugin_dir ) ) || ( 0 === strpos( $absolute_path, $mu_plugin_dir ) ) ) {
-
+			if (
+				( 0 === strpos( $absolute_path, $plugin_dir ) ) ||
+				( 0 === strpos( $absolute_path, $mu_plugin_dir ) )
+			) {
 				return true;
 			}
 
@@ -545,14 +572,13 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 			}
 
 			if ( file_exists( $absolute_path . '/style.css' ) ) {
-
 				return basename( $absolute_path );
 			}
 
 			return null;
 		}
 
-		protected function get_option( $option ) {
+		protected function get_option( $option, $other_package_slug = false ) {
 			global $wp_filesystem;
 
 			if ( ! isset( $wp_filesystem ) ) {
@@ -561,16 +587,41 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				WP_Filesystem();
 			}
 
-			if ( ! isset( $this->json_options ) ) {
-				$wppus_json = $wp_filesystem->get_contents( $this->package_path . 'wppus.json' );
+			if ( $other_package_slug && $this->package_path ) {
+				$package_path           = trailingslashit( $this->package_path );
+				$package_path           = explode( '/', $this->package_path );
+				$index                  = count( $package_path ) - 2;
+				$package_path[ $index ] = $other_package_slug;
+				$package_path           = implode( '/', $package_path );
+
+				if ( $wp_filesystem->exists( $package_path . 'wppus.json' ) ) {
+					$wppus_json = $wp_filesystem->get_contents( $package_path . 'wppus.json' );
+				}
 
 				if ( $wppus_json ) {
-					$this->json_options = json_decode( $wppus_json, true );
-				}
-			}
+					$json_options = json_decode( $wppus_json, true );
 
-			if ( isset( $this->json_options[ $option ] ) ) {
-				return $this->json_options[ $option ];
+					if ( isset( $json_options[ $option ] ) ) {
+						return $json_options[ $option ];
+					}
+				}
+			} else {
+
+				if (
+					$this->package_path &&
+					! isset( $this->json_options ) &&
+					$wp_filesystem->exists( $this->package_path . 'wppus.json' )
+				) {
+					$wppus_json = $wp_filesystem->get_contents( $this->package_path . 'wppus.json' );
+
+					if ( $wppus_json ) {
+						$this->json_options = json_decode( $wppus_json, true );
+					}
+				}
+
+				if ( isset( $this->json_options[ $option ] ) ) {
+					return $this->json_options[ $option ];
+				}
 			}
 
 			return '';
@@ -619,15 +670,9 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				}
 			}
 
-			$save = false;
-
 			if ( isset( $this->json_options[ $option ] ) ) {
-				$save = true;
-
 				unset( $this->json_options[ $option ] );
-			}
 
-			if ( $save ) {
 				$wppus_json = wp_json_encode(
 					$this->json_options,
 					JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
@@ -704,9 +749,8 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				'allowed_domains' => $_SERVER['SERVER_NAME'],
 				'package_slug'    => rawurlencode( $this->package_slug ),
 			);
-
-			$query    = esc_url_raw( add_query_arg( $api_params, $this->license_server_url ) );
-			$response = wp_remote_get(
+			$query      = esc_url_raw( add_query_arg( $api_params, $this->license_server_url ) );
+			$response   = wp_remote_get(
 				$query,
 				array(
 					'timeout'   => 20,
@@ -787,7 +831,6 @@ if ( ! class_exists( 'WP_Package_Updater' ) ) {
 				$license_data->clear_key = true;
 				$license_data->message   = __( 'The provided license key does not appear to be valid. Please use another license key.', 'wp-package-updater' );
 			} elseif ( 1 === count( (array) $license_data ) ) {
-				// debug track - calling method
 
 				if ( 'Plugin' === $this->type ) {
 					$license_data->message = __( 'An active license is required to update the plugin. Please provide a valid license key in Plugins > Installed Plugins.', 'wp-package-updater' );

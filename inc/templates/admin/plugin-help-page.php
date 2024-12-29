@@ -6,7 +6,7 @@
 	<div class="help-content">
 		<h2><?php esc_html_e( 'Provide updates with WP Packages Update Server - packages requirements', 'wppus' ); ?></h2>
 		<p>
-			<?php esc_html_e( 'To link your packages to WP Packages Update Server, and optionally to prevent webmasters from getting updates of your ppackages without a license, your packages need to include some extra code.', 'wppus' ); ?><br><br>
+			<?php esc_html_e( 'To link your packages to WP Packages Update Server, and optionally to prevent users from getting updates of your packages without a license, your packages need to include some extra code.', 'wppus' ); ?><br><br>
 			<?php esc_html_e( 'For plugins, and themes, it is fairly straightforward:', 'wppus' ); ?>
 		</p>
 		<ul>
@@ -27,11 +27,12 @@
 			<li>
 				<?php
 				printf(
-					// translators: %1s is <code>functions.php</code>
-					esc_html__( 'Add the following code to the main plugin file (for plugins) or in the %s file (for themes) :', 'wppus' ),
+					// translators: %s is <code>functions.php</code>
+					esc_html__( 'Add the following code to the main plugin file or to your theme\'s %s file:', 'wppus' ),
 					'<code>functions.php</code>'
 				);
 				?>
+				<br>
 <pre>/** Enable updates - note the  `$prefix_updater` variable: change `prefix` to a unique string for your package **/
 require_once __DIR__ . '/lib/wp-package-updater/class-wp-package-updater.php';
 
@@ -43,16 +44,44 @@ $prefix_updater = new WP_Package_Updater(
 			<li>
 				<?php
 				printf(
-					// translators: %1$s is <code>wppus.json</code>, %2$s is <code>"server"</code>
-					esc_html__( 'Add a %1$s file at the root of the package with the following content - change the value of %2$s to your own (required), and select a value for %3$s (optional):', 'wppus' ),
-					'<code>wppus.json</code>',
-					'<code>"server"</code>',
-					'<code>"requireLicense"</code>'
+					// translators: %1s is <code>style.css</code>
+					esc_html__( 'Optionally add headers to the main plugin file or to your theme\'s %s file to enable license checks:', 'wppus' ),
+					'<code>style.css</code>'
 				);
 				?>
+				<br>
+				<pre>Require License: yes
+Licensed With: another-plugin-or-theme-slug</pre><br>
+				<?php
+				printf(
+					// translators: %1$s is <code>yes</code>, %2$s is <code>true</code>, %3$s is <code>1</code>
+					esc_html__( 'The "Require License" header can be %1$s, %2$s, or %3$s: all other values are considered as false ; it is used to enable license checks for your package.', 'wppus' ),
+					'<code>yes</code>',
+					'<code>true</code>',
+					'<code>1</code>'
+				);
+				?>
+				<br>
+				<?php
+				printf(
+					// translators: %s is <code>another-plugin-or-theme-slug</code>
+					esc_html__( 'The "Licensed With" header is used to link packages together (for example, in the case of an extension to a main plugin the user already has a license for, if this header is present in the extension, the license check will be made against the main plugin). It must be the slug of another plugin or theme that is already present in your WP Packages Update Server.', 'wppus' ),
+					'<code>another-plugin-or-theme-slug</code>'
+				);
+				?>
+			</li>
+			<li>
+				<?php
+				printf(
+					// translators: %1$s is <code>wppus.json</code>, %2$s is <code>"server"</code>
+					esc_html__( 'Add a %1$s file at the root of the package with the following content - change the value of %2$s to your own (required):', 'wppus' ),
+					'<code>wppus.json</code>',
+					'<code>"server"</code>'
+				);
+				?>
+				<br>
 				<pre>{
-	"server": "https://server.domain.tld/",
-	"requireLicense": true|false
+	"server": "https://server.domain.tld/"
 }</pre>
 				</li>
 				<li>

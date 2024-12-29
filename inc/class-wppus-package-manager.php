@@ -553,42 +553,46 @@ class WPPUS_Package_Manager {
 		$package_info = wp_cache_get( 'package_info_' . $slug, 'wppus' );
 
 		if ( false === $package_info ) {
-			WP_Filesystem();
+			do_action( 'wppus_get_package_info', $package_info, $slug );
 
-			global $wp_filesystem;
+			if ( has_filter( 'wppus_package_manager_get_package_info' ) ) {
+				$package_info = apply_filters( 'wppus_package_manager_get_package_info', $package_info, $slug );
+			} else {
+				WP_Filesystem();
 
-			if ( ! $wp_filesystem ) {
-				return;
-			}
+				global $wp_filesystem;
 
-			$package_directory = WPPUS_Data_Manager::get_data_dir( 'packages' );
+				if ( ! $wp_filesystem ) {
+					return;
+				}
 
-			do_action( 'wppus_get_package_info', $package_info, $slug, $package_directory . $slug . '.zip' );
+				$package_directory = WPPUS_Data_Manager::get_data_dir( 'packages' );
 
-			if ( $wp_filesystem->exists( $package_directory . $slug . '.zip' ) ) {
-				$package = $this->get_package(
-					$package_directory . $slug . '.zip',
-					$slug
-				);
+				if ( $wp_filesystem->exists( $package_directory . $slug . '.zip' ) ) {
+					$package = $this->get_package(
+						$package_directory . $slug . '.zip',
+						$slug
+					);
 
-				if ( $package ) {
-					$package_info = $package->getMetadata();
+					if ( $package ) {
+						$package_info = $package->getMetadata();
 
-					if ( ! isset( $package_info['type'] ) ) {
-						$package_info['type'] = 'unknown';
+						if ( ! isset( $package_info['type'] ) ) {
+							$package_info['type'] = 'unknown';
+						}
+
+						$package_info['file_name']          = $package_info['slug'] . '.zip';
+						$package_info['file_path']          = $package_directory . $slug . '.zip';
+						$package_info['file_size']          = $package->getFileSize();
+						$package_info['file_last_modified'] = $package->getLastModified();
 					}
-
-					$package_info['file_name']          = $package_info['slug'] . '.zip';
-					$package_info['file_path']          = $package_directory . $slug . '.zip';
-					$package_info['file_size']          = $package->getFileSize();
-					$package_info['file_last_modified'] = $package->getLastModified();
 				}
 			}
 
 			wp_cache_set( 'package_info_' . $slug, $package_info, 'wppus' );
 		}
 
-		$package_info = apply_filters( 'wppus_package_info', $package_info, $slug );
+		$package_info = apply_filters( 'wppus_package_manager_package_info', $package_info, $slug );
 
 		return $package_info;
 	}
@@ -597,72 +601,90 @@ class WPPUS_Package_Manager {
 		$packages = wp_cache_get( 'packages', 'wppus' );
 
 		if ( false === $packages ) {
-			WP_Filesystem();
 
-			global $wp_filesystem;
+			if ( has_filter( 'wppus_package_manager_get_batch_package_info' ) ) {
+				$packages = apply_filters( 'wppus_package_manager_get_batch_package_info', $packages, $search );
+			} else {
+				WP_Filesystem();
 
-			if ( ! $wp_filesystem ) {
-				return;
-			}
+				global $wp_filesystem;
 
-			$package_directory = WPPUS_Data_Manager::get_data_dir( 'packages' );
-			$packages          = array();
-
-			if ( $wp_filesystem->is_dir( $package_directory ) ) {
-
-				if ( ! WPPUS_Package_API::is_doing_api_request() ) {
-					$search = isset( $_REQUEST['s'] ) ? wp_unslash( trim( $_REQUEST['s'] ) ) : $search; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				if ( ! $wp_filesystem ) {
+					return;
 				}
 
-				$package_paths = glob( trailingslashit( $package_directory ) . '*.zip' );
+				$package_directory = WPPUS_Data_Manager::get_data_dir( 'packages' );
+				$packages          = array();
 
-				if ( ! empty( $package_paths ) ) {
+				if ( $wp_filesystem->is_dir( $package_directory ) ) {
 
-					foreach ( $package_paths as $package_path ) {
-						$package = $this->get_package(
-							$package_path,
-							str_replace(
-								array( trailingslashit( $package_directory ), '.zip' ),
-								array( '', '' ),
-								$package_path
-							)
-						);
+					if ( ! WPPUS_Package_API::is_doing_api_request() ) {
+						$search = isset( $_REQUEST['s'] ) ? // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+							wp_unslash( trim( $_REQUEST['s'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+							$search;
+					}
 
-						if ( $package ) {
-							$meta    = $package->getMetadata();
-							$include = true;
+					$package_paths = glob( trailingslashit( $package_directory ) . '*.zip' );
 
-							if ( $search ) {
+					if ( ! empty( $package_paths ) ) {
 
-								if (
-									false === strpos( strtolower( $meta['name'] ), strtolower( $search ) ) ||
-									false === strpos( strtolower( $meta['slug'] ) . '.zip', strtolower( $search ) )
-								) {
-									$include = false;
-								}
-							}
-
-							$include = apply_filters(
-								'wppus_batch_package_info_include',
-								$include,
-								$meta,
-								$search
+						foreach ( $package_paths as $package_path ) {
+							$package = $this->get_package(
+								$package_path,
+								str_replace(
+									array( trailingslashit( $package_directory ), '.zip' ),
+									array( '', '' ),
+									$package_path
+								)
 							);
 
-							if ( $include ) {
-								$packages[ $meta['slug'] ]                       = $meta;
-								$packages[ $meta['slug'] ]['file_name']          = $meta['slug'] . '.zip';
-								$packages[ $meta['slug'] ]['file_size']          = $package->getFileSize();
-								$packages[ $meta['slug'] ]['file_last_modified'] = $package->getLastModified();
+							if ( $package ) {
+								$meta    = $package->getMetadata();
+								$include = true;
+
+								if ( $search ) {
+
+									if (
+										false === strpos(
+											strtolower( $meta['name'] ),
+											strtolower( $search )
+										) ||
+										false === strpos(
+											strtolower( $meta['slug'] ) . '.zip',
+											strtolower( $search )
+										)
+									) {
+										$include = false;
+									}
+								}
+
+								$include = apply_filters(
+									'wppus_batch_package_info_include',
+									$include,
+									$meta,
+									$search
+								);
+
+								if ( $include ) {
+									$idx                                    = $meta['slug'];
+									$packages[ $idx ]                       = $meta;
+									$packages[ $idx ]['file_name']          = $meta['slug'] . '.zip';
+									$packages[ $idx ]['file_size']          = $package->getFileSize();
+									$packages[ $idx ]['file_last_modified'] = $package->getLastModified();
+								}
 							}
 						}
 					}
 				}
+
+				$packages = apply_filters( 'wppus_package_manager_batch_package_info', $packages, $search );
 			}
 
-			$packages = apply_filters( 'wppus_package_manager_batch_package_info', $packages, $search );
-
 			wp_cache_set( 'packages', $packages, 'wppus' );
+		}
+
+		if ( empty( $packages ) ) {
+			$packages = array();
 		}
 
 		return $packages;

@@ -1,12 +1,16 @@
 {
    "server": "https://server.domain.tld/",
-   "requireLicense": true,
     "packageData": {
         "Name": "Dummy Generic Package",
         "Version": "1.4.14",
         "Homepage": "https://froger.me/",
         "Author": "Alexandre Froger",
         "AuthorURI": "https://froger.me/",
-        "Description": "Empty generic package to demonstrate the WP Package Updater."
+        "Description": "Empty generic package to demonstrate the WP Package Updater.",
+        "Icon1x": "https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/icon-128x128.png",
+        "Icon2x": "https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/icon-256x256.png",
+        "BannerLow": "https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-772x250.png",
+        "BannerHigh": "https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-1544x500.png",
+        "RequireLicense": false
     }
 }

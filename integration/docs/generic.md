@@ -61,19 +61,19 @@ Each `wppus-api.[js|php|sh|py]` file contains a header with the following discla
 
 ### Configuration
 
-Example of package configuration file `wppus.json` (all properties required except `requireLicense` which defaults to `false`):
+Example of package configuration file `wppus.json` (all properties required except `RequireLicense` which defaults to `false`):
 
 ```json
 {
    "server": "https://server.domain.tld/",
-   "requireLicense": true,
     "packageData": {
         "Name": "Dummy Generic Package",
         "Version": "1.4.14",
         "Homepage": "https://domain.tld/",
         "Author": "Developer Name",
         "AuthorURI": "https://domain.tld/",
-        "Description": "Empty generic package to demonstrate the WP Package Updater."
+        "Description": "Empty generic package to demonstrate the WP Package Updater.",
+        "RequireLicense": true
     }
 }
 ```

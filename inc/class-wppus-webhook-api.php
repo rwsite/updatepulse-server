@@ -312,14 +312,21 @@ class WPPUS_Webhook_API {
 				null;
 			$delay             = $config['repository_check_delay'];
 			$package_directory = WPPUS_Data_Manager::get_data_dir( 'packages' );
-			$package_exists    = false;
+			$package_exists    = null;
+			$payload           = $wp_filesystem->get_contents( 'php://input' );
 
-			if ( $wp_filesystem->is_dir( $package_directory ) ) {
-				$package_path   = trailingslashit( $package_directory ) . $package_id . '.zip';
-				$package_exists = $wp_filesystem->exists( $package_path );
+			if ( ! json_decode( $payload, true ) ) {
+				parse_str( $payload, $payload );
+
+				if ( is_array( $payload ) && isset( $payload['payload'] ) ) {
+					$payload = json_decode( $payload['payload'] );
+				} elseif ( is_string( $payload ) ) {
+					$payload = json_decode( $payload );
+				}
+
+				$payload = $payload ? wp_json_encode( $payload ) : false;
 			}
 
-			$payload        = $wp_filesystem->get_contents( 'php://input' );
 			$package_exists = apply_filters(
 				'wppus_webhook_package_exists',
 				$package_exists,
@@ -328,7 +335,13 @@ class WPPUS_Webhook_API {
 				$type,
 				$config
 			);
-			$process        = apply_filters(
+
+			if ( null === $package_exists && $wp_filesystem->is_dir( $package_directory ) ) {
+				$package_path   = trailingslashit( $package_directory ) . $package_id . '.zip';
+				$package_exists = $wp_filesystem->exists( $package_path );
+			}
+
+			$process = apply_filters(
 				'wppus_webhook_process_request',
 				true,
 				$payload,
@@ -366,7 +379,7 @@ class WPPUS_Webhook_API {
 						do_action( 'wppus_scheduled_check_remote_event', $result, $package_id, $timestamp, false, $hook, $params );
 					}
 				} else {
-					WPPUS_Update_API::get_instance()->download_remote_package( $package_id, $type );
+					wppus_download_remote_package( $package_id, $type );
 				}
 
 				do_action(
@@ -379,7 +392,16 @@ class WPPUS_Webhook_API {
 				);
 			}
 		} else {
-			php_log( 'Invalid request signature' );
+			$package_id = isset( $wp->query_vars['package_id'] ) ?
+				trim( rawurldecode( $wp->query_vars['package_id'] ) ) :
+				null;
+
+			if ( $package_id ) {
+				php_log( 'Invalid request signature for ' . sanitize_title( $package_id ) );
+			} else {
+				php_log( 'Invalid request signature' );
+			}
+
 			do_action( 'wppus_webhook_invalid_request', $config );
 		}
 

@@ -43,9 +43,35 @@ class WPPUS_License_Update_Server extends WPPUS_Update_Server {
 
 	protected function initRequest( $query = null, $headers = null ) {
 		$request = parent::initRequest( $query, $headers );
+		$result  = false;
 
 		if ( $request->param( 'license_key' ) ) {
-			$result                     = $this->verify_license_exists( $request->param( 'license_key' ) );
+
+			if ( $request->param( 'licensed_with' ) ) {
+				$info = wppus_get_package_info( $request->slug, false );
+
+				if (
+					$info &&
+					isset( $info['licensed_with'] ) &&
+					$request->param( 'licensed_with' ) === $info['licensed_with']
+				) {
+					$main_package_info = wppus_get_package_info( $info['licensed_with'], false );
+					$result            = $this->verify_license_exists(
+						$info['licensed_with'],
+						$main_package_info['type'],
+						$request->param( 'license_key' )
+					);
+				}
+			}
+
+			if ( ! $result ) {
+				$result = $this->verify_license_exists(
+					$request->slug,
+					$request->type,
+					$request->param( 'license_key' )
+				);
+			}
+
 			$request->license_key       = $request->param( 'license_key' );
 			$request->license_signature = $request->param( 'license_signature' );
 			$request->license           = $result;
@@ -167,22 +193,20 @@ class WPPUS_License_Update_Server extends WPPUS_Update_Server {
 		}
 	}
 
-	protected function verify_license_exists( $license_key ) {
+	protected function verify_license_exists( $slug, $type, $license_key ) {
 		$license_server = new WPPUS_License_Server();
 		$payload        = array( 'license_key' => $license_key );
 		$result         = $license_server->read_license( $payload );
 
-		if ( is_object( $result ) ) {
+		if (
+			is_object( $result ) &&
+			$slug === $result->package_slug &&
+			strtolower( $type ) === strtolower( $result->package_type )
+		) {
 			$result->result  = 'success';
 			$result->message = __( 'License key details retrieved.', 'wppus' );
-
-			if ( 'theme' === $result->package_type ) {
-				$result->product_ref = $result->package_slug . '/functions.php';
-			} elseif ( 'plugin' === $result->package_type ) {
-				$result->product_ref = $result->package_slug . '/' . $result->package_slug . '.php';
-			} elseif ( 'generic' === $result->package_type ) {
-				$result->product_ref = $result->package_slug . '/wppus.json';
-			}
+		} else {
+			$result = false;
 		}
 
 		return $result;

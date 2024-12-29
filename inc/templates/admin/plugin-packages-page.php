@@ -17,12 +17,6 @@
 			<br/>
 				<?php esc_html_e( '- If packages linked to a Remote Repository are deleted using this interface, they will be added again to the list automatically whenever a client checks for updates.', 'wppus' ); ?>
 			<?php endif; ?>
-			<?php if ( get_option( 'wppus_use_licenses' ) ) : ?>
-			<br/>
-				<?php esc_html_e( '- All packages deleted from this interface will have their license status set to "Does not Require License" when added again.', 'wppus' ); ?>
-			<br/>
-				<?php esc_html_e( '- Packages removed directly on the file system will keep their previously set license status when added again.', 'wppus' ); ?>
-			<?php endif; ?>
 		</p>
 		<?php endif; ?>
 	</form>

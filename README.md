@@ -344,11 +344,17 @@ $prefix_updater = new WP_Package_Updater(
 	0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
 );
 ```
-- Add a `wppus.json` file at the root of the package with the following content - change the value of `"server"` to your own (required), and select a value for `"requireLicense"` (optional):
+- Optionally add headers to the main plugin file or to your theme's `style.css` file to enable license checks:
+```text
+Require License: yes
+Licensed With: another-plugin-or-theme-slug
+```
+The "Require License" header can be `yes`, `true`, or `1`: all other values are considered as `false`; it is used to enable license checks for your package.  
+The "Licensed With" header is used to link packages together (for example, in the case of an extension to a main plugin the user already has a license for, if this header is present in the extension, the license check will be made against the main plugin). It must be the slug of another plugin or theme that is already present in your WP Packages Update Server.  
+- Add a `wppus.json` file at the root of the package with the following content - change the value of `"server"` to your own (required):
 ```json
 {
-   "server": "https://server.domain.tld/",
-   "requireLicense": true|false
+   "server": "https://server.domain.tld/"
 }
 ```
 - Connect WPPUS with your repository and prime your package, or manually upload your package to WPPUS.

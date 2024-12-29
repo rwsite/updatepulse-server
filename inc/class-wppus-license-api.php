@@ -495,18 +495,7 @@ class WPPUS_License_API {
 
 	public function wppus_server_class_name( $class_name, $package_id ) {
 		$use_licenses        = get_option( 'wppus_use_licenses' );
-		$package_use_license = false;
-
-		if ( $use_licenses ) {
-			$licensed_package_slugs = apply_filters(
-				'wppus_licensed_package_slugs',
-				get_option( 'wppus_licensed_package_slugs', array() )
-			);
-
-			if ( in_array( $package_id, $licensed_package_slugs, true ) ) {
-				$package_use_license = true;
-			}
-		}
+		$package_use_license = wppus_is_package_require_license( $package_id );
 
 		if ( $package_use_license && $use_licenses ) {
 			require_once WPPUS_PLUGIN_PATH . 'inc/class-wppus-license-update-server.php';
@@ -787,6 +776,23 @@ class WPPUS_License_API {
 		}
 
 		return self::$instance;
+	}
+
+	public static function is_package_require_license( $package_id ) {
+		$require_license = wp_cache_get( 'wppus_package_require_license_' . $package_id, 'wppus', false, $found );
+
+		if ( ! $found ) {
+			$package_info    = wppus_get_package_info( $package_id, false );
+			$require_license = (
+				is_array( $package_info ) &&
+				isset( $package_info['require_license'] ) &&
+				$package_info['require_license']
+			);
+
+			wp_cache_set( 'wppus_package_require_license_' . $package_id, $require_license, 'wppus' );
+		}
+
+		return $require_license;
 	}
 
 	/*******************************************************************

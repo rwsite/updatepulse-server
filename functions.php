@@ -178,6 +178,14 @@ if ( ! function_exists( 'wppus_get_package_info' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wppus_is_package_require_license' ) ) {
+	function wppus_is_package_require_license( $package_slug ) {
+		$api = WPPUS_License_API::get_instance();
+
+		return $api->is_package_require_license( $package_slug );
+	}
+}
+
 if ( ! function_exists( 'wppus_get_batch_package_info' ) ) {
 	function wppus_get_batch_package_info( $search, $json_encode = true ) {
 		require_once WPPUS_PLUGIN_PATH . 'inc/class-wppus-package-manager.php';

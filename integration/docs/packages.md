@@ -34,6 +34,7 @@ WP Packages Update Server offers a series of functions, actions and filters for 
 		* [wppus\_delete\_package](#wppus_delete_package)
 		* [wppus\_get\_package\_info](#wppus_get_package_info)
 		* [wppus\_get\_batch\_package\_info](#wppus_get_batch_package_info)
+		* [wppus\_is\_package\_require\_license](#wppus_is_package_require_license)
 	* [Actions](#actions)
 		* [wppus\_primed\_package\_from\_remote](#wppus_primed_package_from_remote)
 		* [wppus\_did\_manual\_upload\_package](#wppus_did_manual_upload_package)
@@ -106,8 +107,10 @@ WP Packages Update Server offers a series of functions, actions and filters for 
 		* [wppus\_remote\_sources\_manager\_get\_package\_slugs](#wppus_remote_sources_manager_get_package_slugs)
 		* [wppus\_server\_class\_name](#wppus_server_class_name)
 		* [wppus\_delete\_packages\_bulk\_paths](#wppus_delete_packages_bulk_paths)
-		* [wppus\_package\_info](#wppus_package_info)
+		* [wppus\_package\_manager\_get\_package\_info](#wppus_package_manager_get_package_info)
+		* [wppus\_package\_manager\_package\_info](#wppus_package_manager_package_info)
 		* [wppus\_batch\_package\_info\_include](#wppus_batch_package_info_include)
+		* [wppus\_package\_manager\_get\_batch\_package\_info](#wppus_package_manager_get_batch_package_info)
 		* [wppus\_package\_manager\_batch\_package\_info](#wppus_package_manager_batch_package_info)
 		* [wppus\_check\_remote\_package\_update\_local\_meta](#wppus_check_remote_package_update_local_meta)
 		* [wppus\_check\_remote\_package\_update\_no\_local\_meta\_needs\_update](#wppus_check_remote_package_update_no_local_meta_needs_update)
@@ -954,7 +957,6 @@ Deletes a package on the file system
 **Return value**
 > (bool) whether the operation was successful
 ___
-
 ### wppus_get_package_info
 
 ```php
@@ -1082,6 +1084,22 @@ Values format:
 }
 
 ```
+___
+### wppus_is_package_require_license
+
+```php
+wppus_is_package_require_license( $package_slug )
+```
+
+**Description**  
+Determine whether a package requires a license key.
+
+**Parameters**  
+`$package_slug`
+> (string) slug of the package  
+
+**Return value**
+> (bool) `true` if the package requires a license key, `false` otherwise
 ___
 ## Actions
 
@@ -1752,7 +1770,7 @@ ___
 ### wppus_get_package_info
 
 ```php
-do_action( 'wppus_get_package_info', array $package_info, string $package_slug, string $package_path );
+do_action( 'wppus_get_package_info', array $package_info, string $package_slug );
 ```
 
 **Description**  
@@ -1764,9 +1782,6 @@ Fired before getting information from a package.
 
 `$package_slug`
 > (string) the slug of the package  
-
-`$package_path`
-> (string) the absolute path of the package on the **local** file system  
 
 ___
 ### wppus_find_package_no_cache
@@ -2360,10 +2375,28 @@ Filter the paths or the package archives to delete.
 > (array) the slugs or the package to delete from the file system  
 
 ___
-### wppus_package_info
+### wppus_package_manager_get_package_info
 
 ```php
-apply_filters( 'wppus_package_info', array $package_info, string $package_slug );
+apply_filters( 'wppus_package_manager_get_package_info', array $package_info, string $package_slug );
+```
+
+**Description**  
+Filter the package information before it gets retrieved by the admin interface or through [`wppus_get_package_info`](#wppus_get_package_info).
+Effectively bypasses the default file storage retrieval (WordPress File System) to use an alternate package file storage method.
+By default, this filter is used when the Object Storage method is enabled.
+
+**Parameters**  
+`$package_info`
+> (array) the information of the package  
+
+`$package_slug`
+> (string) the slug of the package  
+___
+### wppus_package_manager_package_info
+
+```php
+apply_filters( 'wppus_package_manager_package_info', array $package_info, string $package_slug );
 ```
 
 **Description**  
@@ -2392,6 +2425,25 @@ Filter whether to include the package in the batch of information.
 
 `$package_info`
 > (array) the information of the package  
+
+`$search`
+> (string) the keyword used to search in package's slug and package's name  
+
+___
+### wppus_package_manager_get_batch_package_info
+
+```php
+apply_filters( 'wppus_package_manager_get_batch_package_info', array $packages_information, string $search );
+```
+
+**Description**  
+Filter the array of package information before it gets retrieved by the admin interface or through [`wppus_get_batch_package_info`](#wppus_get_batch_package_info).
+Effectively bypasses the default file storage retrieval (WordPress File System) to use an alternate package file storage method.
+By default, this filter is used when the Object Storage method is enabled.
+
+**Parameters**  
+`$packages_information`
+> (array) the array of package information  
 
 `$search`
 > (string) the keyword used to search in package's slug and package's name  

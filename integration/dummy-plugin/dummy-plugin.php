@@ -10,6 +10,7 @@ Icon1x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/ma
 Icon2x: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/icon-256x256.png
 BannerLow: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-772x250.png
 BannerHigh: https://raw.githubusercontent.com/froger-me/wp-packages-update-server/main/integration/assets/banner-1544x500.png
+Require License: no
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -21,27 +22,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 /* ================================================================================================ */
 
 /**
-* Uncomment the section below to enable updates with WP Packages Update Server.
-*
 * WARNING - READ FIRST:
 *
-* Before deploying the plugin or theme, make sure to change the following values in wppus.json:
-* - server          => The URL of the server where WP Packages Update Server is installed ; required
-* - requireLicense  => Whether the package requires a license ; true or false ; optional
+* Before deploying the plugin or theme, make sure to change the value of `server` in wppus.json
+* with the URL of the server where WP Packages Update Server is installed.
 *
 * Also change $prefix_updater below - replace "prefix" in this variable's name with a unique prefix
 *
+* If the plugin or theme requires a license, change the header `Require License` to either `yes`, `true`, or `1`
+* in the main plugin file or the `style.css` file.
+*
+* If the plugin or theme uses the license of another plugin or theme, add the header `Licensed With`
+* with the slug of the plugin or theme that provides the license in the main plugin file or the `style.css` file.
+*
+* @see https://github.com/froger-me/wp-packages-update-server/tree/main/integration/dummy-plugin/lib/wp-package-updater
 **/
 
-/** Enable updates **/
-/* phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-require_once __DIR__ . '/lib/wp-package-updater/class-wp-package-updater.php';
+require_once plugin_dir_path( __FILE__ ) . 'lib/wp-package-updater/class-wp-package-updater.php';
 
-$prefix_updater = new WP_Package_Updater(
+/** Enable plugin updates**/
+$dummy_plugin_updater = new WP_Package_Updater(
 	wp_normalize_path( __FILE__ ),
-	0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
+	wp_normalize_path( plugin_dir_path( __FILE__ ) )
 );
-*/
 
 /* ================================================================================================ */
 

@@ -27,8 +27,6 @@ WP Packages Update Server provides an API and offers a series of functions, acti
 		* [wppus\_activate\_license](#wppus_activate_license)
 		* [wppus\_deactivate\_license](#wppus_deactivate_license)
 	* [Actions](#actions)
-		* [wppus\_added\_license\_check](#wppus_added_license_check)
-		* [wppus\_removed\_license\_check](#wppus_removed_license_check)
 		* [wppus\_registered\_license\_schedule](#wppus_registered_license_schedule)
 		* [wppus\_cleared\_license\_schedule](#wppus_cleared_license_schedule)
 		* [wppus\_scheduled\_license\_event](#wppus_scheduled_license_event)
@@ -45,7 +43,6 @@ WP Packages Update Server provides an API and offers a series of functions, acti
 		* [wppus\_did\_deactivate\_license](#wppus_did_deactivate_license)
 		* [wppus\_license\_api\_request](#wppus_license_api_request)
 	* [Filters](#filters)
-		* [wppus\_licensed\_package\_slugs](#wppus_licensed_package_slugs)
 		* [wppus\_license\_valid](#wppus_license_valid)
 		* [wppus\_license\_server](#wppus_license_server)
 		* [wppus\_license\_api\_config](#wppus_license_api_config)
@@ -826,33 +823,6 @@ WP Packages Update Server gives developers the possibility to have their plugins
 **Warning**: the actions below with the mention "Fired during client license API request" need to be used with caution. Although they may also be triggered when using the functions above, these actions will be called when client packages request for updates or when License API calls are performed. Registering functions doing heavy computation to these actions when client license API requests are handled can seriously degrade the server's performances.
 
 ___
-### wppus_added_license_check
-
-```php
-do_action( 'wppus_added_license_check', string $package_slug );
-```
-
-**Description**  
-Fired after a package was marked as "Requires License".
-
-**Parameters**  
-> (string) the slug of the package
-
-___
-### wppus_removed_license_check
-
-```php
-do_action( 'wppus_removed_license_check', string $package_slug );
-```
-
-**Description**  
-Fired after a package was marked as "Does not Require License".
-
-**Parameters**  
-`$package_slug`
-> (string) the slug of the package
-
-___
 ### wppus_registered_license_schedule
 
 ```php
@@ -1115,21 +1085,6 @@ ___
 
 WP Packages Update Server gives developers the possibility to customize its behavior with a series of custom filters.
 **Warning**: the filters below with the mention "Fired during client license API request" need to be used with caution. Although they may be triggered when using the functions above, these filters will be called when client packages request for updates or when License API calls are performed. Registering functions doing heavy computation to these filters when client license API requests are handled can seriously degrade the server's performances.
-
-___
-### wppus_licensed_package_slugs
-
-```php
-apply_filters( 'wppus_licensed_package_slugs', array $package_slugs );
-```
-
-**Description**  
-Filter the slugs of packages requiring a license.
-Fired during client license API request.
-
-**Parameters**  
-`$package_slugs`
-> (array) the slugs of packages requiring a license
 
 ___
 ### wppus_license_valid
