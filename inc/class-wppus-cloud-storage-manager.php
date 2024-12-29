@@ -39,12 +39,11 @@ class WPPUS_Cloud_Storage_Manager {
 		if ( $init_hooks ) {
 
 			if ( ! wppus_is_doing_api_request() ) {
-				add_filter( 'wppus_admin_scripts', array( $this, 'wppus_admin_scripts' ), 10, 1 );
 				add_action( 'wp_ajax_wppus_cloud_storage_test', array( $this, 'cloud_storage_test' ), 10, 0 );
 				add_action( 'wppus_package_options_updated', array( $this, 'wppus_package_options_updated' ), 10, 0 );
 				add_action( 'wppus_template_package_manager_option_before_miscellaneous', array( $this, 'wppus_template_package_manager_option_before_miscellaneous' ), 10, 0 );
 
-				add_filter( 'wppus_get_admin_template_args', array( $this, 'wppus_get_admin_template_args' ), 10, 2 );
+				add_filter( 'wppus_admin_scripts', array( $this, 'wppus_admin_scripts' ), 10, 1 );
 				add_filter( 'wppus_submitted_package_config', array( $this, 'wppus_submitted_package_config' ), 10, 1 );
 				add_filter( 'wppus_package_option_update', array( $this, 'wppus_package_option_update' ), 10, 4 );
 			}
@@ -69,6 +68,7 @@ class WPPUS_Cloud_Storage_Manager {
 				add_filter( 'wppus_remove_package_result', array( $this, 'wppus_remove_package_result' ), 10, 3 );
 				add_filter( 'wppus_delete_packages_bulk_paths', array( $this, 'wppus_delete_packages_bulk_paths' ), 10, 1 );
 				add_filter( 'wppus_webhook_package_exists', array( $this, 'wppus_webhook_package_exists' ), 10, 3 );
+				add_filter( 'wppus_get_admin_template_args', array( $this, 'wppus_get_admin_template_args' ), 10, 2 );
 			}
 		}
 	}
@@ -387,7 +387,6 @@ class WPPUS_Cloud_Storage_Manager {
 		$config = self::get_config();
 
 		if ( ! $config['use_cloud_storage'] ) {
-
 			return;
 		}
 
