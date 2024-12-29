@@ -27,6 +27,10 @@
     max-width: 750px
 }
 
+.new-webhook-item-license_api_key {
+    width: 245px;
+}
+
 .api-keys-items .item,.webhook-items .item {
     display: grid;
     align-items: center;
@@ -38,7 +42,7 @@
 }
 
 .webhook-items .item {
-    grid-template-columns: 2fr 1fr 2fr auto;
+    grid-template-columns: 1fr 2fr 2fr auto;
 }
 
 .api-keys-items .item:last-child,.webhook-items .item:last-child {
@@ -58,7 +62,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    width: 250px;
+    width: 100%;
     display: inline-block;
     cursor: help;
     justify-self: self-start

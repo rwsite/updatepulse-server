@@ -47,7 +47,7 @@ jQuery(document).ready(function ($) {
 
             data[urlNew.val()] = {
                 'secret': secretNew.val(),
-                'licenseAPIKey': licenseAPIKeyNew.val(),
+                'licenseAPIKey': 'WPPUS_L_API_' + licenseAPIKeyNew.val().replace(/^WPPUS_L_API_/, ''),
                 'events': []
             };
 
@@ -91,7 +91,7 @@ jQuery(document).ready(function ($) {
                 return item === inputValue;
             });
             var urlPattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+\/?)|localhost(:\d+)?(\/[\w-]+)*\/?(\?\S*)?$/;
-            var apiKeyPattern = /^L\*\*[a-zA-Z0-9_-]+$/;
+            var apiKeyPattern = /^WPPUS_L_API_[a-zA-Z0-9_-]+$/;
 
             isEnabled = isEnabled && urlPattern.test(inputValue) && (16 <= secretNew.val().length) && 0 !== el.find('.event-container input[type="checkbox"]:checked').length && (0 === licenseAPIKeyNew.val().length || apiKeyPattern.test(licenseAPIKeyNew.val()));
             addButton.disabled = !isEnabled;
@@ -224,14 +224,16 @@ jQuery(document).ready(function ($) {
         var allActions = el.find('input[data-api-action="all"]');
         var addButton = el.find('.api-keys-add').get(0);
         var itemsContainer = el.find('.api-keys-items').get(0);
+        var prefix = el.data('prefix');
 
         if ( 0 === data.length ) {
             data = {};
         }
 
         addButton.onclick = function () {
+            var dataIndex = prefix + idNew.val().replace(new RegExp('^' + prefix), '');
             addButton.disabled = 'disabled';
-            data[idNew.val()] = {
+            data[dataIndex] = {
                 'key': bin2hex_openssl_random_pseudo_bytes(16),
                 'access': []
             };
@@ -239,14 +241,16 @@ jQuery(document).ready(function ($) {
             if (allActions.prop('checked') || el.find('.event-container:not(.all, .other) input[type="checkbox"]').length === el.find('.event-container:not(.all, .other) input[type="checkbox"]:checked').length) {
                 allActions.prop('checked', true);
                 el.find('.event-container:not(.all, .other) input[type="checkbox"]').prop('checked', false);
-                data[idNew.val()].access.push('all');
+                data[dataIndex].access.push('all');
             }
 
             el.find('.event-container input[type="checkbox"]').each(function (idx, checkbox) {
                 checkbox = $(checkbox);
 
                 if ('all' !== checkbox.data('api-action') && checkbox.prop('checked')) {
-                    data[idNew.val()].access.push(checkbox.data('api-action'));
+                    console.log(idx);
+                    console.log(data);
+                    data[dataIndex].access.push(checkbox.data('api-action'));
                 }
             });
 

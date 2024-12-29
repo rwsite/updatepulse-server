@@ -11,7 +11,7 @@
 					<label for="wppus_package_private_api_keys"><?php esc_html_e( 'Private API Keys', 'wppus' ); ?></label>
 				</th>
 				<td>
-					<div class="api-keys-multiple package">
+					<div class="api-keys-multiple package" data-prefix="WPPUS_P_API_">
 						<div class="api-keys-items empty">
 						</div>
 						<div class="add-controls">
@@ -69,7 +69,7 @@
 					<label for="wppus_license_private_api_keys"><?php esc_html_e( 'Private API Keys', 'wppus' ); ?></label>
 				</th>
 				<td>
-					<div class="api-keys-multiple">
+					<div class="api-keys-multiple license" data-prefix="WPPUS_L_API_">
 						<div class="api-keys-items empty">
 						</div>
 						<div class="add-controls">
@@ -133,7 +133,7 @@
 						<div class="add-controls">
 							<input type="text" class="new-webhook-item-url" placeholder="<?php esc_attr_e( 'Payload URL' ); ?>">
 							<input type="text" class="new-webhook-item-secret" placeholder="<?php echo esc_attr( 'secret-key' ); ?>" value="<?php echo esc_attr( bin2hex( openssl_random_pseudo_bytes( 8 ) ) ); ?>">
-							<input type="text" class="show-if-license new-webhook-item-license_api_key hidden" placeholder="<?php echo esc_attr( 'License Key ID (L**...)' ); ?>">
+							<input type="text" class="show-if-license new-webhook-item-license_api_key hidden" placeholder="<?php echo esc_attr( 'License Key ID (WPPUS_L_API_...)' ); ?>">
 							<div class="event-types">
 								<div class="event-container all">
 									<label><input type="checkbox" data-webhook-event="all"> <?php esc_html_e( 'All events', 'wppus' ); ?></label>

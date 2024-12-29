@@ -267,7 +267,7 @@ class WPPUS_CLI extends WP_CLI_Command {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp wppus build_nonce_api_signature --api_key_id='L**api_key' --timestamp=1704067200 --api_key=da9d20647163a1f3c04844387f91e2c3 --payload='{"key": "value"}'
+	 *     wp wppus build_nonce_api_signature --api_key_id='WPPUS_L_API_api_key_name' --timestamp=1704067200 --api_key=da9d20647163a1f3c04844387f91e2c3 --payload='{"key": "value"}'
 	 *
 	 */
 	public function build_nonce_api_signature( $args, $assoc_args ) {
