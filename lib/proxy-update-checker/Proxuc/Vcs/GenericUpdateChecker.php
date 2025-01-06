@@ -1,11 +1,9 @@
 <?php
 
-require WPPUS_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
+require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Utils;
 use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
 use Anyape\ProxyUpdateChecker\Generic\Package;
-use Anyape\ProxyUpdateChecker\Generic\Update;
 use Anyape\ProxyUpdateChecker\Generic\UpdateChecker;
 
 if ( ! class_exists(Proxuc_Vcs_GenericUpdateChecker::class, false) ):
@@ -48,7 +46,7 @@ if ( ! class_exists(Proxuc_Vcs_GenericUpdateChecker::class, false) ):
 			return trailingslashit($this->genericAbsolutePath);
 		}
 
-		public function requestInfo($unused = null) {
+		public function requestInfo() {
 			$update = $this->requestUpdate();
 			$info   = null;
 
@@ -65,7 +63,6 @@ if ( ! class_exists(Proxuc_Vcs_GenericUpdateChecker::class, false) ):
 					'download_url' => $update->download_url,
 				);
 			} elseif ( 'source_not_found' === $update ) {
-
 				return new WP_Error(
 					'puc-no-update-source',
 					'Could not retrieve version information from the repository for '

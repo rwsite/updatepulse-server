@@ -19,30 +19,30 @@ foreach ( $cron as $job ) {
 
 		foreach ( $keys as $key ) {
 
-			if ( 0 === strpos( $key, 'wppus_' ) ) {
+			if ( 0 === strpos( $key, 'upserv_' ) ) {
 				wp_unschedule_hook( $key );
 			}
 		}
 	}
 }
 
-$wppus_mu_plugin = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ) . 'wppus-endpoint-optimizer.php';
-$wppus_dir       = trailingslashit( $wp_filesystem->wp_content_dir() . 'wppus' );
+$upserv_mu_plugin = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ) . 'upserv-endpoint-optimizer.php';
+$upserv_dir       = trailingslashit( $wp_filesystem->wp_content_dir() . 'updatepulse-server' );
 
-$wp_filesystem->delete( $wppus_mu_plugin );
-$wp_filesystem->delete( $wppus_mu_plugin . '.backup' );
-$wp_filesystem->delete( $wppus_mdir, true );
+$wp_filesystem->delete( $upserv_mu_plugin );
+$wp_filesystem->delete( $upserv_mu_plugin . '.backup' );
+$wp_filesystem->delete( $upserv_mdir, true );
 
-as_unschedule_all_actions( 'wppus_cleanup' );
+as_unschedule_all_actions( 'upserv_cleanup' );
 
 $sql = "DELETE FROM $wpdb->options WHERE `option_name` LIKE %s";
 
-$wpdb->query( $wpdb->prepare( $sql, '%wppus_%' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+$wpdb->query( $wpdb->prepare( $sql, '%upserv_%' ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-$sql = "DROP TABLE IF EXISTS {$wpdb->prefix}wppus_licenses;";
+$sql = "DROP TABLE IF EXISTS {$wpdb->prefix}upserv_licenses;";
 
 $wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
-$sql = "DROP TABLE IF EXISTS {$wpdb->prefix}wppus_nonce;";
+$sql = "DROP TABLE IF EXISTS {$wpdb->prefix}upserv_nonce;";
 
 $wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared

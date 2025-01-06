@@ -53,7 +53,6 @@ class Wpup_ZipMetadataParser_Extended extends Wpup_ZipMetadataParser {
 		}
 
 		$this->metadata['slug'] = basename(dirname(strtolower($mainFile)));
-		//Idea: Warn the user if the package doesn't match the expected "/slug/other-files" layout.
 	}
 
 	/**
@@ -61,15 +60,27 @@ class Wpup_ZipMetadataParser_Extended extends Wpup_ZipMetadataParser {
 	 */
 	protected function setInfoFromAssets(){
 
-		if ($this->packageInfo['type'] === 'plugin' && !empty($this->packageInfo['assets'])){
-			$assetsMeta = $this->packageInfo['assets'];
+		if (!empty($this->packageInfo['extra'])){
+			$extraMeta = $this->packageInfo['extra'];
 
-			if (!empty($assetsMeta['icons'])) {
-				$this->metadata['icons'] = $assetsMeta['icons'];
+			if (!empty($extraMeta['icons'])) {
+				$this->metadata['icons'] = $extraMeta['icons'];
 			}
 
-			if (!empty($assetsMeta['banners'])) {
-				$this->metadata['banners'] = $assetsMeta['banners'];
+			if (!empty($extraMeta['banners'])) {
+				$this->metadata['banners'] = $extraMeta['banners'];
+			}
+
+			if (!empty($extraMeta['require_license'])) {
+				$this->metadata['require_license'] = (
+					'yes' === $extraMeta['require_license'] ||
+					'true' === $extraMeta['require_license'] ||
+					1 === intval($extraMeta['require_license'])
+				);
+			}
+
+			if (!empty($extraMeta['licensed_with'])) {
+				$this->metadata['licensed_with'] = $extraMeta['licensed_with'];
 			}
 		}
 	}

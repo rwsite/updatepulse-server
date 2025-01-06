@@ -37,7 +37,7 @@ jQuery(document).ready(function ($) {
                 el.find('.event-container.license input[type="checkbox"]:checked').length &&
                 !licenseAPIKeyNew.val().length
             ) {
-                if (!confirm(WppusAdminMain_l10n.addWebhookNoLicenseApiConfirm)) {
+                if (!confirm(UPServAdminMain_l10n.addWebhookNoLicenseApiConfirm)) {
                     addButton.disabled = false;
                     renderItems();
 
@@ -47,7 +47,7 @@ jQuery(document).ready(function ($) {
 
             data[urlNew.val()] = {
                 'secret': secretNew.val(),
-                'licenseAPIKey': licenseAPIKeyNew.val(),
+                'licenseAPIKey': 'UPDATEPULSE_L_' + licenseAPIKeyNew.val().replace(/^UPDATEPULSE_L_/, ''),
                 'events': []
             };
 
@@ -91,7 +91,7 @@ jQuery(document).ready(function ($) {
                 return item === inputValue;
             });
             var urlPattern = /^(https?:\/\/)?([\w-]+(\.[\w-]+)+\/?)|localhost(:\d+)?(\/[\w-]+)*\/?(\?\S*)?$/;
-            var apiKeyPattern = /^L\*\*[a-zA-Z0-9_-]+$/;
+            var apiKeyPattern = /^UPDATEPULSE_L_[a-zA-Z0-9_-]+$/;
 
             isEnabled = isEnabled && urlPattern.test(inputValue) && (16 <= secretNew.val().length) && 0 !== el.find('.event-container input[type="checkbox"]:checked').length && (0 === licenseAPIKeyNew.val().length || apiKeyPattern.test(licenseAPIKeyNew.val()));
             addButton.disabled = !isEnabled;
@@ -110,24 +110,24 @@ jQuery(document).ready(function ($) {
                 var events = data[index].events;
 
                 if (2 === events.length && events.includes('package') && events.includes('license')) {
-                     message = WppusAdminMain_l10n.eventApiCountAll;
+                     message = UPServAdminMain_l10n.eventApiCountAll;
                 } else {
                     var messageParts = { package: '', license: '' };
 
                     ['package', 'license'].forEach(function (val, index) {
-                        var type = ('package' === val) ? WppusAdminMain_l10n.eventApiTypePackage : WppusAdminMain_l10n.eventApiTypeLicense;
+                        var type = ('package' === val) ? UPServAdminMain_l10n.eventApiTypePackage : UPServAdminMain_l10n.eventApiTypeLicense;
 
                         if (events.includes(val)) {
-                            messageParts[val] = WppusAdminMain_l10n.eventApiCountAllType.replace('%s', type);
+                            messageParts[val] = UPServAdminMain_l10n.eventApiCountAllType.replace('%s', type);
                         } else if (1 === events.filter(function (i) { return i.startsWith(val); }).length) {
-                            messageParts[val] = WppusAdminMain_l10n.eventApiCountTypeSingular.replace('%s', type);
+                            messageParts[val] = UPServAdminMain_l10n.eventApiCountTypeSingular.replace('%s', type);
                         } else if (events.filter(function (i) { return i.startsWith(val); }).length) {
-                            messageParts[val] = WppusAdminMain_l10n.eventApiCountTypePlural.replace('%1$d', events.filter(function (i) { return i.startsWith(val); }).length).replace('%2$s', type);
+                            messageParts[val] = UPServAdminMain_l10n.eventApiCountTypePlural.replace('%1$d', events.filter(function (i) { return i.startsWith(val); }).length).replace('%2$s', type);
                         }
                     });
 
                     if ('' !== messageParts.package && '' !== messageParts.license) {
-                        message = messageParts.package + WppusAdminMain_l10n.apiSumSep + '<br>' + messageParts.license;
+                        message = messageParts.package + UPServAdminMain_l10n.apiSumSep + '<br>' + messageParts.license;
                     } else if ( '' !== messageParts.package ) {
                         message = messageParts.package;
                     } else {
@@ -145,10 +145,10 @@ jQuery(document).ready(function ($) {
                 eventsText.title = '(' + data[index].events.join(', ') + ')';
                 eventsText.classList = 'summary';
                 deleteButton.type = 'button';
-                deleteButton.innerHTML = '<span class="wppus-remove-icon" aria-hidden="true"></span>';
+                deleteButton.innerHTML = '<span class="upserv-remove-icon" aria-hidden="true"></span>';
                 deleteButton.onclick = function () {
 
-                    if (confirm(WppusAdminMain_l10n.deleteApiWebhookConfirm)) {
+                    if (confirm(UPServAdminMain_l10n.deleteApiWebhookConfirm)) {
                         delete data[index];
                         renderItems();
                     }
@@ -224,14 +224,16 @@ jQuery(document).ready(function ($) {
         var allActions = el.find('input[data-api-action="all"]');
         var addButton = el.find('.api-keys-add').get(0);
         var itemsContainer = el.find('.api-keys-items').get(0);
+        var prefix = el.data('prefix');
 
         if ( 0 === data.length ) {
             data = {};
         }
 
         addButton.onclick = function () {
+            var dataIndex = prefix + idNew.val().replace(new RegExp('^' + prefix), '');
             addButton.disabled = 'disabled';
-            data[idNew.val()] = {
+            data[dataIndex] = {
                 'key': bin2hex_openssl_random_pseudo_bytes(16),
                 'access': []
             };
@@ -239,14 +241,16 @@ jQuery(document).ready(function ($) {
             if (allActions.prop('checked') || el.find('.event-container:not(.all, .other) input[type="checkbox"]').length === el.find('.event-container:not(.all, .other) input[type="checkbox"]:checked').length) {
                 allActions.prop('checked', true);
                 el.find('.event-container:not(.all, .other) input[type="checkbox"]').prop('checked', false);
-                data[idNew.val()].access.push('all');
+                data[dataIndex].access.push('all');
             }
 
             el.find('.event-container input[type="checkbox"]').each(function (idx, checkbox) {
                 checkbox = $(checkbox);
 
                 if ('all' !== checkbox.data('api-action') && checkbox.prop('checked')) {
-                    data[idNew.val()].access.push(checkbox.data('api-action'));
+                    console.log(idx);
+                    console.log(data);
+                    data[dataIndex].access.push(checkbox.data('api-action'));
                 }
             });
 
@@ -282,17 +286,17 @@ jQuery(document).ready(function ($) {
                 var access = data[index].access;
 
                 if (1 === access.length && 'all' === access[0]) {
-                    message = WppusAdminMain_l10n.actionApiCountAll;
+                    message = UPServAdminMain_l10n.actionApiCountAll;
                 } else if (2 === access.length && access.includes('all') && access.includes('other')) {
-                    message = WppusAdminMain_l10n.actionApiCountAllOther;
+                    message = UPServAdminMain_l10n.actionApiCountAllOther;
                 } else if ( 2 === access.length && access.includes('other') ) {
-                    message = WppusAdminMain_l10n.actionApiCountSingularOther;
+                    message = UPServAdminMain_l10n.actionApiCountSingularOther;
                 } else if ( access.includes('other') ) {
-                    message = WppusAdminMain_l10n.actionApiCountPluralOther.replace('%d', access.length - 1);
+                    message = UPServAdminMain_l10n.actionApiCountPluralOther.replace('%d', access.length - 1);
                 } else if (1 === access.length) {
-                    message = WppusAdminMain_l10n.actionApiCountSingular;
+                    message = UPServAdminMain_l10n.actionApiCountSingular;
                 } else {
-                    message = WppusAdminMain_l10n.actionApiCountPlural.replace('%d', access.length);
+                    message = UPServAdminMain_l10n.actionApiCountPlural.replace('%d', access.length);
                 }
 
                 itemContainer.className = 'item';
@@ -304,10 +308,10 @@ jQuery(document).ready(function ($) {
                 actionsText.title = '(' + data[index].access.join(', ') + ')';
                 actionsText.classList = 'summary';
                 deleteButton.type = 'button';
-                deleteButton.innerHTML = '<span class="wppus-remove-icon" aria-hidden="true"></span>';
+                deleteButton.innerHTML = '<span class="upserv-remove-icon" aria-hidden="true"></span>';
                 deleteButton.onclick = function () {
 
-                    if (confirm(WppusAdminMain_l10n.deleteApiKeyConfirm)) {
+                    if (confirm(UPServAdminMain_l10n.deleteApiKeyConfirm)) {
                         delete data[index];
                         renderItems();
                     }

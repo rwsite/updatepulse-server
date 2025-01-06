@@ -7,15 +7,15 @@ import importlib
 import sys
 import json
 
-wppus_api = importlib.import_module("wppus-api")
+updatepulse_api = importlib.import_module("updatepulse-api")
 
 def status():
     """
     ### CHECKING THE PACKAGE STATUS ###
     """
-    if wppus_api.is_installed():
+    if updatepulse_api.is_installed():
         print("Status: Installed")
-    elif not wppus_api.is_installed():
+    elif not updatepulse_api.is_installed():
         print("Status: Not installed")
     else:
         print("Status: Unknown")
@@ -25,9 +25,9 @@ def install(license_key):
     ### INSTALLING THE PACKAGE ###
     """
     # If the command is "install", the script is not installed, and the license key is not empty
-    if not wppus_api.is_installed() and license_key:
+    if not updatepulse_api.is_installed() and license_key:
         # Install the script
-        wppus_api.install(license_key)
+        updatepulse_api.install(license_key)
 
         print("Installed")
     else:
@@ -38,9 +38,9 @@ def uninstall():
     ### UNINSTALLING THE PACKAGE ###
     """
     # If the command is "uninstall" and the script is installed
-    if wppus_api.is_installed():
+    if updatepulse_api.is_installed():
         # Uninstall the script
-        wppus_api.uninstall()
+        updatepulse_api.uninstall()
 
         print("Uninstalled")
     else:
@@ -51,9 +51,9 @@ def activate():
     ### ACTIVATING THE LICENSE ###
     """
     # If the command is "activate", the script is installed, and the license key is not empty
-    if wppus_api.is_installed() :
+    if updatepulse_api.is_installed() :
         # Activate the license
-        wppus_api.activate_license()
+        updatepulse_api.activate_license()
 
         print("Activated")
     else:
@@ -64,9 +64,9 @@ def deactivate():
     ### DEACTIVATING THE LICENSE ###
     """
     # If the command is "deactivate" and the script is installed
-    if wppus_api.is_installed():
+    if updatepulse_api.is_installed():
         # Deactivate the license
-        wppus_api.deactivate_license()
+        updatepulse_api.deactivate_license()
 
         print("Deactivated")
     else:
@@ -77,11 +77,11 @@ def get_update_info():
     ### GETTING UPDATE INFORMATION ###
     """
     # If the command is "get_update_info" and the script is installed
-    if wppus_api.is_installed():
+    if updatepulse_api.is_installed():
         # Get the update information
-        info = wppus_api.get_update_info()
+        info = updatepulse_api.get_update_info()
         # Get the current version
-        version = wppus_api.get_version()
+        version = updatepulse_api.get_version()
         # Get the remote version
         new_version = info["version"]
 
@@ -97,7 +97,7 @@ def get_update_info():
         print("---------")
         print("")
         # Pretty print the response
-        print(json.dumps(wppus_api.get_update_info(), indent=4).replace("\\/", "/"))
+        print(json.dumps(updatepulse_api.get_update_info(), indent=4).replace("\\/", "/"))
         print("")
     else:
         print("The package is not installed")
@@ -107,14 +107,14 @@ def update():
     ### UPDATING THE PACKAGE ###
     """
     # If the command is "update" and the script is installed
-    if wppus_api.is_installed():
+    if updatepulse_api.is_installed():
         # Get the update information
-        wppus_api.update()
+        updatepulse_api.update()
 
         print("Updated")
         print("")
         # Pretty print the response
-        print(json.dumps(wppus_api.get_update_info(), indent=4).replace("\\/", "/"))
+        print(json.dumps(updatepulse_api.get_update_info(), indent=4).replace("\\/", "/"))
         print("")
     else:
         print("The package is not installed")

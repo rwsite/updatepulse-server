@@ -18,14 +18,14 @@
 		$query_string .= '&s=%s';
 	}
 
-	$args[]              = __( 'Download', 'wppus' );
+	$args[]              = __( 'Download', 'updatepulse-server' );
 	$actions['download'] = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
 
 	$args[1]                    = 'delete';
 	$args[ count( $args ) - 1 ] = __( 'Delete' );
 	$actions['delete']          = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
 
-	$actions = apply_filters( 'wppus_packages_table_row_actions', $actions, $args, $query_string, $record_key );
+	$actions = apply_filters( 'upserv_packages_table_row_actions', $actions, $args, $query_string, $record_key );
 	$actions = $table->row_actions( $actions );
 	?>
 	<?php foreach ( $columns as $column_name => $column_display_name ) : ?>
@@ -53,11 +53,11 @@
 					<?php echo esc_html( $record[ $key ] ); ?>
 				<?php elseif ( 'col_type' === $column_name ) : ?>
 					<?php if ( 'theme' === $record[ $key ] ) : ?>
-						<?php esc_html_e( 'Theme', 'wppus' ); ?>
+						<?php esc_html_e( 'Theme', 'updatepulse-server' ); ?>
 					<?php elseif ( 'plugin' === $record[ $key ] ) : ?>
-						<?php esc_html_e( 'Plugin', 'wppus' ); ?>
+						<?php esc_html_e( 'Plugin', 'updatepulse-server' ); ?>
 					<?php elseif ( 'generic' === $record[ $key ] ) : ?>
-						<?php esc_html_e( 'Generic', 'wppus' ); ?>
+						<?php esc_html_e( 'Generic', 'updatepulse-server' ); ?>
 					<?php endif; ?>
 				<?php elseif ( 'col_file_name' === $column_name ) : ?>
 					<?php echo esc_html( $record[ $key ] ); ?>
@@ -74,7 +74,7 @@
 					);
 					?>
 				<?php else : ?>
-					<?php do_action( 'wppus_packages_table_cell', $column_name, $record, $record_key ); ?>
+					<?php do_action( 'upserv_packages_table_cell', $column_name, $record, $record_key ); ?>
 				<?php endif; ?>
 			</td>
 		<?php endif; ?>

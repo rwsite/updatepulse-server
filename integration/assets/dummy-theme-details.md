@@ -6,7 +6,7 @@ This is an example of details page displayed in the WordPress admin when a new v
 ```php
 /*
  Theme Name: Dummy Theme
- Theme URI: https://froger.me/
+ Theme URI: https://anyape.com/
  Description: Empty Child Theme
  Author: Alexandre Froger
  Author URI: https://froger.me

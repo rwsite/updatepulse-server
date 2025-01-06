@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
 
-	$('#wppus_remote_repository_use_webhooks').on('change', function (e) {
+	$('#upserv_remote_repository_use_webhooks').on('change', function (e) {
 
 		if ($(this).prop('checked')) {
 			$('.check-frequency').addClass('hidden');

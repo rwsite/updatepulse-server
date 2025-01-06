@@ -1,6 +1,6 @@
 <?php
 
-require WPPUS_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
+require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
 
 use YahnisElsts\PluginUpdateChecker\v5p3\Utils;
 use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
@@ -28,12 +28,11 @@ if (! class_exists(Proxuc_Vcs_ThemeUpdateChecker::class, false)):
 		 * Puc\v5p3\Vcs\ThemeUpdateChecker constructor.
 		 *
 		 * @param Puc\v5p3\Vcs\Api $api
-		 * @param null $stylesheet
-		 * @param null $customSlug
-		 * @param int $checkPeriod
+		 * @param string $customSlug
+		 * @param string $package_container
 		 * @param string $optionName
 		 */
-		public function __construct($api, $slug, $unused, $package_container, $optionName = '') {
+		public function __construct($api, $slug, $package_container, $optionName = '') {
 			$this->api = $api;
 			$this->api->setHttpFilterName($this->getUniqueName('request_update_options'));
 

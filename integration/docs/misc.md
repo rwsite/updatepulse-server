@@ -1,55 +1,55 @@
-# WP Packages Update Server - Miscellaneous - Developer documentation
-(Looking for the main documentation page instead? [See here](https://github.com/froger-me/wp-packages-update-server/blob/main/README.md))
+# UpdatePulse Server - Miscellaneous - Developer documentation
+(Looking for the main documentation page instead? [See here](https://github.com/anyape/updatepulse-server/blob/main/README.md))
 
-WP Packages Update Server provides an API and offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin. Below is the documentation to interface with miscellaneous aspects of WP Packages Update Server. 
+UpdatePulse Server provides an API and offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin. Below is the documentation to interface with miscellaneous aspects of UpdatePulse Server. 
 
-* [WP Packages Update Server - Miscellaneous - Developer documentation](#wp-packages-update-server---miscellaneous---developer-documentation)
+* [UpdatePulse Server - Miscellaneous - Developer documentation](#updatepulse-server---miscellaneous---developer-documentation)
 	* [Nonce API](#nonce-api)
 	* [WP CLI](#wp-cli)
 	* [Consuming Webhooks](#consuming-webhooks)
 	* [Functions](#functions)
 		* [php\_log](#php_log)
 		* [cidr\_match](#cidr_match)
-		* [wppus\_is\_doing\_api\_request](#wppus_is_doing_api_request)
-			* [wppus\_is\_doing\_webhook\_api\_request](#wppus_is_doing_webhook_api_request)
-			* [wppus\_init\_nonce\_auth](#wppus_init_nonce_auth)
-			* [wppus\_create\_nonce](#wppus_create_nonce)
-			* [wppus\_get\_nonce\_expiry](#wppus_get_nonce_expiry)
-			* [wppus\_get\_nonce\_data](#wppus_get_nonce_data)
-			* [wppus\_validate\_nonce](#wppus_validate_nonce)
-			* [wppus\_delete\_nonce](#wppus_delete_nonce)
-			* [wppus\_clear\_nonce](#wppus_clear_nonce)
-			* [wppus\_build\_nonce\_api\_signature](#wppus_build_nonce_api_signature)
-			* [wppus\_schedule\_webhook](#wppus_schedule_webhook)
-			* [wppus\_fire\_webhook](#wppus_fire_webhook)
+		* [upserv\_is\_doing\_api\_request](#upserv_is_doing_api_request)
+			* [upserv\_is\_doing\_webhook\_api\_request](#upserv_is_doing_webhook_api_request)
+			* [upserv\_init\_nonce\_auth](#upserv_init_nonce_auth)
+			* [upserv\_create\_nonce](#upserv_create_nonce)
+			* [upserv\_get\_nonce\_expiry](#upserv_get_nonce_expiry)
+			* [upserv\_get\_nonce\_data](#upserv_get_nonce_data)
+			* [upserv\_validate\_nonce](#upserv_validate_nonce)
+			* [upserv\_delete\_nonce](#upserv_delete_nonce)
+			* [upserv\_clear\_nonce](#upserv_clear_nonce)
+			* [upserv\_build\_nonce\_api\_signature](#upserv_build_nonce_api_signature)
+			* [upserv\_schedule\_webhook](#upserv_schedule_webhook)
+			* [upserv\_fire\_webhook](#upserv_fire_webhook)
 	* [Actions](#actions)
-		* [wppus\_no\_api\_includes](#wppus_no_api_includes)
-		* [wppus\_no\_priority\_api\_includes](#wppus_no_priority_api_includes)
-		* [wppus\_remote\_sources\_options\_updated](#wppus_remote_sources_options_updated)
+		* [upserv\_no\_api\_includes](#upserv_no_api_includes)
+		* [upserv\_no\_priority\_api\_includes](#upserv_no_priority_api_includes)
+		* [upserv\_remote\_sources\_options\_updated](#upserv_remote_sources_options_updated)
 	* [Filters](#filters)
-		* [wppus\_is\_api\_request](#wppus_is_api_request)
-		* [wppus\_page\_wppus\_scripts\_l10n](#wppus_page_wppus_scripts_l10n)
-		* [wppus\_nonce\_api\_payload](#wppus_nonce_api_payload)
-		* [wppus\_nonce\_api\_code](#wppus_nonce_api_code)
-		* [wppus\_nonce\_api\_response](#wppus_nonce_api_response)
-		* [wppus\_created\_nonce](#wppus_created_nonce)
-		* [wppus\_clear\_nonces\_query](#wppus_clear_nonces_query)
-		* [wppus\_clear\_nonces\_query\_args](#wppus_clear_nonces_query_args)
-		* [wppus\_expire\_nonce](#wppus_expire_nonce)
-		* [wppus\_delete\_nonce](#wppus_delete_nonce-1)
-		* [wppus\_fetch\_nonce](#wppus_fetch_nonce)
-		* [wppus\_nonce\_authorize](#wppus_nonce_authorize)
-		* [wppus\_api\_option\_update](#wppus_api_option_update)
-		* [wppus\_api\_webhook\_events](#wppus_api_webhook_events)
-		* [wppus\_webhook\_fire](#wppus_webhook_fire)
+		* [upserv\_is\_api\_request](#upserv_is_api_request)
+		* [upserv\_page\_upserv\_scripts\_l10n](#upserv_page_upserv_scripts_l10n)
+		* [upserv\_nonce\_api\_payload](#upserv_nonce_api_payload)
+		* [upserv\_nonce\_api\_code](#upserv_nonce_api_code)
+		* [upserv\_nonce\_api\_response](#upserv_nonce_api_response)
+		* [upserv\_created\_nonce](#upserv_created_nonce)
+		* [upserv\_clear\_nonces\_query](#upserv_clear_nonces_query)
+		* [upserv\_clear\_nonces\_query\_args](#upserv_clear_nonces_query_args)
+		* [upserv\_expire\_nonce](#upserv_expire_nonce)
+		* [upserv\_delete\_nonce](#upserv_delete_nonce-1)
+		* [upserv\_fetch\_nonce](#upserv_fetch_nonce)
+		* [upserv\_nonce\_authorize](#upserv_nonce_authorize)
+		* [upserv\_api\_option\_update](#upserv_api_option_update)
+		* [upserv\_api\_webhook\_events](#upserv_api_webhook_events)
+		* [upserv\_webhook\_fire](#upserv_webhook_fire)
 
 ___
 ## Nonce API
 
-The nonce API is accessible via `POST` and `GET` requests on the `/wppus-token/` endpoint to acquire a reusable token, and `/wppus-nonce/` to acquire a true nonce.  
+The nonce API is accessible via `POST` and `GET` requests on the `/updatepulse-server-token/` endpoint to acquire a reusable token, and `/updatepulse-server-nonce/` to acquire a true nonce.  
 It accepts form-data payloads (arrays, basically). This documentation page uses `wp_remote_post`, but `wp_remote_get` would work as well.  
 
-Authorization is granted with either the `HTTP_X_WPPUS_API_CREDENTIALS` and `HTTP_X_WPPUS_API_SIGNATURE` headers or with the `api_credentials` and `api_signature` parameters.  
+Authorization is granted with either the `HTTP_X_UPDATEPULSE_API_CREDENTIALS` and `HTTP_X_UPDATEPULSE_API_SIGNATURE` headers or with the `api_credentials` and `api_signature` parameters.  
 If requesting a token for an existing API, the `api` parameter value must be provided with one of `package` or `license` to specify the target API.  
 The credentials and the signature are valid for 1 minute ; building them is the responsibility of the third-party client making use of the API - an implementation in PHP is provided below.  
 **Using `GET` requests directly in the browser, whether through the URL bar or JavaScript, is strongly discouraged due to security concerns** ; it should be avoided at all cost to prevent the inadvertent exposure of the credentials and signature.  
@@ -66,8 +66,8 @@ Response `$data` - forbidden access:
 The description of the API below is using the following code as reference, where `$params` are the parameters passed to the API (other parameters can be adjusted, they are just WordPress' default) and `$data` is the JSON response:
 
 ```php
-$url = 'https://domain.tld/wppus-nonce/'; // Replace domain.tld with the domain where WP Packages Update Server is installed.
-$url = 'https://domain.tld/wppus-token/'; // Replace domain.tld with the domain where WP Packages Update Server is installed.
+$url = 'https://domain.tld/updatepulse-server-nonce/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
+$url = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
 
 $response = wp_remote_post(
 	$url,
@@ -101,7 +101,7 @@ Payload to acquire a reusable token or a true nonce ; please note that **boolean
 
 ```php
 $payload = array(
-	'expiry_length' => 999,               // The expiry length in seconds (optional - default value to WPPUS_Nonce::DEFAULT_EXPIRY_LENGTH - 30 seconds)
+	'expiry_length' => 999,               // The expiry length in seconds (optional - default value to UPServ_Nonce::DEFAULT_EXPIRY_LENGTH - 30 seconds)
 	'data' => array(                      // Data to store along the token or true nonce (optional)
 		'permanent' => false,             // set to a truthy value to create a nonce that never expires
 		'key1'      => 'value1',          // custom data
@@ -114,9 +114,9 @@ $payload = array(
 			'bool_key4' => 0,
 		),
 	),
-	'api_credentials' => '9999999999|private_key_id', // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-WPPUS-API-Credentials header is absent)
-	'api_signature'   => 'complex_signature',         // The signature built using the Private API Key (optional - must be provided in case X-WPPUS-API-Signature header is absent)
-	'api'             => 'api_name',                  // The target API (required if requesting a nonce for the existing APIs ; one of `package` or `license`)
+	'api_credentials' => '9999999999|private_key_id', // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-UpdatePulse-API-Credentials header is absent)
+	'api_signature'   => 'complex_signature',         // The signature built using the Private API Key (optional - must be provided in case X-UpdatePulse-API-Signature header is absent)
+	'api'             => 'api_name',                  // The target API (required if requesting a nonce for the existing APIs ; one of `'package'` or `'license'`)
 );
 ```
 
@@ -140,9 +140,9 @@ Response `$data` - **success**:
 Building API credentials and API signature - developers may use this function in their own project:
 
 ```php
-if ( ! function_exists( 'wppus_build_nonce_api_signature' ) ) {
+if ( ! function_exists( 'upserv_build_nonce_api_signature' ) ) {
 	/**
-	* Build credentials and signature for WPPUS Nonce API
+	* Build credentials and signature for UpdatePulse Server Nonce API
 	*
 	* @param string $api_key_id The ID of the Private API Key
 	* @param string $api_key The Private API Key - will not be sent over the Internet
@@ -150,7 +150,7 @@ if ( ! function_exists( 'wppus_build_nonce_api_signature' ) ) {
 	* @param int    $payload The payload to acquire a reusable token or a true nonce 
 	* @return array An array with keys `credentials` and `signature`
 	*/
-	function wppus_build_nonce_api_signature( $api_key_id, $api_key, $timestamp, $payload ) {
+	function upserv_build_nonce_api_signature( $api_key_id, $api_key, $timestamp, $payload ) {
 		unset( $payload['api_signature'] );
 		unset( $payload['api_credentials'] );
 
@@ -183,7 +183,7 @@ if ( ! function_exists( 'wppus_build_nonce_api_signature' ) ) {
 }
 
 // Usage
-$values = wppus_build_nonce_api_signature( getenv( 'WPPUS_API_KEY_ID' ), getenv( 'WPPUS_API_KEY' ), time(), $payload );
+$values = upserv_build_nonce_api_signature( getenv( 'UPSERV_API_KEY_ID' ), getenv( 'UPSERV_API_KEY' ), time(), $payload );
 
 echo '<div>The credentials are: ' . esc_html( $values['credentials'] ) . '</div>';
 echo '<div>The signature is: ' . esc_html( $values['signature'] ) . '</div>';
@@ -191,16 +191,16 @@ echo '<div>The signature is: ' . esc_html( $values['signature'] ) . '</div>';
 
 ## WP CLI
 
-WP Packages Update Server provides a series of commands to interact with the plugin:
+UpdatePulse Server provides a series of commands to interact with the plugin:
 
 ```bash
 NAME
 
-  wp wppus
+  wp updatepulse
 
 SYNOPSIS
 
-  wp wppus <command>
+  wp updatepulse <command>
 
 SUBCOMMANDS
 
@@ -210,10 +210,10 @@ SUBCOMMANDS
   build_nonce_api_signature        Build a Nonce API signature.
   check_license                    Check a license.
   check_remote_package_update      Checks for updates for a package.
-  cleanup_all                      Cleans up the cache, logs and tmp folders in wp-content/wppus.
-  cleanup_cache                    Cleans up the cache folder in wp-content/wppus.
-  cleanup_logs                     Cleans up the logs folder in wp-content/wppus.
-  cleanup_tmp                      Cleans up the tmp folder in wp-content/wppus.
+  cleanup_all                      Cleans up the cache, logs and tmp folders in wp-content/updatepulse-server.
+  cleanup_cache                    Cleans up the cache folder in wp-content/updatepulse-server.
+  cleanup_logs                     Cleans up the logs folder in wp-content/updatepulse-server.
+  cleanup_tmp                      Cleans up the tmp folder in wp-content/updatepulse-server.
   clear_nonces                     Clears nonces.
   create_nonce                     Creates a nonce.
   deactivate_license               Deactivate a license for a domain.
@@ -231,49 +231,49 @@ SUBCOMMANDS
 Subcommands overview:
 
 ```bash
-wp wppus activate_license <license_key> <domain>
-wp wppus add_license <license_data>
-wp wppus browse_licenses <browse_query>
-wp wppus build_nonce_api_signature <api_key_id> <api_key> <timestamp> <payload>
-wp wppus check_license <license_key_or_id>
-wp wppus check_remote_package_update <slug> <type>
-wp wppus cleanup_all 
-wp wppus cleanup_cache 
-wp wppus cleanup_logs 
-wp wppus cleanup_tmp 
-wp wppus clear_nonces 
-wp wppus create_nonce <true_nonce> <expiry_length> <data> <return_type> <store>
-wp wppus deactivate_license <license_key> <domain>
-wp wppus delete_license <license_key_or_id>
-wp wppus delete_nonce <nonce>
-wp wppus delete_package <slug>
-wp wppus download_remote_package <slug> <type>
-wp wppus edit_license <license_data>
-wp wppus get_nonce_data <nonce>
-wp wppus get_nonce_expiry <nonce>
-wp wppus get_package_info <slug>
-wp wppus read_license <license_key_or_id>
+wp updatepulse activate_license <license_key> <domain>
+wp updatepulse add_license <license_data>
+wp updatepulse browse_licenses <browse_query>
+wp updatepulse build_nonce_api_signature <api_key_id> <api_key> <timestamp> <payload>
+wp updatepulse check_license <license_key_or_id>
+wp updatepulse check_remote_package_update <slug> <type>
+wp updatepulse cleanup_all 
+wp updatepulse cleanup_cache 
+wp updatepulse cleanup_logs 
+wp updatepulse cleanup_tmp 
+wp updatepulse clear_nonces 
+wp updatepulse create_nonce <true_nonce> <expiry_length> <data> <return_type> <store>
+wp updatepulse deactivate_license <license_key> <domain>
+wp updatepulse delete_license <license_key_or_id>
+wp updatepulse delete_nonce <nonce>
+wp updatepulse delete_package <slug>
+wp updatepulse download_remote_package <slug> <type>
+wp updatepulse edit_license <license_data>
+wp updatepulse get_nonce_data <nonce>
+wp updatepulse get_nonce_expiry <nonce>
+wp updatepulse get_package_info <slug>
+wp updatepulse read_license <license_key_or_id>
 ```
 
-To get more help on a specific subcommand, use `wp wppus <subcommand> --help`.
+To get more help on a specific subcommand, use `wp updatepulse <subcommand> --help`.
 ___
 ## Consuming Webhooks
 
-Webhooks's payload is sent in JSON format via a POST request and is signed with a `secret-key` secret key using `sha1` algorithm and `sha256` algorithm.  
-The resulting hashes are made available in the `X-WPPUS-Signature` and `X-WPPUS-Signature-256` headers respectively.  
+Webhooks's payload is sent in JSON format via a POST request and is signed with a `secret-key` secret key using the `sha256` algorithm.  
+The resulting hash is made available in the `X-UpdatePulse-Signature-256` header.  
 
 Below is an example of how to consume a Webhook on another installation of WordPress with a plugin (webhooks can however be consumed by any system):
 
 ```php
 <?php
 /*
-Plugin Name: WPPUS Webhook Consumer
-Plugin URI: https://domain.tld/wppus-webhook-consumer/
-Description: Consume WPPUS Webhooks.
+Plugin Name: UpdatePulse Webhook Consumer
+Plugin URI: https://domain.tld/up-webhook-consumer/
+Description: Consume UpdatePulse Webhooks.
 Version: 1.0
 Author: A Developer
 Author URI: https://domain.tld/
-Text Domain: wppus-consumer
+Text Domain: up-consumer
 Domain Path: /languages
 */
 
@@ -292,7 +292,7 @@ add_action( 'plugins_loaded', function() {
 	global $wp_filesystem;
 	
 	// We assume the secret is stored in environment variables
-	$secret = getenv( 'WPPUS_HOOK_SECRET' );
+	$secret = getenv( 'UPDATEPULSE_HOOK_SECRET' );
 
 	if ( empty( $wp_filesystem ) ) {
 		require_once ABSPATH . '/wp-admin/includes/file.php';
@@ -305,8 +305,8 @@ add_action( 'plugins_loaded', function() {
 	
 	if ( $json && isset( $json->event ) ) {
 		// Get the signature from headers
-		$sign = isset( $_SERVER['HTTP_X_WPPUS_SIGNATURE_256'] ) ?
-			$_SERVER['HTTP_X_WPPUS_SIGNATURE_256'] :
+		$sign = isset( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ?
+			$_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] :
 			false;
 
 		if ( $sign ) {
@@ -324,9 +324,8 @@ add_action( 'plugins_loaded', function() {
 					print_r(
 						array(
 							'headers' => array(
-								'X-WPPUS-Action'        => $_SERVER['HTTP_X_WPPUS_ACTION'],
-								'X-WPPUS-Signature'     => $_SERVER['HTTP_X_WPPUS_SIGNATURE'],
-								'X-WPPUS-Signature-256' => $_SERVER['HTTP_X_WPPUS_SIGNATURE_256'],
+								'X-UpdatePulse-Action'        => $_SERVER['HTTP_X_UPDATEPULSE_ACTION'],
+								'X-UpdatePulse-Signature-256' => $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'],
 							),
 							'body' => $payload,
 						),
@@ -387,10 +386,10 @@ Check whether an IP address is a match for the provided CIDR range.
 > (bool) whether an IP address is a match for the provided CIDR range
 
 ___
-### wppus_is_doing_api_request
+### upserv_is_doing_api_request
 
 ```php
-wppus_is_doing_api_request()
+upserv_is_doing_api_request()
 ```
 
 **Description**  
@@ -400,10 +399,10 @@ Determine whether the current request is made by a remote client interacting wit
 > (bool) `true` if the current request is made by a remote client interacting with any of the APIs, `false` otherwise
 
 ___
-#### wppus_is_doing_webhook_api_request
+#### upserv_is_doing_webhook_api_request
 
 ```php
-wppus_is_doing_webhook_api_request()
+upserv_is_doing_webhook_api_request()
 ```
 
 **Description**  
@@ -413,14 +412,14 @@ Determine whether the current request is made by a Webhook.
 > (bool) `true` if the current request is made by a Webhook, `false` otherwise
 
 ___
-#### wppus_init_nonce_auth
+#### upserv_init_nonce_auth
 
 ```php
-wppus_init_nonce_auth( array $private_keys )
+upserv_init_nonce_auth( array $private_keys )
 ```
 
 **Description**  
-Set the private keys to check against when requesting nonces via the `wppus-token` and `wppus-nonce` endpoints.  
+Set the private keys to check against when requesting nonces via the `updatepulse-server-token` and `updatepulse-server-nonce` endpoints.  
 
 **Parameters**  
 `$private_keys`
@@ -439,10 +438,10 @@ $private_keys = array(
 ```
 
 ___
-#### wppus_create_nonce
+#### upserv_create_nonce
 
 ```php
-wppus_create_nonce( bool $true_nonce = true, int $expiry_length = WPPUS_Nonce::DEFAULT_EXPIRY_LENGTH, array $data = array(), int $return_type = WPPUS_Nonce::NONCE_ONLY, bool $store = true, bool|callable )
+upserv_create_nonce( bool $true_nonce = true, int $expiry_length = UPServ_Nonce::DEFAULT_EXPIRY_LENGTH, array $data = array(), int $return_type = UPServ_Nonce::NONCE_ONLY, bool $store = true, bool|callable )
 ```
 
 **Description**  
@@ -453,19 +452,19 @@ Creates a cryptographic token - allows creation of tokens that are true one-time
 > (bool) whether the nonce is one-time-use ; default `true`  
 
 `$expiry_length`
-> (int) the number of seconds after which the nonce expires ; default `WPPUS_Nonce::DEFAULT_EXPIRY_LENGTH` - 30 seconds 
+> (int) the number of seconds after which the nonce expires ; default `UPServ_Nonce::DEFAULT_EXPIRY_LENGTH` - 30 seconds 
 
 `$data`
 > (array) custom data to save along with the nonce ; set an element with key `permanent` to a truthy value to create a nonce that never expires ; default `array()`  
 
 `$return_type`
-> (int) whether to return the nonce, or an array of information ; default `WPPUS_Nonce::NONCE_ONLY` ; other accepted value is `WPPUS_Nonce::NONCE_INFO_ARRAY`  
+> (int) whether to return the nonce, or an array of information ; default `UPServ_Nonce::NONCE_ONLY` ; other accepted value is `UPServ_Nonce::NONCE_INFO_ARRAY`  
 
 `$store`
 > (bool) whether to store the nonce, or let a third party mechanism take care of it ; default `true`  
 
 **Return value**
-> (bool|string|array) `false` in case of failure ; the cryptographic token string if `$return_type` is set to `WPPUS_Nonce::NONCE_ONLY` ; an array of information if `$return_type` is set to `WPPUS_Nonce::NONCE_INFO_ARRAY` with the following format:
+> (bool|string|array) `false` in case of failure ; the cryptographic token string if `$return_type` is set to `UPServ_Nonce::NONCE_ONLY` ; an array of information if `$return_type` is set to `UPServ_Nonce::NONCE_INFO_ARRAY` with the following format:
 ```php
 array(
 	'nonce'      => 'some_value',	// cryptographic token
@@ -476,10 +475,10 @@ array(
 ```
 
 ___
-#### wppus_get_nonce_expiry
+#### upserv_get_nonce_expiry
 
 ```php
-wppus_get_nonce_expiry( string $nonce )
+upserv_get_nonce_expiry( string $nonce )
 ```
 
 **Description**  
@@ -493,10 +492,10 @@ Get the expiry timestamp of a nonce.
 > (int) the expiry timestamp  
 
 ___
-#### wppus_get_nonce_data
+#### upserv_get_nonce_data
 
 ```php
-wppus_get_nonce_data( string $nonce )
+upserv_get_nonce_data( string $nonce )
 ```
 
 **Description**  
@@ -510,10 +509,10 @@ Get the data stored along a nonce.
 > (int) the expiry timestamp  
 
 ___
-#### wppus_validate_nonce
+#### upserv_validate_nonce
 
 ```php
-wppus_validate_nonce( string $value )
+upserv_validate_nonce( string $value )
 ```
 
 **Description**  
@@ -528,10 +527,10 @@ Note: if the nonce is a true nonce, it will be invalidated and further calls to 
 > (bool) whether the value is a valid nonce  
 
 ___
-#### wppus_delete_nonce
+#### upserv_delete_nonce
 
 ```php
-wppus_delete_nonce( string $value )
+upserv_delete_nonce( string $value )
 ```
 
 **Description**  
@@ -545,10 +544,10 @@ Delete a nonce from the system if the corresponding value exists.
 > (bool) whether the nonce was deleted  
 
 ___
-#### wppus_clear_nonce
+#### upserv_clear_nonce
 
 ```php
-wppus_clear_nonces()
+upserv_clear_nonces()
 ```
 
 **Description**  
@@ -558,14 +557,14 @@ Clear expired nonces from the system.
 > (bool) whether some nonces were cleared  
 
 ___
-#### wppus_build_nonce_api_signature
+#### upserv_build_nonce_api_signature
 
 ```php
-wppus_build_nonce_api_signature( string $api_key_id, string $api_key, int $timestamp, array $payload )
+upserv_build_nonce_api_signature( string $api_key_id, string $api_key, int $timestamp, array $payload )
 ```
 
 **Description**  
-Build credentials and signature for WPPUS Nonce API  
+Build credentials and signature for UpdatePulse Server Nonce API  
 
 **Parameters**  
 `$api_key_id`
@@ -584,10 +583,10 @@ Build credentials and signature for WPPUS Nonce API
 > (array) an array with keys `credentials` and `signature`  
 
 ___
-#### wppus_schedule_webhook
+#### upserv_schedule_webhook
 
 ```php
-wppus_schedule_webhook( array $payload, string $event_type )
+upserv_schedule_webhook( array $payload, string $event_type )
 ```
 
 **Description**  
@@ -611,14 +610,14 @@ $payload = array(
 > (null|WP_error) `null` in case of success, a `WP_Error` otherwise  
 
 ___
-#### wppus_fire_webhook
+#### upserv_fire_webhook
 
 ```php
-wppus_fire_webhook( string $url, string $secret, string $body, string $action )
+upserv_fire_webhook( string $url, string $secret, string $body, string $action )
 ```
 
 **Description**  
-Immediately send a event notification to `$url`, signed with `$secret` in `X-WPPUS-Signature` and `X-WPPUS-Signature-256`, with `$action` in `X-WPPUS-Action`.  
+Immediately send a event notification to `$url`, signed with `$secret` with resulting has stored in `X-UpdatePulse-Signature-256`, with `$action` in `X-UpdatePulse-Action`.  
 
 **Parameters**  
 `$url`
@@ -639,34 +638,34 @@ Immediately send a event notification to `$url`, signed with `$secret` in `X-WPP
 ___
 ## Actions
 
-WP Packages Update Server gives developers the possibility to have their plugins react to some events with a series of custom actions.  
+UpdatePulse Server gives developers the possibility to have their plugins react to some events with a series of custom actions.  
 **Warning**: the filters below with the mention "Fired during API requests" need to be used with caution. Although they may be triggered when using the functions above, these filters will possibly be called when the Update API, License API, Packages API or a Webhook is called. Registering functions doing heavy computation to these filters can seriously degrade the server's performances.  
 
 ___
-### wppus_no_api_includes
+### upserv_no_api_includes
 
 ```php
-do_action( 'wppus_no_api_includes' );
+do_action( 'upserv_no_api_includes' );
 ```
 
 **Description**  
 Fired when the plugin is including files and the current request is not made by a remote client interacting with any of the plugin's API.
 
 ___
-### wppus_no_priority_api_includes
+### upserv_no_priority_api_includes
 
 ```php
-do_action( 'wppus_no_priority_api_includes' );
+do_action( 'upserv_no_priority_api_includes' );
 ```
 
 **Description**  
 Fired when the plugin is including files and the current request is not made by a client plugin or theme interacting with the plugin's high priority API (typically the license API).
 
 ___
-### wppus_remote_sources_options_updated
+### upserv_remote_sources_options_updated
 
 ```php
-do_action( 'wppus_api_options_updated', array $errors );
+do_action( 'upserv_api_options_updated', array $errors );
 ```
 
 **Description**  
@@ -679,14 +678,14 @@ Fired after the options in "API & Webhooks" have been updated.
 ___
 ## Filters
 
-WP Packages Update Server gives developers the possibility to customize its behavior with a series of custom filters.  
+UpdatePulse Server gives developers the possibility to customize its behavior with a series of custom filters.  
 **Warning**: the filters below with the mention "Fired during API requests" need to be used with caution. Although they may be triggered when using the functions above, these filters will possibly be called when the Update API, License API, Packages API or a Webhook is called. Registering functions doing heavy computation to these filters can seriously degrade the server's performances.  
 
 ___
-### wppus_is_api_request
+### upserv_is_api_request
 
 ```php
-apply_filters( 'wppus_is_api_request', bool $is_api_request );
+apply_filters( 'upserv_is_api_request', bool $is_api_request );
 ```
 
 **Description**  
@@ -697,10 +696,10 @@ Filter whether the current request must be treated as an API request.
 > (bool) whether the current request must be treated as an API request  
 
 ___
-### wppus_page_wppus_scripts_l10n
+### upserv_page_upserv_scripts_l10n
 
 ```php
-apply_filters( 'wppus_page_wppus_scripts_l10n', array $l10n );
+apply_filters( 'upserv_page_upserv_scripts_l10n', array $l10n );
 ```
 
 **Description**  
@@ -711,10 +710,10 @@ Filter the internationalization strings passed to the frontend scripts.
 > (array) the internationalization strings passed to the frontend scripts  
 
 ___
-### wppus_nonce_api_payload
+### upserv_nonce_api_payload
 
 ```php
-apply_filters( 'wppus_nonce_api_payload', array $payload, string $action );
+apply_filters( 'upserv_nonce_api_payload', array $payload, string $action );
 ```
 
 **Description**  
@@ -728,10 +727,10 @@ Filter the payload sent to the Nonce API.
 > (string) the api action - `token` or `nonce`  
 
 ___
-### wppus_nonce_api_code
+### upserv_nonce_api_code
 
 ```php
-apply_filters( 'wppus_nonce_api_code', string $code, array $request_params );
+apply_filters( 'upserv_nonce_api_code', string $code, array $request_params );
 ```
 
 **Description**  
@@ -745,10 +744,10 @@ Filter the HTTP response code to be sent by the Nonce API.
 > (array) the request's parameters  
 
 ___
-### wppus_nonce_api_response
+### upserv_nonce_api_response
 
 ```php
-apply_filters( 'wppus_nonce_api_response', array $response, string $code, array $request_params );
+apply_filters( 'upserv_nonce_api_response', array $response, string $code, array $request_params );
 ```
 
 **Description**  
@@ -765,10 +764,10 @@ Filter the response to be sent by the Nonce API.
 > (array) the request's parameters  
 
 ___
-### wppus_created_nonce
+### upserv_created_nonce
 
 ```php
-apply_filters( 'wppus_created_nonce', bool|string|array $nonce_value, bool $true_nonce, int $expiry_length, array $data, int $return_type );
+apply_filters( 'upserv_created_nonce', bool|string|array $nonce_value, bool $true_nonce, int $expiry_length, array $data, int $return_type );
 ```
 
 **Description**  
@@ -788,13 +787,13 @@ Filter the value of the nonce before it is created ; if `$nonce_value` is truthy
 > (array) data to store along the nonce  
 
 `$return_type`
-> (int) `WPPUS_Nonce::NONCE_ONLY` or `WPPUS_Nonce::NONCE_INFO_ARRAY`  
+> (int) `UPServ_Nonce::NONCE_ONLY` or `UPServ_Nonce::NONCE_INFO_ARRAY`  
 
 ___
-### wppus_clear_nonces_query
+### upserv_clear_nonces_query
 
 ```php
-apply_filters( 'wppus_clear_nonces_query', string $sql, array $sql_args );
+apply_filters( 'upserv_clear_nonces_query', string $sql, array $sql_args );
 ```
 
 **Description**  
@@ -808,10 +807,10 @@ Filter the SQL query used to clear expired nonces.
 > (array) the arguments passed to the SQL query used to clear expired nonces  
 
 ___
-### wppus_clear_nonces_query_args
+### upserv_clear_nonces_query_args
 
 ```php
-apply_filters( 'wppus_clear_nonces_query_args', array $sql_args, string $sql );
+apply_filters( 'upserv_clear_nonces_query_args', array $sql_args, string $sql );
 ```
 
 **Description**  
@@ -825,10 +824,10 @@ Filter the arguments passed to the SQL query used to clear expired nonces.
 > (string) the SQL query used to clear expired nonces  
 
 ___
-### wppus_expire_nonce
+### upserv_expire_nonce
 
 ```php
-apply_filters( 'wppus_expire_nonce', bool $expire_nonce, string $nonce_value, bool $true_nonce, int $expiry, array $data, object $row );
+apply_filters( 'upserv_expire_nonce', bool $expire_nonce, string $nonce_value, bool $true_nonce, int $expiry, array $data, object $row );
 ```
 
 **Description**  
@@ -854,10 +853,10 @@ Filter whether to consider the nonce has expired.
 > (object) the database record corresponding to the nonce  
 
 ___
-### wppus_delete_nonce
+### upserv_delete_nonce
 
 ```php
-apply_filters( 'wppus_delete_nonce', bool $delete, string $nonce_value, bool $true_nonce, int $expiry, array $data, object $row );
+apply_filters( 'upserv_delete_nonce', bool $delete, string $nonce_value, bool $true_nonce, int $expiry, array $data, object $row );
 ```
 
 **Description**  
@@ -883,10 +882,10 @@ Filter whether to delete the nonce.
 > (object) the database record corresponding to the nonce  
 
 ___
-### wppus_fetch_nonce
+### upserv_fetch_nonce
 
 ```php
-apply_filters( 'wppus_fetch_nonce', string $nonce_value, bool $true_nonce, int $expiry, array $data, object $row );
+apply_filters( 'upserv_fetch_nonce', string $nonce_value, bool $true_nonce, int $expiry, array $data, object $row );
 ```
 
 **Description**  
@@ -909,10 +908,10 @@ Filter the value of the nonce after it has been fetched from the database.
 > (object) the database record corresponding to the nonce  
 
 ___
-### wppus_nonce_authorize
+### upserv_nonce_authorize
 
 ```php
-apply_filters( 'wppus_nonce_authorize', $authorized, $received_key, $private_auth_keys );
+apply_filters( 'upserv_nonce_authorize', $authorized, $received_key, $private_auth_keys );
 ```
 
 **Description**  
@@ -929,10 +928,10 @@ Filter whether the request for a nonce is authorized.
 > (array) the valid authorization keys  
 
 ___
-### wppus_api_option_update
+### upserv_api_option_update
 
 ```php
-apply_filters( 'wppus_api_option_update', bool $update, string $option_name, array $option_info, array $options );
+apply_filters( 'upserv_api_option_update', bool $update, string $option_name, array $option_info, array $options );
 ```
 
 **Description**  
@@ -952,10 +951,10 @@ Filter whether to update the API plugin option.
 > (array) the values submitted along with the option  
 
 ___
-### wppus_api_webhook_events
+### upserv_api_webhook_events
 
 ```php
-apply_filters( 'wppus_api_webhook_events', array $events )
+apply_filters( 'upserv_api_webhook_events', array $events )
 ```
 
 **Description**  
@@ -966,10 +965,10 @@ Filter the available webhook events.
 > (array) the available webhook events  
 
 ___
-### wppus_webhook_fire
+### upserv_webhook_fire
 
 ```php
-apply_filters( 'wppus_webhook_fire', bool $fire, array $payload, string $url, array $webhook_setting )
+apply_filters( 'upserv_webhook_fire', bool $fire, array $payload, string $url, array $webhook_setting )
 ```
 
 **Description**  

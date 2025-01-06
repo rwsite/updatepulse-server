@@ -2,11 +2,11 @@
 
 ### CHECKING THE PACKAGE STATUS ###
 
-if [ "$1" == "status" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "false" ]; then
+if [ "$1" == "status" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "false" ]; then
     echo "Status: Not installed"
 
     exit 0
-elif [ "$1" == "status" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "true" ]; then
+elif [ "$1" == "status" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "true" ]; then
     echo "Status: Installed"
 
     exit 0
@@ -18,8 +18,8 @@ fi
 
 ### INSTALLING THE PACKAGE ###
 
-if [ "$1" == "install" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "false" ] && [ "$2" != "" ]; then
-    bash "$(dirname "$0")/wppus-api.sh" install "$2"
+if [ "$1" == "install" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "false" ] && [ "$2" != "" ]; then
+    bash "$(dirname "$0")/updatepulse-api.sh" install "$2"
     echo "Installed"
 
     exit 0
@@ -31,9 +31,9 @@ fi
 
 ### UNINSTALLING THE PACKAGE ###
 
-if [ "$1" == "uninstall" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "true" ]; then
+if [ "$1" == "uninstall" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "true" ]; then
     # uninstall the package
-    bash "$(dirname "$0")/wppus-api.sh" uninstall
+    bash "$(dirname "$0")/updatepulse-api.sh" uninstall
     echo "Uninstalled"
 
     exit 0
@@ -45,9 +45,9 @@ fi
 
 ### ACTIVATING THE LICENSE ###
 
-if [ "$1" == "activate" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "true" ]; then
+if [ "$1" == "activate" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "true" ]; then
     # activate the license
-    bash "$(dirname "$0")/wppus-api.sh" activate_license
+    bash "$(dirname "$0")/updatepulse-api.sh" activate_license
     echo "Activated"
 
     exit 0
@@ -59,9 +59,9 @@ fi
 
 ### DEACTIVATING THE LICENSE ###
 
-if [ "$1" == "deactivate" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "true" ]; then
+if [ "$1" == "deactivate" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "true" ]; then
     # activate the license
-    bash "$(dirname "$0")/wppus-api.sh" deactivate_license
+    bash "$(dirname "$0")/updatepulse-api.sh" deactivate_license
     echo "Deactivated"
 
     exit 0
@@ -73,10 +73,10 @@ fi
 
 ### GETTING UPDATE INFORMATION ###
 
-if [ "$1" == "get_update_info" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "true" ]; then
+if [ "$1" == "get_update_info" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "true" ]; then
     # get the update information
-    info=$(bash "$(dirname "$0")/wppus-api.sh" get_update_info)
-    version=$(bash "$(dirname "$0")/wppus-api.sh" get_version)
+    info=$(bash "$(dirname "$0")/updatepulse-api.sh" get_update_info)
+    version=$(bash "$(dirname "$0")/updatepulse-api.sh" get_version)
     new_version=$(echo -n "$info" | jq -r '.version')
 
     echo ""
@@ -105,12 +105,12 @@ fi
 
 ### UPDATING THE PACKAGE ###
 
-if [ "$1" == "update" ] && [ "$(bash "$(dirname "$0")/wppus-api.sh" is_installed)" == "true" ]; then
+if [ "$1" == "update" ] && [ "$(bash "$(dirname "$0")/updatepulse-api.sh" is_installed)" == "true" ]; then
     # update the package
-    bash "$(dirname "$0")/wppus-api.sh" update
+    bash "$(dirname "$0")/updatepulse-api.sh" update
     echo "Updated"
     echo ""
-    bash "$(dirname "$0")/wppus-api.sh" get_update_info
+    bash "$(dirname "$0")/updatepulse-api.sh" get_update_info
     echo ""
     exit 0
 elif [ "$1" == "update" ]; then
@@ -121,7 +121,7 @@ fi
 
 ### USAGE ###
 
-echo "Usage: ./dummy-generic.sh [command] [arguments]"
+echo "Usage: ./updatepulse-api.sh [command] [arguments]"
 echo "Commands:"
 echo "  install [license] - install the package"
 echo "  uninstall - uninstall the package"

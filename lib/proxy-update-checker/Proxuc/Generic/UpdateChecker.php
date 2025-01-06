@@ -53,7 +53,7 @@ if (!class_exists(UpdateChecker::class, false)):
 				return 'source_not_found';
 			}
 
-			$file = $api->getRemoteFile('wppus.json', $ref);
+			$file = $api->getRemoteFile(basename($this->genericFile), $ref);
 
 			if (!empty($file)) {
 				$fileContents = json_decode($file, true);

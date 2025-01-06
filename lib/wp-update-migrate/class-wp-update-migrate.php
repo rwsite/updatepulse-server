@@ -86,6 +86,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 		protected $from_version;
 		protected $update_result;
 		protected $package_type;
+		protected $package_handle;
 
 		protected static $instance;
 
@@ -94,43 +95,11 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			if ( ! wp_doing_ajax() ) {
 				require_once ABSPATH . 'wp-admin/includes/file.php';
 
-				$this->init_package_type();
+				$this->package_handle = $package_handle;
+				$this->package_prefix = $package_prefix;
 
-				if ( 'plugin' === $this->package_type ) {
-					require_once ABSPATH . 'wp-admin/includes/plugin.php';
-
-					$plugin_data        = get_plugin_data( $package_handle );
-					$latest_version     = $plugin_data['Version'];
-					$this->package_name = $plugin_data['Name'];
-					$this->package_dir  = plugin_dir_path( $package_handle );
-				} elseif ( 'theme' === $this->package_type ) {
-					require_once ABSPATH . 'wp-includes/theme.php';
-
-					$theme_info         = wp_get_theme( $package_handle );
-					$latest_version     = $theme_info->get( 'Version' );
-					$this->package_name = $theme_info->get( 'Name' );
-					$this->package_dir  = $theme_info->get_stylesheet_directory();
-				}
-
-				if ( ! is_null( $this->package_type ) ) {
-					$current_recorded_version = get_option( $package_prefix . '_' . $this->package_type . '_version' );
-
-					if ( ! version_compare( $current_recorded_version, $latest_version, '>=' ) ) {
-						$i10n_path = trailingslashit( basename( $this->package_dir ) ) . 'lib/wp-update-migrate/languages';
-
-						if ( 'plugin' === $this->package_type ) {
-							load_plugin_textdomain( 'wp-update-migrate', false, $i10n_path );
-						} elseif ( 'theme' === $this->package_type ) {
-							load_theme_textdomain( 'wp-update-migrate', $i10n_path );
-						}
-
-						$this->package_prefix = $package_prefix;
-						$this->from_version   = $current_recorded_version;
-						$this->to_version     = $latest_version;
-
-						$this->update();
-					}
-				}
+				$this->init_package_type( $package_prefix );
+				add_action( 'init', array( $this, 'init' ), 10, PHP_INT_MIN - 100 );
 			}
 
 			wp_cache_set( $package_prefix, $this, 'wp-update-migrate' );
@@ -150,6 +119,44 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 
 		public function get_result() {
 			return $this->update_result;
+		}
+
+		public function init() {
+
+			if ( 'plugin' === $this->package_type ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+				$plugin_data        = get_plugin_data( $this->package_handle );
+				$latest_version     = $plugin_data['Version'];
+				$this->package_name = $plugin_data['Name'];
+				$this->package_dir  = plugin_dir_path( $this->package_handle );
+			} elseif ( 'theme' === $this->package_type ) {
+				require_once ABSPATH . 'wp-includes/theme.php';
+
+				$theme_info         = wp_get_theme( $this->package_handle );
+				$latest_version     = $theme_info->get( 'Version' );
+				$this->package_name = $theme_info->get( 'Name' );
+				$this->package_dir  = $theme_info->get_stylesheet_directory();
+			}
+
+			if ( $this->package_type ) {
+				$current_recorded_version = get_option( $this->package_prefix . '_' . $this->package_type . '_version' );
+
+				if ( ! version_compare( $current_recorded_version, $latest_version, '>=' ) ) {
+					$i10n_path = trailingslashit( basename( $this->package_dir ) ) . 'lib/wp-update-migrate/languages';
+
+					if ( 'plugin' === $this->package_type ) {
+						load_plugin_textdomain( 'wp-update-migrate', false, $i10n_path );
+					} elseif ( 'theme' === $this->package_type ) {
+						load_theme_textdomain( 'wp-update-migrate', $i10n_path );
+					}
+
+					$this->from_version = $current_recorded_version;
+					$this->to_version   = $latest_version;
+
+					$this->update();
+				}
+			}
 		}
 
 		public function update_failed_notice() {
@@ -297,13 +304,15 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			}
 		}
 
-		protected function init_package_type() {
+		protected function init_package_type( $package_prefix ) {
 			$hook = current_filter();
 
 			if ( 'plugins_loaded' === $hook ) {
 				$this->package_type = 'plugin';
 			} elseif ( 'after_setup_theme' === $hook ) {
 				$this->package_type = 'theme';
+			} else {
+				$this->package_type = apply_filters( 'wpum_package_type', false, $package_prefix );
 			}
 		}
 
