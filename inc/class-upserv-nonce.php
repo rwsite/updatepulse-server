@@ -217,7 +217,12 @@ class UPServ_Nonce {
 			$nonce = md5( wp_salt( 'nonce' ) . $id . microtime( true ) );
 		}
 
-		$data   = is_array( $data ) ? filter_var_array( $data, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : false;
+		$data = is_array( $data ) ? filter_var_array( $data, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : false;
+
+		if ( $data && isset( $data['test'] ) && 1 === intval( $data['test'] ) ) {
+			$store = false;
+		}
+
 		$expiry = isset( $data['permanent'] ) && $data['permanent'] ? 0 : time() + abs( intval( $expiry_length ) );
 		$data   = $data ? wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) : '{}';
 
