@@ -1,14 +1,14 @@
-.wppus-wrap .nav-tab {
+.upserv-wrap .nav-tab {
     display: flex;
     align-items: center;
     gap: 0.5em;
 }
 
-.wppus-wrap .column-col_id {
+.upserv-wrap .column-col_id {
 	width: 75px;
 }
 
-.wppus-add-packages .spinner {
+.upserv-add-packages .spinner {
     float: none;
     vertical-align: top;
     background-size: 20px 20px;
@@ -18,7 +18,7 @@
     background-position: center center;
 }
 
-.wppus-remove-icon::before {
+.upserv-remove-icon::before {
     margin-left: 2px;
     border-radius: 50%;
     color: #0073aa;
@@ -34,7 +34,7 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.wppus-wrap .help-content ul {
+.upserv-wrap .help-content ul {
     display: block;
     list-style-type: disc;
     margin-block-start: 1em;
@@ -44,7 +44,7 @@
     padding-inline-start: 40px;
 }
 
-.wppus-wrap .help-content pre {
+.upserv-wrap .help-content pre {
     background: rgba(0,0,0,.07);
     direction: ltr;
     overflow: auto;

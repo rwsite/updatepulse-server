@@ -35,139 +35,139 @@ if ( ! function_exists( 'cidr_match' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wppus_assets_suffix' ) ) {
-	function wppus_assets_suffix() {
+if ( ! function_exists( 'upserv_assets_suffix' ) ) {
+	function upserv_assets_suffix() {
 		return (bool) ( constant( 'WP_DEBUG' ) ) ? '' : '.min';
 	}
 }
 
-if ( ! function_exists( 'wppus_is_doing_license_api_request' ) ) {
-	function wppus_is_doing_license_api_request() {
-		return WPPUS_License_API::is_doing_api_request();
+if ( ! function_exists( 'upserv_is_doing_license_api_request' ) ) {
+	function upserv_is_doing_license_api_request() {
+		return UPServ_License_API::is_doing_api_request();
 	}
 }
 
-if ( ! function_exists( 'wppus_is_doing_update_api_request' ) ) {
-	function wppus_is_doing_update_api_request() {
-		return WPPUS_Update_API::is_doing_api_request();
+if ( ! function_exists( 'upserv_is_doing_update_api_request' ) ) {
+	function upserv_is_doing_update_api_request() {
+		return UPServ_Update_API::is_doing_api_request();
 	}
 }
 
-if ( ! function_exists( 'wppus_is_doing_webhook_api_request' ) ) {
-	function wppus_is_doing_webhook_api_request() {
-		return WPPUS_Webhook_API::is_doing_api_request();
+if ( ! function_exists( 'upserv_is_doing_webhook_api_request' ) ) {
+	function upserv_is_doing_webhook_api_request() {
+		return UPServ_Webhook_API::is_doing_api_request();
 	}
 }
 
-if ( ! function_exists( 'wppus_is_doing_package_api_request' ) ) {
-	function wppus_is_doing_package_api_request() {
-		return WPPUS_Package_API::is_doing_api_request();
+if ( ! function_exists( 'upserv_is_doing_package_api_request' ) ) {
+	function upserv_is_doing_package_api_request() {
+		return UPServ_Package_API::is_doing_api_request();
 	}
 }
 
-if ( ! function_exists( 'wppus_is_doing_api_request' ) ) {
-	function wppus_is_doing_api_request() {
+if ( ! function_exists( 'upserv_is_doing_api_request' ) ) {
+	function upserv_is_doing_api_request() {
 		$is_api_request = (
-			wppus_is_doing_license_api_request() ||
-			wppus_is_doing_update_api_request() ||
-			wppus_is_doing_webhook_api_request() ||
-			wppus_is_doing_package_api_request()
+			upserv_is_doing_license_api_request() ||
+			upserv_is_doing_update_api_request() ||
+			upserv_is_doing_webhook_api_request() ||
+			upserv_is_doing_package_api_request()
 		);
 
-		return apply_filters( 'wppus_is_api_request', $is_api_request );
+		return apply_filters( 'upserv_is_api_request', $is_api_request );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_root_data_dir' ) ) {
-	function wppus_get_root_data_dir() {
-		return WPPUS_Data_Manager::get_data_dir();
+if ( ! function_exists( 'upserv_get_root_data_dir' ) ) {
+	function upserv_get_root_data_dir() {
+		return UPServ_Data_Manager::get_data_dir();
 	}
 }
 
-if ( ! function_exists( 'wppus_get_packages_data_dir' ) ) {
-	function wppus_get_packages_data_dir() {
-		return WPPUS_Data_Manager::get_data_dir( 'packages' );
+if ( ! function_exists( 'upserv_get_packages_data_dir' ) ) {
+	function upserv_get_packages_data_dir() {
+		return UPServ_Data_Manager::get_data_dir( 'packages' );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_logs_data_dir' ) ) {
-	function wppus_get_logs_data_dir() {
-		return WPPUS_Data_Manager::get_data_dir( 'logs' );
+if ( ! function_exists( 'upserv_get_logs_data_dir' ) ) {
+	function upserv_get_logs_data_dir() {
+		return UPServ_Data_Manager::get_data_dir( 'logs' );
 	}
 }
 
-if ( ! function_exists( 'wppus_force_cleanup_cache' ) ) {
-	function wppus_force_cleanup_cache() {
-		return WPPUS_Data_Manager::maybe_cleanup( 'cache', true );
+if ( ! function_exists( 'upserv_force_cleanup_cache' ) ) {
+	function upserv_force_cleanup_cache() {
+		return UPServ_Data_Manager::maybe_cleanup( 'cache', true );
 	}
 }
 
-if ( ! function_exists( 'wppus_force_cleanup_logs' ) ) {
-	function wppus_force_cleanup_logs() {
-		return WPPUS_Data_Manager::maybe_cleanup( 'logs', true );
+if ( ! function_exists( 'upserv_force_cleanup_logs' ) ) {
+	function upserv_force_cleanup_logs() {
+		return UPServ_Data_Manager::maybe_cleanup( 'logs', true );
 	}
 }
 
-if ( ! function_exists( 'wppus_force_cleanup_tmp' ) ) {
-	function wppus_force_cleanup_tmp() {
-		return WPPUS_Data_Manager::maybe_cleanup( 'tmp', true );
+if ( ! function_exists( 'upserv_force_cleanup_tmp' ) ) {
+	function upserv_force_cleanup_tmp() {
+		return UPServ_Data_Manager::maybe_cleanup( 'tmp', true );
 	}
 }
 
-if ( ! function_exists( 'wppus_check_remote_plugin_update' ) ) {
-	function wppus_check_remote_plugin_update( $slug ) {
-		return wppus_check_remote_package_update( $slug, 'plugin' );
+if ( ! function_exists( 'upserv_check_remote_plugin_update' ) ) {
+	function upserv_check_remote_plugin_update( $slug ) {
+		return upserv_check_remote_package_update( $slug, 'plugin' );
 	}
 }
 
-if ( ! function_exists( 'wppus_check_remote_theme_update' ) ) {
-	function wppus_check_remote_theme_update( $slug ) {
-		return wppus_check_remote_package_update( $slug, 'theme' );
+if ( ! function_exists( 'upserv_check_remote_theme_update' ) ) {
+	function upserv_check_remote_theme_update( $slug ) {
+		return upserv_check_remote_package_update( $slug, 'theme' );
 	}
 }
 
-if ( ! function_exists( 'wppus_check_remote_package_update' ) ) {
-	function wppus_check_remote_package_update( $slug, $type ) {
-		$api = WPPUS_Update_API::get_instance();
+if ( ! function_exists( 'upserv_check_remote_package_update' ) ) {
+	function upserv_check_remote_package_update( $slug, $type ) {
+		$api = UPServ_Update_API::get_instance();
 
 		return $api->check_remote_update( $slug, $type );
 	}
 }
 
-if ( ! function_exists( 'wppus_download_remote_plugin' ) ) {
-	function wppus_download_remote_plugin( $slug ) {
-		return wppus_download_remote_package( $slug, 'plugin' );
+if ( ! function_exists( 'upserv_download_remote_plugin' ) ) {
+	function upserv_download_remote_plugin( $slug ) {
+		return upserv_download_remote_package( $slug, 'plugin' );
 	}
 }
 
-if ( ! function_exists( 'wppus_download_remote_theme' ) ) {
-	function wppus_download_remote_theme( $slug ) {
-		return wppus_download_remote_package( $slug, 'theme' );
+if ( ! function_exists( 'upserv_download_remote_theme' ) ) {
+	function upserv_download_remote_theme( $slug ) {
+		return upserv_download_remote_package( $slug, 'theme' );
 	}
 }
 
-if ( ! function_exists( 'wppus_download_remote_package' ) ) {
-	function wppus_download_remote_package( $slug, $type ) {
-		$api = WPPUS_Update_API::get_instance();
+if ( ! function_exists( 'upserv_download_remote_package' ) ) {
+	function upserv_download_remote_package( $slug, $type ) {
+		$api = UPServ_Update_API::get_instance();
 
 		return $api->download_remote_package( $slug, $type, true );
 	}
 }
 
-if ( ! function_exists( 'wppus_delete_package' ) ) {
-	function wppus_delete_package( $slug ) {
-		$api = WPPUS_Package_Manager::get_instance();
+if ( ! function_exists( 'upserv_delete_package' ) ) {
+	function upserv_delete_package( $slug ) {
+		$api = UPServ_Package_Manager::get_instance();
 
 		return (bool) $api->delete_packages_bulk( array( $slug ) );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_package_info' ) ) {
-	function wppus_get_package_info( $package_slug, $json_encode = true ) {
-		require_once WPPUS_PLUGIN_PATH . 'inc/class-wppus-package-manager.php';
+if ( ! function_exists( 'upserv_get_package_info' ) ) {
+	function upserv_get_package_info( $package_slug, $json_encode = true ) {
+		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
 
 		$result          = $json_encode ? '{}' : array();
-		$package_manager = new WPPUS_Package_Manager();
+		$package_manager = new UPServ_Package_Manager();
 		$package_info    = $package_manager->get_package_info( $package_slug );
 
 		if ( $package_info ) {
@@ -178,20 +178,20 @@ if ( ! function_exists( 'wppus_get_package_info' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wppus_is_package_require_license' ) ) {
-	function wppus_is_package_require_license( $package_slug ) {
-		$api = WPPUS_License_API::get_instance();
+if ( ! function_exists( 'upserv_is_package_require_license' ) ) {
+	function upserv_is_package_require_license( $package_slug ) {
+		$api = UPServ_License_API::get_instance();
 
 		return $api->is_package_require_license( $package_slug );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_batch_package_info' ) ) {
-	function wppus_get_batch_package_info( $search, $json_encode = true ) {
-		require_once WPPUS_PLUGIN_PATH . 'inc/class-wppus-package-manager.php';
+if ( ! function_exists( 'upserv_get_batch_package_info' ) ) {
+	function upserv_get_batch_package_info( $search, $json_encode = true ) {
+		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
 
 		$result          = $json_encode ? '{}' : array();
-		$package_manager = new WPPUS_Package_Manager();
+		$package_manager = new UPServ_Package_Manager();
 		$package_info    = $package_manager->get_batch_package_info( $search );
 
 		if ( $package_info ) {
@@ -202,22 +202,22 @@ if ( ! function_exists( 'wppus_get_batch_package_info' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wppus_download_local_package' ) ) {
-	function wppus_download_local_package( $package_slug, $package_path = null, $exit_or_die = true ) {
-		require_once WPPUS_PLUGIN_PATH . 'inc/class-wppus-package-manager.php';
+if ( ! function_exists( 'upserv_download_local_package' ) ) {
+	function upserv_download_local_package( $package_slug, $package_path = null, $exit_or_die = true ) {
+		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
 
-		$package_manager = new WPPUS_Package_Manager();
+		$package_manager = new UPServ_Package_Manager();
 
 		if ( null === $package_path ) {
-			$package_path = wppus_get_local_package_path( $package_slug );
+			$package_path = upserv_get_local_package_path( $package_slug );
 		}
 
 		$package_manager->trigger_packages_download( $package_slug, $package_path, $exit_or_die );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_local_package_path' ) ) {
-	function wppus_get_local_package_path( $package_slug ) {
+if ( ! function_exists( 'upserv_get_local_package_path' ) ) {
+	function upserv_get_local_package_path( $package_slug ) {
 		WP_Filesystem();
 
 		global $wp_filesystem;
@@ -226,7 +226,7 @@ if ( ! function_exists( 'wppus_get_local_package_path' ) ) {
 			wp_die( __FUNCTION__ . ' - WP_Filesystem not available.' );
 		}
 
-		$package_path = trailingslashit( WPPUS_Data_Manager::get_data_dir( 'packages' ) ) . $package_slug . '.zip';
+		$package_path = trailingslashit( UPServ_Data_Manager::get_data_dir( 'packages' ) ) . $package_slug . '.zip';
 
 		if ( $wp_filesystem->is_file( $package_path ) ) {
 			return $package_path;
@@ -236,24 +236,24 @@ if ( ! function_exists( 'wppus_get_local_package_path' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wppus_browse_licenses' ) ) {
-	function wppus_browse_licenses( $license_query ) {
-		$api = WPPUS_License_API::get_instance();
+if ( ! function_exists( 'upserv_browse_licenses' ) ) {
+	function upserv_browse_licenses( $license_query ) {
+		$api = UPServ_License_API::get_instance();
 
 		return $api->browse( $license_query );
 	}
 }
 
-if ( ! function_exists( 'wppus_read_license' ) ) {
-	function wppus_read_license( $license_data ) {
-		$api = WPPUS_License_API::get_instance();
+if ( ! function_exists( 'upserv_read_license' ) ) {
+	function upserv_read_license( $license_data ) {
+		$api = UPServ_License_API::get_instance();
 
 		return $api->read( $license_data );
 	}
 }
 
-if ( ! function_exists( 'wppus_add_license' ) ) {
-	function wppus_add_license( $license_data ) {
+if ( ! function_exists( 'upserv_add_license' ) ) {
+	function upserv_add_license( $license_data ) {
 
 		if ( is_array( $license_data ) && ! isset( $license_data['data'] ) ) {
 			$license_data['data'] = array();
@@ -262,14 +262,14 @@ if ( ! function_exists( 'wppus_add_license' ) ) {
 		$license_data['data']['operation_timestamp'] = time();
 		$license_data['data']['operation']           = 'add';
 		$license_data['data']['operation_id']        = bin2hex( random_bytes( 16 ) );
-		$api = WPPUS_License_API::get_instance();
+		$api = UPServ_License_API::get_instance();
 
 		return $api->add( $license_data );
 	}
 }
 
-if ( ! function_exists( 'wppus_edit_license' ) ) {
-	function wppus_edit_license( $license_data ) {
+if ( ! function_exists( 'upserv_edit_license' ) ) {
+	function upserv_edit_license( $license_data ) {
 
 		if ( is_array( $license_data ) && ! isset( $license_data['data'] ) ) {
 			$license_data['data'] = array();
@@ -278,14 +278,14 @@ if ( ! function_exists( 'wppus_edit_license' ) ) {
 		$license_data['data']['operation_timestamp'] = time();
 		$license_data['data']['operation']           = 'edit';
 		$license_data['data']['operation_id']        = bin2hex( random_bytes( 16 ) );
-		$api = WPPUS_License_API::get_instance();
+		$api = UPServ_License_API::get_instance();
 
 		return $api->edit( $license_data );
 	}
 }
 
-if ( ! function_exists( 'wppus_delete_license' ) ) {
-	function wppus_delete_license( $license_data ) {
+if ( ! function_exists( 'upserv_delete_license' ) ) {
+	function upserv_delete_license( $license_data ) {
 
 		if ( is_array( $license_data ) && ! isset( $license_data['data'] ) ) {
 			$license_data['data'] = array();
@@ -294,40 +294,40 @@ if ( ! function_exists( 'wppus_delete_license' ) ) {
 		$license_data['data']['operation_timestamp'] = time();
 		$license_data['data']['operation']           = 'delete';
 		$license_data['data']['operation_id']        = bin2hex( random_bytes( 16 ) );
-		$api = WPPUS_License_API::get_instance();
+		$api = UPServ_License_API::get_instance();
 
 		return $api->delete( $license_data );
 	}
 }
 
-if ( ! function_exists( 'wppus_check_license' ) ) {
-	function wppus_check_license( $license_data ) {
-		$api = WPPUS_License_API::get_instance();
+if ( ! function_exists( 'upserv_check_license' ) ) {
+	function upserv_check_license( $license_data ) {
+		$api = UPServ_License_API::get_instance();
 
 		return $api->check( $license_data );
 	}
 }
 
-if ( ! function_exists( 'wppus_activate_license' ) ) {
-	function wppus_activate_license( $license_data ) {
-		$api = WPPUS_License_API::get_instance();
+if ( ! function_exists( 'upserv_activate_license' ) ) {
+	function upserv_activate_license( $license_data ) {
+		$api = UPServ_License_API::get_instance();
 
 		return $api->activate( $license_data );
 	}
 }
 
-if ( ! function_exists( 'wppus_deactivate_license' ) ) {
-	function wppus_deactivate_license( $license_data ) {
-		$api = WPPUS_License_API::get_instance();
+if ( ! function_exists( 'upserv_deactivate_license' ) ) {
+	function upserv_deactivate_license( $license_data ) {
+		$api = UPServ_License_API::get_instance();
 
 		return $api->deactivate( $license_data );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_template' ) ) {
-	function wppus_get_template( $template_name, $args = array(), $load = true, $require_file = false ) {
-		$template_name = apply_filters( 'wppus_get_template_name', $template_name, $args );
-		$template_args = apply_filters( 'wppus_get_template_args', $args, $template_name );
+if ( ! function_exists( 'upserv_get_template' ) ) {
+	function upserv_get_template( $template_name, $args = array(), $load = true, $require_file = false ) {
+		$template_name = apply_filters( 'upserv_get_template_name', $template_name, $args );
+		$template_args = apply_filters( 'upserv_get_template_args', $args, $template_name );
 
 		if ( ! empty( $template_args ) ) {
 
@@ -338,14 +338,14 @@ if ( ! function_exists( 'wppus_get_template' ) ) {
 			}
 		}
 
-		return WP_Packages_Update_Server::locate_template( $template_name, $load, $require_file );
+		return UPServ::locate_template( $template_name, $load, $require_file );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_admin_template' ) ) {
-	function wppus_get_admin_template( $template_name, $args = array(), $load = true, $require_file = false ) {
-		$template_name = apply_filters( 'wppus_get_admin_template_name', $template_name, $args );
-		$template_args = apply_filters( 'wppus_get_admin_template_args', $args, $template_name );
+if ( ! function_exists( 'upserv_get_admin_template' ) ) {
+	function upserv_get_admin_template( $template_name, $args = array(), $load = true, $require_file = false ) {
+		$template_name = apply_filters( 'upserv_get_admin_template_name', $template_name, $args );
+		$template_args = apply_filters( 'upserv_get_admin_template_args', $args, $template_name );
 
 		if ( ! empty( $template_args ) ) {
 
@@ -356,64 +356,64 @@ if ( ! function_exists( 'wppus_get_admin_template' ) ) {
 			}
 		}
 
-		return WP_Packages_Update_Server::locate_admin_template( $template_name, $load, $require_file );
+		return UPServ::locate_admin_template( $template_name, $load, $require_file );
 	}
 }
 
-if ( ! function_exists( 'wppus_init_nonce_auth' ) ) {
-	function wppus_init_nonce_auth( $private_auth_key ) {
-		require_once WPPUS_PLUGIN_PATH . 'inc/class-wppus-nonce.php';
+if ( ! function_exists( 'upserv_init_nonce_auth' ) ) {
+	function upserv_init_nonce_auth( $private_auth_key ) {
+		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-nonce.php';
 
-		WPPUS_Nonce::init_auth( $private_auth_key );
+		UPServ_Nonce::init_auth( $private_auth_key );
 	}
 }
 
-if ( ! function_exists( 'wppus_create_nonce' ) ) {
-	function wppus_create_nonce(
+if ( ! function_exists( 'upserv_create_nonce' ) ) {
+	function upserv_create_nonce(
 		$true_nonce = true,
-		$expiry_length = WPPUS_Nonce::DEFAULT_EXPIRY_LENGTH,
+		$expiry_length = UPServ_Nonce::DEFAULT_EXPIRY_LENGTH,
 		$data = array(),
-		$return_type = WPPUS_Nonce::NONCE_ONLY,
+		$return_type = UPServ_Nonce::NONCE_ONLY,
 		$store = true
 	) {
-		require_once WPPUS_PLUGIN_PATH . 'inc/class-wppus-nonce.php';
+		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-nonce.php';
 
-		return WPPUS_Nonce::create_nonce( $true_nonce, $expiry_length, $data, $return_type, $store );
+		return UPServ_Nonce::create_nonce( $true_nonce, $expiry_length, $data, $return_type, $store );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_nonce_expiry' ) ) {
-	function wppus_get_nonce_expiry( $nonce ) {
-		return WPPUS_Nonce::get_nonce_expiry( $nonce );
+if ( ! function_exists( 'upserv_get_nonce_expiry' ) ) {
+	function upserv_get_nonce_expiry( $nonce ) {
+		return UPServ_Nonce::get_nonce_expiry( $nonce );
 	}
 }
 
-if ( ! function_exists( 'wppus_get_nonce_data' ) ) {
-	function wppus_get_nonce_data( $nonce ) {
-		return WPPUS_Nonce::get_nonce_data( $nonce );
+if ( ! function_exists( 'upserv_get_nonce_data' ) ) {
+	function upserv_get_nonce_data( $nonce ) {
+		return UPServ_Nonce::get_nonce_data( $nonce );
 	}
 }
 
-if ( ! function_exists( 'wppus_validate_nonce' ) ) {
-	function wppus_validate_nonce( $value ) {
-		return WPPUS_Nonce::validate_nonce( $value );
+if ( ! function_exists( 'upserv_validate_nonce' ) ) {
+	function upserv_validate_nonce( $value ) {
+		return UPServ_Nonce::validate_nonce( $value );
 	}
 }
 
-if ( ! function_exists( 'wppus_delete_nonce' ) ) {
-	function wppus_delete_nonce( $value ) {
-		return WPPUS_Nonce::delete_nonce( $value );
+if ( ! function_exists( 'upserv_delete_nonce' ) ) {
+	function upserv_delete_nonce( $value ) {
+		return UPServ_Nonce::delete_nonce( $value );
 	}
 }
 
-if ( ! function_exists( 'wppus_clear_nonces' ) ) {
-	function wppus_clear_nonces() {
-		return WPPUS_Nonce::wppus_nonce_cleanup();
+if ( ! function_exists( 'upserv_clear_nonces' ) ) {
+	function upserv_clear_nonces() {
+		return UPServ_Nonce::upserv_nonce_cleanup();
 	}
 }
 
-if ( ! function_exists( 'wppus_build_nonce_api_signature' ) ) {
-	function wppus_build_nonce_api_signature( $api_key_id, $api_key, $timestamp, $payload ) {
+if ( ! function_exists( 'upserv_build_nonce_api_signature' ) ) {
+	function upserv_build_nonce_api_signature( $api_key_id, $api_key, $timestamp, $payload ) {
 		unset( $payload['api_signature'] );
 		unset( $payload['api_credentials'] );
 
@@ -434,7 +434,7 @@ if ( ! function_exists( 'wppus_build_nonce_api_signature' ) ) {
 		} )( $payload );
 
 		$str         = base64_encode( $api_key_id . json_encode( $payload, JSON_NUMERIC_CHECK ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode, WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		$credentials = $timestamp . '/' . $api_key_id;
+		$credentials = $timestamp . '|' . $api_key_id;
 		$time_key    = hash_hmac( 'sha256', $timestamp, $api_key, true );
 		$signature   = hash_hmac( 'sha256', $str, $time_key );
 
@@ -445,37 +445,37 @@ if ( ! function_exists( 'wppus_build_nonce_api_signature' ) ) {
 	}
 }
 
-if ( ! function_exists( 'wppus_schedule_webhook' ) ) {
-	function wppus_schedule_webhook( $payload, $event_type ) {
+if ( ! function_exists( 'upserv_schedule_webhook' ) ) {
+	function upserv_schedule_webhook( $payload, $event_type ) {
 
 		if ( isset( $payload['event'], $payload['content'] ) ) {
-			$api = WPPUS_Webhook_API::get_instance();
+			$api = UPServ_Webhook_API::get_instance();
 
 			return $api->schedule_webhook( $payload, $event_type );
 		}
 
 		return new WP_Error(
 			__FUNCTION__,
-			__( 'The webhook payload must contain an event string and a content.', 'wppus' )
+			__( 'The webhook payload must contain an event string and a content.', 'updatepulse-server' )
 		);
 	}
 }
 
-if ( ! function_exists( 'wppus_fire_webhook' ) ) {
-	function wppus_fire_webhook( $url, $secret, $body, $action ) {
+if ( ! function_exists( 'upserv_fire_webhook' ) ) {
+	function upserv_fire_webhook( $url, $secret, $body, $action ) {
 
 		if (
 			filter_var( $url, FILTER_VALIDATE_URL ) &&
 			null !== json_decode( $body )
 		) {
-			$api = WPPUS_Webhook_API::get_instance();
+			$api = UPServ_Webhook_API::get_instance();
 
 			return $api->fire_webhook( $url, $secret, $body, $action );
 		}
 
 		return new WP_Error(
 			__FUNCTION__,
-			__( '$url must be a valid url and $body must be a JSON string.', 'wppus' )
+			__( '$url must be a valid url and $body must be a JSON string.', 'updatepulse-server' )
 		);
 	}
 }

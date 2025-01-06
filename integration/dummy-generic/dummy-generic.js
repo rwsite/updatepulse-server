@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-const wppusApi = require('./wppus-api');
+const updatePulseApi = require('./updatepulse-api');
 
-wppusApi.on('ready', function (api) {
+updatePulseApi.on('ready', function (api) {
 
     const commands = {
 

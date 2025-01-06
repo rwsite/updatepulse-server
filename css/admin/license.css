@@ -1,70 +1,70 @@
-#wppus-licenses-list {
+#upserv-licenses-list {
     margin-bottom: 20px;
 }
 
-#wppus_license_panel,
-.wppus-edit-license-label,
-.wppus-add-license-label,
-.wppus-license-show-if-edit {
+#upserv_license_panel,
+.upserv-edit-license-label,
+.upserv-add-license-label,
+.upserv-license-show-if-edit {
     display: none;
 }
 
-label.wppus-license-error {
+label.upserv-license-error {
     display: none !important;
 }
 
-input.wppus-license-error {
+input.upserv-license-error {
     border-color: #a00;
 }
 
-input[type=text]:focus.wppus-license-error,
-input[type=date]:focus.wppus-license-error,
-input[type=email]:focus.wppus-license-error,
-input[type=number]:focus.wppus-license-error {
+input[type=text]:focus.upserv-license-error,
+input[type=date]:focus.upserv-license-error,
+input[type=email]:focus.upserv-license-error,
+input[type=number]:focus.upserv-license-error {
     border-color: #a00;
     box-shadow: 0 0 2px rgba(170, 0, 0, .8);
 }
 
-#wppus_license_panel {
+#upserv_license_panel {
     margin-top: 20px !important;
     margin-top: 20px !important;
 }
 
-#wppus_license_panel .inside {
+#upserv_license_panel .inside {
     opacity: 0;
 }
 
-#wppus_license {
+#upserv_license {
     padding: 10px 15px 0px;
 }
 
-#wppus_license h3 {
+#upserv_license h3 {
     margin: 0;
 }
 
-#wppus_license .license-column-container {
+#upserv_license .license-column-container {
     display: flex;
     align-items: flex-start;
     gap: 2%;
 }
 
-#wppus_license .license-column {
+#upserv_license .license-column {
     border-right: 1px solid #e6e6e6;
     max-width: 750px;
 }
 
-#wppus_license .license-column:last-child {
+#upserv_license .license-column:last-child {
     padding-right: 0;
     padding-left: 2%;
     border: none;
     box-sizing: border-box;
 }
 
-#wppus_license .license-column p {
+#upserv_license .license-column p {
     padding: 0!important;
 }
 
-#wppus_license .license-column .form-field {
+#upserv_license .license-column .form-field {
     float: left;
     clear: left;
     width: 48%;
@@ -72,67 +72,67 @@ input[type=number]:focus.wppus-license-error {
     margin: 9px 0 0;
 }
 
-#wppus_license .license-column .form-field label {
+#upserv_license .license-column .form-field label {
     display: block;
     padding: 0 0 3px;
 }
 
-#wppus_license .license-column .form-field input,
-#wppus_license .license-column .form-field textarea {
+#upserv_license .license-column .form-field input,
+#upserv_license .license-column .form-field textarea {
     width: 100%;
 }
 
-#wppus_license .license-column .form-field select {
+#upserv_license .license-column .form-field select {
     width: 100%;
 }
 
-#wppus_license .license-column .form-field .select2-container {
+#upserv_license .license-column .form-field .select2-container {
     width: 100%!important;
 }
 
-#wppus_license .license-column .form-field .date-picker {
+#upserv_license .license-column .form-field .date-picker {
     width: 50%;
 }
 
-#wppus_license .license-column .form-field small {
+#upserv_license .license-column .form-field small {
     display: block;
     margin: 5px 0 0;
     color: #999;
 }
 
-#wppus_license .license-column .form-field.last {
+#upserv_license .license-column .form-field.last {
     float: right;
     clear: right;
 }
 
-#wppus_license .license-column .form-field-wide {
+#upserv_license .license-column .form-field-wide {
     width: 100%;
     clear: both;
 }
 
-#wppus_license .license-column .form-field-wide input,
-#wppus_license .license-column .form-field-wide select,
-#wppus_license .license-column .form-field-wide textarea {
+#upserv_license .license-column .form-field-wide input,
+#upserv_license .license-column .form-field-wide select,
+#upserv_license .license-column .form-field-wide textarea {
     width: 100%;
 }
 
-#wppus_license #wppus_license_save {
+#upserv_license #upserv_license_save {
     margin: 1px 8px 0 0;
 }
 
-#wppus_license_registered_domains ul {
+#upserv_license_registered_domains ul {
     margin: 0 0 0 14px;
     font-size: 12px;
     overflow: auto;
     list-style: none;
 }
 
-.wppus-domains-list,
-#wppus_license_registered_domains li.wppus-domain-template {
+.upserv-domains-list,
+#upserv_license_registered_domains li.upserv-domain-template {
     display: none;
 }
 
-#wppus_license_registered_domains li {
+#upserv_license_registered_domains li {
     display: inline-block;
     margin-right: 25px;
     font-size: 13px;
@@ -144,7 +144,7 @@ input[type=number]:focus.wppus-license-error {
     margin-bottom: 6px;
 }
 
-#wppus_license_registered_domains button {
+#upserv_license_registered_domains button {
     position: absolute;
     width: 24px;
     height: 24px;
@@ -156,11 +156,11 @@ input[type=number]:focus.wppus-license-error {
     text-indent: 0;
 }
 
-span.wppus-domain-value {
+span.upserv-domain-value {
     margin-left: 5px;
 }
 
-#wppus_license_data {
+#upserv_license_data {
     width: 250px;
 }
 
@@ -169,15 +169,15 @@ span.wppus-domain-value {
 }
 
 @media only screen and (max-width: 945px) {
-    #wppus_license .license-column,
-    #wppus_license .license-column:last-child,
-    #wppus_license .license-column:first-child{
+    #upserv_license .license-column,
+    #upserv_license .license-column:last-child,
+    #upserv_license .license-column:first-child{
         border:none;
         padding: 0;
         margin: 0;
     }
 
-    #wppus_license .license-column-container {
+    #upserv_license .license-column-container {
         flex-direction: column;
         gap: 0;
     }

@@ -2,3 +2,4 @@
 .htaccess
 sftp-config.*
 .vscode
+.DS_Store

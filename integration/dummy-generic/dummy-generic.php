@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__ . '/wppus-api.php';
+require_once __DIR__ . '/updatepulse-api.php';
 
 ### MAIN ###
 
@@ -14,7 +14,7 @@ require_once __DIR__ . '/wppus-api.php';
 	if ( function_exists( 'dummy_generic_' . $command ) ) {
 		$command = 'dummy_generic_' . $command;
 
-		WPPUS_API::init();
+		UpdatePulse_API::init();
 
 		if ( 'dummy_generic_install' === $command ) {
 			$command( $license );
@@ -32,9 +32,9 @@ require_once __DIR__ . '/wppus-api.php';
 
 function dummy_generic_status() {
 
-	if ( true === WPPUS_API::is_installed() ) {
+	if ( true === UpdatePulse_API::is_installed() ) {
 		echo "Status: Installed\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	} elseif ( false === WPPUS_API::is_installed() ) {
+	} elseif ( false === UpdatePulse_API::is_installed() ) {
 		echo "Status: Not installed\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	} else {
 		echo "Status: Unknown\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -45,9 +45,9 @@ function dummy_generic_status() {
 
 function dummy_generic_install( $license_key ) {
 	// If the command is "install", the script is not installed, and the license key is not empty
-	if ( ! WPPUS_API::is_installed() && ! empty( $license_key ) ) {
+	if ( ! UpdatePulse_API::is_installed() && ! empty( $license_key ) ) {
 		// Install the script
-		WPPUS_API::install( $license_key );
+		UpdatePulse_API::install( $license_key );
 
 		echo "Installed\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	} else {
@@ -59,9 +59,9 @@ function dummy_generic_install( $license_key ) {
 
 function dummy_generic_uninstall() {
 	// If the command is "uninstall" and the script is installed
-	if ( WPPUS_API::is_installed() ) {
+	if ( UpdatePulse_API::is_installed() ) {
 		// Uninstall the script
-		WPPUS_API::uninstall();
+		UpdatePulse_API::uninstall();
 
 		echo "Uninstalled\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	} else {
@@ -73,9 +73,9 @@ function dummy_generic_uninstall() {
 
 function dummy_generic_activate() {
 	// If the command is "activate", the script is installed, and the license key is not empty
-	if ( WPPUS_API::is_installed() ) {
+	if ( UpdatePulse_API::is_installed() ) {
 		// Activate the license
-		WPPUS_API::activate();
+		UpdatePulse_API::activate();
 
 		echo "Activated\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	} else {
@@ -87,9 +87,9 @@ function dummy_generic_activate() {
 
 function dummy_generic_deactivate() {
 	// If the command is "deactivate" and the script is installed
-	if ( WPPUS_API::is_installed() ) {
+	if ( UpdatePulse_API::is_installed() ) {
 		// Deactivate the license
-		WPPUS_API::deactivate();
+		UpdatePulse_API::deactivate();
 
 		echo "Deactivated\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	} else {
@@ -101,11 +101,11 @@ function dummy_generic_deactivate() {
 
 function dummy_generic_get_update_info() {
 	// If the command is "get_update_info" and the script is installed
-	if ( WPPUS_API::is_installed() ) {
+	if ( UpdatePulse_API::is_installed() ) {
 		// Get the update information
-		$info = json_decode( WPPUS_API::get_update_info(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		$info = json_decode( UpdatePulse_API::get_update_info(), true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		// Get the current version
-		$version = WPPUS_API::get_version();
+		$version = UpdatePulse_API::get_version();
 		// Get the remote version
 		$new_version = $info['version'];
 
@@ -135,13 +135,13 @@ function dummy_generic_get_update_info() {
 
 function dummy_generic_update() {
 	// If the command is "update" and the script is installed
-	if ( WPPUS_API::is_installed() ) {
+	if ( UpdatePulse_API::is_installed() ) {
 		// Get the update information
-		WPPUS_API::update();
+		UpdatePulse_API::update();
 
 		echo "Updated\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo json_encode( json_decode( WPPUS_API::get_update_info(), true ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		echo json_encode( json_decode( UpdatePulse_API::get_update_info(), true ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) . "\n\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	} else {
 		echo "The package is not installed\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}

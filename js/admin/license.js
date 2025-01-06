@@ -1,46 +1,46 @@
-/* global Wppus, console */
+/* global UPServAdminLicense, console */
 jQuery(document).ready(function ($) {
 	var editor = wp.codeEditor;
 	var initEditor = true;
 
 	$('#add_license_trigger').on('click', function() {
-		showLicensePanel($('#wppus_license_panel'), function() {
+		showLicensePanel($('#upserv_license_panel'), function() {
 			populateLicensePanel();
-			$('#wppus_license_action').val('create');
-			$('.wppus-edit-license-label').hide();
-			$('.wppus-license-show-if-edit').hide();
-			$('.wppus-add-license-label').show();
+			$('#upserv_license_action').val('create');
+			$('.upserv-edit-license-label').hide();
+			$('.upserv-license-show-if-edit').hide();
+			$('.upserv-add-license-label').show();
 			$('.open-panel').attr('disabled', 'disabled');
-			$('.wppus-licenses-table .open-panel').hide();
+			$('.upserv-licenses-table .open-panel').hide();
 			$('html, body').animate({
-                scrollTop: ($('#wppus_license_panel').offset().top - $('#wpadminbar').height() - 20)
+                scrollTop: ($('#upserv_license_panel').offset().top - $('#wpadminbar').height() - 20)
             }, 500);
 		});
 	});
-	$('.wppus-licenses-table .open-panel .edit a').on('click', function(e){
+	$('.upserv-licenses-table .open-panel .edit a').on('click', function(e){
 		e.preventDefault();
 
 		var licenseData = JSON.parse($(this).closest('tr').find('input[name="license_data[]"]').val());
 
-		showLicensePanel($('#wppus_license_panel'), function() {
+		showLicensePanel($('#upserv_license_panel'), function() {
 			populateLicensePanel(licenseData);
-			$('#wppus_license_action').val('update');
-			$('.wppus-edit-license-label').show();
-			$('.wppus-license-show-if-edit').show();
-			$('.wppus-add-license-label').hide();
+			$('#upserv_license_action').val('update');
+			$('.upserv-edit-license-label').show();
+			$('.upserv-license-show-if-edit').show();
+			$('.upserv-add-license-label').hide();
 			$('.open-panel').attr('disabled', 'disabled');
-			$('.wppus-licenses-table .open-panel').hide();
+			$('.upserv-licenses-table .open-panel').hide();
 			$('html, body').animate({
-                scrollTop: ($('#wppus_license_panel').offset().top - $('#wpadminbar').height() - 20)
+                scrollTop: ($('#upserv_license_panel').offset().top - $('#wpadminbar').height() - 20)
             }, 500);
 		});
 	});
 
-	$('#wppus_license_cancel, .close-panel.reset').on('click', function() {
+	$('#upserv_license_cancel, .close-panel.reset').on('click', function() {
 		$('html, body').animate({
-            scrollTop: ($('.wppus-wrap').offset().top - $('#wpadminbar').height() - 20)
+            scrollTop: ($('.upserv-wrap').offset().top - $('#wpadminbar').height() - 20)
         }, 150);
-		hideLicensePanel($('#wppus_license_panel'), function() {
+		hideLicensePanel($('#upserv_license_panel'), function() {
 			resetLicensePanel();
 		});
 	});
@@ -53,119 +53,119 @@ jQuery(document).ready(function ($) {
 			return this.optional( element ) || /[a-z0-9-]*/.test( value );
 		};
 
-		$('#wppus_license').validate({
+		$('#upserv_license').validate({
 			ignore: '.CodeMirror *',
-			errorClass: 'wppus-license-error',
+			errorClass: 'upserv-license-error',
 			rules: {
-				wppus_license_key: { required: true },
-				wppus_license_package_slug: { required: true, slug: true },
-				wppus_license_registered_email: { required: true, email: true },
-				wppus_license_date_created: { required: true, licenseDate: true },
-				wppus_license_date_expiry: { licenseDate: true },
-				wppus_license_date_renewed: { licenseDate: true },
-				wppus_license_max_allowed_domains: { required: true }
+				upserv_license_key: { required: true },
+				upserv_license_package_slug: { required: true, slug: true },
+				upserv_license_registered_email: { required: true, email: true },
+				upserv_license_date_created: { required: true, licenseDate: true },
+				upserv_license_date_expiry: { licenseDate: true },
+				upserv_license_date_renewed: { licenseDate: true },
+				upserv_license_max_allowed_domains: { required: true }
 			},
 			submitHandler: function (form) {
-				var domainElements = $('.wppus-domains-list li:not(.wppus-domain-template) .wppus-domain-value'),
+				var domainElements = $('.upserv-domains-list li:not(.upserv-domain-template) .upserv-domain-value'),
 					values = {
-						'id': $('#wppus_license_id').html(),
-						'license_key': $('#wppus_license_key').val(),
-						'max_allowed_domains': $('#wppus_license_max_allowed_domains').val(),
+						'id': $('#upserv_license_id').html(),
+						'license_key': $('#upserv_license_key').val(),
+						'max_allowed_domains': $('#upserv_license_max_allowed_domains').val(),
 						'allowed_domains': domainElements.map(function() { return $(this).text(); }).get(),
-						'status': $('#wppus_license_status').val(),
-						'owner_name': $('#wppus_license_owner_name').val(),
-						'email': $('#wppus_license_registered_email').val(),
-						'company_name': $('#wppus_license_owner_company').val(),
-						'txn_id': $('#wppus_license_transaction_id').val(),
+						'status': $('#upserv_license_status').val(),
+						'owner_name': $('#upserv_license_owner_name').val(),
+						'email': $('#upserv_license_registered_email').val(),
+						'company_name': $('#upserv_license_owner_company').val(),
+						'txn_id': $('#upserv_license_transaction_id').val(),
 						'data': editor.codemirror.getValue(),
-						'date_created': $('#wppus_license_date_created').val(),
-						'date_renewed': $('#wppus_license_date_renewed').val(),
-						'date_expiry': $('#wppus_license_date_expiry').val(),
-						'package_slug': $('#wppus_license_package_slug').val(),
-						'package_type': $('#wppus_license_package_type').val()
+						'date_created': $('#upserv_license_date_created').val(),
+						'date_renewed': $('#upserv_license_date_renewed').val(),
+						'date_expiry': $('#upserv_license_date_expiry').val(),
+						'package_slug': $('#upserv_license_package_slug').val(),
+						'package_type': $('#upserv_license_package_type').val()
 					};
 
-				$('#wppus_license_values').val(JSON.stringify(values));
+				$('#upserv_license_values').val(JSON.stringify(values));
 				$('.no-submit').removeAttr('name');
 				form.submit();
 			}
 		});
 	}
 
-	$('#wppus_license_registered_domains').on('click', '.wppus-remove-domain', function(e) {
+	$('#upserv_license_registered_domains').on('click', '.upserv-remove-domain', function(e) {
 		e.preventDefault();
 		$(this).parent().remove();
 
-		if (1 >= $('.wppus-remove-domain').length) {
-			$('.wppus-no-domain').show();
+		if (1 >= $('.upserv-remove-domain').length) {
+			$('.upserv-no-domain').show();
 		}
 	});
 
 	function populateLicensePanel(licenseData) {
 
 		if (initEditor) {
-			editor = editor.initialize($('#wppus_license_data'), WppusAdminLicense.cm_settings);
+			editor = editor.initialize($('#upserv_license_data'), UPServAdminLicense.cm_settings);
 			initEditor = false;
 		}
 
 		if ($.isPlainObject(licenseData)) {
-			$('#wppus_license_id').html(licenseData.id);
-			$('#wppus_license_key').val(licenseData.license_key);
-			$('#wppus_license_date_created').val(licenseData.date_created);
-			$('#wppus_license_max_allowed_domains').val(licenseData.max_allowed_domains);
-			$('#wppus_license_owner_name').val(licenseData.owner_name);
-			$('#wppus_license_registered_email').val(licenseData.email);
-			$('#wppus_license_owner_company').val(licenseData.company_name);
-			$('#wppus_license_transaction_id').val(licenseData.txn_id);
-			$('#wppus_license_package_slug').val(licenseData.package_slug);
-			$('#wppus_license_status').val(licenseData.status);
-			$('#wppus_license_data').val(licenseData.data ? JSON.stringify(JSON.parse(licenseData.data), null, '\t') : '');
-			$('#wppus_license_package_type').val(licenseData.package_type);
-			editor.codemirror.setValue($('#wppus_license_data').val());
+			$('#upserv_license_id').html(licenseData.id);
+			$('#upserv_license_key').val(licenseData.license_key);
+			$('#upserv_license_date_created').val(licenseData.date_created);
+			$('#upserv_license_max_allowed_domains').val(licenseData.max_allowed_domains);
+			$('#upserv_license_owner_name').val(licenseData.owner_name);
+			$('#upserv_license_registered_email').val(licenseData.email);
+			$('#upserv_license_owner_company').val(licenseData.company_name);
+			$('#upserv_license_transaction_id').val(licenseData.txn_id);
+			$('#upserv_license_package_slug').val(licenseData.package_slug);
+			$('#upserv_license_status').val(licenseData.status);
+			$('#upserv_license_data').val(licenseData.data ? JSON.stringify(JSON.parse(licenseData.data), null, '\t') : '');
+			$('#upserv_license_package_type').val(licenseData.package_type);
+			editor.codemirror.setValue($('#upserv_license_data').val());
 
 			if ('0000-00-00' !== licenseData.date_expiry ) {
-				$('#wppus_license_date_expiry').val(licenseData.date_expiry);
+				$('#upserv_license_date_expiry').val(licenseData.date_expiry);
 			}
 
 			if ('0000-00-00' !== licenseData.date_renewed ) {
-				$('#wppus_license_date_renewed').val(licenseData.date_renewed);
+				$('#upserv_license_date_renewed').val(licenseData.date_renewed);
 			}
 
 			if (licenseData.allowed_domains.length > 0) {
-				var list = $('.wppus-domains-list'),
+				var list = $('.upserv-domains-list'),
 					listItem = list.find('li').clone();
 
-				listItem.removeClass('wppus-domain-template');
+				listItem.removeClass('upserv-domain-template');
 
 				$.each(licenseData.allowed_domains, function(idx, elem) {
 					var item = listItem.clone();
 
-					item.find('.wppus-domain-value').html(elem);
+					item.find('.upserv-domain-value').html(elem);
 					list.append(item);
 				});
 
-				$('.wppus-no-domain').hide();
+				$('.upserv-no-domain').hide();
 				list.show();
 			}
 		} else {
-			$('#wppus_license_key').val($('#wppus_license_key').data('random_key'));
-			$('#wppus_license_date_created').val(new Date().toISOString().slice(0, 10));
-			$('#wppus_license_max_allowed_domains').val(1);
+			$('#upserv_license_key').val($('#upserv_license_key').data('random_key'));
+			$('#upserv_license_date_created').val(new Date().toISOString().slice(0, 10));
+			$('#upserv_license_max_allowed_domains').val(1);
 			editor.codemirror.setValue('{}');
 		}
 	}
 
 	function resetLicensePanel() {
-		$('#wppus_license').trigger('reset');
-		$('wppus_license_values').val('');
-		$('wppus_license_action').val('');
+		$('#upserv_license').trigger('reset');
+		$('upserv_license_values').val('');
+		$('upserv_license_action').val('');
 		$('.open-panel').removeAttr('disabled');
-		$('.wppus-licenses-table .open-panel').show();
-		$('#wppus_license_id').html('');
-		$('.wppus-domains-list li:not(.wppus-domain-template)').remove();
-		$('.wppus-no-domain').show();
-		$('label.wppus-license-error').hide();
-		$('.wppus-license-error').removeClass('wppus-license-error');
+		$('.upserv-licenses-table .open-panel').show();
+		$('#upserv_license_id').html('');
+		$('.upserv-domains-list li:not(.upserv-domain-template)').remove();
+		$('.upserv-no-domain').show();
+		$('label.upserv-license-error').hide();
+		$('.upserv-license-error').removeClass('upserv-license-error');
 		editor.codemirror.setValue('{}');
 	}
 

@@ -1,0 +1,1935 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: UpdatePulse Server\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-06 09:47+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.6.14; wp-6.7.1\n"
+"X-Domain: updatepulse-server"
+
+#: inc/templates/admin/plugin-packages-page.php:71
+msgid " (discouraged)"
+msgstr ""
+
+#: functions.php:478
+msgid "$url must be a valid url and $body must be a JSON string."
+msgstr ""
+
+#. %1$d is the number of events, %s is the type of events
+#: inc/class-upserv-api-manager.php:99
+#, php-format
+msgid "%1$d %2$s events"
+msgstr ""
+
+#. %d is the number of actions
+#: inc/class-upserv-api-manager.php:74
+msgid "%d actions"
+msgstr ""
+
+#. %d is the number of actions
+#: inc/class-upserv-api-manager.php:78
+msgid "%d actions (all records)"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:20
+#: inc/templates/admin/plugin-licenses-page.php:39
+#: inc/templates/admin/plugin-licenses-page.php:63
+#: inc/templates/admin/plugin-licenses-page.php:94
+#: inc/templates/admin/plugin-licenses-page.php:121
+msgid "(required)"
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:18
+msgid ""
+"- If packages linked to a Remote Repository are deleted using this interface,"
+" they will be added again to the list automatically whenever a client checks "
+"for updates."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:16
+msgid ""
+"- It is not necessary to prime or upload packages linked to a Remote "
+"Repository for them to appear in this list: they will be automatically added "
+"whenever a client checks for updates."
+msgstr ""
+
+#. %s is the type of event
+#: inc/class-upserv-api-manager.php:95
+#, php-format
+msgid "1 %s event"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:67
+msgid "1 action"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:70
+msgid "1 action (all records)"
+msgstr ""
+
+#: inc/class-upserv-webhook-api.php:80 inc/class-upserv-webhook-api.php:81
+msgid "401 Unauthorized"
+msgstr ""
+
+#: inc/class-upserv-license-server.php:668
+msgid "A license key is required to identify the license."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:707
+msgid ""
+"A value already exists for the given license key. Each key must be unique."
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:261
+msgid "Activate"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:54
+msgid "Activated"
+msgstr ""
+
+#. %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>, %5$s is <code>updatepulse-updater</code>, %6$s is <code>plugin-update-checker</code>
+#: inc/templates/admin/plugin-help-page.php:17
+#, php-format
+msgid ""
+"Add a %1$s directory with the %2$s and %3$s libraries to the root of the "
+"package (provided in %4$s ; %5$s can be customized as you see fit, but %6$s "
+"should be left untouched)."
+msgstr ""
+
+#. %1$s is <code>updatepulse.json</code>, %2$s is <code>"server"</code>
+#: inc/templates/admin/plugin-help-page.php:78
+#, php-format
+msgid ""
+"Add a %1$s file at the root of the package with the following content - "
+"change the value of %2$s to your own (required):"
+msgstr ""
+
+#. %s is <code>$packages_dir</code>
+#: inc/templates/admin/plugin-packages-page.php:81
+#, php-format
+msgid ""
+"Add a package zip archive to the %s directory. The archive needs to be a "
+"valid generic package, or a valid WordPress plugin or theme package."
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:254
+#: inc/templates/admin/plugin-licenses-page.php:15
+msgid "Add License"
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:26
+msgid "Add Packages"
+msgstr ""
+
+#. %s is <code>functions.php</code>
+#: inc/templates/admin/plugin-help-page.php:31
+#, php-format
+msgid ""
+"Add the following code to the main plugin file or to your theme's %s file:"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:162
+msgid "Advanced - JSON-formatted custom data to add to the license."
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:54
+msgid ""
+"After changing this setting, make sure to update the Webhooks secrets in the "
+"repository service."
+msgstr ""
+
+#. %1$s is a link to opening an issue, %2$s is a contact email
+#: inc/templates/admin/plugin-help-page.php:187
+#, php-format
+msgid ""
+"After reading the documentation, for more help on how to use UpdatePulse "
+"Server, please %1$s - bugfixes are welcome via pull requests, detailed bug "
+"reports with accurate pointers as to where and how they occur in the code "
+"will be addressed in a timely manner, and a fee will apply for any other "
+"request (if they are addressed). If and only if you found a security issue, "
+"please contact %2$s with full details for responsible disclosure."
+msgstr ""
+
+#. Author of the plugin
+msgid "Alexandre Froger"
+msgstr ""
+
+#. %s is the type of events
+#: inc/class-upserv-api-manager.php:91
+#, php-format
+msgid "All %s events"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:81
+msgid "All actions"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:84
+msgid "All actions (all records)"
+msgstr ""
+
+#: inc/class-upserv-license-server.php:817
+msgid ""
+"All allowed domains values must be scalar with a string-equivalent length "
+"superior to 5 characters."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:87
+#: inc/templates/admin/plugin-api-page.php:139
+msgid "All events"
+msgstr ""
+
+#: inc/class-upserv.php:162
+msgid ""
+"All packages manually uploaded without counterpart in a Remote Repository "
+"will be permanently deleted."
+msgstr ""
+
+#: inc/class-upserv.php:169
+msgid ""
+"All packages will be permanently deleted.\\n\\nAre you sure you want to do "
+"this?"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:540
+msgid "All the licenses have been deleted."
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:228
+msgid "All the records will be permanently deleted."
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:89
+msgid "Also grant access to affect other records (all records)"
+msgstr ""
+
+#. %1$s is the path to the mu-plugin
+#: inc/class-upserv.php:339
+#, php-format
+msgid ""
+"An endpoint optimizer MU Plugin has been confirmed to be installed in <code>"
+"%1$s</code>."
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:369
+msgid ""
+"An error occured when attempting to communicate with the Cloud Storage "
+"Service. Please check all the settings and try again."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:659
+msgid ""
+"An unexpected error has occured. Please try again. If the problem persists, "
+"please contact the author of the plugin."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:118 inc/class-upserv-api-manager.php:127
+msgid "API & Webhooks"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:791
+#: inc/templates/admin/plugin-packages-page.php:111
+msgid "Archive max size (in MB)"
+msgstr ""
+
+#: inc/class-upserv.php:155
+msgid "Are you sure you want to delete this record?"
+msgstr ""
+
+#: inc/class-upserv.php:164 inc/class-upserv.php:171
+#: inc/class-upserv-api-manager.php:52 inc/class-upserv-api-manager.php:58
+#: inc/class-upserv-api-manager.php:64 inc/class-upserv-license-manager.php:231
+msgid "Are you sure you want to do this?"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:263
+msgid "Block"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:57
+msgid "Blocked"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:510
+msgid "Browse multiple license records"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:779
+#: inc/templates/admin/plugin-packages-page.php:122
+msgid "Cache max size (in MB)"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:172
+msgid "Cancel"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:15
+msgid "cancel"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:188
+msgid ""
+"CAUTION: In case a License Key ID is not provided, events will be broacasted "
+"for all the licenses, leading to the potential leak of private data!"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:190
+msgid "CAUTION: Only add URLs from trusted sources!"
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:11
+msgid ""
+"Check this if you wish for each repository of the Remote Repository Service "
+"to call a Webhook when updates are pushed."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:14
+msgid "Check this if you wish to use a Cloud Storage Service - S3 Compatible."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:70
+msgid ""
+"Check this only if the Remote Repository Service is a self-hosted instance "
+"of Gitlab."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:189
+msgid ""
+"Check to activate license-enabled plugin, theme, and generic packages "
+"delivery."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:76
+msgid "Choose package archive"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:157
+msgid "Clear & reschedule remote updates"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:162
+msgid ""
+"Clears & Reschedules remote updates from the repository service for all the "
+"packages."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:5
+msgid "Cloud Storage"
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:125
+#: inc/templates/admin/cloud-storage-options.php:27
+msgid "Cloud Storage Access Key"
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:137
+#: inc/templates/admin/cloud-storage-options.php:49
+msgid "Cloud Storage Endpoint"
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:149
+#: inc/templates/admin/cloud-storage-options.php:78
+msgid "Cloud Storage Region"
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:131
+#: inc/templates/admin/cloud-storage-options.php:38
+msgid "Cloud Storage Secret Key"
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:339
+msgid "Cloud Storage Service was reached sucessfully."
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:143
+#: inc/templates/admin/cloud-storage-options.php:67
+msgid "Cloud Storage Unit"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:112
+msgid "Company"
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:89
+msgid ""
+"Connect UpdatePulse Server with your repository and prime your package, or "
+"manually upload your package to UpdatePulse Server."
+msgstr ""
+
+#: inc/class-upserv-update-server.php:505
+msgid "Could not create temporary file."
+msgstr ""
+
+#: inc/class-upserv-license-api.php:513
+msgid "Create license records"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:41
+msgid "Creation Date"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:67
+msgid "Creation date of the license."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:92
+msgid "Credentials for non-publicly accessible repositories."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:63
+msgid "Date Created"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:76
+msgid "Date of the last time the license was renewed."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:72
+msgid "Date Renewed"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:262
+msgid "Deactivate"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:55
+msgid "Deactivated"
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:38
+msgid ""
+"Delay in minutes after which UpdatePulse Server will poll the Remote "
+"Repository for package updates when the Webhook has been called."
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:265
+msgid "Delete"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:317
+msgid "Delete a package from the file system"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:254
+msgid "Delete All Licenses"
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:174
+msgid "Delete All Packages"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:514
+msgid "Delete license records"
+msgstr ""
+
+#. %1$s is the path to the plugin's data directory
+#: inc/class-upserv-data-manager.php:95
+#, php-format
+msgid ""
+"Directory <code>%1$s</code> is not a valid UpdatePulse Server data directory."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:143
+msgid "Domains currently allowed to use this license."
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:191
+#: inc/templates/admin/packages-table-row.php:21
+msgid "Download"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:316
+msgid ""
+"Download a package to the file system if it does not exist ; requires using "
+"a Remote Repository"
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:168
+#: inc/class-upserv-licenses-table.php:247
+msgid ""
+"Download: Archive max size exceeded - try to adjust it in the settings below."
+msgstr ""
+
+#. %1$s is <code>https://repository-service.tld/identifier/package-slug/</code>, %2$s is <code>identifier</code>
+#: inc/templates/admin/plugin-remote-sources-page.php:55
+#, php-format
+msgid ""
+"Each package repository URL must follow the following pattern: %1$s ; the "
+"package files must be located at the root of the repository, and in the case "
+"of WordPress plugins the main plugin file must follow the pattern %2$s."
+msgstr ""
+
+#: inc/templates/admin/licenses-table-row.php:18
+msgid "Edit"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:15
+msgid "Edit License"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:431
+#: inc/templates/admin/plugin-licenses-page.php:184
+msgid "Enable Package Licenses"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:15
+msgid ""
+"Enables this server to download plugins, themes and generic packages from a "
+"Remote Repository before delivering updates."
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:149
+msgid "Error - check the directory is writable"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:129
+msgid "Error - check the packages directory is readable and not empty"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:191
+msgid ""
+"Error - could not get remote package. Check if a repository with this slug "
+"exists and has a valid file structure."
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:172
+msgid ""
+"Error - could not get remote package. Missing package slug - please reload "
+"the page and try again."
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:178
+msgid ""
+"Error - could not get remote package. The page has expired - please reload "
+"the page and try again."
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:306
+msgid "Error - could not upload the package. "
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:250
+msgid ""
+"Error - Please check the provided Remote Repository Service Credentials."
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:239
+#: inc/class-upserv-remote-sources-manager.php:244
+msgid "Error - Please check the provided Remote Repository Service URL."
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:257
+#: inc/class-upserv-cloud-storage-manager.php:374
+msgid "Error - Received invalid data ; please reload the page and try again."
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:336
+msgid "Error - Storage Unit not found"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:170
+msgid ""
+"Error - Test Remote Repository Access is not supported for Bitbucket. Please "
+"save your settings and try to prime a package in the Overview page."
+msgstr ""
+
+#: inc/class-upserv.php:154
+msgid "Error: invalid file"
+msgstr ""
+
+#: inc/class-upserv.php:151
+msgid "Error: invalid file format."
+msgstr ""
+
+#: inc/class-upserv.php:153
+msgid "Error: invalid file name."
+msgstr ""
+
+#: inc/class-upserv.php:152
+msgid "Error: invalid file size."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:45
+msgid "Example of valid value: package-slug"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:264
+msgid "Expire"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:58
+msgid "Expired"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:42
+#: inc/templates/admin/plugin-licenses-page.php:81
+msgid "Expiry Date"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:85
+msgid "Expiry date of the license. Leave empty for no expiry."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:160
+msgid "Extra Data"
+msgstr ""
+
+#: inc/class-upserv-nonce.php:29 inc/class-upserv-license-manager.php:85
+msgid "Failed to create the necessary database table(s)."
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:532
+msgid "Failed to insert the license record in the database."
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:518
+msgid "Failed to update the license record in the database."
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:42
+msgid "File Name"
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:94
+msgid ""
+"For generic packages, the steps involved entirely depend on the language "
+"used to write the package and the update process of the target platform."
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:10
+msgid "For plugins, and themes, it is fairly straightforward:"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:145
+#: inc/templates/admin/plugin-packages-page.php:125
+#: inc/templates/admin/plugin-packages-page.php:142
+msgid "Force Clean"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:160
+msgid "Force Clear & Reschedule"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:315
+msgid ""
+"Forcefully download and overwrite an existing package on the file system. ; "
+"requires using a Remote Repository"
+msgstr ""
+
+#: inc/templates/admin/packages-table-row.php:60
+msgid "Generic"
+msgstr ""
+
+#. %s is <code>$packages_dir</code>
+#: inc/templates/admin/plugin-packages-page.php:39
+#, php-format
+msgid ""
+"Get an archive of a package from a Remote Repository and put it in the %s "
+"directory by entering the package slug."
+msgstr ""
+
+#: inc/class-upserv-package-api.php:314
+msgid "Get information about a single package"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:313
+msgid "Get information about multiple packages"
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:34
+msgid "Get remote package"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:511
+msgid "Get single license records"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:79
+msgid ""
+"Grant access to all the license actions affecting the records associated "
+"with the License API Key"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:21
+msgid "Grant access to all the package actions"
+msgstr ""
+
+#: inc/class-upserv.php:216 inc/class-upserv.php:225 inc/class-upserv.php:240
+msgid "Help"
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:101
+#: inc/templates/admin/plugin-help-page.php:179
+msgid "here"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:141
+msgid ""
+"How often UpdatePulse Server will poll each Remote Repository for package "
+"updates - checking too often may slow down the server (recommended \"Once "
+"Daily\")."
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://froger.me/"
+msgstr ""
+
+#. URI of the plugin
+msgid "https://github.com/anyape/updatepulse-server/"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:35
+msgid "ID"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:152
+msgid ""
+"If applicable, the transaction identifier associated to the purchase of the "
+"license."
+msgstr ""
+
+#. %s is the packages folder
+#: inc/templates/admin/cloud-storage-options.php:18
+#: inc/templates/admin/cloud-storage-options.php:100
+#, php-format
+msgid ""
+"If it does not exist, a virtual folder %s will be created in the Storage "
+"Unit chosen for package storage."
+msgstr ""
+
+#. %s is the path where zip packages need to be uploaded
+#: inc/templates/admin/plugin-remote-sources-page.php:22
+#, php-format
+msgid "If left unchecked, zip packages need to be manually uploaded to %s."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:168
+msgid ""
+"If there are useless scheduled actions left, they will not trigger any error,"
+" but the server will query the repository service needlessly."
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:239
+msgid ""
+"If you are using a fine-grained access token for an organisation, please "
+"check the provided token has the permissions to access members information."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:56
+msgid ""
+"If you proceed, the Payload URL will not receive the configured events "
+"anymore."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:62
+msgid "If you proceed, the Payload URL will receive events for ALL licenses."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:50
+msgid ""
+"If you proceed, the remote systems using it will not be able to access the "
+"API anymore."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:110
+msgid ""
+"IMPORTANT: when creating the consumer, \"This is a private consumer\" must "
+"be checked."
+msgstr ""
+
+#. %1$s is <code>package-slug</code>, %2$s is <code>package-slug.php</code>
+#: inc/templates/admin/plugin-packages-page.php:54
+#, php-format
+msgid ""
+"In the case of a plugin, the main plugin file must have the same name as the "
+"repository name - for example, the main plugin file in %1$s repository would "
+"be %2$s."
+msgstr ""
+
+#. %1$s is <code>package-slug.zip</code>, %2$s is <code>package-slug.php</code>
+#: inc/templates/admin/plugin-packages-page.php:89
+#, php-format
+msgid ""
+"In the case of a plugin, the main plugin file must have the same name as the "
+"zip archive - for example, the main plugin file in %1$s would be %2$s."
+msgstr ""
+
+#. %s is <code>consumer_key|consumer_secret</code>
+#: inc/templates/admin/plugin-remote-sources-page.php:105
+#, php-format
+msgid ""
+"In the case of Bitbucket, the Consumer key and secret separated by a pipe "
+"(%s)."
+msgstr ""
+
+#. %s is <code>token</code>
+#: inc/templates/admin/plugin-remote-sources-page.php:97
+#, php-format
+msgid "In the case of Github and Gitlab, an access token (%s)."
+msgstr ""
+
+#: inc/class-upserv-nonce.php:97
+msgid "Internal Error - nonce insert error"
+msgstr ""
+
+#: inc/class-upserv-webhook-api.php:82
+msgid "Invalid signature"
+msgstr ""
+
+#: inc/class-upserv-update-server.php:499
+msgid "Invalid URL provided."
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:53
+#: inc/templates/admin/plugin-api-page.php:114
+msgid "IP Whitelist"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:27
+msgid ""
+"It affects all the packages delivered by this installation of UpdatePulse "
+"Server if they have a corresponding repository in the Remote Repository "
+"Service."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:191
+msgid ""
+"It affects all the packages with a \"Requires License\" license status "
+"delivered by this installation of UpdatePulse Server."
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:44
+msgid "Last Modified "
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:39
+msgid ""
+"Leave at 0 to schedule a package update during the cron run happening "
+"immediately after the Webhook was called."
+msgstr ""
+
+#: inc/class-upserv-license-api.php:522
+msgid "License activated"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:524
+msgid "License added"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:529
+msgid "License added successfully."
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:65
+msgid "License API"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:926
+msgid "License API action not found."
+msgstr ""
+
+#: inc/class-upserv-license-api.php:528
+msgid "License becomes not required a for package"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:527
+msgid "License becomes required for a package"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:533
+msgid "License creation failed."
+msgstr ""
+
+#: inc/class-upserv-license-api.php:523
+msgid "License deactivated"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:526
+msgid "License deleted"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:525
+msgid "License edited"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:515
+msgid "License edited successfully."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:169
+msgid "License events"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:36
+#: inc/templates/admin/plugin-licenses-page.php:20
+msgid "License Key"
+msgstr ""
+
+#: inc/class-upserv-license-update-server.php:207
+msgid "License key details retrieved."
+msgstr ""
+
+#: inc/class-upserv-license-api.php:143 inc/class-upserv-license-api.php:164
+#: inc/class-upserv-license-api.php:202
+msgid "License not found."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:179
+msgid "License Settings"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:50
+msgid "License Status"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:238
+#: inc/class-upserv-license-manager.php:244
+msgid "License status"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:519
+msgid "License update failed."
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:260
+#: inc/class-upserv-license-manager.php:271
+#: inc/templates/admin/plugin-licenses-page.php:8
+msgid "Licenses"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:124
+msgid "Licenses not found."
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:213
+msgid "Licenses per page"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:785
+#: inc/templates/admin/plugin-packages-page.php:139
+msgid "Logs max size (in MB)"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:166
+msgid ""
+"Make sure either all packages have a corresponding Remote Repository in the "
+"repository service, or to use the delete operation and re-upload the "
+"packages that were previously manually uploaded to clear the useless "
+"scheduled actions."
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:231
+msgid "Make sure the uploaded file is a zip archive."
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:270
+msgid "Make sure the uploaded file is not empty."
+msgstr ""
+
+#: inc/class-upserv-nonce.php:67
+msgid "Malformed request"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:938
+msgid "Malformed request."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:121
+msgid "Max. Allowed Domains"
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:116
+msgid "Maximum file size when uploading or downloading packages."
+msgstr ""
+
+#. %s is <code>cache_dir_path</code>
+#. %s is <code>logs_dir_path</code>
+#: inc/templates/admin/plugin-packages-page.php:130
+#: inc/templates/admin/plugin-packages-page.php:147
+#, php-format
+msgid ""
+"Maximum size in MB for the %s directory. If the size of the directory grows "
+"larger, its content will be deleted at next cron run (checked hourly). The "
+"size indicated in the \"Force Clean\" button is the real current size."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:107
+msgid "Miscellaneous"
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:173
+msgid "More help..."
+msgstr ""
+
+#. %1$s is <code>https://repository-service.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://repository-service.tld</code>
+#: inc/templates/admin/plugin-remote-sources-page.php:45
+#, php-format
+msgid ""
+"Must follow the following pattern: %1$s where %2$s is the user or the "
+"organisation name in case of Github, is the user name in case of BitBucket, "
+"is a group in case of Gitlab (no support for Gitlab subgroups), and where "
+"%3$s may be a self-hosted instance of Gitlab."
+msgstr ""
+
+#: inc/templates/admin/licenses-table-row.php:60
+msgid "N/A"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:140
+msgid "None"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:780
+#: inc/class-upserv-package-manager.php:786
+#: inc/class-upserv-package-manager.php:792
+msgid "Not a valid number"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:531
+#: inc/class-upserv-webhook-manager.php:76
+msgid "Not a valid option"
+msgstr ""
+
+#: inc/class-upserv-webhook-manager.php:133
+#: inc/class-upserv-api-manager.php:311
+msgid "Not a valid payload"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:521
+#: inc/class-upserv-remote-sources-manager.php:526
+#: inc/class-upserv-cloud-storage-manager.php:126
+#: inc/class-upserv-cloud-storage-manager.php:132
+#: inc/class-upserv-cloud-storage-manager.php:138
+#: inc/class-upserv-cloud-storage-manager.php:144
+#: inc/class-upserv-cloud-storage-manager.php:150
+#: inc/class-upserv-webhook-manager.php:82 inc/class-upserv-api-manager.php:321
+msgid "Not a valid string"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:509
+msgid "Not a valid URL"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:253
+msgid "Not Required"
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:27
+msgid ""
+"Note that UpdatePulse Server does not rely on the content of the payload to "
+"schedule a package download, so any type of event can be used to trigger the "
+"Webhook."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:98
+msgid ""
+"Note: a manually uploaded package that does not have its counterpart in a "
+"Remote Repository will need to be uploaded manually for each new release to "
+"provide updates."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:62
+msgid ""
+"Note: packages will be overwritten automatically and regularly with their "
+"counterpart from the Remote Repository if a newer version exists."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:13
+msgid "Notes:"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:56
+msgid "On Hold"
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:188
+msgid "open an issue on Github"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:482
+msgid ""
+"Operation failed: all the selected licenses have passed their expiry date, "
+"or already have the selected status - IDs: "
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:472
+msgid "Operation failed: an unexpected error occured (invalid license status)."
+msgstr ""
+
+#. %1$s is the option display name, %2$s is the condition for update
+#: inc/class-upserv-remote-sources-manager.php:437
+#: inc/class-upserv-package-manager.php:750
+#: inc/class-upserv-api-manager.php:282
+#: inc/class-upserv-license-manager.php:404
+#, php-format
+msgid "Option %1$s was not updated. Reason: %2$s"
+msgstr ""
+
+#. %1s is <code>style.css</code>
+#: inc/templates/admin/plugin-help-page.php:49
+#, php-format
+msgid ""
+"Optionally add headers to the main plugin file or to your theme's %s file to "
+"enable license checks:"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:103
+msgid "Owner Name"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:326
+msgid "Package added or updated"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:7
+msgid "Package API"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:602
+msgid "Package API action not found"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:310
+msgid "Package API Authentication Keys"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:327
+msgid "Package deleted"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:328
+msgid "Package downloaded via a signed URL"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:165
+msgid "Package events"
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:39
+msgid "Package Name"
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:612
+#: inc/class-upserv-package-api.php:161
+msgid "Package not found"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:40
+#: inc/templates/admin/plugin-licenses-page.php:39
+msgid "Package Slug"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:39
+#: inc/templates/admin/plugin-licenses-page.php:29
+msgid "Package Type"
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:7
+msgid "Packages"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:520
+#: inc/templates/admin/plugin-remote-sources-page.php:76
+msgid "Packages Branch Name"
+msgstr ""
+
+#: inc/class-upserv.php:239 inc/class-upserv-package-manager.php:97
+#: inc/class-upserv-package-manager.php:120
+msgid "Packages Overview"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:105
+msgid "Packages per page"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:229
+msgid ""
+"Packages requiring these licenses will not be able to get a successful "
+"response from this server."
+msgstr ""
+
+#: inc/class-upserv-webhook-manager.php:54
+msgid ""
+"Packages with a Remote Repository will be added again automatically whenever "
+"a client asks for updates, or when its Webhook is called."
+msgstr ""
+
+#: inc/class-upserv.php:161
+msgid ""
+"Packages with a Remote Repository will be added again automatically whenever "
+"a client asks for updates."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:53
+msgid "Pending"
+msgstr ""
+
+#. %1$s is the path to the plugin's data directory
+#: inc/class-upserv.php:88
+#, php-format
+msgid ""
+"Permission errors creating %1$s - could not setup the data directory. Please "
+"check the parent directory is writable."
+msgstr ""
+
+#. %1$s is the path to the mu-plugins directory, %2$s is the path of the source MU Plugin
+#: inc/class-upserv.php:327
+#, php-format
+msgid ""
+"Permission errors for <code>%1$s</code> - could not setup the endpoint "
+"optimizer MU Plugin. You may create the directory if necessary and manually "
+"copy <code>%2$s</code> in it (recommended)."
+msgstr ""
+
+#: inc/class-upserv.php:60
+msgid "PHP version 7.4 or higher is required. Current version: "
+msgstr ""
+
+#: inc/templates/admin/packages-table-row.php:58
+msgid "Plugin"
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:50
+msgid ""
+"Preferably a random string, the secret string included in the request by the "
+"repository service when calling the Webhook."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:31
+msgid "Prime a package using a Remote Repository (recommended)"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:320
+msgid "Private API Authentication Key"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:11
+#: inc/templates/admin/plugin-api-page.php:69
+msgid "Private API Keys"
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:7
+msgid "Provide updates with UpdatePulse Server - packages requirements"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:130
+msgid "Registered Domains"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:37
+#: inc/templates/admin/plugin-licenses-page.php:94
+msgid "Registered Email"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:203
+msgid "Reload the page and try again."
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:33
+msgid "Remote Download Delay"
+msgstr ""
+
+#: inc/class-upserv-webhook-manager.php:75
+msgid "Remote download delay"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:525
+#: inc/templates/admin/plugin-remote-sources-page.php:87
+msgid "Remote Repository Service Credentials"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:508
+#: inc/templates/admin/plugin-remote-sources-page.php:35
+msgid "Remote Repository Service URL"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:235
+msgid "Remote Repository Service was reached sucessfully."
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:45
+msgid "Remote Repository Webhook Secret"
+msgstr ""
+
+#: inc/class-upserv-webhook-manager.php:81
+msgid "Remote repository Webhook Secret"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:85
+#: inc/class-upserv-remote-sources-manager.php:94
+msgid "Remote Sources"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:530
+msgid "Remote Update Check Frequency"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:132
+msgid "Remote update check frequency"
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:138
+msgid "Requests optimisation"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:253
+msgid "Required"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:318
+msgid "Retrieve secure URLs for downloading packages"
+msgstr ""
+
+#. Description of the plugin
+msgid "Run your own update server."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:150
+#: inc/templates/admin/plugin-packages-page.php:158
+#: inc/templates/admin/plugin-api-page.php:199
+#: inc/templates/admin/plugin-licenses-page.php:171
+#: inc/templates/admin/plugin-licenses-page.php:198
+msgid "Save"
+msgstr ""
+
+#. %1$s is <code>integration/dummy-plugin</code>, %2$s is <code>integration/dummy-theme</code>
+#: inc/templates/admin/plugin-help-page.php:110
+#, php-format
+msgid ""
+"See %1$s for an example of plugin, and %2$ss for an example of theme. They "
+"are fully functionnal and can be used to test all the features of the server "
+"with a test client installation of WordPress."
+msgstr ""
+
+#. %1$s is <code>integration/dummy-generic</code>, %2$s is `updatepulse-api.[sh|php|js|py]`
+#: inc/templates/admin/plugin-help-page.php:120
+#, php-format
+msgid ""
+"See %1$s for examples of a generic package written in Bash, NodeJS, PHP with "
+"Curl, and Python. The API calls made by generic packages to the license API "
+"and Update API are the same as the WordPress packages. Unlike the upgrade "
+"library provided with plugins & themes, the code found in %2$s files is NOT "
+"ready for production environment and MUST be adapted."
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:504
+msgid "Selected licenses deleted - IDs: "
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:515
+#: inc/templates/admin/plugin-remote-sources-page.php:65
+msgid "Self-hosted Remote Repository Service"
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:94
+msgid "Send a test request to the Cloud Storage Service."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:121
+msgid "Send a test request to the Remote Repository Service."
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:260
+msgid "Set to Pending"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:29
+msgid ""
+"Settings of the \"Remote Sources\" section will be saved only if this option "
+"is checked."
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:43
+msgid "Size"
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:219
+msgid "Something very wrong happened."
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:120
+msgid "Something went wrong"
+msgstr ""
+
+#: inc/class-upserv-licenses-table.php:38
+msgid "Status"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:480
+msgid ""
+"Status of the selected licenses updated successfully where applicable - IDs "
+"of updated licenses: "
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:17
+msgid "Supports Bitbucket, Github and Gitlab."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:89
+msgid "Test Cloud Storage Settings"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:119
+#: inc/templates/admin/cloud-storage-options.php:92
+msgid "Test Now"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:116
+msgid "Test Remote Repository Access"
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:125
+msgid ""
+"Tests are not supported for Bitbucket ; if you use Bitbucket, save your "
+"settings & try to prime a package in the \"Packages Overview\" tab."
+msgstr ""
+
+#. %s is <code>another-plugin-or-theme-slug</code>
+#: inc/templates/admin/plugin-help-page.php:69
+msgid ""
+"The \"Licensed With\" header is used to link packages together (for example, "
+"in the case of an extension to a main plugin the user already has a license "
+"for, if this header is present in the extension, the license check will be "
+"made against the main plugin). It must be the slug of another plugin or "
+"theme that is already present in your UpdatePulse Server."
+msgstr ""
+
+#. %1$s is <code>yes</code>, %2$s is <code>true</code>, %3$s is <code>1</code>
+#: inc/templates/admin/plugin-help-page.php:59
+#, php-format
+msgid ""
+"The \"Require License\" header can be %1$s, %2$s, or %3$s: all other values "
+"are considered as false ; it is used to enable license checks for your "
+"package."
+msgstr ""
+
+#. %s is '<code>secret-key</code>'
+#: inc/templates/admin/plugin-api-page.php:172
+#, php-format
+msgid ""
+"The %s must be a minimum of 16 characters long, preferably a random string."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:32
+msgid "The Access Key provided by the Cloud Storage service provider."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:811
+msgid "The allowed domains must be an array."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:81
+msgid ""
+"The branch to download when getting remote packages from the Remote "
+"Repository Service."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:797
+msgid "The company name must be a string."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:116
+msgid "The company of the owner of this license."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:742
+msgid ""
+"The creation date is required and must follow the following format: YYYY-MM-"
+"DD"
+msgstr ""
+
+#. %1$s is <code>http://</code>, %2$s is <code>https://</code>
+#: inc/templates/admin/cloud-storage-options.php:57
+#, php-format
+msgid ""
+"The domain (without %1$s or %2$s) of the endpoint for the Cloud Storage "
+"Service."
+msgstr ""
+
+#: inc/class-upserv-update-server.php:261
+msgid "The download URL token has expired."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:98
+msgid "The email registered with this license."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:762
+msgid "The expiry date must follow the following format: YYYY-MM-DD"
+msgstr ""
+
+#. %s is a link to the documentation
+#: inc/templates/admin/plugin-help-page.php:178
+#, php-format
+msgid ""
+"The full documentation can be found %s, with more details for developers on "
+"how to integrate UpdatePulse Server with their own plugins, themes, and "
+"generic packages."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:107
+msgid "The full name of the owner of the license."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:675
+msgid "The ID must be an integer."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:681
+#: inc/class-upserv-license-server.php:689
+msgid "The license cannot be found."
+msgstr ""
+
+#. %1$s is <code>-</code>, %2$s is <code>_</code>
+#: inc/templates/admin/plugin-api-page.php:102
+#, php-format
+msgid "The License Key ID must contain only numbers, letters, %1$s and %2$s."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:701
+msgid "The license key is required and must be a string."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:789
+msgid "The license owner name must be a string."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:725
+msgid "The license status is invalid."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:125
+msgid "The maximum number of domains on which this license can be used."
+msgstr ""
+
+#. %1$s is <code>$upserv_doing_update_api_request</code>, %2$s is <code>$upserv_doing_license_api_request</code>, %3$s is <code>$upserv_always_active_plugins</code>, %4$s is <code>functions.php</code>, %5$s is <code>$upserv_bypass_themes</code>, %5$s is <code>false</code>
+#: inc/templates/admin/plugin-help-page.php:162
+#, php-format
+msgid ""
+"The MU Plugin also provides the global variable %1$s and %2$s that can be "
+"tested when adding hooks and filters would you choose to keep some plugins "
+"active with %3$s or keep %4$s from themes included with %5$s set to %6$s."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:718
+msgid "The number of allowed domains is required and must be greater than 1."
+msgstr ""
+
+#. %1$s is <code>-</code>, %2$s is <code>_</code>
+#: inc/templates/admin/plugin-api-page.php:41
+#, php-format
+msgid "The Package Key ID must contain only numbers, letters, %1$s and %2$s."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:772
+msgid ""
+"The package slug is required and must contain only alphanumeric characters "
+"or dashes."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:781
+msgid ""
+"The package type is required and must be \"generic\", \"plugin\" or "
+"\"theme\"."
+msgstr ""
+
+#. %s is <code>POST</code>
+#: inc/templates/admin/plugin-api-page.php:181
+#, php-format
+msgid "The payload is sent in JSON format via a %s request."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:43
+msgid ""
+"The plugin, theme, or generic package slug. Only alphanumeric characters and "
+"dashes are allowed."
+msgstr ""
+
+#: inc/class-upserv-zip-package-manager.php:102
+msgid "The received package path cannot be empty."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:83
+msgid ""
+"The region of the Cloud Storage Unit, as indicated by the Cloud Storage "
+"service provider."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:732
+msgid "The registered email is required and must be a valid email address."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:752
+msgid "The renewal date must follow the following format: YYYY-MM-DD"
+msgstr ""
+
+#. %s is <code>package-slug</code>
+#: inc/templates/admin/plugin-packages-page.php:46
+#, php-format
+msgid ""
+"The repository name should be %s and all the files should be located at the "
+"root of the repository."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:96
+msgid ""
+"The request checks whether the provider is reachable and if the Storage Unit "
+"exists and is writable."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:123
+msgid ""
+"The request checks whether the service is reachable and if the request can "
+"be authenticated."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:43
+msgid "The Secret Key provided by the Cloud Storage service provider."
+msgstr ""
+
+#: inc/class-upserv-license-server.php:805
+msgid "The transaction ID must be a string."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:24
+msgid ""
+"The unique license key. This auto-generated value can be changed as long as "
+"it is unique in the database."
+msgstr ""
+
+#: inc/class-upserv-package-manager.php:279
+msgid ""
+"The uploaded package is not a valid WordPress package, or if it is a plugin, "
+"the main plugin file could not be found."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:40
+msgid "The URL of the Remote Repository Service where packages are hosted."
+msgstr ""
+
+#: functions.php:459 inc/class-upserv-webhook-api.php:177
+msgid "The webhook payload must contain an event string and a content."
+msgstr ""
+
+#: inc/class-upserv.php:67
+msgid ""
+"The zip PHP extension is required by UpdatePulse Server. Please check your "
+"server configuration."
+msgstr ""
+
+#: inc/templates/admin/packages-table-row.php:56
+msgid "Theme"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:447
+#: inc/class-upserv-package-manager.php:760
+#: inc/class-upserv-api-manager.php:292
+#: inc/class-upserv-license-manager.php:414
+msgid ""
+"There was an error validating the form. It may be outdated. Please reload "
+"the page."
+msgstr ""
+
+#. %1$s is <code>secret</code>, %2$s is <code>X-UPDATEPULSE-Signature-256</code>
+#: inc/templates/admin/plugin-api-page.php:162
+#, php-format
+msgid ""
+"To allow the recipients to authenticate the notifications, the payload is "
+"signed with a %1$s secret key using the SHA-256 algorithm ; the resulting "
+"hash is made available in the %2$s header."
+msgstr ""
+
+#: inc/templates/admin/plugin-help-page.php:9
+msgid ""
+"To link your packages to UpdatePulse Server, and optionally to prevent users "
+"from getting updates of your packages without a license, your packages need "
+"to include some extra code."
+msgstr ""
+
+#. %1$s is <code>optimisation/upserv-endpoint-optimiser.php</code>, %2$s is the MU Plugin's path
+#: inc/templates/admin/plugin-help-page.php:152
+#, php-format
+msgid ""
+"To solve this, the file %1$s has been automatically copied to %2$s. This "
+"effectively creates a Must Use Plugin running before everything else and "
+"preventing themes and other plugins from being executed when an update "
+"request or a license API request is received by UpdatePulse Server."
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:148
+msgid "Transaction ID"
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:41
+msgid "Type"
+msgstr ""
+
+#: inc/templates/admin/plugin-licenses-page.php:163
+msgid ""
+"Typically used by plugins & API integrations ; proceed with caution when "
+"editing."
+msgstr ""
+
+#: inc/class-upserv-license-api.php:932 inc/class-upserv-nonce.php:72
+#: inc/class-upserv-package-api.php:608
+msgid "Unauthorized access"
+msgstr ""
+
+#: inc/class-upserv-package-api.php:555
+msgid "Unauthorized GET method"
+msgstr ""
+
+#: inc/class-upserv-license-api.php:886
+msgid "Unauthorized GET method."
+msgstr ""
+
+#: inc/class-upserv-zip-package-manager.php:107
+msgid "Unavailable file system."
+msgstr ""
+
+#. %1$s is <code>packages_dir</code>, %2$s is <code>package-slug.zip</code>, %3$s is <code>package-slug.php</code>
+#: inc/templates/admin/plugin-help-page.php:130
+#, php-format
+msgid ""
+"Unless \"Use Remote Repository Service\" is checked in \"Remote Sources\", "
+"you need to manually upload the packages zip archives (and subsequent "
+"updates) in %1$s. A package needs to a valid generic package, or a valid "
+"WordPress plugin or theme package, and in the case of a plugin the main "
+"plugin file must have the same name as the zip archive. For example, the "
+"main plugin file in %2$s would be %3$s."
+msgstr ""
+
+#: inc/class-upserv-license-api.php:512
+msgid "Update license records"
+msgstr ""
+
+#: inc/class-upserv.php:206
+msgid "UpdatePulse"
+msgstr ""
+
+#. Name of the plugin
+#: inc/class-upserv.php:347 inc/class-upserv-package-manager.php:94
+msgid "UpdatePulse Server"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:117
+msgid "UpdatePulse Server - API & Webhooks"
+msgstr ""
+
+#: inc/class-upserv.php:215
+msgid "UpdatePulse Server - Help"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:259
+msgid "UpdatePulse Server - Licenses"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:84
+msgid "UpdatePulse Server - Remote Sources"
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:385
+msgid "UpdatePulse Server license options successfully updated."
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:380
+#: inc/class-upserv-package-manager.php:727
+#: inc/class-upserv-api-manager.php:190
+msgid "UpdatePulse Server options successfully updated"
+msgstr ""
+
+#. the separator between summaries ; example: All package events, 3 license events
+#: inc/class-upserv-api-manager.php:109
+msgctxt "UpdatePulse Server separator between API summaries"
+msgid ", "
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:105
+msgctxt "UpdatePulse Server webhook event type"
+msgid "license"
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:102
+msgctxt "UpdatePulse Server webhook event type"
+msgid "package"
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:69
+msgid "Upload a package"
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:76
+msgid "Upload package"
+msgstr ""
+
+#: inc/class-upserv-remote-sources-manager.php:503
+#: inc/templates/admin/plugin-remote-sources-page.php:10
+msgid "Use a Remote Repository Service"
+msgstr ""
+
+#: inc/class-upserv-cloud-storage-manager.php:119
+#: inc/templates/admin/cloud-storage-options.php:9
+msgid "Use Cloud Storage"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:186
+msgid ""
+"Use the License Key ID field to filter the License events sent to the "
+"payload URLs: if provided, only the events affecting license keys owned by "
+"the License Key ID will be broacasted to the Payload URL."
+msgstr ""
+
+#: inc/class-upserv-webhook-manager.php:70
+#: inc/templates/admin/remote-webhook-options.php:6
+msgid "Use Webhooks"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:97
+msgid "Used to get tokens for license administration requests."
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:36
+msgid ""
+"Used to get tokens for package administration requests and requests of "
+"signed URLs used to download packages."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:60
+msgid ""
+"Using this method adds the package to the list if not present or forcefully "
+"downloads its latest version from the Remote Repository and overwrites the "
+"existing package."
+msgstr ""
+
+#: inc/templates/admin/plugin-packages-page.php:95
+msgid ""
+"Using this method adds the package to the list if not present or overwrites "
+"the existing package."
+msgstr ""
+
+#: inc/templates/admin/cloud-storage-options.php:72
+msgid ""
+"Usually known as a \"bucket\" or a \"container\" depending on the Cloud "
+"Storage service provider."
+msgstr ""
+
+#: inc/class-upserv-packages-table.php:40
+msgid "Version"
+msgstr ""
+
+#. %s is the virtual folder
+#: inc/class-upserv-cloud-storage-manager.php:357
+#, php-format
+msgid "Virtual folder \"%s\" found."
+msgstr ""
+
+#. %s is the virtual folder
+#: inc/class-upserv-cloud-storage-manager.php:346
+#, php-format
+msgid "Virtual folder \"%s\" was created successfully."
+msgstr ""
+
+#: inc/templates/admin/plugin-remote-sources-page.php:164
+msgid ""
+"WARNING: after rescheduling remote updates, an action will be scheduled for "
+"all the packages, including those uploaded manually and without a "
+"corresponding Remote Repository."
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:52
+msgid ""
+"WARNING: Changing this value will invalidate all the existing Webhooks set "
+"up on all package repositories."
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:47
+#: inc/templates/admin/plugin-api-page.php:108
+msgid ""
+"WARNING: Keep these keys secret, do not share any of them with customers!"
+msgstr ""
+
+#. %s is the virtual folder
+#: inc/class-upserv-cloud-storage-manager.php:351
+#: inc/class-upserv-cloud-storage-manager.php:401
+#, php-format
+msgid ""
+"WARNING: Unable to create Virtual folder \"%s\". The Cloud Storage feature "
+"may not work as expected. Try to create it manually and test again."
+msgstr ""
+
+#. %1$s is the webhook URL, %2$s is <code>package-type</code>, %3$s is <code>plugin</code>, %4$s is <code>theme</code>, %5$s is <code>generic</code>, %6$s is <code>package-slug</code>
+#: inc/templates/admin/remote-webhook-options.php:17
+#, php-format
+msgid ""
+"Webhook URL: %1$s - where %2$s is the package type ( %3$s or %4$s or %5$s ) "
+"and %6$s is the slug of the package needing updates."
+msgstr ""
+
+#: inc/class-upserv-webhook-manager.php:132
+#: inc/templates/admin/plugin-api-page.php:126
+msgid "Webhooks"
+msgstr ""
+
+#: inc/templates/admin/plugin-api-page.php:156
+msgid ""
+"Webhooks are event notifications sent to arbitrary URLs during the next cron "
+"job (within 1 minute after the event occurs with a server cron configuration "
+"schedule to execute every minute). The event is sent along with a payload of "
+"data for third party services integration."
+msgstr ""
+
+#: inc/templates/admin/remote-webhook-options.php:12
+msgid ""
+"When checked, UpdatePulse Server will not regularly poll repositories for "
+"package version changes, but relies on events sent by the repositories to "
+"schedule a package download."
+msgstr ""
+
+#. %s is <code>parse_request</code>
+#: inc/templates/admin/plugin-help-page.php:143
+#, php-format
+msgid ""
+"When the remote clients where your plugins, themes, or generic packages are "
+"installed send a request to check for updates, download a package or check "
+"or change license status, the current server's WordPress installation is "
+"loaded, with its own plugins and themes. This is not optimised if left "
+"untouched because unnecessary action and filter hooks that execute before %s "
+"action hook are also triggered, even though the request is not designed to "
+"produce any on-screen output or further computation."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:61
+msgid "You are about to add a Webhook without License API Key ID."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:55
+msgid "You are about to delete a Webhook."
+msgstr ""
+
+#: inc/class-upserv-license-manager.php:227
+msgid "You are about to delete all the licenses from this server."
+msgstr ""
+
+#: inc/class-upserv.php:160 inc/class-upserv.php:168
+msgid "You are about to delete all the packages from this server."
+msgstr ""
+
+#: inc/class-upserv-api-manager.php:49
+msgid "You are about to delete an API key."
+msgstr ""
+
+#. %s is a link to the documentation
+#: inc/templates/admin/plugin-help-page.php:100
+#, php-format
+msgid "You may refer to the documentation found %s."
+msgstr ""

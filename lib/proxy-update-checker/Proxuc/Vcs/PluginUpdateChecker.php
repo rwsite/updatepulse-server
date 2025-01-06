@@ -1,6 +1,6 @@
 <?php
 
-require WPPUS_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
+require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
 
 use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\Api;
 use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;

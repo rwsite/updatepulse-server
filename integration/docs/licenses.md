@@ -1,9 +1,9 @@
-# WP Packages Update Server - Licenses - Developer documentation
-(Looking for the main documentation page instead? [See here](https://github.com/froger-me/wp-packages-update-server/blob/main/README.md))
+# UpdatePulse Server - Licenses - Developer documentation
+(Looking for the main documentation page instead? [See here](https://github.com/anyape/updatepulse-server/blob/main/README.md))
 
-WP Packages Update Server provides an API and offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin when managing licenses.
+UpdatePulse Server provides an API and offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin when managing licenses.
 
-* [WP Packages Update Server - Licenses - Developer documentation](#wp-packages-update-server---licenses---developer-documentation)
+* [UpdatePulse Server - Licenses - Developer documentation](#updatepulse-server---licenses---developer-documentation)
 	* [The License Query](#the-license-query)
 	* [API](#api)
 		* [Public API](#public-api)
@@ -17,61 +17,61 @@ WP Packages Update Server provides an API and offers a series of functions, acti
 			* [add](#add)
 			* [delete](#delete)
 	* [Functions](#functions)
-		* [wppus\_is\_doing\_license\_api\_request](#wppus_is_doing_license_api_request)
-		* [wppus\_browse\_licenses](#wppus_browse_licenses)
-		* [wppus\_read\_license](#wppus_read_license)
-		* [wppus\_edit\_license](#wppus_edit_license)
-		* [wppus\_add\_license](#wppus_add_license)
-		* [wppus\_delete\_license](#wppus_delete_license)
-		* [wppus\_check\_license](#wppus_check_license)
-		* [wppus\_activate\_license](#wppus_activate_license)
-		* [wppus\_deactivate\_license](#wppus_deactivate_license)
+		* [upserv\_is\_doing\_license\_api\_request](#upserv_is_doing_license_api_request)
+		* [upserv\_browse\_licenses](#upserv_browse_licenses)
+		* [upserv\_read\_license](#upserv_read_license)
+		* [upserv\_edit\_license](#upserv_edit_license)
+		* [upserv\_add\_license](#upserv_add_license)
+		* [upserv\_delete\_license](#upserv_delete_license)
+		* [upserv\_check\_license](#upserv_check_license)
+		* [upserv\_activate\_license](#upserv_activate_license)
+		* [upserv\_deactivate\_license](#upserv_deactivate_license)
 	* [Actions](#actions)
-		* [wppus\_registered\_license\_schedule](#wppus_registered_license_schedule)
-		* [wppus\_cleared\_license\_schedule](#wppus_cleared_license_schedule)
-		* [wppus\_scheduled\_license\_event](#wppus_scheduled_license_event)
-		* [wppus\_browse\_licenses](#wppus_browse_licenses-1)
-		* [wppus\_did\_browse\_licenses](#wppus_did_browse_licenses)
-		* [wppus\_did\_read\_license](#wppus_did_read_license)
-		* [wppus\_did\_edit\_license](#wppus_did_edit_license)
-		* [wppus\_did\_add\_license](#wppus_did_add_license)
-		* [wppus\_did\_delete\_license](#wppus_did_delete_license)
-		* [wppus\_did\_check\_license](#wppus_did_check_license)
-		* [wppus\_pre\_activate\_license](#wppus_pre_activate_license)
-		* [wppus\_did\_activate\_license](#wppus_did_activate_license)
-		* [wppus\_pre\_deactivate\_license](#wppus_pre_deactivate_license)
-		* [wppus\_did\_deactivate\_license](#wppus_did_deactivate_license)
-		* [wppus\_license\_api\_request](#wppus_license_api_request)
+		* [upserv\_registered\_license\_schedule](#upserv_registered_license_schedule)
+		* [upserv\_cleared\_license\_schedule](#upserv_cleared_license_schedule)
+		* [upserv\_scheduled\_license\_event](#upserv_scheduled_license_event)
+		* [upserv\_browse\_licenses](#upserv_browse_licenses-1)
+		* [upserv\_did\_browse\_licenses](#upserv_did_browse_licenses)
+		* [upserv\_did\_read\_license](#upserv_did_read_license)
+		* [upserv\_did\_edit\_license](#upserv_did_edit_license)
+		* [upserv\_did\_add\_license](#upserv_did_add_license)
+		* [upserv\_did\_delete\_license](#upserv_did_delete_license)
+		* [upserv\_did\_check\_license](#upserv_did_check_license)
+		* [upserv\_pre\_activate\_license](#upserv_pre_activate_license)
+		* [upserv\_did\_activate\_license](#upserv_did_activate_license)
+		* [upserv\_pre\_deactivate\_license](#upserv_pre_deactivate_license)
+		* [upserv\_did\_deactivate\_license](#upserv_did_deactivate_license)
+		* [upserv\_license\_api\_request](#upserv_license_api_request)
 	* [Filters](#filters)
-		* [wppus\_license\_valid](#wppus_license_valid)
-		* [wppus\_license\_server](#wppus_license_server)
-		* [wppus\_license\_api\_config](#wppus_license_api_config)
-		* [wppus\_submitted\_licenses\_config](#wppus_submitted_licenses_config)
-		* [wppus\_check\_license\_result](#wppus_check_license_result)
-		* [wppus\_activate\_license\_result](#wppus_activate_license_result)
-		* [wppus\_deactivate\_license\_result](#wppus_deactivate_license_result)
-		* [wppus\_activate\_license\_next\_deactivate](#wppus_activate_license_next_deactivate)
-		* [wppus\_deactivate\_license\_next\_deactivate](#wppus_deactivate_license_next_deactivate)
-		* [wppus\_check\_license\_dirty\_payload](#wppus_check_license_dirty_payload)
-		* [wppus\_activate\_license\_dirty\_payload](#wppus_activate_license_dirty_payload)
-		* [wppus\_deactivate\_license\_dirty\_payload](#wppus_deactivate_license_dirty_payload)
-		* [wppus\_activate\_license\_payload](#wppus_activate_license_payload)
-		* [wppus\_deactivate\_license\_payload](#wppus_deactivate_license_payload)
-		* [wppus\_browse\_licenses\_payload](#wppus_browse_licenses_payload)
-		* [wppus\_read\_license\_payload](#wppus_read_license_payload)
-		* [wppus\_edit\_license\_payload](#wppus_edit_license_payload)
-		* [wppus\_add\_license\_payload](#wppus_add_license_payload)
-		* [wppus\_delete\_license\_payload](#wppus_delete_license_payload)
-		* [wppus\_license\_public\_api\_actions](#wppus_license_public_api_actions)
-		* [wppus\_license\_api\_request\_authorized](#wppus_license_api_request_authorized)
-		* [wppus\_license\_bypass\_signature](#wppus_license_bypass_signature)
-		* [wppus\_api\_license\_actions](#wppus_api_license_actions)
-		* [wppus\_api\_license\_actions](#wppus_api_license_actions-1)
+		* [upserv\_license\_valid](#upserv_license_valid)
+		* [upserv\_license\_server](#upserv_license_server)
+		* [upserv\_license\_api\_config](#upserv_license_api_config)
+		* [upserv\_submitted\_licenses\_config](#upserv_submitted_licenses_config)
+		* [upserv\_check\_license\_result](#upserv_check_license_result)
+		* [upserv\_activate\_license\_result](#upserv_activate_license_result)
+		* [upserv\_deactivate\_license\_result](#upserv_deactivate_license_result)
+		* [upserv\_activate\_license\_next\_deactivate](#upserv_activate_license_next_deactivate)
+		* [upserv\_deactivate\_license\_next\_deactivate](#upserv_deactivate_license_next_deactivate)
+		* [upserv\_check\_license\_dirty\_payload](#upserv_check_license_dirty_payload)
+		* [upserv\_activate\_license\_dirty\_payload](#upserv_activate_license_dirty_payload)
+		* [upserv\_deactivate\_license\_dirty\_payload](#upserv_deactivate_license_dirty_payload)
+		* [upserv\_activate\_license\_payload](#upserv_activate_license_payload)
+		* [upserv\_deactivate\_license\_payload](#upserv_deactivate_license_payload)
+		* [upserv\_browse\_licenses\_payload](#upserv_browse_licenses_payload)
+		* [upserv\_read\_license\_payload](#upserv_read_license_payload)
+		* [upserv\_edit\_license\_payload](#upserv_edit_license_payload)
+		* [upserv\_add\_license\_payload](#upserv_add_license_payload)
+		* [upserv\_delete\_license\_payload](#upserv_delete_license_payload)
+		* [upserv\_license\_public\_api\_actions](#upserv_license_public_api_actions)
+		* [upserv\_license\_api\_request\_authorized](#upserv_license_api_request_authorized)
+		* [upserv\_license\_bypass\_signature](#upserv_license_bypass_signature)
+		* [upserv\_api\_license\_actions](#upserv_api_license_actions)
+		* [upserv\_api\_license\_actions](#upserv_api_license_actions-1)
 
 ___
 ## The License Query
 
-The License Query is an associative array. It is used to browse the license records either with the [Private API action](#browse) `browse` or with the `wppus_browse_licenses` [function](#wppus_browse_licenses).
+The License Query is an associative array. It is used to browse the license records either with the [Private API action](#browse) `browse` or with the `upserv_browse_licenses` [function](#upserv_browse_licenses).
 
 ```php
 $license_query = array(
@@ -97,14 +97,14 @@ $license_query = array(
 
 Accepted operators are: `=`, `>`, `<`, `>=`, `<=`, `BETWEEN`, `NOT BETWEEN`, `IN`, `NOT IN`, `LIKE`, `NOT LIKE`.
 
-Accepted license fields are: `id` (only for `wppus_browse_licenses`, not through the API), `license_key`, `max_allowed_domains`, `allowed_domains`, `status`, `owner_name`, `email`, `company_name`, `txn_id`, `date_created`, `date_renewed`, `date_expiry`, `package_slug`, `package_type`.
+Accepted license fields are: `id` (only for `upserv_browse_licenses`, not through the API), `license_key`, `max_allowed_domains`, `allowed_domains`, `status`, `owner_name`, `email`, `company_name`, `txn_id`, `date_created`, `date_renewed`, `date_expiry`, `package_slug`, `package_type`.
 
 NOTE: the field `allowed_domains` is a serialized array, therefore when used in a criteria the only operators likely to return results are `LIKE` and `NOT LIKE`.
 
 ___
 ## API
 
-The License API is accessible via POST and GET requests on the `/wppus-license-api/` endpoint for both the Public and Private API, and via POST only for the Private API. It accepts form-data payloads (arrays, basically). This documentation page uses `wp_remote_post`, but `wp_remote_get` would work as well for the Public API.
+The License API is accessible via `POST` and `GET` requests on the `/updatepulse-server-license-api/` endpoint for both the Public and Private API, and via `POST` only for the Private API. It accepts form-data payloads (arrays, basically). This documentation page uses `wp_remote_post`, but `wp_remote_get` would work as well for the Public API.
 
 In case the API is accessed with an invalid `action` parameter, the following response is returned (message's language depending on available translations), with HTTP response code set to `400`:
 
@@ -118,7 +118,7 @@ Response `$data` - malformed request:
 The description of the API further below is using the following code as reference, where `$params` are the parameters passed to the API (other parameters can be adjusted, they are just WordPress' default) and `$data` is the JSON response:
 
 ```php
-$url      = 'https://domain.tld/wppus-license-api/'; // Replace domain.tld with the domain where WP Packages Update Server is installed.
+$url      = 'https://domain.tld/updatepulse-server-license-api/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
 $response = wp_remote_post(
 	$url,
 	array(
@@ -327,26 +327,32 @@ Response `$data` - **failure** (in case of already deactivated for `allowed_doma
 ___
 ### Private API
 
-The Private API, only accessible via the POST method, requires extra authentication for all its actions - `browse`, `edit`, `add`, `delete`.  
+The Private API, only accessible via the `POST` method, requires extra authentication for all its actions - `browse`, `edit`, `add`, `delete`.  
 The first action, `browse`, is particular in the sense that, unlike the other actions and aside from the authentication token, it accepts a JSON License Query instead of the classic form-data payload.  
 With the Private API, depending on granted privileges, developers can theoretically perform any operation on the license records - **be careful to keep the Private API Authentication Key an absolute secret!**
 
-To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/froger-me/wp-packages-update-server/blob/master/misc.md#nonce-api) ; for example:
+To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/anyape/updatepulse-server/blob/master/misc.md#nonce-api) ; for example:
 
 ```php
-// We assume the API Key is stored in environment variables
-$api_key  = getenv( 'WPPUS_LICENSE_API_KEY' );
-$url      = 'https://domain.tld/wppus-token/'; // Replace domain.tld with the domain where WP Packages Update Server is installed.
-$response = wp_remote_post(
+$url        = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
+$api_key_id = getenv( 'UPSERV_LICENSE_API_KEY_ID' );          // This exampe assumes the API Key ID is stored in environment variables
+$api_key    = getenv( 'UPSERV_LICENSE_API_KEY' );             // This exampe assumes the API Key is stored in environment variables
+$payload    = array(
+	'api' => 'license', // The target API (required ; must be `'license'` to access the license Private API)
+);
+$cred_sign  = upserv_build_nonce_api_signature( $api_key_id, $api_key, time(), $payload );
+
+$payload['api_credentials'] = $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-UpdatePulse-API-Credentials header is absent)
+$payload['api_signature']   = $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case X-UpdatePulse-API-Signature header is absent)
+
+$response   = wp_remote_post(
 	$url,
 	array(
-		'headers'     => array(
-			'X-WPPUS-Private-License-API-Key' => $api_key,
+		'headers' => array(
+			'X-UpdatePulse-API-Credentials' => $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case `api_credentials` is absent from the body)
+			'X-UpdatePulse-API-Signature'   => $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case `api_signature` is absent from the body)
 		),
-		'body'        => array(
-			'api_auth_key'  => 'secret',  // Only used if X-WPPUS-Private-License-API-Key is not set
-			'api'           => 'license', // Only used if X-WPPUS-Private-License-API-Key is not set
-		),
+		'body'    => $payload
 	);
 );
 
@@ -371,16 +377,16 @@ In the above example, the `$data` variable looks like:
     "true_nonce": false,                         // whether the token can be only used once before it expires
     "expiry": 9999999999,                        // when the token expires - default is +30 minutes
     "data": {                                    // the data stored with the token
-        "license_api": {                         // the license API data corresponding to the API key, generated by WPPUS
+        "license_api": {                         // the license API data corresponding to the API key, generated by UpdatePulse Server
             "id": "api_key_id",                  // the ID of the API key
-            "access": [                          // the list of authorized access privileges - `all` means access to everything related to licenses on WPPUS
+            "access": [                          // the list of authorized access privileges - `all` means access to everything related to licenses on UpdatePulse Server
                 ...
             ]
         }
     }
 }
 ```
-Once an authentication token has been obtained, it needs to be provided to API actions, either via the `api_token` parameter, or by passing a `X-WPPUS-Token` header (recommended - it is then found in `$_SERVER['HTTP_X_WPPUS_TOKEN']` in PHP).  
+Once an authentication token has been obtained, it needs to be provided to API actions, either via the `api_token` parameter, or by passing a `X-UpdatePulse-Token` header (recommended - it is then found in `$_SERVER['HTTP_X_UPDATEPULSE_TOKEN']` in PHP).  
 In case the token is invalid, all the actions of the Private API return the same response (message's language depending on available translations), with HTTP response code set to `403`:
 
 Response `$data` - forbidden access:
@@ -407,7 +413,7 @@ See [The License Query](#the-license-query) for more information on the `$licens
 $params = array(
 	'action'       => 'browse',                         // Action to perform when calling the License API (required)
 	'browse_query' => wp_json_encode( $license_query ), // A JSON representation of a License Query (required)
-	'api_token'    => 'token',                          // The authentication token (optional - must provided via X-WPPUS-Token header if absent)
+	'api_token'    => 'token',                          // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -453,7 +459,7 @@ ___
 $params = array(
 	'action'       => 'read',         // Action to perform when calling the License API (required)
 	'license_key'  => 'test-license', // The key of the license to read
-	'api_token'    => 'token',        // The authentication token (optional - must provided via X-WPPUS-Token header if absent)
+	'api_token'    => 'token',        // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -511,7 +517,7 @@ $params = array(
 	'date_expiry'         => '3099-12-31',        // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
 	'package_slug'        => 'new-package',       // The package slug - only alphanumeric characters and dashes are allowed (required)
 	'package_type'        => 'theme',             // Type of package the license is for - one of plugin, theme, generic (required)
-	'api_token'           => 'token',             // The authentication token (optional - must provided via X-WPPUS-Token header if absent)
+	'api_token'           => 'token',             // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -576,7 +582,7 @@ $params = array(
 	'date_expiry'         => '2099-12-31',    // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
 	'package_slug'        => 'test-package',  // The package slug - only alphanumeric characters and dashes are allowed (required)
 	'package_type'        => 'plugin',        // Type of package the license is for - one of plugin, theme, generic (required)
-	'api_token'           => 'token',         // The authentication token (optional - must provided via X-WPPUS-Token header if absent)
+	'api_token'           => 'token',         // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -625,7 +631,7 @@ ___
 $params = array(
 	'action'       => 'delete',       // Action to perform when calling the License API (required)
 	'license_key'  => 'test-license', // The key of the license to delete
-	'api_token'    => 'token',        // The authentication token (optional - must provided via X-WPPUS-Token header if absent)
+	'api_token'    => 'token',        // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -668,10 +674,10 @@ The functions listed below are made publicly available by the plugin for plugin 
 Although the main classes can theoretically be instantiated without side effect if the `$hook_init` parameter is set to `false`, it is recommended to use only the following functions as there is no guarantee future updates won't introduce changes of behaviors.
 
 ___
-### wppus_is_doing_license_api_request
+### upserv_is_doing_license_api_request
 
 ```php
-wppus_is_doing_license_api_request();
+upserv_is_doing_license_api_request();
 ```
 
 **Description**  
@@ -681,10 +687,10 @@ Determine whether the current request is made by a client plugin or theme intera
 > (bool) `true`  if the current request is a client plugin or theme interacting with the plugin's API, `false` otherwise
 
 ___
-### wppus_browse_licenses
+### upserv_browse_licenses
 
 ```php
-wppus_browse_licenses( array $browse_query );
+upserv_browse_licenses( array $browse_query );
 ```
 
 **Description**  
@@ -698,10 +704,10 @@ Browse the license records filtered using various criteria.
 > (array) An array of license object matching the License Query
 
 ___
-### wppus_read_license
+### upserv_read_license
 
 ```php
-wppus_read_license( array $payload );
+upserv_read_license( array $payload );
 ```
 
 **Description**  
@@ -715,10 +721,10 @@ Read a license record.
 > (mixed) An object in case of success (see the response of the License API action [read](#read) - the object is the decoded value of the JSON string) or an empty array otherwise
 
 ___
-### wppus_edit_license
+### upserv_edit_license
 
 ```php
-wppus_edit_license( array $payload );
+upserv_edit_license( array $payload );
 ```
 
 **Description**  
@@ -732,10 +738,10 @@ Add a license record.
 > (mixed) An object in case of success (see the response of the License API action [add](#add) - the object is the decoded value of the JSON string) or an array of errors otherwise
 
 ___
-### wppus_add_license
+### upserv_add_license
 
 ```php
-wppus_add_license( array $payload );
+upserv_add_license( array $payload );
 ```
 
 **Description**  
@@ -749,10 +755,10 @@ Add a license.
 > (mixed) An object in case of success (see the response of the License API action [add](#add) - the object is the decoded value of the JSON string) or an array of errors otherwise
 
 ___
-### wppus_delete_license
+### upserv_delete_license
 
 ```php
-wppus_delete_license( array $payload );
+upserv_delete_license( array $payload );
 ```
 
 **Description**  
@@ -766,10 +772,10 @@ $payload
 > (mixed) An object in case of success (see the response of the License API action [delete](#delete) - the object is the decoded value of the JSON string) or an empty array otherwise
 
 ___
-### wppus_check_license
+### upserv_check_license
 
 ```php
-wppus_check_license( array $payload );
+upserv_check_license( array $payload );
 ```
 
 **Description**  
@@ -783,10 +789,10 @@ Check a License information.
 > (mixed) An object in case of success, and associative array in case of failure (see the response of the License API action [check](#check) - the object is the decoded value of the JSON string)
 
 ___
-### wppus_activate_license
+### upserv_activate_license
 
 ```php
-wppus_activate_license( array $payload );
+upserv_activate_license( array $payload );
 ```
 
 **Description**  
@@ -800,10 +806,10 @@ Activate a License.
 > (mixed) An object in case of success, and associative array in case of failure (see the response of the License API action [activate](#activate) - the object is the decoded value of the JSON string)
 
 ___
-### wppus_deactivate_license
+### upserv_deactivate_license
 
 ```php
-wppus_deactivate_license( array $payload );
+upserv_deactivate_license( array $payload );
 ```
 
 **Description**  
@@ -819,14 +825,14 @@ Deactivate a License.
 ___
 ## Actions
 
-WP Packages Update Server gives developers the possibility to have their plugins react to some events with a series of custom actions.
+UpdatePulse Server gives developers the possibility to have their plugins react to some events with a series of custom actions.
 **Warning**: the actions below with the mention "Fired during client license API request" need to be used with caution. Although they may also be triggered when using the functions above, these actions will be called when client packages request for updates or when License API calls are performed. Registering functions doing heavy computation to these actions when client license API requests are handled can seriously degrade the server's performances.
 
 ___
-### wppus_registered_license_schedule
+### upserv_registered_license_schedule
 
 ```php
-do_action( 'wppus_registered_license_schedule', string $scheduled_hook );
+do_action( 'upserv_registered_license_schedule', string $scheduled_hook );
 ```
 
 **Description**  
@@ -837,20 +843,20 @@ Fired after the license maintenance action has been registered.
 > (string) the license event hook that has been registered
 
 ___
-### wppus_cleared_license_schedule
+### upserv_cleared_license_schedule
 
 ```php
-do_action( 'wppus_cleared_license_schedule' );
+do_action( 'upserv_cleared_license_schedule' );
 ```
 
 **Description**  
 Fired after the license maintenance event has been unscheduled.
 
 ___
-### wppus_scheduled_license_event
+### upserv_scheduled_license_event
 
 ```php
-do_action( 'wppus_scheduled_license_event', bool $result, int $timestamp, string $frequency, string $hook );
+do_action( 'upserv_scheduled_license_event', bool $result, int $timestamp, string $frequency, string $hook );
 ```
 
 **Description**  
@@ -873,10 +879,10 @@ Fired after the license maintenance event has been scheduled.
 > (array) parameters passed to the actions registered to $hook when the event is ran
 
 ___
-### wppus_browse_licenses
+### upserv_browse_licenses
 
 ```php
-do_action( 'wppus_browse_licenses', array $payload );
+do_action( 'upserv_browse_licenses', array $payload );
 ```
 
 **Description**  
@@ -888,10 +894,10 @@ Fired during client license API request.
 > (array) a dirty payload for a License Query
 
 ___
-### wppus_did_browse_licenses
+### upserv_did_browse_licenses
 
 ```php
-do_action( 'wppus_did_browse_licenses', array $licenses, array $payload );
+do_action( 'upserv_did_browse_licenses', array $licenses, array $payload );
 ```
 
 **Description**  
@@ -906,10 +912,10 @@ Fired during client license API request.
 > (array) the payload of the request  
 
 ___
-### wppus_did_read_license
+### upserv_did_read_license
 
 ```php
-do_action( 'wppus_did_read_license', mixed $result, array $payload );
+do_action( 'upserv_did_read_license', mixed $result, array $payload );
 ```
 
 **Description**  
@@ -924,10 +930,10 @@ Fired during client license API request.
 > (array) the payload of the request  
 
 ___
-### wppus_did_edit_license
+### upserv_did_edit_license
 
 ```php
-do_action( 'wppus_did_edit_license', mixed $result, array $payload, mixed $original );
+do_action( 'upserv_did_edit_license', mixed $result, array $payload, mixed $original );
 ```
 
 **Description**  
@@ -944,10 +950,10 @@ Fired during client license API request.
 `$result`
 > (mixed) the original record to edit - a license record object or an array of errors
 ___
-### wppus_did_add_license
+### upserv_did_add_license
 
 ```php
-do_action( 'wppus_did_add_license', mixed $result, array $payload );
+do_action( 'upserv_did_add_license', mixed $result, array $payload );
 ```
 
 **Description**  
@@ -962,10 +968,10 @@ Fired during client license API request.
 > (array) the payload of the request  
 
 ___
-### wppus_did_delete_license
+### upserv_did_delete_license
 
 ```php
-do_action( 'wppus_did_delete_license', mixed $result, array $payload );
+do_action( 'upserv_did_delete_license', mixed $result, array $payload );
 ```
 
 **Description**  
@@ -980,10 +986,10 @@ Fired during client license API request.
 > (array) the payload of the request  
 
 ___
-### wppus_did_check_license
+### upserv_did_check_license
 
 ```php
-do_action( 'wppus_did_check_license', mixed $result, array $payload );
+do_action( 'upserv_did_check_license', mixed $result, array $payload );
 ```
 
 **Description**  
@@ -998,10 +1004,10 @@ Fired during client license API request.
 > (array) the payload of the request  
 
 ___
-### wppus_pre_activate_license
+### upserv_pre_activate_license
 
 ```php
-do_action( 'wppus_pre_activate_license', mixed $license );
+do_action( 'upserv_pre_activate_license', mixed $license );
 ```
 
 **Description**  
@@ -1013,10 +1019,10 @@ Fired during client license API request.
 > (mixed) the license to activate as an object in case it exists (see the response of the License API action [read](#read) - the object is the decoded value of the JSON string) or an empty array otherwise
 
 ___
-### wppus_did_activate_license
+### upserv_did_activate_license
 
 ```php
-do_action( 'wppus_did_activate_license', mixed $result, array $payload );
+do_action( 'upserv_did_activate_license', mixed $result, array $payload );
 ```
 
 **Description**  
@@ -1031,10 +1037,10 @@ Fired during client license API request.
 > (array) the payload of the request  
 
 ___
-### wppus_pre_deactivate_license
+### upserv_pre_deactivate_license
 
 ```php
-do_action( 'wppus_pre_deactivate_license', mixed $license );
+do_action( 'upserv_pre_deactivate_license', mixed $license );
 ```
 
 **Description**  
@@ -1046,10 +1052,10 @@ Fired during client license API request.
 > (mixed) the license to deactivate as an object in case it exists (see the response of the License API action [read](#read) - the object is the decoded value of the JSON string) or an empty array otherwise
 
 ___
-### wppus_did_deactivate_license
+### upserv_did_deactivate_license
 
 ```php
-do_action( 'wppus_did_deactivate_license', mixed $result, array $payload );
+do_action( 'upserv_did_deactivate_license', mixed $result, array $payload );
 ```
 
 **Description**  
@@ -1064,10 +1070,10 @@ Fired during client license API request.
 > (array) the payload of the request  
 
 ___
-### wppus_license_api_request
+### upserv_license_api_request
 
 ```php
-do_action( 'wppus_license_api_request', string $action, array $payload );
+do_action( 'upserv_license_api_request', string $action, array $payload );
 ```
 
 **Description**  
@@ -1083,14 +1089,14 @@ Fired before the License API request is processed ; useful to bypass the executi
 ___
 ## Filters
 
-WP Packages Update Server gives developers the possibility to customize its behavior with a series of custom filters.
+UpdatePulse Server gives developers the possibility to customize its behavior with a series of custom filters.
 **Warning**: the filters below with the mention "Fired during client license API request" need to be used with caution. Although they may be triggered when using the functions above, these filters will be called when client packages request for updates or when License API calls are performed. Registering functions doing heavy computation to these filters when client license API requests are handled can seriously degrade the server's performances.
 
 ___
-### wppus_license_valid
+### upserv_license_valid
 
 ```php
-apply_filters( 'wppus_license_valid', bool $is_valid, mixed $license, string $license_signature );
+apply_filters( 'upserv_license_valid', bool $is_valid, mixed $license, string $license_signature );
 ```
 
 **Description**  
@@ -1110,25 +1116,25 @@ Fired during client license API request.
 > (string) the signature of the license
 
 ___
-### wppus_license_server
+### upserv_license_server
 
 ```php
-apply_filters( 'wppus_license_server', mixed $license_server );
+apply_filters( 'upserv_license_server', mixed $license_server );
 ```
 
 **Description**  
-Filter the Wppus_License_Server object to use.
+Filter the UPServ_License_Server object to use.
 Fired during client license API request.
 
 **Parameters**  
 `$license_server`
-> (mixed) the Wppus_License_Server object
+> (mixed) the UPServ_License_Server object
 
 ___
-### wppus_license_api_config
+### upserv_license_api_config
 
 ```php
-apply_filters( 'wppus_license_api_config', array $config );
+apply_filters( 'upserv_license_api_config', array $config );
 ```
 
 **Description**  
@@ -1140,10 +1146,10 @@ Fired during client license API request.
 > (array) the license api configuration values
 
 ___
-### wppus_submitted_licenses_config
+### upserv_submitted_licenses_config
 
 ```php
-apply_filters( 'wppus_submitted_licenses_config', array $config );
+apply_filters( 'upserv_submitted_licenses_config', array $config );
 ```
 
 **Description**  
@@ -1154,10 +1160,10 @@ Filter the submitted license configuration values before saving them.
 > (array) the submitted license configuration values
 
 ___
-### wppus_check_license_result
+### upserv_check_license_result
 
 ```php
-apply_filters( 'wppus_check_license_result', mixed $result, array $payload );
+apply_filters( 'upserv_check_license_result', mixed $result, array $payload );
 ```
 
 **Description**  
@@ -1174,10 +1180,10 @@ Fired during client license API request.
 
 
 ___
-### wppus_activate_license_result
+### upserv_activate_license_result
 
 ```php
-apply_filters( 'wppus_activate_license_result', mixed $result, array $payload, mixed $maybe_license );
+apply_filters( 'upserv_activate_license_result', mixed $result, array $payload, mixed $maybe_license );
 ```
 
 **Description**  
@@ -1197,10 +1203,10 @@ Fired during client license API request.
 > (mixed) a license object record or an empty array
 
 ___
-### wppus_deactivate_license_result
+### upserv_deactivate_license_result
 
 ```php
-apply_filters( 'wppus_deactivate_license_result', mixed $result, array $payload, mixed $maybe_license );
+apply_filters( 'upserv_deactivate_license_result', mixed $result, array $payload, mixed $maybe_license );
 ```
 
 **Description**  
@@ -1220,10 +1226,10 @@ Fired during client license API request.
 > (mixed) a license object record or an empty array
 
 ___
-### wppus_activate_license_next_deactivate
+### upserv_activate_license_next_deactivate
 
 ```php
-apply_filters( 'wppus_activate_license_next_deactivate', int $next_deactivate, mixed $license );
+apply_filters( 'upserv_activate_license_next_deactivate', int $next_deactivate, mixed $license );
 ```
 
 **Description**  
@@ -1239,10 +1245,10 @@ Fired during client license API request.
 > (mixed) a license object record
 
 ___
-### wppus_deactivate_license_next_deactivate
+### upserv_deactivate_license_next_deactivate
 
 ```php
-apply_filters( 'wppus_deactivate_license_next_deactivate', int $next_deactivate, mixed $license );
+apply_filters( 'upserv_deactivate_license_next_deactivate', int $next_deactivate, mixed $license );
 ```
 
 **Description**  
@@ -1258,10 +1264,10 @@ Fired during client license API request.
 > (mixed) a license object record
 
 ___
-### wppus_check_license_dirty_payload
+### upserv_check_license_dirty_payload
 
 ```php
-apply_filters( 'wppus_check_license_dirty_payload', array $dirty_payload );
+apply_filters( 'upserv_check_license_dirty_payload', array $dirty_payload );
 ```
 
 **Description**  
@@ -1273,10 +1279,10 @@ Fired during client license API request.
 > (array) the dirty payload used to attempt to check a license
 
 ___
-### wppus_activate_license_dirty_payload
+### upserv_activate_license_dirty_payload
 
 ```php
-apply_filters( 'wppus_activate_license_dirty_payload', array $dirty_payload );
+apply_filters( 'upserv_activate_license_dirty_payload', array $dirty_payload );
 ```
 
 **Description**  
@@ -1288,10 +1294,10 @@ Fired during client license API request.
 > (array) the dirty payload used to attempt to activate a license
 
 ___
-### wppus_deactivate_license_dirty_payload
+### upserv_deactivate_license_dirty_payload
 
 ```php
-apply_filters( 'wppus_deactivate_license_dirty_payload', array $dirty_payload );
+apply_filters( 'upserv_deactivate_license_dirty_payload', array $dirty_payload );
 ```
 
 **Description**  
@@ -1303,10 +1309,10 @@ Fired during client license API request.
 > (array) the dirty payload used to attempt to deactivate a license
 
 ___
-### wppus_activate_license_payload
+### upserv_activate_license_payload
 
 ```php
-apply_filters( 'wppus_activate_license_payload', array $payload );
+apply_filters( 'upserv_activate_license_payload', array $payload );
 ```
 
 **Description**  
@@ -1318,10 +1324,10 @@ Fired during client license API request.
 > (array) the payload used to activate a license
 
 ___
-### wppus_deactivate_license_payload
+### upserv_deactivate_license_payload
 
 ```php
-apply_filters( 'wppus_deactivate_license_payload', array $payload );
+apply_filters( 'upserv_deactivate_license_payload', array $payload );
 ```
 
 **Description**  
@@ -1333,10 +1339,10 @@ Fired during client license API request.
 > (array) the payload used to deactivate a license
 
 ___
-### wppus_browse_licenses_payload
+### upserv_browse_licenses_payload
 
 ```php
-apply_filters( 'wppus_browse_licenses_payload', array $payload );
+apply_filters( 'upserv_browse_licenses_payload', array $payload );
 ```
 
 **Description**  
@@ -1348,10 +1354,10 @@ Fired during client license API request.
 > (array) a dirty payload for a License Query
 
 ___
-### wppus_read_license_payload
+### upserv_read_license_payload
 
 ```php
-apply_filters( 'wppus_read_license_payload', array $payload );
+apply_filters( 'upserv_read_license_payload', array $payload );
 ```
 
 **Description**  
@@ -1363,10 +1369,10 @@ Fired during client license API request.
 > (array) payload used to read a license record
 
 ___
-### wppus_edit_license_payload
+### upserv_edit_license_payload
 
 ```php
-apply_filters( 'wppus_edit_license_payload', array $payload );
+apply_filters( 'upserv_edit_license_payload', array $payload );
 ```
 
 **Description**  
@@ -1378,10 +1384,10 @@ Fired during client license API request.
 > (array) payload used to edit a license record
 
 ___
-### wppus_add_license_payload
+### upserv_add_license_payload
 
 ```php
-apply_filters( 'wppus_add_license_payload', array $payload );
+apply_filters( 'upserv_add_license_payload', array $payload );
 ```
 
 **Description**  
@@ -1393,10 +1399,10 @@ Fired during client license API request.
 > (array) payload used to add a license record
 
 ___
-### wppus_delete_license_payload
+### upserv_delete_license_payload
 
 ```php
-apply_filters( 'wppus_delete_license_payload', array $payload );
+apply_filters( 'upserv_delete_license_payload', array $payload );
 ```
 
 **Description**  
@@ -1408,10 +1414,10 @@ Fired during client license API request.
 > (array) payload used to delete a license record
 
 ___
-### wppus_license_public_api_actions
+### upserv_license_public_api_actions
 
 ```php
-apply_filters( 'wppus_license_public_api_actions', array $public_api_actions );
+apply_filters( 'upserv_license_public_api_actions', array $public_api_actions );
 ```
 
 **Description**  
@@ -1422,10 +1428,10 @@ Filter the public API actions ; public actions can be accessed via the `GET` met
 > (array) the public API actions  
 
 ___
-### wppus_license_api_request_authorized
+### upserv_license_api_request_authorized
 
 ```php
-apply_filters( 'wppus_license_api_request_authorized', bool $authorized, string $method, array $payload );
+apply_filters( 'upserv_license_api_request_authorized', bool $authorized, string $method, array $payload );
 ```
 
 **Description**  
@@ -1442,10 +1448,10 @@ Filter whether the License API request is authorized.
 > (array) the payload of the request  
 
 ___
-### wppus_license_bypass_signature
+### upserv_license_bypass_signature
 
 ```php
-apply_filters( 'wppus_license_bypass_signature', bool $bypass, object $license );
+apply_filters( 'upserv_license_bypass_signature', bool $bypass, object $license );
 ```
 
 **Description**  
@@ -1459,10 +1465,10 @@ Fired during client license API request.
 `$license`
 > (string) the license object  
 ___
-### wppus_api_license_actions
+### upserv_api_license_actions
 
 ```php
-apply_filters( 'wppus_api_license_actions', array $actions );
+apply_filters( 'upserv_api_license_actions', array $actions );
 ```
 
 **Description**  
@@ -1473,10 +1479,10 @@ Filter the License API actions available for API access control.
 > (array) the API actions  
 
 ___
-### wppus_api_license_actions
+### upserv_api_license_actions
 
 ```php
-apply_filters( 'wppus_license_update_server_prepare_license_for_output', array $output, object $license );
+apply_filters( 'upserv_license_update_server_prepare_license_for_output', array $output, object $license );
 ```
 
 **Description**  

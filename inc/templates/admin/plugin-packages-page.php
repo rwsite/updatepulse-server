@@ -1,49 +1,49 @@
 <?php if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 } ?>
-<div class="wrap wppus-wrap">
-	<?php WP_Packages_Update_Server::get_instance()->display_settings_header( $result ); ?>
-	<form autocomplete="off" id="wppus-packages-list" action="" method="post">
-		<h3><?php esc_html_e( 'Packages', 'wppus' ); ?></h3>
-		<?php $packages_table->search_box( 'Search', 'wppus' ); ?>
+<div class="wrap upserv-wrap">
+	<?php UPServ::get_instance()->display_settings_header( $result ); ?>
+	<form autocomplete="off" id="upserv-packages-list" action="" method="post">
+		<h3><?php esc_html_e( 'Packages', 'updatepulse-server' ); ?></h3>
+		<?php $packages_table->search_box( 'Search', 'updatepulse-server' ); ?>
 		<?php $packages_table->display(); ?>
-		<?php if ( get_option( 'wppus_use_remote_repository' ) || get_option( 'wppus_use_licenses' ) ) : ?>
+		<?php if ( get_option( 'upserv_use_remote_repository' ) || get_option( 'upserv_use_licenses' ) ) : ?>
 		<br/>
 		<p class="description">
-			<?php esc_html_e( 'Notes:', 'wppus' ); ?>
-			<?php if ( get_option( 'wppus_use_remote_repository' ) ) : ?>
+			<?php esc_html_e( 'Notes:', 'updatepulse-server' ); ?>
+			<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
 			<br/>
-				<?php esc_html_e( '- It is not necessary to prime or upload packages linked to a Remote Repository for them to appear in this list: they will be automatically added whenever a client checks for updates.', 'wppus' ); ?>
+				<?php esc_html_e( '- It is not necessary to prime or upload packages linked to a Remote Repository for them to appear in this list: they will be automatically added whenever a client checks for updates.', 'updatepulse-server' ); ?>
 			<br/>
-				<?php esc_html_e( '- If packages linked to a Remote Repository are deleted using this interface, they will be added again to the list automatically whenever a client checks for updates.', 'wppus' ); ?>
+				<?php esc_html_e( '- If packages linked to a Remote Repository are deleted using this interface, they will be added again to the list automatically whenever a client checks for updates.', 'updatepulse-server' ); ?>
 			<?php endif; ?>
 		</p>
 		<?php endif; ?>
 	</form>
 	<br>
 	<hr>
-	<?php do_action( 'wppus_template_package_manager_option_before_add_packages' ); ?>
-	<h3><?php esc_html_e( 'Add Packages', 'wppus' ); ?></h3>
-	<table class="form-table wppus-add-packages">
-		<?php if ( get_option( 'wppus_use_remote_repository' ) ) : ?>
+	<?php do_action( 'upserv_template_package_manager_option_before_add_packages' ); ?>
+	<h3><?php esc_html_e( 'Add Packages', 'updatepulse-server' ); ?></h3>
+	<table class="form-table upserv-add-packages">
+		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
 		<tr>
 			<th>
-				<label for="wppus_prime_package_slug"><?php esc_html_e( 'Prime a package using a Remote Repository (recommended)', 'wppus' ); ?></label>
+				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Prime a package using a Remote Repository (recommended)', 'updatepulse-server' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" type="text" id="wppus_prime_package_slug" placeholder="<?php esc_attr_e( 'package-slug' ); ?>" name="wppus_prime_package_slug" value=""> <input type="button" id="wppus_prime_package_trigger" value="<?php print esc_attr_e( 'Get remote package', 'wppus' ); ?>" class="button button-primary" disabled /><div class="spinner"></div>
+				<input class="regular-text" type="text" id="upserv_prime_package_slug" placeholder="<?php esc_attr_e( 'package-slug' ); ?>" name="upserv_prime_package_slug" value=""> <input type="button" id="upserv_prime_package_trigger" value="<?php print esc_attr_e( 'Get remote package', 'updatepulse-server' ); ?>" class="button button-primary" disabled /><div class="spinner"></div>
 				<p class="description">
 					<?php
 					printf(
 						// translators: %s is <code>$packages_dir</code>
-						esc_html__( 'Get an archive of a package from a Remote Repository and put it in the %s directory by entering the package slug.', 'wppus' ),
+						esc_html__( 'Get an archive of a package from a Remote Repository and put it in the %s directory by entering the package slug.', 'updatepulse-server' ),
 						'<code>' . esc_html( $packages_dir ) . '</code>',
 					);
 					?>
 					<?php
 					printf(
 						// translators: %s is <code>package-slug</code>
-						esc_html__( 'The repository name should be %s and all the files should be located at the root of the repository.', 'wppus' ),
+						esc_html__( 'The repository name should be %s and all the files should be located at the root of the repository.', 'updatepulse-server' ),
 						'<code>package-slug</code>',
 					);
 					?>
@@ -51,34 +51,34 @@
 					<?php
 					printf(
 						// translators: %1$s is <code>package-slug</code>, %2$s is <code>package-slug.php</code>
-						esc_html__( 'In the case of a plugin, the main plugin file must have the same name as the repository name - for example, the main plugin file in %1$s repository would be %2$s.', 'wppus' ),
+						esc_html__( 'In the case of a plugin, the main plugin file must have the same name as the repository name - for example, the main plugin file in %1$s repository would be %2$s.', 'updatepulse-server' ),
 						'<code>package-slug</code>',
 						'<code>package-slug.php</code>',
 					);
 					?>
 					<br>
-					<?php esc_html_e( 'Using this method adds the package to the list if not present or forcefully downloads its latest version from the Remote Repository and overwrites the existing package.', 'wppus' ); ?>
+					<?php esc_html_e( 'Using this method adds the package to the list if not present or forcefully downloads its latest version from the Remote Repository and overwrites the existing package.', 'updatepulse-server' ); ?>
 					<br>
-					<?php esc_html_e( 'Note: packages will be overwritten automatically and regularly with their counterpart from the Remote Repository if a newer version exists.', 'wppus' ); ?>
+					<?php esc_html_e( 'Note: packages will be overwritten automatically and regularly with their counterpart from the Remote Repository if a newer version exists.', 'updatepulse-server' ); ?>
 				</p>
 			</td>
 		</tr>
 		<?php endif; ?>
-		<tr id="wppus_manual_package_upload_dropzone">
+		<tr id="upserv_manual_package_upload_dropzone">
 			<th>
-				<label for="wppus_manual_package_upload"><?php esc_html_e( 'Upload a package', 'wppus' ); ?>
-				<?php if ( get_option( 'wppus_use_remote_repository' ) ) : ?>
-					<?php esc_html_e( ' (discouraged)', 'wppus' ); ?>
+				<label for="upserv_manual_package_upload"><?php esc_html_e( 'Upload a package', 'updatepulse-server' ); ?>
+				<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
+					<?php esc_html_e( ' (discouraged)', 'updatepulse-server' ); ?>
 				<?php endif; ?>
 				</label>
 			</th>
 			<td>
-				<input class="input-file hidden" type="file" id="wppus_manual_package_upload" name="wppus_manual_package_upload" value=""><label for="wppus_manual_package_upload" class="button"><?php esc_html_e( 'Choose package archive', 'wppus' ); ?></label> <input type="text" id="wppus_manual_package_upload_filename" placeholder="package-slug.zip" value="" disabled> <input type="button" value="<?php print esc_attr_e( 'Upload package', 'wppus' ); ?>" class="button button-primary manual-package-upload-trigger" id="wppus_manual_package_upload_trigger" disabled /><div class="spinner"></div>
+				<input class="input-file hidden" type="file" id="upserv_manual_package_upload" name="upserv_manual_package_upload" value=""><label for="upserv_manual_package_upload" class="button"><?php esc_html_e( 'Choose package archive', 'updatepulse-server' ); ?></label> <input type="text" id="upserv_manual_package_upload_filename" placeholder="package-slug.zip" value="" disabled> <input type="button" value="<?php print esc_attr_e( 'Upload package', 'updatepulse-server' ); ?>" class="button button-primary manual-package-upload-trigger" id="upserv_manual_package_upload_trigger" disabled /><div class="spinner"></div>
 				<p class="description">
 					<?php
 					printf(
 						// translators: %s is <code>$packages_dir</code>
-						esc_html__( 'Add a package zip archive to the %s directory. The archive needs to be a valid generic package, or a valid WordPress plugin or theme package.', 'wppus' ),
+						esc_html__( 'Add a package zip archive to the %s directory. The archive needs to be a valid generic package, or a valid WordPress plugin or theme package.', 'updatepulse-server' ),
 						'<code>' . esc_html( $packages_dir ) . '</code>',
 					);
 					?>
@@ -86,16 +86,16 @@
 					<?php
 					printf(
 						// translators: %1$s is <code>package-slug.zip</code>, %2$s is <code>package-slug.php</code>
-						esc_html__( 'In the case of a plugin, the main plugin file must have the same name as the zip archive - for example, the main plugin file in %1$s would be %2$s.', 'wppus' ),
+						esc_html__( 'In the case of a plugin, the main plugin file must have the same name as the zip archive - for example, the main plugin file in %1$s would be %2$s.', 'updatepulse-server' ),
 						'<code>package-slug.zip</code>',
 						'<code>package-slug.php</code>',
 					);
 					?>
 					<br>
-					<?php esc_html_e( 'Using this method adds the package to the list if not present or overwrites the existing package.', 'wppus' ); ?>
-					<?php if ( get_option( 'wppus_use_remote_repository' ) ) : ?>
+					<?php esc_html_e( 'Using this method adds the package to the list if not present or overwrites the existing package.', 'updatepulse-server' ); ?>
+					<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
 					<br>
-						<?php esc_html_e( 'Note: a manually uploaded package that does not have its counterpart in a Remote Repository will need to be uploaded manually for each new release to provide updates.', 'wppus' ); ?>
+						<?php esc_html_e( 'Note: a manually uploaded package that does not have its counterpart in a Remote Repository will need to be uploaded manually for each new release to provide updates.', 'updatepulse-server' ); ?>
 					<?php endif; ?>
 				</p>
 			</td>
@@ -103,32 +103,32 @@
 	</table>
 	<hr>
 	<form autocomplete="off" action="" method="post">
-		<?php do_action( 'wppus_template_package_manager_option_before_miscellaneous' ); ?>
-		<h3><?php esc_html_e( 'Miscellaneous', 'wppus' ); ?></h3>
+		<?php do_action( 'upserv_template_package_manager_option_before_miscellaneous' ); ?>
+		<h3><?php esc_html_e( 'Miscellaneous', 'updatepulse-server' ); ?></h3>
 		<table class="form-table general-options">
 			<tr>
 				<th>
-					<label for="wppus_archive_max_size"><?php esc_html_e( 'Archive max size (in MB)', 'wppus' ); ?></label>
+					<label for="upserv_archive_max_size"><?php esc_html_e( 'Archive max size (in MB)', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="regular-text" type="number" id="wppus_archive_max_size" name="wppus_archive_max_size" value="<?php echo esc_attr( get_option( 'wppus_archive_max_size', $default_archive_size ) ); ?>">
+					<input class="regular-text" type="number" id="upserv_archive_max_size" name="upserv_archive_max_size" value="<?php echo esc_attr( get_option( 'upserv_archive_max_size', $default_archive_size ) ); ?>">
 					<p class="description">
-						<?php esc_html_e( 'Maximum file size when uploading or downloading packages.', 'wppus' ); ?>
+						<?php esc_html_e( 'Maximum file size when uploading or downloading packages.', 'updatepulse-server' ); ?>
 					</p>
 				</td>
 			</tr>
 			<tr>
 				<th>
-					<label for="wppus_cache_max_size"><?php esc_html_e( 'Cache max size (in MB)', 'wppus' ); ?></label>
+					<label for="upserv_cache_max_size"><?php esc_html_e( 'Cache max size (in MB)', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="regular-text" type="number" id="wppus_cache_max_size" name="wppus_cache_max_size" value="<?php echo esc_attr( get_option( 'wppus_cache_max_size', $default_cache_size ) ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'wppus' ); ?> (<?php print esc_attr( $cache_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="cache" />
+					<input class="regular-text" type="number" id="upserv_cache_max_size" name="upserv_cache_max_size" value="<?php echo esc_attr( get_option( 'upserv_cache_max_size', $default_cache_size ) ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'updatepulse-server' ); ?> (<?php print esc_attr( $cache_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="cache" />
 					<p class="description">
 						<?php
 						printf(
 							// translators: %s is <code>cache_dir_path</code>
-							esc_html__( 'Maximum size in MB for the %s directory. If the size of the directory grows larger, its content will be deleted at next cron run (checked hourly). The size indicated in the "Force Clean" button is the real current size.', 'wppus' ),
-							'<code>' . esc_html( WPPUS_Data_Manager::get_data_dir( 'cache' ) ) . '</code>'
+							esc_html__( 'Maximum size in MB for the %s directory. If the size of the directory grows larger, its content will be deleted at next cron run (checked hourly). The size indicated in the "Force Clean" button is the real current size.', 'updatepulse-server' ),
+							'<code>' . esc_html( UPServ_Data_Manager::get_data_dir( 'cache' ) ) . '</code>'
 						);
 						?>
 					</p>
@@ -136,26 +136,26 @@
 			</tr>
 			<tr>
 				<th>
-					<label for="wppus_logs_max_size"><?php esc_html_e( 'Logs max size (in MB)', 'wppus' ); ?></label>
+					<label for="upserv_logs_max_size"><?php esc_html_e( 'Logs max size (in MB)', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="regular-text" type="number" id="wppus_logs_max_size" name="wppus_logs_max_size" value="<?php echo esc_attr( get_option( 'wppus_logs_max_size', $default_logs_size ) ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'wppus' ); ?> (<?php print esc_attr( $logs_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="logs" />
+					<input class="regular-text" type="number" id="upserv_logs_max_size" name="upserv_logs_max_size" value="<?php echo esc_attr( get_option( 'upserv_logs_max_size', $default_logs_size ) ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'updatepulse-server' ); ?> (<?php print esc_attr( $logs_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="logs" />
 					<p class="description">
 						<?php
 						printf(
 							// translators: %s is <code>logs_dir_path</code>
-							esc_html__( 'Maximum size in MB for the %s directory. If the size of the directory grows larger, its content will be deleted at next cron run (checked hourly). The size indicated in the "Force Clean" button is the real current size.', 'wppus' ),
-							'<code>' . esc_html( WPPUS_Data_Manager::get_data_dir( 'logs' ) ) . '</code>'
+							esc_html__( 'Maximum size in MB for the %s directory. If the size of the directory grows larger, its content will be deleted at next cron run (checked hourly). The size indicated in the "Force Clean" button is the real current size.', 'updatepulse-server' ),
+							'<code>' . esc_html( UPServ_Data_Manager::get_data_dir( 'logs' ) ) . '</code>'
 						);
 						?>
 					</p>
 				</td>
 			</tr>
 		</table>
-		<input type="hidden" name="wppus_settings_section" value="general-options">
-		<?php wp_nonce_field( 'wppus_plugin_options', 'wppus_plugin_options_handler_nonce' ); ?>
+		<input type="hidden" name="upserv_settings_section" value="general-options">
+		<?php wp_nonce_field( 'upserv_plugin_options', 'upserv_plugin_options_handler_nonce' ); ?>
 		<p class="submit">
-			<input type="submit" name="wppus_options_save" value="<?php esc_attr_e( 'Save', 'wppus' ); ?>" class="button button-primary" />
+			<input type="submit" name="upserv_options_save" value="<?php esc_attr_e( 'Save', 'updatepulse-server' ); ?>" class="button button-primary" />
 		</p>
 	</form>
 </div>

@@ -1,7 +1,7 @@
-# WP Packages Update Server - Generic Updates Integration - Developer documentation
-(Looking for the main documentation page instead? [See here](https://github.com/froger-me/wp-packages-update-server/blob/main/README.md))
+# UpdatePulse Server - Generic Updates Integration - Developer documentation
+(Looking for the main documentation page instead? [See here](https://github.com/froger-me/updatepulse-server/blob/main/README.md))
 
-API calls can be used by generic client packages to interact with the WP Update Server from any language or framework to request updates.  
+API calls can be used by generic client packages to interact with the UpdatePulse Server from any language or framework to request updates.  
 This document focuses on generic packages - WordPress plugins and themes are supported out of the box, and full integration examples are provided.  
 
 In this document, only 3 types of API calls are described:
@@ -14,7 +14,7 @@ Similarly, the actual update process, persisting license key & signature, securi
 
 Also of note, in the context of a generic package, the "domain" added to or removed from the list of `allowed_domains` needs not be an internet domain name, but can be any string that uniquely identifies the client (referred to as `allowedClientIdentifier` throughout the examples).
 
-* [WP Packages Update Server - Generic Updates Integration - Developer documentation](#wp-packages-update-server---generic-updates-integration---developer-documentation)
+* [UpdatePulse Server - Generic Updates Integration - Developer documentation](#updatepulse-server---generic-updates-integration---developer-documentation)
     * [Using the provided examples](#using-the-provided-examples)
         * [Disclaimer](#disclaimer)
         * [Configuration](#configuration)
@@ -38,16 +38,16 @@ Also of note, in the context of a generic package, the "domain" added to or remo
 
 ## Using the provided examples
 
-Examples of implementations in Node.js, PHP, Bash, and Python are provided in `wp-content/plugins/wp-packages-update-server/integration/dummy-generic`.  
+Examples of implementations in Node.js, PHP, Bash, and Python are provided in `wp-content/plugins/updatepulse-server/integration/dummy-generic`.  
 Although they can be executed, the examples are meant to be used as a starting point for your own implementation, and are **not meant to be used as-is**.  
 All the examples have been tested on Linux and MacOS.
 
 ### Disclaimer
 
-Each `wppus-api.[js|php|sh|py]` file contains a header with the following disclaimer:
+Each `updatepulse-api.[js|php|sh|py]` file contains a header with the following disclaimer:
 
 ```php
-### EXAMPLE INTEGRATION WITH WP PACKAGES UPDATE SERVER ###
+### EXAMPLE INTEGRATION WITH UPDATEPULSE SERVER ###
 
 # DO NOT USE THIS FILE AS IT IS IN PRODUCTION !!!
 # It is just a collection of basic functions and snippets, and they do not
@@ -56,12 +56,12 @@ Each `wppus-api.[js|php|sh|py]` file contains a header with the following discla
 # They also assume that the package necessitates a license key.
 
 # replace https://server.domain.tld/ with the URL of the server where
-# WP Packages Update Server is installed in wppus.json
+# UpdatePulse Server is installed in updatepulse.json
 ```
 
 ### Configuration
 
-Example of package configuration file `wppus.json` (all properties required except `RequireLicense` which defaults to `false`):
+Example of package configuration file `updatepulse.json` (all properties required except `RequireLicense` which defaults to `false`):
 
 ```json
 {
@@ -72,7 +72,7 @@ Example of package configuration file `wppus.json` (all properties required exce
         "Homepage": "https://domain.tld/",
         "Author": "Developer Name",
         "AuthorURI": "https://domain.tld/",
-        "Description": "Empty generic package to demonstrate the WP Package Updater.",
+        "Description": "Empty generic package to demonstrate the UpdatePulse Updater.",
         "RequireLicense": true
     }
 }
@@ -83,7 +83,7 @@ Example of package configuration file `wppus.json` (all properties required exce
 In a terminal, use the example by typing (replace `[js|php|sh|py]` with the extension of the file you want to test):
 
 ```bash
-cd wp-content/plugins/wp-packages-update-server/integration/dummy-generic
+cd wp-content/plugins/updatepulse-server/integration/dummy-generic
 # show the help
 ./dummy-generic.[js|php|sh|py]
 # install the package
@@ -133,7 +133,7 @@ Note: this package assumes it needs a license.
 #### Sample url
 
 ```
-https://server.domain.tld/wppus-update-api/?action=get_metadata&package_id=dummy-generic&installed_version=1.4.13&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D&update_type=Generic
+https://server.domain.tld/updatepulse-server-update-api/?action=get_metadata&package_id=dummy-generic&installed_version=1.4.13&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D&update_type=Generic
 ```
 
 #### Example response
@@ -157,7 +157,7 @@ HTTP/1.1 200 OK
     "description": "Empty Generic Package",
     "last_updated": "2024-01-01 00:00:00",
     "slug": "dummy-generic",
-    "download_url": "https:\/\/server.domain.tld\/wppus-update-api\/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic",
+    "download_url": "https:\/\/server.domain.tld\/updatepulse-server-update-api\/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic",
     "request_time_elapsed": "0.386"
 }
 
@@ -196,7 +196,7 @@ In case a valid license key is provided:
     "description": "Empty Generic Package",
     "last_updated": "2024-01-01 00:00:00",
     "slug": "dummy-generic",
-    "download_url": "https:\/\/server.domain.tld\/wppus-update-api\/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D",
+    "download_url": "https:\/\/server.domain.tld\/updatepulse-server-update-api\/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D",
     "license": {
         "id": "9999",
         "license_key": "41ec1eba0f17d47f76827a33c7daab2c",
@@ -232,7 +232,7 @@ $args      = array(
     'license_signature' => $signature,
     'update_type'       => 'Generic',
 );
-$url      = add_query_arg( $args, 'https://server.domain.tld/wppus-update-api/' );
+$url      = add_query_arg( $args, 'https://server.domain.tld/updatepulse-server-update-api/' );
 $response = wp_remote_get(
     $url,
     array
@@ -256,7 +256,7 @@ $args = array(
     'license_signature' => $signature,
     'update_type'       => 'Generic',
 );
-$url = 'https://server.domain.tld/wppus-update-api/?' . http_build_query( $args );
+$url = 'https://server.domain.tld/updatepulse-server-update-api/?' . http_build_query( $args );
 $ch = curl_init( $url );
 
 curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
@@ -283,7 +283,7 @@ const args = {
     license_signature: signature
     update_type: 'Generic',
 };
-const url = 'https://server.domain.tld/wppus-update-api/?' + querystring.stringify(args);
+const url = 'https://server.domain.tld/updatepulse-server-update-api/?' + querystring.stringify(args);
 const options = {
     headers: {
         'Accept': 'application/json'
@@ -320,7 +320,7 @@ const args = {
     license_signature: signature,
     update_type: 'Generic',
 };
-const url = new URL('https://server.domain.tld/wppus-update-api/');
+const url = new URL('https://server.domain.tld/updatepulse-server-update-api/');
 
 url.search = new URLSearchParams(args).toString();
 
@@ -354,7 +354,7 @@ args = {
     'license_signature': signature,
     'update_type': 'Generic',
 }
-url = 'https://server.domain.tld/wppus-update-api/'
+url = 'https://server.domain.tld/updatepulse-server-update-api/'
 response = requests.get(url, params=args, headers={'Accept': 'application/json'})
 
 if response.status_code == 200:
@@ -388,7 +388,7 @@ function urlencode() {
 }
 
 signature=$(urlencode "ZaH+a_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs=")
-url="https://server.domain.tld/wppus-update-api/"
+url="https://server.domain.tld/updatepulse-server-update-api/"
 args=(
     "action=get_metadata"
     "package_id=dummy-generic"
@@ -419,13 +419,13 @@ echo "$response"
 
 Activation:
 ```
-https://server.domain.tld/wppus-update-api/?action=activate&license_key=41ec1eba0f17d47f76827a33c7daab2c&allowed_domains=allowedClientIdentifier&package_slug=dummy-generic
+https://server.domain.tld/updatepulse-server-update-api/?action=activate&license_key=41ec1eba0f17d47f76827a33c7daab2c&allowed_domains=allowedClientIdentifier&package_slug=dummy-generic
 ```
 ___
 
 Deactivation:
 ```
-https://server.domain.tld/wppus-update-api/?action=deactivate&license_key=41ec1eba0f17d47f76827a33c7daab2c&allowed_domains=allowedClientIdentifier&package_slug=dummy-generic
+https://server.domain.tld/updatepulse-server-update-api/?action=deactivate&license_key=41ec1eba0f17d47f76827a33c7daab2c&allowed_domains=allowedClientIdentifier&package_slug=dummy-generic
 ```
 
 #### Example response
@@ -497,7 +497,7 @@ $args      = array(
     'allowed_domains'  => 'allowedClientIdentifier',
     'package_slug'     => 'dummy-generic',
 );
-$url      = add_query_arg( $args, 'https://server.domain.tld/wppus-license-api/' );
+$url      = add_query_arg( $args, 'https://server.domain.tld/updatepulse-server-license-api/' );
 
 wp_remote_get(
     $query,
@@ -517,7 +517,7 @@ $args = array(
     'allowed_domains'  => 'allowedClientIdentifier',
     'package_slug'     => 'dummy-generic',
 );
-$url = 'https://server.domain.tld/wppus-license-api/?' . http_build_query($args);
+$url = 'https://server.domain.tld/updatepulse-server-license-api/?' . http_build_query($args);
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
@@ -541,7 +541,7 @@ const args = {
     allowed_domains: 'allowedClientIdentifier',
     package_slug: 'dummy-generic',
 };
-const url = 'https://server.domain.tld/wppus-license-api/?' + querystring.stringify(args);
+const url = 'https://server.domain.tld/updatepulse-server-license-api/?' + querystring.stringify(args);
 
 https.get(url, (res) => {
     let data = '';
@@ -571,7 +571,7 @@ const args = {
     package_slug: 'dummy-generic',
 };
 
-const url = new URL('https://server.domain.tld/wppus-license-api/');
+const url = new URL('https://server.domain.tld/updatepulse-server-license-api/');
 Object.keys(args).forEach(key => url.searchParams.append(key, args[key]));
 
 fetch(url)
@@ -597,7 +597,7 @@ args = {
     'package_slug': 'dummy-generic',
 }
 
-url = 'https://server.domain.tld/wppus-license-api/?' + urllib.parse.urlencode(args)
+url = 'https://server.domain.tld/updatepulse-server-license-api/?' + urllib.parse.urlencode(args)
 
 try:
     response = requests.get(url)
@@ -612,7 +612,7 @@ except requests.exceptions.HTTPError as err:
 ```bash
 #!/bin/bash
 
-url="https://server.domain.tld/wppus-license-api/"
+url="https://server.domain.tld/updatepulse-server-license-api/"
 args=(
     "action=activate"
     "license_key=41ec1eba0f17d47f76827a33c7daab2c"
@@ -642,7 +642,7 @@ Note: the download URL with its one-time use token is acquired from the response
 #### Sample url
 
 ```
-https://server.domain.tld/wppus-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D
+https://server.domain.tld/updatepulse-server-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D
 ```
 
 #### Example response
@@ -697,7 +697,7 @@ HTTP/1.1 404 Not Found
 **Wordpress**
 
 ```php
-$download_url = "https://server.domain.tld/wppus-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
+$download_url = "https://server.domain.tld/updatepulse-server-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
 $response     = wp_remote_get(
     $download_url,
     array(
@@ -723,7 +723,7 @@ if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 **PHP Curl**
 
 ```php
-$download_url = "https://server.domain.tld/wppus-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
+$download_url = "https://server.domain.tld/updatepulse-server-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
 $options = [
     'http' => [
         'timeout' => 20,
@@ -746,7 +746,7 @@ if ($http_response_header[0] == 'HTTP/1.1 200 OK') {
 ```js
 const https = require('follow-redirects').https;
 const fs = require('fs');
-const url = "https://server.domain.tld/wppus-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
+const url = "https://server.domain.tld/updatepulse-server-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
 
 https.get(url, (res) => {
 
@@ -763,7 +763,7 @@ https.get(url, (res) => {
 **JavaScript**
 
 ```js
-const url = "https://server.domain.tld/wppus-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
+const url = "https://server.domain.tld/updatepulse-server-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D";
 
 fetch(url)
     .then(response => response.blob())
@@ -788,7 +788,7 @@ fetch(url)
 ```python
 import requests
 
-url = "https://server.domain.tld/wppus-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D"
+url = "https://server.domain.tld/updatepulse-server-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D"
 response = requests.get(url, stream=True)
 
 if response.status_code == 200:
@@ -804,7 +804,7 @@ else:
 ```bash
 #!/bin/bash
 
-url="https://server.domain.tld/wppus-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D"
+url="https://server.domain.tld/updatepulse-server-update-api/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic&license_key=41ec1eba0f17d47f76827a33c7daab2c&license_signature=ZaH%2Ba_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs%3D"
 output_file="/tmp/dummy-generic.zip"
 
 curl -o $output_file $url

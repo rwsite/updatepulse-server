@@ -14,15 +14,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco https://localise.biz/"
 
-#. %1$s is the path to the MU Plugin backup
-#: updates/1.2.1.php:48
-#, php-format
-msgid ""
-"The MU Plugin <code>wppus-endpoint-optimizer.php</code> has been updated. A "
-"backup of the previous version has been created at <code>%1$s</code> in case "
-"it was customised before the update."
-msgstr ""
-
 #. %1$s is the package type
 #: lib/wp-update-migrate/class-wp-update-migrate.php:166
 #, php-format

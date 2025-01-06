@@ -3,5 +3,3 @@
 **/.eslintrc
 **/.installed
 **/.DS_Store
-# Specify filepatterns you want git to ignore.
-

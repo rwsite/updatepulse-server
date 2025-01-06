@@ -15,7 +15,7 @@
 
 		if ( 'license_key' === $key ) {
 			$actions = array(
-				'edit'   => sprintf( '<a href="#">%s</a>', __( 'Edit', 'wppus' ) ),
+				'edit'   => sprintf( '<a href="#">%s</a>', __( 'Edit', 'updatepulse-server' ) ),
 				'delete' => sprintf(
 					'<a href="?page=%s&action=%s&license_data=%s&linknonce=%s">%s</a>',
 					$_REQUEST['page'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -57,7 +57,7 @@
 					?>
 				<?php elseif ( 'col_date_expiry' === $column_name ) : ?>
 					<?php if ( '0000-00-00' === $record[ $key ] ) : ?>
-						<?php esc_html_e( 'N/A', 'wppus' ); ?>
+						<?php esc_html_e( 'N/A', 'updatepulse-server' ); ?>
 					<?php else : ?>
 						<?php
 						$timezone = new DateTimeZone( wp_timezone_string() );

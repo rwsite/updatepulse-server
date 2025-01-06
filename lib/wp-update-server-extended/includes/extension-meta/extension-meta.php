@@ -73,7 +73,7 @@ class WshWordPressPackageParser_Extended extends WshWordPressPackageParser {
 			}
 
 			//Generic info file?
-			if (empty($header) && ($extension === 'json') && (basename($fileName) === 'wppus.json')){
+			if (empty($header) && ($extension === 'json') && (basename($fileName) === 'updatepulse.json')){
 				$fileContents = substr($zip->getFileContents($info), 0, 8*1024);
 				$header = self::getGenericHeaders($fileContents);
 				$genericFile = $fileName;
@@ -84,7 +84,6 @@ class WshWordPressPackageParser_Extended extends WshWordPressPackageParser {
 				$extra = 'generic' === $type ?
 					self::getGenericExtraHeaders($fileContents) :
 					self::getExtraHeaders($fileContents);
-				error_log(print_r( $extra, true ));
 			}
 		}
 
@@ -96,7 +95,7 @@ class WshWordPressPackageParser_Extended extends WshWordPressPackageParser {
 	}
 
 	/**
-	 * Parse the generic package's headers from wppus.json file.
+	 * Parse the generic package's headers from updatepulse.json file.
 	 * Returns an array that may contain the following:
 	 * 'Name'
 	 * 'Version'
@@ -133,7 +132,7 @@ class WshWordPressPackageParser_Extended extends WshWordPressPackageParser {
 	}
 
 	/**
-	 * Parse the generic package's extra headers from wppus.json file.
+	 * Parse the generic package's extra headers from updatepulse.json file.
 	 * Returns an array that may contain the following:
 	 * 'Icon1x'
 	 * 'Icon2x'

@@ -3,7 +3,7 @@
 }
 
 ?>
-<div id="wppus-header">
+<div id="upserv-header">
 	<nav class="nav-tab-wrapper">
 		<?php
 		foreach ( $links as $tab_id => $tab_link ) {
@@ -24,6 +24,6 @@
 		?>
 	</nav>
 	<?php
-		do_action( 'wppus_tab_header', $state, $states );
+		do_action( 'upserv_tab_header', $state, $states );
 	?>
 </div>
