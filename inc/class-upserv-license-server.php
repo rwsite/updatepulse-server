@@ -6,9 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class UPServ_License_Server {
 
-	const DATA_SEPARATOR       = '|';
-	const CRYPT_HMAC_SEPARATOR = '-';
-
 	public static $license_definition = array(
 		'id'                  => 0,
 		'license_key'         => '',
@@ -276,7 +273,7 @@ class UPServ_License_Server {
 		$hmac_key      = $license->hmac_key;
 		$crypto_key    = $license->crypto_key;
 		$crypt_payload = array( $domain, $license->package_slug, $license->license_key, $license->id );
-		$signature     = Anyape_Crypto::encrypt( implode( self::DATA_SEPARATOR, $crypt_payload ), $crypto_key, $hmac_key );
+		$signature     = Anyape_Crypto::encrypt( implode( '|', $crypt_payload ), $crypto_key, $hmac_key );
 
 		return $signature;
 	}
@@ -298,7 +295,7 @@ class UPServ_License_Server {
 			}
 
 			if ( $payload ) {
-				$data         = explode( self::DATA_SEPARATOR, $payload );
+				$data         = explode( '|', $payload );
 				$domain       = isset( $data[0] ) ? $data[0] : null;
 				$package_slug = isset( $data[1] ) ? $data[1] : null;
 

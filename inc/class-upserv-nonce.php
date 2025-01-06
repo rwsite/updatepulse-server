@@ -482,7 +482,7 @@ class UPServ_Nonce {
 			isset( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] ) &&
 			! empty( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] )
 		) {
-			$credentials = explode( '/', $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] );
+			$credentials = explode( '|', $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] );
 		} else {
 			global $wp;
 
@@ -491,7 +491,7 @@ class UPServ_Nonce {
 				is_string( $wp->query_vars['api_credentials'] ) &&
 				! empty( $wp->query_vars['api_credentials'] )
 			) {
-				$credentials = explode( '/', $wp->query_vars['api_credentials'] );
+				$credentials = explode( '|', $wp->query_vars['api_credentials'] );
 			}
 		}
 
