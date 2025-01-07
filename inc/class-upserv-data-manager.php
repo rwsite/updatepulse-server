@@ -154,7 +154,7 @@ class UPServ_Data_Manager {
 
 		$directory              = self::get_data_dir( $type );
 		$max_size_constant_name = 'UPServ_Package_Manager::DEFAULT_' . strtoupper( $type ) . '_MAX_SIZE';
-		$default_max_size       = constant( $max_size_constant_name );
+		$default_max_size       = defined( $max_size_constant_name ) ? constant( $max_size_constant_name ) : 0;
 		$cleanup                = false;
 		$is_dir                 = $wp_filesystem->is_dir( $directory );
 		$total_size             = 0;
