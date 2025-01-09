@@ -821,8 +821,7 @@ class UPServ_Package_Manager {
 			php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
 
 			$log  = 'Exception caught: ' . $e->getMessage() . "\n";
-			$log .= 'File: ' . $e->getFile() . "\n";
-			$log .= 'Line: ' . $e->getLine() . "\n";
+			$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
 
 			php_log( $log );
 		}
