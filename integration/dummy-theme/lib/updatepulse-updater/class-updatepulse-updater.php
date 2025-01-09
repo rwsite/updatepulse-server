@@ -308,6 +308,7 @@ if ( ! class_exists( 'UpdatePulse_Updater' ) ) {
 
 		public function filter_update_checks( $query_args ) {
 			$licensed_with = $this->get_option( 'licensed_with' );
+			$license       = null;
 
 			if ( ! empty( $licensed_with ) ) {
 				$query_args['licensed_with'] = $licensed_with;
