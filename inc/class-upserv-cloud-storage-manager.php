@@ -800,6 +800,7 @@ class UPServ_Cloud_Storage_Manager {
 	public function upserv_package_manager_get_batch_package_info( $packages, $search ) {
 		$config   = self::get_config();
 		$contents = wp_cache_get( 'upserv-getBucket', 'updatepulse-server' );
+		$packages = is_array( $packages ) ? $packages : array();
 
 		if ( false === $contents ) {
 
