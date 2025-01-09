@@ -873,7 +873,7 @@ class UPServ_Cloud_Storage_Manager {
 	protected function create_virtual_folder( $name, $storage_unit = null ) {
 
 		if ( ! $storage_unit ) {
-			$config = self::get_config();
+			$config       = self::get_config();
 			$storage_unit = $config['storage_unit'];
 		}
 
