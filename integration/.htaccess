@@ -1,2 +1,2 @@
-RewriteEngine On
-RewriteRule ^(dummy-plugin|dummy-theme|dummy-generic) - [F]
+Order Deny,Allow
+Deny from all
