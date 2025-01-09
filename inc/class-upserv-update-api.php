@@ -25,6 +25,7 @@ class UPServ_Update_API {
 			add_action( 'upserv_primed_package_from_remote', array( $this, 'upserv_primed_package_from_remote' ), 10, 2 );
 
 			add_filter( 'query_vars', array( $this, 'query_vars' ), -99, 1 );
+			add_filter( 'puc_request_info_result', array( $this, 'puc_request_info_result' ), 10, 4 );
 		}
 	}
 
@@ -77,6 +78,15 @@ class UPServ_Update_API {
 		if ( $result ) {
 			as_unschedule_all_actions( 'upserv_check_remote_' . $slug );
 		}
+	}
+
+	public function puc_request_info_result( $info, $api, $ref, $update_checker ) {
+
+		if ( $this->update_server ) {
+			$info = $this->update_server->extend_checker_info( $info, $api, $ref, $update_checker );
+		}
+
+		return $info;
 	}
 
 	// Misc. -------------------------------------------------------

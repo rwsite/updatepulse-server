@@ -1,10 +1,6 @@
 <?php
 require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\GitHubApi;
-use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\GitLabApi;
-use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BitBucketApi;
-
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
 class UPServ_Update_Server extends Wpup_UpdateServer {
@@ -76,6 +72,39 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		return $is_locked;
 	}
 
+	public function extend_checker_info( $info, $api, $ref, $update_checker ) {
+
+		if ( ! is_array( $info ) || ! isset( $info['download_url'] ) || ! $info['download_url'] ) {
+			return $info;
+		}
+
+		$flag_file = apply_filters( 'upserv_enable_download_flag_file', 'updatepulse.json', $info );
+		$file      = $api->getRemoteFile( $flag_file, $ref );
+
+		if ( ! empty( $file ) ) {
+			$file_contents = json_decode( $file, true );
+
+			if ( ! $file_contents ) {
+				return $info;
+			}
+
+			if ( isset( $file_contents['server'] ) ) {
+				$url              = filter_var( $file_contents['server'], FILTER_VALIDATE_URL );
+				$server_url_parts = explode( '/', untrailingslashit( $this->serverUrl ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+				array_pop( $server_url_parts );
+
+				$server_url = implode( '/', $server_url_parts );
+
+				if ( $url && trailingslashit( $server_url ) === trailingslashit( $url ) ) {
+					$info['updatePulse'] = trailingslashit( $url );
+				}
+			}
+		}
+
+		return $info;
+	}
+
 	public function save_remote_package_to_local( $safe_slug ) {
 		$local_ready = false;
 
@@ -87,6 +116,20 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 				try {
 					$info = $this->update_checker->requestInfo();
+
+					if (
+						! apply_filters(
+							'upserv_download_remote_package',
+							true,
+							$safe_slug,
+							$this->type,
+							$info
+						)
+					) {
+						$this->remove_package( $safe_slug );
+
+						return $local_ready;
+					}
 
 					if ( $info && ! is_wp_error( $info ) ) {
 						require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-zip-package-manager.php';
@@ -339,8 +382,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
 
 			$log  = 'Exception caught: ' . $e->getMessage() . "\n";
-			$log .= 'File: ' . $e->getFile() . "\n";
-			$log .= 'Line: ' . $e->getLine() . "\n";
+			$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
 
 			php_log( $log );
 		}
@@ -349,8 +391,12 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	}
 
 	protected function actionGetMetadata( Wpup_Request $request ) {
-		$meta                         = $request->package->getMetadata();
-		$meta['download_url']         = $this->generateDownloadUrl( $request->package );
+		$meta                         = $request->package ?
+			$request->package->getMetadata() :
+			array( 'err_message' => __( 'Package corrupted.', 'updatepulse-server' ) );
+		$meta['download_url']         = $request->package ?
+			$this->generateDownloadUrl( $request->package ) :
+			'';
 		$meta                         = $this->filterMetadata( $meta, $request );
 		$meta['request_time_elapsed'] = sprintf( '%.3f', microtime( true ) - $this->startTime ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
@@ -368,7 +414,6 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		$type,
 		$package_container,
 		$self_hosted = false,
-		$option_name = ''
 	) {
 
 		if ( 'Plugin' !== $type && 'Theme' !== $type && 'Generic' !== $type ) {
@@ -406,7 +451,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		}
 
 		if ( $service ) {
-			$checker_class = 'Proxuc_Vcs_' . $type . 'UpdateChecker';
+			$checker_class = 'Anyape\ProxyUpdateChecker\Vcs\\' . $type . 'UpdateChecker';
 			$api_class     = $service . 'Api';
 		} else {
 			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
@@ -419,6 +464,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		}
 
 		require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/Puc/v5p3/Vcs/' . $api_class . '.php';
+		require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
 
 		$api_class = 'YahnisElsts\PluginUpdateChecker\v5p3\Vcs\\' . $api_class;
 		$params    = array();
@@ -429,14 +475,12 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 				$slug,
 				$file_name,
 				$package_container,
-				$option_name,
 			);
 		} else {
 			$params = array(
 				new $api_class( $metadata_url ),
 				$slug,
 				$package_container,
-				$option_name,
 			);
 		}
 
@@ -458,7 +502,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		if ( 'Plugin' === $this->type ) {
 			$package_file_name = $slug;
 		} elseif ( 'Generic' === $this->type ) {
-			$package_file_name = 'updatepulse-server';
+			$package_file_name = 'updatepulse';
 		}
 
 		$this->update_checker = self::build_update_checker(

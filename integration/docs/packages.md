@@ -117,6 +117,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
 		* [upserv\_remove\_package\_result](#upserv_remove_package_result)
 		* [upserv\_update\_server\_action\_download\_handled](#upserv_update_server_action_download_handled)
 		* [upserv\_save\_remote\_to\_local](#upserv_save_remote_to_local)
+		* [upserv\_download\_remote\_package](#upserv_download_remote_package-1)
 		* [upserv\_webhook\_package\_exists](#upserv_webhook_package_exists)
 		* [upserv\_webhook\_process\_request](#upserv_webhook_process_request)
 		* [upserv\_package\_option\_update](#upserv_package_option_update)
@@ -2573,6 +2574,30 @@ Fired during client update API request.
 
 `$check_remote`
 > (bool) `true` if the Remote Repository Service is about to be checked and the package downloaded, `false` if the local cache is about to be used  
+
+___
+### upserv_download_remote_package
+
+```php
+apply_filters( 'upserv_download_remote_package', bool $download, string $package_slug, string $type, array $info );
+```
+
+**Description**
+Filter whether to download the package from the Remote Repository Service after it has been confirmed to exist.
+Fired during client update API request.
+
+**Parameters**  
+`$download`
+> (bool) whether to download the package from the Remote Repository Service  
+
+`$package_slug`
+> (string) the slug of the package  
+
+`$type`
+> (string) the type of the package ; one of `"Plugin"`, `"Theme"`, `"Generic"`, or `null`  
+
+`$info`
+> (array) the information of the package from the remote repository
 
 ___
 ### upserv_webhook_package_exists
