@@ -446,12 +446,12 @@ if ( ! function_exists( 'upserv_build_nonce_api_signature' ) ) {
 }
 
 if ( ! function_exists( 'upserv_schedule_webhook' ) ) {
-	function upserv_schedule_webhook( $payload, $event_type ) {
+	function upserv_schedule_webhook( $payload, $event_type, $instant = true ) {
 
 		if ( isset( $payload['event'], $payload['content'] ) ) {
 			$api = UPServ_Webhook_API::get_instance();
 
-			return $api->schedule_webhook( $payload, $event_type );
+			return $api->schedule_webhook( $payload, $event_type, $instant );
 		}
 
 		return new WP_Error(

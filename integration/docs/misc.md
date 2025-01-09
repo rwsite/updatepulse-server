@@ -586,7 +586,7 @@ ___
 #### upserv_schedule_webhook
 
 ```php
-upserv_schedule_webhook( array $payload, string $event_type )
+upserv_schedule_webhook( array $payload, string $event_type, bool $instant )
 ```
 
 **Description**  
@@ -605,6 +605,9 @@ $payload = array(
 
 `$event_type`
 > (string) the type of event ; the payload will only be delivered to URLs subscribed to this type  
+
+`$instant`
+> (bool) whether to send the notification immediately ; default `true`
 
 **Return value**
 > (null|WP_error) `null` in case of success, a `WP_Error` otherwise  

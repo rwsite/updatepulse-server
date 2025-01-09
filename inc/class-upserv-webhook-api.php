@@ -165,7 +165,7 @@ class UPServ_Webhook_API {
 		return self::$instance;
 	}
 
-	public function schedule_webhook( $payload, $event_type ) {
+	public function schedule_webhook( $payload, $event_type, $instant = true ) {
 
 		if ( empty( $this->webhooks ) ) {
 			return;
@@ -214,6 +214,19 @@ class UPServ_Webhook_API {
 				$params = array( $url, $info['secret'], $body, current_action() );
 
 				if ( ! as_has_scheduled_action( 'upserv_webhook', $params ) ) {
+					$instant = apply_filters(
+						'upserv_schedule_webhook_force_instant',
+						$instant,
+						$event_type,
+						$params
+					);
+
+					if ( $instant ) {
+						$this->fire_webhook( ...$params );
+
+						continue;
+					}
+
 					$timestamp = time();
 
 					as_schedule_single_action( $timestamp, $hook, $params );
