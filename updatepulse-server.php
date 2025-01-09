@@ -198,7 +198,12 @@ function upserv_run() {
 }
 add_action( 'plugins_loaded', 'upserv_run', -99, 0 );
 
-if ( ! UPServ_Update_API::is_doing_api_request() && ! UPServ_License_API::is_doing_api_request() ) {
+if (
+	! UPServ_Update_API::is_doing_api_request() &&
+	! UPServ_License_API::is_doing_api_request() &&
+	! UPServ_Webhook_API::is_doing_api_request() &&
+	! UPServ_Package_API::is_doing_api_request()
+) {
 	require_once __DIR__ . '/lib/wp-update-migrate/class-wp-update-migrate.php';
 
 	if ( ! wp_doing_ajax() && is_admin() && ! wp_doing_cron() ) {
