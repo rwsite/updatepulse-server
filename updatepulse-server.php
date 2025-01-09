@@ -222,6 +222,13 @@ if (
 			PHP_INT_MIN
 		);
 	}
+
+	require_once plugin_dir_path( __FILE__ ) . 'lib/updatepulse-updater/class-updatepulse-updater.php';
+
+	$upserv_plugin_updater = new UpdatePulse_Updater(
+		wp_normalize_path( __FILE__ ),
+		wp_normalize_path( plugin_dir_path( __FILE__ ) )
+	);
 }
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
