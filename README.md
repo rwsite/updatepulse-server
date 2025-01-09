@@ -189,8 +189,6 @@ This tab allows administrators to configure:
 		- License added `(license_add)`
 		- License edited `(license_edit)`
 		- License deleted `(license_delete)`
-		- License becomes required for a package `(license_require)`
-		- License becomes not required a for package `(license_unrequire)`
 
 Available settings:
 

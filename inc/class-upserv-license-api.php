@@ -524,8 +524,6 @@ class UPServ_License_API {
 			$webhook_events['license']['events']['license_add']        = __( 'License added', 'updatepulse-server' );
 			$webhook_events['license']['events']['license_edit']       = __( 'License edited', 'updatepulse-server' );
 			$webhook_events['license']['events']['license_delete']     = __( 'License deleted', 'updatepulse-server' );
-			$webhook_events['license']['events']['license_require']    = __( 'License becomes required for a package', 'updatepulse-server' );
-			$webhook_events['license']['events']['license_unrequire']  = __( 'License becomes not required a for package', 'updatepulse-server' );
 		}
 
 		return $webhook_events;

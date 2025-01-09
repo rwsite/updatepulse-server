@@ -33,8 +33,6 @@ class UPServ_License_Manager {
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 20, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 20, 2 );
 			add_action( 'load-wp-packages-update-server_page_upserv-page-licenses', array( $this, 'add_page_options' ), 10, 0 );
-			add_action( 'upserv_added_license_check', array( $this, 'upserv_license_check_action' ), 10, 1 );
-			add_action( 'upserv_removed_license_check', array( $this, 'upserv_license_check_action' ), 10, 1 );
 
 			add_filter( 'set-screen-option', array( $this, 'set_page_options' ), 10, 3 );
 			add_filter( 'upserv_page_upserv_scripts_l10n', array( $this, 'upserv_page_upserv_scripts_l10n' ), 10, 1 );
@@ -44,37 +42,6 @@ class UPServ_License_Manager {
 	/*******************************************************************
 	 * Public methods
 	 *******************************************************************/
-
-	public function upserv_license_check_action( $package_slug ) {
-		$event = ( false !== strpos( current_action(), 'added' ) ) ? 'license_require' : 'license_unrequire';
-
-		switch ( $event ) {
-			case 'license_require':
-				// translators: %s is the package slug
-				$format = esc_html__( 'The package `%1$s` was set to require a license on UpdatePulse Server' );
-				break;
-			case 'license_unrequire':
-				// translators: %s is the package slug
-				$format = esc_html__( 'The package `%1$s` was set to not require a license on UpdatePulse Server' );
-				break;
-			default:
-				return;
-		}
-
-		$content     = upserv_get_package_info( $package_slug, false );
-		$description = sprintf(
-			$format,
-			$package_slug
-		);
-
-		$payload = array(
-			'event'       => $event,
-			'description' => $description,
-			'content'     => $content,
-		);
-
-		upserv_schedule_webhook( $payload, 'license' );
-	}
 
 	// WordPress hooks ---------------------------------------------
 
