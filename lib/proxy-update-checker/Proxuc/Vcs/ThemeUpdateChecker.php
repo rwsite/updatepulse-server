@@ -1,6 +1,6 @@
 <?php
 
-require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
+namespace Anyape\ProxyUpdateChecker\Vcs;
 
 use YahnisElsts\PluginUpdateChecker\v5p3\Utils;
 use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
@@ -8,53 +8,23 @@ use YahnisElsts\PluginUpdateChecker\v5p3\Theme\Package;
 use YahnisElsts\PluginUpdateChecker\v5p3\Theme\Update;
 use YahnisElsts\PluginUpdateChecker\v5p3\Theme\UpdateChecker;
 
-if (! class_exists(Proxuc_Vcs_ThemeUpdateChecker::class, false)):
+if (! class_exists(ThemeUpdateChecker::class, false)):
 
-	class Proxuc_Vcs_ThemeUpdateChecker extends UpdateChecker implements BaseChecker {
-
-		public $themeAbsolutePath = ''; //Full path of the main plugin file.
-
-		/**
-		 * @var string The branch where to look for updates. Defaults to "master".
-		 */
-		protected $branch = 'master';
-
-		/**
-		 * @var Puc\v5p3\Vcs\Api Repository API client.
-		 */
+	class ThemeUpdateChecker extends UpdateChecker implements BaseChecker {
+		public $themeAbsolutePath = '';
+		protected $branch = 'main';
 		protected $api = null;
 
-		/**
-		 * Puc\v5p3\Vcs\ThemeUpdateChecker constructor.
-		 *
-		 * @param Puc\v5p3\Vcs\Api $api
-		 * @param string $customSlug
-		 * @param string $package_container
-		 * @param string $optionName
-		 */
-		public function __construct($api, $slug, $package_container, $optionName = '') {
+		public function __construct($api, $slug, $container) {
 			$this->api = $api;
-			$this->api->setHttpFilterName($this->getUniqueName('request_update_options'));
-
+			$this->api->setHttpFilterName('puc_theme_request_update_options');
 			$this->stylesheet = $slug;
-			$this->themeAbsolutePath = trailingslashit($package_container) . $slug;
-
+			$this->themeAbsolutePath = trailingslashit($container) . $slug;
 			$this->debugMode = (bool)(constant('WP_DEBUG'));
 			$this->metadataUrl = $api->getRepositoryUrl();
 			$this->directoryName = basename(dirname($this->themeAbsolutePath));
 			$this->slug = !empty($slug) ? $slug : $this->directoryName;
-
-			$this->optionName = $optionName;
-
-			if (empty($this->optionName)) {
-				//BC: Initially the library only supported plugin updates and didn't use type prefixes
-				//in the option name. Lets use the same prefix-less name when possible.
-				if ($this->filterSuffix === '') {
-					$this->optionName = 'external_updates-' . $this->slug;
-				} else {
-					$this->optionName = $this->getUniqueName('external_updates');
-				}
-			}
+			$this->optionName = 'external_updates-' . $this->slug;
 			$this->package = new Package($this->themeAbsolutePath, $this);
 			$this->api->setSlug($this->slug);
 		}
@@ -63,7 +33,7 @@ if (! class_exists(Proxuc_Vcs_ThemeUpdateChecker::class, false)):
 			return trailingslashit($this->themeAbsolutePath);
 		}
 
-		public function requestUpdate() {
+		public function requestInfo($unused = null) {
 			$api = $this->api;
 			$api->setLocalDirectory($this->Vcs_getAbsoluteDirectoryPath());
 
@@ -99,12 +69,6 @@ if (! class_exists(Proxuc_Vcs_ThemeUpdateChecker::class, false)):
 			}
 
 			$update = $this->filterUpdateResult($update);
-
-			return $update;
-		}
-
-		public function requestInfo($unused = null) {
-			$update = $this->requestUpdate();
 			$info   = null;
 
 			if ($update && 'source_not_found' !== $update) {
@@ -120,7 +84,6 @@ if (! class_exists(Proxuc_Vcs_ThemeUpdateChecker::class, false)):
 					'download_url' => $update->download_url,
 				);
 			} elseif ('source_not_found' === $update) {
-
 				return new WP_Error(
 					'puc-no-update-source',
 					'Could not retrieve version information from the repository for '
@@ -129,6 +92,22 @@ if (! class_exists(Proxuc_Vcs_ThemeUpdateChecker::class, false)):
 					. 'to the repository or it\'s configured incorrectly.'
 				);
 			}
+
+			/**
+			 * Filter the info that will be returned by the update checker.
+			 *
+			 * @param array $info The info that will be returned by the update checker.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\Vcs\API $api The API object that was used to fetch the info.
+			 * @param string $ref The tag or branch that was used to fetch the info.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\UpdateChecker $checker The update checker object calling this filter.
+			 */
+			$info = apply_filters(
+				'puc_request_info_result',
+				$info,
+				$api,
+				$ref,
+				$this
+			);
 
 			return $info;
 		}
@@ -157,13 +136,6 @@ if (! class_exists(Proxuc_Vcs_ThemeUpdateChecker::class, false)):
 			}
 
 			return $update;
-		}
-
-		public function onDisplayConfiguration($panel) {
-			parent::onDisplayConfiguration($panel);
-			$panel->row('Branch', $this->branch);
-			$panel->row('Authentication enabled', $this->api->isAuthenticationEnabled() ? 'Yes' : 'No');
-			$panel->row('API client', get_class($this->api));
 		}
 	}
 

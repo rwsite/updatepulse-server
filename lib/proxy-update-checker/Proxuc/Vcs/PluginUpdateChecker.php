@@ -1,64 +1,30 @@
 <?php
 
-require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
+namespace Anyape\ProxyUpdateChecker\Vcs;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\Api;
 use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
 use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\Package;
 use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\UpdateChecker;
 use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\PluginInfo;
 
-if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
+if ( ! class_exists(PluginUpdateChecker::class, false) ):
 
-	class Proxuc_Vcs_PluginUpdateChecker extends UpdateChecker implements BaseChecker {
-		/**
-		 * @var string The branch where to look for updates. Defaults to "master".
-		 */
-		protected $branch = 'master';
-
-		/**
-		 * @var Puc\v5p3\Vcs\Api Repository API client.
-		 */
+	class PluginUpdateChecker extends UpdateChecker implements BaseChecker {
+		protected $branch = 'main';
 		protected $api = null;
-
-		protected $manualCheckErrorTransient = null;
 		protected $package = null;
-		/**
-		 * Puc\v5p3\Vcs\PluginUpdateChecker constructor.
-		 *
-		 * @param Puc\v5p3\Vcs\Api $api
-		 * @param string $pluginFile
-		 * @param string $slug
-		 * @param int $checkPeriod
-		 * @param string $optionName
-		 * @param string $muPluginFile
-		 */
-		public function __construct($api, $slug, $plugin_file_name, $package_container, $optionName = '') {
+
+		public function __construct($api, $slug, $file_name, $container) {
 			$this->api = $api;
-			$this->api->setHttpFilterName($this->getUniqueName('request_info_options'));
-
-			$this->pluginAbsolutePath = trailingslashit($package_container) . $slug;
-			$this->pluginFile = $slug . '/' . $plugin_file_name . '.php';
-
-			$this->manualCheckErrorTransient = $this->getUniqueName('manual_check_errors');
-
+			$this->api->setHttpFilterName('puc_plugin_request_info_options');
+			$this->pluginAbsolutePath = trailingslashit($container) . $slug;
+			$this->pluginFile = $slug . '/' . $file_name . '.php';
 			$this->debugMode = (bool)(constant('WP_DEBUG'));
 			$this->metadataUrl = $api->getRepositoryUrl();
 			$this->directoryName = basename(dirname($this->pluginAbsolutePath));
 			$this->slug = $slug;
-
 			$this->package = new Package($this->pluginAbsolutePath, $this);
-
-			$this->optionName = $optionName;
-			if ( empty($this->optionName) ) {
-
-				if ( '' === $this->filterSuffix ) {
-					$this->optionName = 'external_updates-' . $this->slug;
-				} else {
-					$this->optionName = $this->getUniqueName('external_updates');
-				}
-			}
-
+			$this->optionName = 'external_updates-' . $this->slug;
 			$this->api->setSlug($this->slug);
 		}
 
@@ -84,6 +50,7 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 
 			//Pick a branch or tag.
 			$updateSource = $api->chooseReference($this->branch);
+
 			if ( $updateSource ) {
 				$ref = $updateSource->name;
 				$info->version = $updateSource->version;
@@ -104,6 +71,7 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 			//are what the WordPress install will actually see after upgrading, so they take precedence over releases/tags.
 			$mainPluginFile = basename($this->pluginFile);
 			$remotePlugin = $api->getRemoteFile($mainPluginFile, $ref);
+
 			if ( !empty($remotePlugin) ) {
 				$remoteHeader = $this->package->getFileHeader($remotePlugin);
 				$this->setInfoFromHeader($remoteHeader, $info);
@@ -118,12 +86,11 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 			if ( empty($info->last_updated) ) {
 				//Fetch the latest commit that changed the tag or branch and use it as the "last_updated" date.
 				$latestCommitTime = $api->getLatestCommitTime($ref);
+
 				if ( $latestCommitTime !== null ) {
 					$info->last_updated = $latestCommitTime;
 				}
 			}
-
-			$info = apply_filters($this->getUniqueName('request_info_result'), $info, null);
 
 			$info->download_url = $this->api->signDownloadUrl($info->download_url);
 
@@ -134,25 +101,31 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 				'download_url' => $info->download_url,
 			);
 
+			/**
+			 * Filter the info that will be returned by the update checker.
+			 *
+			 * @param array $info The info that will be returned by the update checker.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\Vcs\API $api The API object that was used to fetch the info.
+			 * @param string $ref The tag or branch that was used to fetch the info.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\UpdateChecker $checker The update checker object calling this filter.
+			 */
+			$info = apply_filters(
+				'puc_request_info_result',
+				$info,
+				$api,
+				$ref,
+				$this
+			);
+
 			return $info;
 		}
 
-		/**
-		 * Check if the currently installed version has a readme.txt file.
-		 *
-		 * @return bool
-		 */
 		protected function readmeTxtExistsLocally() {
-
 			return false;
 		}
 
-		/**
-		 * Get plugin's metadata from its file header.
-		 *
-		 * @return array
-		 */
 		protected function Vcs_getPluginHeader() {
+
 			if ( ! is_file($this->pluginAbsolutePath) ) {
 				//This can happen if the plugin filename is wrong OR there is no local package just yet.
 				return array();
@@ -162,8 +135,7 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 		}
 
 		protected function get_plugin_data() {
-			$plugin_file = $this->plugin_file;
-			$plugin_id = $this->plugin_id;
+			$plugin_file = $this->pluginFile;
 
 			$default_headers = array(
 				'Name' => 'Plugin Name',
@@ -204,12 +176,6 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 			return $plugin_data;
 		}
 
-		/**
-		 * Copy plugin metadata from a file header to a Plugin Info object.
-		 *
-		 * @param array $fileHeader
-		 * @param Puc_v5p3_Plugin_Info $pluginInfo
-		 */
 		protected function setInfoFromHeader($fileHeader, $pluginInfo) {
 			$headerToPropertyMap = array(
 				'Version' => 'version',
@@ -235,12 +201,6 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 			}
 		}
 
-		/**
-		 * Copy plugin metadata from the remote readme.txt file.
-		 *
-		 * @param string $ref GitHub tag or branch where to look for the readme.
-		 * @param Puc_v5p3_Plugin_Info $pluginInfo
-		 */
 		protected function setInfoFromRemoteReadme($ref, $pluginInfo) {
 			$readme = $this->api->getRemoteReadme($ref);
 			if ( empty($readme) ) {
@@ -284,13 +244,6 @@ if ( ! class_exists(Proxuc_Vcs_PluginUpdateChecker::class, false) ):
 			}
 
 			return $update;
-		}
-
-		public function onDisplayConfiguration($panel) {
-			parent::onDisplayConfiguration($panel);
-			$panel->row('Branch', $this->branch);
-			$panel->row('Authentication enabled', $this->api->isAuthenticationEnabled() ? 'Yes' : 'No');
-			$panel->row('API client', get_class($this->api));
 		}
 	}
 
