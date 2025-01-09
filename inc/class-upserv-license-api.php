@@ -595,7 +595,7 @@ class UPServ_License_API {
 		);
 
 		add_filter( 'upserv_webhook_fire', array( $this, 'upserv_webhook_fire' ), 10, 4 );
-		upserv_schedule_webhook( $payload, 'license' );
+		upserv_schedule_webhook( $payload, 'license', true );
 		remove_filter( 'upserv_webhook_fire', array( $this, 'upserv_webhook_fire' ), 10 );
 	}
 

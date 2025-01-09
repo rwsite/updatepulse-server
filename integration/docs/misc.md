@@ -42,6 +42,7 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 		* [upserv\_api\_option\_update](#upserv_api_option_update)
 		* [upserv\_api\_webhook\_events](#upserv_api_webhook_events)
 		* [upserv\_webhook\_fire](#upserv_webhook_fire)
+		* [upserv\_schedule\_webhook\_is\_instant](#upserv_schedule_webhook_is_instant)
 
 ___
 ## Nonce API
@@ -607,7 +608,7 @@ $payload = array(
 > (string) the type of event ; the payload will only be delivered to URLs subscribed to this type  
 
 `$instant`
-> (bool) whether to send the notification immediately ; default `true`
+> (bool) whether to send the notification immediately ; default `false`
 
 **Return value**
 > (null|WP_error) `null` in case of success, a `WP_Error` otherwise  
@@ -989,4 +990,23 @@ Filter whether to fire the webhook event.
 
 `$webhook_setting`
 > (array) the settings of the webhook  
+___
+### upserv_schedule_webhook_is_instant
+
+```php
+apply_filters( 'upserv_schedule_webhook_is_instant', bool $instant, array $payload, string $event_type )
+```
+
+**Description**
+Filter whether to send the webhook notification immediately.
+
+**Parameters**
+`$instant`
+> (bool) whether to send the notification immediately
+
+`$payload`
+> (array) the payload of the event
+
+`$event_type`
+> (string) the type of event
 ___
