@@ -81,8 +81,12 @@ class UPServ_Update_API {
 	}
 
 	public function puc_request_info_result( $info, $api, $ref, $update_checker ) {
+		$config = self::get_config();
 
-		if ( $this->update_server ) {
+		if (
+			$this->update_server &&
+			apply_filters( 'upserv_repository_filter_packages', $config['repository_filter_packages'], $info )
+		) {
 			$info = $this->update_server->extend_checker_info( $info, $api, $ref, $update_checker );
 		}
 
@@ -110,6 +114,7 @@ class UPServ_Update_API {
 				'repository_branch'              => get_option( 'upserv_remote_repository_branch', 'master' ),
 				'repository_credentials'         => explode( '|', get_option( 'upserv_remote_repository_credentials' ) ),
 				'repository_service_self_hosted' => get_option( 'upserv_remote_repository_self_hosted' ),
+				'repository_filter_packages'     => (bool) get_option( 'upserv_remote_repository_filter_packages' ),
 				'repository_check_frequency'     => get_option( 'upserv_remote_repository_check_frequency', 'daily' ),
 			);
 

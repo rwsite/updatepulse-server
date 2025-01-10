@@ -113,6 +113,27 @@
 			</tr>
 			<tr>
 				<th>
+					<label for="upserv_remote_repository_filter_packages"><?php esc_html_e( 'Filter Packages', 'updatepulse-server' ); ?></label>
+				</th>
+				<td>
+					<input type="checkbox" id="upserv_remote_repository_filter_packages" name="upserv_remote_repository_filter_packages" value="1" <?php checked( get_option( 'upserv_remote_repository_filter_packages' ), 1 ); ?>>
+					<p class="description">
+						<?php esc_html_e( 'Check this if you wish to filter the packages to download from the Remote Repository Service so that only packages explicitly associated with this server are downloaded.', 'updatepulse-server' ); ?>
+						<br/>
+						<?php
+						printf(
+							// translators: %1$s is <code>updatepulse.json</code>, %2$s is <code>server</code>, %3$s is <code>https://sub.domain.tld/</code>
+							esc_html__( 'When checked, UpdatePulse Server will only download packages that have a file named %1$s in the root of the repository, with the %2$s value set to %3$s.', 'updatepulse-server' ),
+							'<code>' . esc_html( apply_filters( 'upserv_enable_download_flag_file', 'updatepulse.json' ) ) . '</code>',
+							'<code>server</code>',
+							'<code>' . esc_url( trailingslashit( home_url() ) ) . '</code>',
+						);
+						?>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<th>
 					<label for="upserv_remote_repository_test"><?php esc_html_e( 'Test Remote Repository Access', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>

@@ -78,7 +78,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			return $info;
 		}
 
-		$flag_file = apply_filters( 'upserv_enable_download_flag_file', 'updatepulse.json', $info );
+		$flag_file = apply_filters( 'upserv_enable_download_flag_file', 'updatepulse.json' );
 		$file      = $api->getRemoteFile( $flag_file, $ref );
 
 		if ( ! empty( $file ) ) {

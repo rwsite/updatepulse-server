@@ -118,6 +118,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
 		* [upserv\_update\_server\_action\_download\_handled](#upserv_update_server_action_download_handled)
 		* [upserv\_save\_remote\_to\_local](#upserv_save_remote_to_local)
 		* [upserv\_download\_remote\_package](#upserv_download_remote_package-1)
+		* [upserv\_repository\_filter\_packages](#upserv_repository_filter_packages)
 		* [upserv\_webhook\_package\_exists](#upserv_webhook_package_exists)
 		* [upserv\_webhook\_process\_request](#upserv_webhook_process_request)
 		* [upserv\_package\_option\_update](#upserv_package_option_update)
@@ -2598,6 +2599,23 @@ Fired during client update API request.
 
 `$info`
 > (array) the information of the package from the remote repository
+
+___
+### upserv_repository_filter_packages
+
+```php
+apply_filters( 'upserv_repository_filter_packages', (bool) $filter_packages, (array) $info );
+```
+
+**Description**
+Filter whether to filter the packages retrieved from the Remote Repository Service.
+
+**Parameters**  
+`$filter_packages`
+> (bool) whether to filter the packages retrieved from the Remote Repository Service  
+
+`$info`
+> (array) the information of the package from the remote repository  
 
 ___
 ### upserv_webhook_package_exists
