@@ -821,8 +821,9 @@ class UPServ_Package_Manager {
 
 		global $wp_filesystem;
 
-		$package = false;
-		$cache   = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+		$package      = false;
+		$cache        = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+		$cached_value = null;
 
 		try {
 
@@ -832,7 +833,7 @@ class UPServ_Package_Manager {
 				$cached_value = $cache->get( $cache_key );
 			}
 
-			if ( ! $cached_value ) {
+			if ( null === $cached_value ) {
 				do_action( 'upserv_find_package_no_cache', $slug, $filename, $cache );
 			}
 
