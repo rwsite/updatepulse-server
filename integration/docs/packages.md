@@ -48,6 +48,9 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
 		* [upserv\_cleared\_cleanup\_schedule](#upserv_cleared_cleanup_schedule)
 		* [upserv\_did\_cleanup](#upserv_did_cleanup)
 		* [upserv\_before\_handle\_update\_request](#upserv_before_handle_update_request)
+		* [upserv\_pre\_filter\_package\_info](#upserv_pre_filter_package_info)
+		* [upserv\_filter\_package\_info](#upserv_filter_package_info)
+		* [upserv\_download\_remote\_package\_aborted](#upserv_download_remote_package_aborted)
 		* [upserv\_downloaded\_remote\_package](#upserv_downloaded_remote_package)
 		* [upserv\_saved\_remote\_package\_to\_local](#upserv_saved_remote_package_to_local)
 		* [upserv\_checked\_remote\_package\_update](#upserv_checked_remote_package_update)
@@ -119,8 +122,9 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
 		* [upserv\_save\_remote\_to\_local](#upserv_save_remote_to_local)
 		* [upserv\_download\_remote\_package](#upserv_download_remote_package-1)
 		* [upserv\_repository\_filter\_packages](#upserv_repository_filter_packages)
-		* [upserv\_filter\_packages\_extend\_info](#upserv_filter_packages_extend_info)
-		* [upserv\_filter\_packages\_flag\_file](#upserv_filter_packages_flag_file)
+		* [upserv\_pre\_filter\_packages\_info](#upserv_pre_filter_packages_info)
+		* [upserv\_filter\_packages\_info](#upserv_filter_packages_info)
+		* [upserv\_filter\_packages\_filename](#upserv_filter_packages_filename)
 		* [upserv\_webhook\_package\_exists](#upserv_webhook_package_exists)
 		* [upserv\_webhook\_process\_request](#upserv_webhook_process_request)
 		* [upserv\_package\_option\_update](#upserv_package_option_update)
@@ -1147,7 +1151,7 @@ Fired after an attempt to upload a package manually has been performed.
 > (bool) `true` the operation was successful, `false` otherwise  
 
 `$type`
-> (string) type of package - "Plugin" or "Theme"  
+> (string) type of package - `"Plugin"`, `"Theme"`, or `"Generic"`  
 
 `$slug`
 > (slug) slug of the package  
@@ -1361,6 +1365,57 @@ Fired during client update API request.
 > (array) the parameters or the request to the API.
 
 ___
+### upserv_pre_filter_package_info
+
+```php
+	do_action( 'upserv_pre_filter_package_info', array $info );
+```
+
+**Description**
+Fired after pre-filtering the information of the package before it is retrieved from the Remote Repository Service.  
+Fired during client update API request.  
+
+**Parameters**
+`$info`
+> (array) the information of the package
+
+___
+### upserv_filter_package_info
+
+```php
+	do_action( 'upserv_filter_package_info', array $info );
+```
+
+**Description**
+Fired after filtering the information of the package retrieved from the Remote Repository Service.  
+Fired during client update API request.  
+
+**Parameters**
+`$info`
+> (array) the information of the package
+
+___
+### upserv_download_remote_package_aborted
+
+```php
+	do_action( 'upserv_download_remote_package_aborted', string $slug, string $type, array $info );
+```
+
+**Description**
+Fired after an attempt to download a package from the Remote Repository Service has been aborted.
+Fired during client update API request.  
+
+**Parameters**
+`$slug`
+> (string) the slug of the package
+
+`$type`
+> (string) the type of the package - `"Plugin"`, `"Theme"`, or `"Generic"`
+
+`$info`
+> (array) the information of the package retrieved from the Remote Repository Service
+
+___
 ### upserv_downloaded_remote_package
 
 ```php
@@ -1376,7 +1431,7 @@ Fired during client update API request.
 > (mixed) full path to the package temporary file in case of success, WP_Error object otherwise  
 
 `$type`
-> (string) type of the downloaded package - "Plugin" or "Theme"  
+> (string) type of the downloaded package - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
 `$slug`
 > (string) slug of the downloaded package  
@@ -1397,7 +1452,7 @@ Fired during client update API request.
 > (bool) `true` in case of success, `false` otherwise  
 
 `$type`
-> (string) type of the saved package - "Plugin" or "Theme"  
+> (string) type of the saved package - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
 `$slug`
 > (string) slug of the saved package  
@@ -1418,7 +1473,7 @@ Fired during client update API request.
 > (bool) `true` is the package has updates on the Remote Repository, `false` otherwise  
 
 `$type`
-> (string) type of the package checked - "Plugin" or "Theme"  
+> (string) type of the package checked - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
 `$slug`
 > (string) slug of the package checked  
@@ -1439,7 +1494,7 @@ Fired during client update API request.
 > (bool) `true` if the package has been removed on the file system  
 
 `$type`
-> (string) type of the removed package - "Plugin" or "Theme"  
+> (string) type of the removed package - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
 `$slug`
 > (string) slug of the removed package  
@@ -2039,7 +2094,7 @@ Fired during client update API request.
 > (string) the slug of the package using the checker object  
 
 `$type`
-> (string) the type of the package using the checker object - "Plugin" or "Theme" 
+> (string) the type of the package using the checker object - `"Plugin"`, `"Theme" `, or `"Generic"`
 
 `$package_file_name`
 > (string) the name of the main plugin file or "styles.css" for the package using the checker object  
@@ -2619,11 +2674,28 @@ Filter whether to filter the packages retrieved from the Remote Repository Servi
 `$info`
 > (array) the information of the package from the remote repository  
 
-___
-### upserv_filter_packages_extend_info
+### upserv_pre_filter_packages_info
 
 ```php
-apply_filters( 'upserv_filter_packages_extend_info', (array) $info, (string) $file_content );
+apply_filters( 'upserv_pre_filter_packages_info', (array) $info, (string) $file_content );
+```
+
+**Description**
+Filter the information of the package before it is retrieved from the Remote Repository Service to extend it with additional information.
+
+**Parameters**  
+`$info`
+> (array) the information of the package from the remote repository  
+
+`$file_content`
+> (string) the content of the file used to filter the packages retrieved from the Remote Repository Service
+
+___
+
+### upserv_filter_packages_info
+
+```php
+apply_filters( 'upserv_filter_packages_info', (array) $info, (string) $file_content );
 ```
 
 **Description**
@@ -2634,21 +2706,21 @@ Filter the information of the package retrieved from the Remote Repository Servi
 > (array) the information of the package from the remote repository  
 
 `$file_content`
-> (string) the content of the flag file used to filter the packages retrieved from the Remote Repository Service
+> (string) the content of the file used to filter the packages retrieved from the Remote Repository Service
 
 ___
-### upserv_filter_packages_flag_file
+### upserv_filter_packages_filename
 
 ```php
-apply_filters( 'upserv_filter_packages_flag_file', (string) $file_name );
+apply_filters( 'upserv_filter_packages_filename', (string) $file_name );
 ```
 
 **Description**
-Filter the name of the flag file used to filter the packages retrieved from the Remote Repository Service.
+Filter the name of the file used to filter the packages retrieved from the Remote Repository Service.
 
 **Parameters**  
 `$file_name`
-> (string) the name of the flag file used to filter the packages retrieved from the Remote Repository Service
+> (string) the name of the file used to filter the packages retrieved from the Remote Repository Service
 
 ___
 ### upserv_webhook_package_exists

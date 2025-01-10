@@ -61,7 +61,7 @@ if (! class_exists(ThemeUpdateChecker::class, false)):
 			 */
 			$info = apply_filters(
 				'puc_request_info_pre_filter',
-				null,
+				array( 'slug' => $this->slug ),
 				$this->api,
 				$ref,
 				$this

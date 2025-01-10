@@ -15,6 +15,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	protected $repository_service_self_hosted;
 	protected $update_checker;
 	protected $type;
+	protected $filter_packages_file_content;
 
 	public function __construct(
 		$use_remote_repository,
@@ -72,33 +73,34 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		return $is_locked;
 	}
 
-	public function pre_filter_checker_info( $info, $api, $ref ) {
+	public function pre_filter_package_info( $info, $api, $ref ) {
 		$abort        = true;
-		$flag_file    = apply_filters( 'upserv_filter_packages_flag_file', 'updatepulse.json' );
-		$file_content = $api->getRemoteFile( $flag_file, $ref );
+		$_file        = apply_filters( 'upserv_filter_packages_filename', 'updatepulse.json' );
+		$file_content = $api->getRemoteFile( $_file, $ref );
+
+		$this->filter_packages_file_content = $file_content;
 
 		if ( ! empty( $file_content ) ) {
-
-			if ( has_filter( 'upserv_pre_filter_packages_extend_info' ) ) {
-				$info = apply_filters( 'upserv_pre_filter_packages_extend_info', $info, $file_content );
-
-				return $info;
-			}
-
+			$info          = apply_filters( 'upserv_pre_filter_package_info', $info, $file_content );
 			$file_contents = json_decode( $file_content, true );
 
-			if ( $file_contents && isset( $file_contents['server'] ) ) {
+			if (
+				is_array( $info ) &&
+				! isset( $info['abort_request'] ) &&
+				$file_contents &&
+				isset( $file_contents['server'] )
+			) {
 				$url              = filter_var( $file_contents['server'], FILTER_VALIDATE_URL );
 				$server_url_parts = explode( '/', untrailingslashit( $this->serverUrl ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				array_pop( $server_url_parts );
 
-				$server_url = implode( '/', $server_url_parts );
-
-				if ( $url && trailingslashit( $server_url ) === trailingslashit( $url ) ) {
-					$abort               = false;
-					$info['updatePulse'] = trailingslashit( $url );
+				if ( $url ) {
+					$info['server'] = trailingslashit( $url );
 				}
+
+				$server_url = implode( '/', $server_url_parts );
+				$abort      = ! ( $url && trailingslashit( $server_url ) === trailingslashit( $url ) );
 			}
 		}
 
@@ -110,6 +112,16 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 				$info = array( 'abort_request' => true );
 			}
 		}
+
+		do_action( 'upserv_pre_filter_package_info', $info );
+
+		return $info;
+	}
+
+	public function filter_package_info( $info ) {
+		$info = apply_filters( 'upserv_filter_package_info', $info, $this->filter_packages_file_content );
+
+		do_action( 'upserv_filter_package_info', $info );
 
 		return $info;
 	}
@@ -129,7 +141,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 					if (
 						! apply_filters(
 							'upserv_download_remote_package',
-							true,
+							! ( is_array( $info ) && isset( $info['abort_request'] ) && $info['abort_request'] ),
 							$safe_slug,
 							$this->type,
 							$info
@@ -137,7 +149,9 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 					) {
 						$this->remove_package( $safe_slug );
 
-						return null;
+						do_action( 'upserv_download_remote_package_aborted', $safe_slug, $this->type, $info );
+
+						return $info;
 					}
 
 					if ( $info && ! is_wp_error( $info ) ) {
@@ -341,18 +355,29 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 		global $wp_filesystem;
 
-		$safe_slug            = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
-		$filename             = trailingslashit( $this->packageDirectory ) . $safe_slug . '.zip'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$save_remote_to_local = apply_filters(
+		if ( ! $this->cache ) {
+			$this->cache = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+		}
+
+		$safe_slug = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
+		$cache_key = 'metadata-b64-' . $safe_slug . '-nocheck';
+		$package   = false;
+
+		if ( $this->cache->get( $cache_key ) ) {
+			return $package;
+		}
+
+		$is_package_ready = false;
+		$filename         = trailingslashit( $this->packageDirectory ) . $safe_slug . '.zip'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$save_to_local    = apply_filters(
 			'upserv_save_remote_to_local',
 			! $wp_filesystem->is_file( $filename ) || ! $wp_filesystem->is_readable( $filename ),
 			$safe_slug,
 			$filename,
 			$check_remote
 		);
-		$is_package_ready     = false;
 
-		if ( $save_remote_to_local ) {
+		if ( $save_to_local ) {
 
 			if ( $this->use_remote_repository && $this->repository_service_url ) {
 
@@ -366,18 +391,28 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			}
 		}
 
-		$package = false;
-
 		if ( ! is_bool( $is_package_ready ) ) {
-
-			if ( ! $this->cache ) {
-				$this->cache = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
-			}
-
-			$cache_key = 'nocheck-' . $slug;
+			$request_info = $is_package_ready;
 
 			if ( ! $this->cache->get( $cache_key ) ) {
-				$this->cache->set( $cache_key, true, MONTH_IN_SECONDS );
+				$expiry_lentgh = constant( 'WP_DEBUG' ) ? 30 : MONTH_IN_SECONDS;
+
+				$this->cache->set( $cache_key, true, $expiry_lentgh );
+
+				$date = new DateTime(
+					'now + ' . $expiry_lentgh . ' seconds',
+					new DateTimeZone( wp_timezone_string() )
+				);
+
+				php_log(
+					'Package '
+					. $safe_slug
+					. ' has been marked as ignored.' . "\n"
+					. 'The remote server will not be checked again for this package until: '
+					. $date->format( 'Y-m-d H:i:s' ) . ' (' . wp_timezone_string() . ')'
+					. "\n"
+					. 'Result for `requestInfo`:' . "\n" . print_r( $request_info, true ) // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+				);
 			}
 
 			return $package;
@@ -386,18 +421,13 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		try {
 			$cached_value = null;
 
-			if ( $this->cache ) {
-
-				if ( $wp_filesystem->is_file( $filename ) && $wp_filesystem->is_readable( $filename ) ) {
-					$cache_key    = 'metadata-b64-' . $safe_slug . '-'
-						. md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
-					$cached_value = $this->cache->get( $cache_key );
-				}
-			} else {
-				$this->cache = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+			if ( $wp_filesystem->is_file( $filename ) && $wp_filesystem->is_readable( $filename ) ) {
+				$cache_key    = 'metadata-b64-' . $safe_slug . '-'
+					. md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
+				$cached_value = $this->cache->get( $cache_key );
 			}
 
-			if ( ! $cached_value ) {
+			if ( null === $cached_value ) {
 				do_action( 'upserv_find_package_no_cache', $safe_slug, $filename, $this->cache );
 			}
 

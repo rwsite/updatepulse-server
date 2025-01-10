@@ -26,7 +26,7 @@ class UPServ_Update_API {
 
 			add_filter( 'query_vars', array( $this, 'query_vars' ), -99, 1 );
 			add_filter( 'puc_request_info_pre_filter', array( $this, 'puc_request_info_pre_filter' ), 10, 4 );
-			add_filter( 'upserv_download_remote_package', array( $this, 'upserv_download_remote_package' ), 10, 4 );
+			add_filter( 'puc_request_info_result', array( $this, 'puc_request_info_result' ), 10, 4 );
 		}
 	}
 
@@ -82,22 +82,37 @@ class UPServ_Update_API {
 	}
 
 	public function puc_request_info_pre_filter( $info, $api_obj, $ref, $update_checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		$config = self::get_config();
+		$config          = self::get_config();
+		$filter_packages = apply_filters(
+			'upserv_repository_filter_packages',
+			$config['repository_filter_packages'],
+			$info
+		);
 
-		if (
-			$this->update_server &&
-			apply_filters( 'upserv_repository_filter_packages', $config['repository_filter_packages'], $info )
-		) {
-			$info = $this->update_server->pre_filter_checker_info( $info, $api_obj, $ref );
+		$this->init_server( $info['slug'] );
+
+		if ( $this->update_server && $filter_packages ) {
+			$info = $this->update_server->pre_filter_package_info( $info, $api_obj, $ref );
 		}
 
 		return $info;
 	}
 
-	public function upserv_download_remote_package( $download, $slug, $type, $info ) {
-		$download = ! isset( $info['abort_request'] );
+	public function puc_request_info_result( $info, $api_obj, $ref, $checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		$config          = self::get_config();
+		$filter_packages = apply_filters(
+			'upserv_repository_filter_packages',
+			$config['repository_filter_packages'],
+			$info
+		);
 
-		return $download;
+		$this->init_server( $info['slug'] );
+
+		if ( $this->update_server && $filter_packages ) {
+			$info = $this->update_server->filter_package_info( $info );
+		}
+
+		return $info;
 	}
 
 	// Misc. -------------------------------------------------------

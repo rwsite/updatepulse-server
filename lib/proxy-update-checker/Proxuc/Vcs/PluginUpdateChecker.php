@@ -67,7 +67,7 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 			 */
 			$info = apply_filters(
 				'puc_request_info_pre_filter',
-				array(),
+				array( 'slug' => $this->slug ),
 				$this->api,
 				$ref,
 				$this

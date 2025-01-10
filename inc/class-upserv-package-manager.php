@@ -31,6 +31,7 @@ class UPServ_Package_Manager {
 			add_action( 'load-toplevel_page_upserv-page', array( $this, 'add_page_options' ), 10, 0 );
 			add_action( 'upserv_package_manager_pre_delete_package', array( $this, 'upserv_package_manager_pre_delete_package' ), 10, 1 );
 			add_action( 'upserv_package_manager_deleted_package', array( $this, 'upserv_package_manager_deleted_package' ), 10, 1 );
+			add_action( 'upserv_download_remote_package_aborted', array( $this, 'upserv_download_remote_package_aborted' ), 10, 3 );
 
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 10, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 10, 2 );
@@ -153,6 +154,10 @@ class UPServ_Package_Manager {
 		}
 	}
 
+	public function upserv_download_remote_package_aborted( $safe_slug, $type, $info ) {
+		wp_cache_set( 'upserv_download_remote_package_aborted', $info, 'updatepulse-server' );
+	}
+
 	public function prime_package_from_remote() {
 		$result = false;
 		$error  = false;
@@ -177,6 +182,21 @@ class UPServ_Package_Manager {
 				__METHOD__,
 				__( 'Error - could not get remote package. The page has expired - please reload the page and try again.', 'updatepulse-server' )
 			);
+		}
+
+		if ( wp_cache_get( 'upserv_download_remote_package_aborted', 'updatepulse-server' ) ) {
+			$api_config = UPServ_Update_API::get_instance()->get_config();
+			$error      = $api_config['repository_filter_packages'] ?
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not get remote package. The package was filtered out because it is not linked to this server.', 'updatepulse-server' )
+				) :
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not get remote package. The package was found and is valid, but the download was aborted. Please check the package is satisfying custom the requirements for this server.', 'updatepulse-server' )
+				);
+
+			wp_cache_delete( 'upserv_download_remote_package_aborted', 'updatepulse-server' );
 		}
 
 		do_action( 'upserv_primed_package_from_remote', $result, $slug );

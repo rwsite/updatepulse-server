@@ -389,7 +389,15 @@ class UPServ_Webhook_API {
 							time();
 						$result    = as_schedule_single_action( $timestamp, $hook, $params );
 
-						do_action( 'upserv_scheduled_check_remote_event', $result, $package_id, $timestamp, false, $hook, $params );
+						do_action(
+							'upserv_scheduled_check_remote_event',
+							$result,
+							$package_id,
+							$timestamp,
+							false,
+							$hook,
+							$params
+						);
 					}
 				} else {
 					upserv_download_remote_package( $package_id, $type );
