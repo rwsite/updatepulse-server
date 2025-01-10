@@ -124,7 +124,7 @@
 						printf(
 							// translators: %1$s is <code>updatepulse.json</code>, %2$s is <code>server</code>, %3$s is <code>https://sub.domain.tld/</code>
 							esc_html__( 'When checked, UpdatePulse Server will only download packages that have a file named %1$s in the root of the repository, with the %2$s value set to %3$s.', 'updatepulse-server' ),
-							'<code>' . esc_html( apply_filters( 'upserv_enable_download_flag_file', 'updatepulse.json' ) ) . '</code>',
+							'<code>' . esc_html( apply_filters( 'upserv_filter_packages_flag_file', 'updatepulse.json' ) ) . '</code>',
 							'<code>server</code>',
 							'<code>' . esc_url( trailingslashit( home_url() ) ) . '</code>',
 						);

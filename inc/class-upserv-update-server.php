@@ -72,23 +72,22 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		return $is_locked;
 	}
 
-	public function extend_checker_info( $info, $api, $ref, $update_checker ) {
+	public function pre_filter_checker_info( $info, $api, $ref ) {
+		$abort        = true;
+		$flag_file    = apply_filters( 'upserv_filter_packages_flag_file', 'updatepulse.json' );
+		$file_content = $api->getRemoteFile( $flag_file, $ref );
 
-		if ( ! is_array( $info ) || ! isset( $info['download_url'] ) || ! $info['download_url'] ) {
-			return $info;
-		}
+		if ( ! empty( $file_content ) ) {
 
-		$flag_file = apply_filters( 'upserv_enable_download_flag_file', 'updatepulse.json' );
-		$file      = $api->getRemoteFile( $flag_file, $ref );
+			if ( has_filter( 'upserv_pre_filter_packages_extend_info' ) ) {
+				$info = apply_filters( 'upserv_pre_filter_packages_extend_info', $info, $file_content );
 
-		if ( ! empty( $file ) ) {
-			$file_contents = json_decode( $file, true );
-
-			if ( ! $file_contents ) {
 				return $info;
 			}
 
-			if ( isset( $file_contents['server'] ) ) {
+			$file_contents = json_decode( $file_content, true );
+
+			if ( $file_contents && isset( $file_contents['server'] ) ) {
 				$url              = filter_var( $file_contents['server'], FILTER_VALIDATE_URL );
 				$server_url_parts = explode( '/', untrailingslashit( $this->serverUrl ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
@@ -97,8 +96,18 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 				$server_url = implode( '/', $server_url_parts );
 
 				if ( $url && trailingslashit( $server_url ) === trailingslashit( $url ) ) {
+					$abort               = false;
 					$info['updatePulse'] = trailingslashit( $url );
 				}
+			}
+		}
+
+		if ( $abort ) {
+
+			if ( is_array( $info ) ) {
+				$info['abort_request'] = true;
+			} else {
+				$info = array( 'abort_request' => true );
 			}
 		}
 
@@ -128,7 +137,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 					) {
 						$this->remove_package( $safe_slug );
 
-						return $local_ready;
+						return null;
 					}
 
 					if ( $info && ! is_wp_error( $info ) ) {
@@ -341,23 +350,38 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			$filename,
 			$check_remote
 		);
+		$is_package_ready     = false;
 
 		if ( $save_remote_to_local ) {
-			$re_check_local = false;
 
 			if ( $this->use_remote_repository && $this->repository_service_url ) {
 
 				if ( $check_remote ) {
-					$re_check_local = $this->save_remote_package_to_local( $safe_slug );
+					$is_package_ready = $this->save_remote_package_to_local( $safe_slug );
 				}
 			}
 
-			if ( $re_check_local ) {
+			if ( true === $is_package_ready ) {
 				return $this->findPackage( $slug, false );
 			}
 		}
 
 		$package = false;
+
+		if ( ! is_bool( $is_package_ready ) ) {
+
+			if ( ! $this->cache ) {
+				$this->cache = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+			}
+
+			$cache_key = 'nocheck-' . $slug;
+
+			if ( ! $this->cache->get( $cache_key ) ) {
+				$this->cache->set( $cache_key, true, MONTH_IN_SECONDS );
+			}
+
+			return $package;
+		}
 
 		try {
 			$cached_value = null;
@@ -391,12 +415,15 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	}
 
 	protected function actionGetMetadata( Wpup_Request $request ) {
-		$meta                         = $request->package ?
-			$request->package->getMetadata() :
-			array( 'err_message' => __( 'Package corrupted.', 'updatepulse-server' ) );
-		$meta['download_url']         = $request->package ?
-			$this->generateDownloadUrl( $request->package ) :
-			'';
+		$meta = array();
+
+		if ( $request->package ) {
+			$meta                 = $request->package->getMetadata();
+			$meta['download_url'] = $this->generateDownloadUrl( $request->package );
+		} else {
+			$meta['err_message'] = __( 'Invalid package.', 'updatepulse-server' );
+		}
+
 		$meta                         = $this->filterMetadata( $meta, $request );
 		$meta['request_time_elapsed'] = sprintf( '%.3f', microtime( true ) - $this->startTime ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 

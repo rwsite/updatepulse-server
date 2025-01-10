@@ -119,6 +119,8 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
 		* [upserv\_save\_remote\_to\_local](#upserv_save_remote_to_local)
 		* [upserv\_download\_remote\_package](#upserv_download_remote_package-1)
 		* [upserv\_repository\_filter\_packages](#upserv_repository_filter_packages)
+		* [upserv\_filter\_packages\_extend\_info](#upserv_filter_packages_extend_info)
+		* [upserv\_filter\_packages\_flag\_file](#upserv_filter_packages_flag_file)
 		* [upserv\_webhook\_package\_exists](#upserv_webhook_package_exists)
 		* [upserv\_webhook\_process\_request](#upserv_webhook_process_request)
 		* [upserv\_package\_option\_update](#upserv_package_option_update)
@@ -2616,6 +2618,37 @@ Filter whether to filter the packages retrieved from the Remote Repository Servi
 
 `$info`
 > (array) the information of the package from the remote repository  
+
+___
+### upserv_filter_packages_extend_info
+
+```php
+apply_filters( 'upserv_filter_packages_extend_info', (array) $info, (string) $file_content );
+```
+
+**Description**
+Filter the information of the package retrieved from the Remote Repository Service to extend it with additional information.
+
+**Parameters**  
+`$info`
+> (array) the information of the package from the remote repository  
+
+`$file_content`
+> (string) the content of the flag file used to filter the packages retrieved from the Remote Repository Service
+
+___
+### upserv_filter_packages_flag_file
+
+```php
+apply_filters( 'upserv_filter_packages_flag_file', (string) $file_name );
+```
+
+**Description**
+Filter the name of the flag file used to filter the packages retrieved from the Remote Repository Service.
+
+**Parameters**  
+`$file_name`
+> (string) the name of the flag file used to filter the packages retrieved from the Remote Repository Service
 
 ___
 ### upserv_webhook_package_exists

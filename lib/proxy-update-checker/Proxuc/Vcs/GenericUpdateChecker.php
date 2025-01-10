@@ -51,6 +51,26 @@ if ( ! class_exists(GenericUpdateChecker::class, false) ):
 				return 'source_not_found';
 			}
 
+			/**
+			 * Pre-filter the info that will be returned by the update checker.
+			 *
+			 * @param array $info The info that will be returned by the update checker.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\Vcs\API $api The API object that was used to fetch the info.
+			 * @param string $ref The tag or branch that was used to fetch the info.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\UpdateChecker $checker The update checker object calling this filter.
+			 */
+			$info = apply_filters(
+				'puc_request_info_pre_filter',
+				null,
+				$this->api,
+				$ref,
+				$this
+			);
+
+			if ( is_array( $info ) && isset( $info['abort_request'] ) && $info['abort_request'] ) {
+				return $info;
+			}
+
 			$file = $api->getRemoteFile(basename($this->genericFile), $ref);
 
 			if (!empty($file)) {
@@ -70,7 +90,6 @@ if ( ! class_exists(GenericUpdateChecker::class, false) ):
 			}
 
 			$update = $this->filterUpdateResult($update);
-			$info   = null;
 
 			if ($update && 'source_not_found' !== $update) {
 
@@ -78,14 +97,18 @@ if ( ! class_exists(GenericUpdateChecker::class, false) ):
 					$update->download_url = $this->api->signDownloadUrl($update->download_url);
 				}
 
-				$info = array(
-					'type'         => 'Generic',
-					'version'      => $update->version,
-					'main_file'    => $this->genericFile,
-					'download_url' => $update->download_url,
+				$info = is_array( $info ) ? $info : array();
+				$info = array_merge(
+					$info,
+					array(
+						'type'         => 'Generic',
+						'version'      => $update->version,
+						'main_file'    => $this->genericFile,
+						'download_url' => $update->download_url,
+					)
 				);
 			} elseif ( 'source_not_found' === $update ) {
-				return new WP_Error(
+				return new \WP_Error(
 					'puc-no-update-source',
 					'Could not retrieve version information from the repository for '
 					. $this->slug . '.'

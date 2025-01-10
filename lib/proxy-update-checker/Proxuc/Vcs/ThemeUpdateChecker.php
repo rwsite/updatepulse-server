@@ -51,6 +51,26 @@ if (! class_exists(ThemeUpdateChecker::class, false)):
 				return 'source_not_found';
 			}
 
+			/**
+			 * Pre-filter the info that will be returned by the update checker.
+			 *
+			 * @param array $info The info that will be returned by the update checker.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\Vcs\API $api The API object that was used to fetch the info.
+			 * @param string $ref The tag or branch that was used to fetch the info.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\UpdateChecker $checker The update checker object calling this filter.
+			 */
+			$info = apply_filters(
+				'puc_request_info_pre_filter',
+				null,
+				$this->api,
+				$ref,
+				$this
+			);
+
+			if ( is_array( $info ) && isset( $info['abort_request'] ) && $info['abort_request'] ) {
+				return $info;
+			}
+
 			//Get headers from the main stylesheet in this branch/tag. Its "Version" header and other metadata
 			//are what the WordPress install will actually see after upgrading, so they take precedence over releases/tags.
 			$file = $api->getRemoteFile('style.css', $ref);
@@ -69,7 +89,6 @@ if (! class_exists(ThemeUpdateChecker::class, false)):
 			}
 
 			$update = $this->filterUpdateResult($update);
-			$info   = null;
 
 			if ($update && 'source_not_found' !== $update) {
 
@@ -77,14 +96,18 @@ if (! class_exists(ThemeUpdateChecker::class, false)):
 					$update->download_url = $this->api->signDownloadUrl($update->download_url);
 				}
 
-				$info = array(
-					'type'         => 'Theme',
-					'version'      => $update->version,
-					'main_file'    => 'style.css',
-					'download_url' => $update->download_url,
+				$info = is_array($info) ? $info : array();
+				$info = array_merge(
+					$info,
+					array(
+						'type'         => 'Theme',
+						'version'      => $update->version,
+						'main_file'    => 'style.css',
+						'download_url' => $update->download_url,
+					)
 				);
 			} elseif ('source_not_found' === $update) {
-				return new WP_Error(
+				return new \WP_Error(
 					'puc-no-update-source',
 					'Could not retrieve version information from the repository for '
 					. $this->slug . '.'

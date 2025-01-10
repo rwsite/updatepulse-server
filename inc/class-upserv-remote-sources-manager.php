@@ -525,6 +525,11 @@ class UPServ_Remote_Sources_Manager {
 					'display_name'            => __( 'Remote Repository Service Credentials', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 				),
+				'upserv_remote_repository_filter_packages' => array(
+					'value'        => filter_input( INPUT_POST, 'upserv_remote_repository_filter_packages', FILTER_VALIDATE_BOOLEAN ),
+					'display_name' => __( 'Filter Packages', 'updatepulse-server' ),
+					'condition'    => 'boolean',
+				),
 				'upserv_remote_repository_check_frequency' => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_check_frequency', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Remote Update Check Frequency', 'updatepulse-server' ),

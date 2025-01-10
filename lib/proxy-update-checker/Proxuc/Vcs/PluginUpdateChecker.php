@@ -42,23 +42,13 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 			$api = $this->api;
 			$api->setLocalDirectory($this->Vcs_getAbsoluteDirectoryPath());
 
-			$info = new PluginInfo();
-			$info->filename = $this->pluginFile;
-			$info->slug = $this->slug;
-
-			$this->setInfoFromHeader($this->Vcs_getPluginHeader(), $info);
-
-			//Pick a branch or tag.
 			$updateSource = $api->chooseReference($this->branch);
 
 			if ( $updateSource ) {
 				$ref = $updateSource->name;
-				$info->version = $updateSource->version;
-				$info->last_updated = $updateSource->updated;
-				$info->download_url = $updateSource->downloadUrl;
 			} else {
 				//There's probably a network problem or an authentication error.
-				return new WP_Error(
+				return new \WP_Error(
 					'puc-no-update-source',
 					'Could not retrieve version information from the repository for '
 					. $this->slug . '.'
@@ -66,6 +56,38 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 					. 'to the repository or it\'s configured incorrectly.'
 				);
 			}
+
+			/**
+			 * Pre-filter the info that will be returned by the update checker.
+			 *
+			 * @param array $info The info that will be returned by the update checker.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\Vcs\API $api The API object that was used to fetch the info.
+			 * @param string $ref The tag or branch that was used to fetch the info.
+			 * @param YahnisElsts\PluginUpdateChecker\v5p3\UpdateChecker $checker The update checker object calling this filter.
+			 */
+			$info = apply_filters(
+				'puc_request_info_pre_filter',
+				array(),
+				$this->api,
+				$ref,
+				$this
+			);
+			$info = is_array( $info ) ? $info : array();
+
+			if ( isset( $info['abort_request'] ) && $info['abort_request'] ) {
+				return $info;
+			}
+
+			$pre_filtered_info = $info;
+
+			$info = new PluginInfo();
+			$info->version = $updateSource->version;
+			$info->last_updated = $updateSource->updated;
+			$info->download_url = $updateSource->downloadUrl;
+			$info->filename = $this->pluginFile;
+			$info->slug = $this->slug;
+
+			$this->setInfoFromHeader($this->Vcs_getPluginHeader(), $info);
 
 			//Get headers from the main plugin file in this branch/tag. Its "Version" header and other metadata
 			//are what the WordPress install will actually see after upgrading, so they take precedence over releases/tags.
@@ -94,11 +116,14 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 
 			$info->download_url = $this->api->signDownloadUrl($info->download_url);
 
-			$info = array(
-				'type'         => 'Plugin',
-				'version'      => $info->version,
-				'main_file'    => $info->filename,
-				'download_url' => $info->download_url,
+			$info = array_merge(
+				$pre_filtered_info,
+				array(
+					'type'         => 'Plugin',
+					'version'      => $info->version,
+					'main_file'    => $info->filename,
+					'download_url' => $info->download_url,
+				)
 			);
 
 			/**
