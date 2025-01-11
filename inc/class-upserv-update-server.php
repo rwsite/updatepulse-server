@@ -451,7 +451,8 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			$meta                 = $request->package->getMetadata();
 			$meta['download_url'] = $this->generateDownloadUrl( $request->package );
 		} else {
-			$meta['err_message'] = __( 'Invalid package.', 'updatepulse-server' );
+			$meta['error']   = 'invalid_package';
+			$meta['message'] = __( 'Invalid package.', 'updatepulse-server' );
 		}
 
 		$meta                         = $this->filterMetadata( $meta, $request );
