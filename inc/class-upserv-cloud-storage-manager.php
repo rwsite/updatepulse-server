@@ -847,7 +847,7 @@ class UPServ_Cloud_Storage_Manager {
 
 	public function upserv_update_server_action_download( $request ) {
 		$config = self::get_config();
-		$url    = self::$cloud_storage->getAuthenticatedURL(
+		$url    = self::$cloud_storage->getAuthenticatedUrlV4(
 			$config['storage_unit'],
 			self::$virtual_dir . '/' . $request->slug . '.zip',
 			self::DOWNLOAD_URL_LIFETIME,

@@ -233,7 +233,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 				'download_url' => '',
 			);
 
-			$this->type = ucfirst( $local_info['type'] );
+			$this->set_type( $local_info['type'] );
 
 			if ( 'Plugin' === $this->type || 'Theme' === $this->type || 'Generic' === $this->type ) {
 				$this->init_update_checker( $slug );
@@ -331,10 +331,15 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	}
 
 	protected function generateDownloadUrl( Wpup_Package $package ) {
+		$metadata = $package->getMetadata();
+
+		$this->set_type( $metadata['type'] );
+
 		$query = array(
-			'action'     => 'download',
-			'token'      => upserv_create_nonce(),
-			'package_id' => $package->slug,
+			'action'      => 'download',
+			'token'       => upserv_create_nonce(),
+			'package_id'  => $package->slug,
+			'update_type' => $this->type,
 		);
 
 		return self::addQueryArg( $query, $this->serverUrl ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

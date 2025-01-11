@@ -120,15 +120,11 @@ class UPServ_License_Update_Server extends UPServ_Update_Server {
 
 		$license           = $request->license;
 		$license_signature = $request->license_signature;
+		$valid             = $this->is_license_valid( $license, $license_signature );
 
 		if (
 			'download' === $request->action &&
-			! apply_filters(
-				'upserv_license_valid',
-				$this->is_license_valid( $license, $license_signature ),
-				$license,
-				$license_signature
-			)
+			! apply_filters( 'upserv_license_valid', $valid, $license, $license_signature )
 		) {
 			$this->exitWithError( 'Invalid license key or signature.', 403 );
 		}
@@ -136,14 +132,12 @@ class UPServ_License_Update_Server extends UPServ_Update_Server {
 
 	protected function generateDownloadUrl( Wpup_Package $package ) {
 		$query = array(
-			'action'            => 'download',
 			'token'             => upserv_create_nonce( true, DAY_IN_SECONDS / 2 ),
-			'package_id'        => $package->slug,
 			'license_key'       => $this->license_key,
 			'license_signature' => $this->license_signature,
 		);
 
-		return self::addQueryArg( $query, $this->serverUrl ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		return self::addQueryArg( $query, parent::generateDownloadUrl( $package ) );
 	}
 
 	// Misc. -------------------------------------------------------
