@@ -133,7 +133,7 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 			$metadata_url            = trailingslashit( $this->update_server_url ) . '?action=get_metadata&package_id=';
 			$metadata_url           .= rawurlencode( $this->package_slug );
 
-			if ( ! class_exists( 'PucFactory' ) ) {
+			if ( ! class_exists( 'YahnisElsts\PluginUpdateChecker\v5p3\PucFactory' ) ) {
 				require $this->package_path . 'lib/plugin-update-checker/plugin-update-checker.php';
 			}
 
