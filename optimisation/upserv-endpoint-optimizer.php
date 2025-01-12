@@ -13,8 +13,6 @@
 * - @see upserv_mu_doing_api_request - determine if the current request is an UpdatePulse Server API call
 * - @see upserv_mu_require - filter the files to be required before UpdatePulse Server API calls are handled
 *
-* The following action is also available in your own MU plugin to completely alter UpdatePulse Server behaviour:
-* - @see upserv_mu_init - fire this action after handling your own initialization of UpdatePulse Server (bypass the default)
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -33,20 +31,13 @@ function upserv_muplugins_loaded() {
 		)
 	);
 
-	$url_parts                = explode(
-		DIRECTORY_SEPARATOR,
-		ltrim( wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ), '/' )
-	);
-	$frag                     = reset( $url_parts );
-	$upserv_doing_api_request = (
-		'upserv-license-api' === $frag ||
-		'upserv-nonce' === $frag ||
-		'upserv-token' === $frag ||
-		'upserv-update-api' === $frag ||
-		'upserv-webhook-api' === $frag
-	);
+	$host      = isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'];
+	$url       = 'https://' . $host . $_SERVER['REQUEST_URI'];
+	$path      = str_replace( trailingslashit( home_url() ), '', $url );
+	$frags     = explode( '/', $path );
+	$doing_api = preg_match( '/^updatepulse-server-(.*?)-(api|nonce|token)$/', $frags[0] );
 
-	if ( apply_filters( 'upserv_mu_doing_api_request', $upserv_doing_api_request ) ) {
+	if ( apply_filters( 'upserv_mu_doing_api_request', $doing_api ) ) {
 		$hooks = array(
 			'registered_taxonomy',
 			'wp_register_sidebar_widget',
@@ -104,5 +95,7 @@ function upserv_muplugins_loaded() {
 		add_filter( 'stylesheet_directory', fn() => __DIR__, PHP_INT_MAX - 100, 0 );
 		add_filter( 'enable_loading_advanced_cache_dropin', fn() => false, PHP_INT_MAX - 100, 0 );
 	}
+
+	do_action( 'upserv_mu_endpoint_optimizer_ready' );
 }
 add_action( 'muplugins_loaded', 'upserv_muplugins_loaded', 0 );
