@@ -326,8 +326,14 @@ class UPServ {
 			$result = $wp_filesystem->mkdir( $mu_plugin_dir );
 		}
 
+		if ( $wp_filesystem->is_file( $mu_plugin ) ) {
+			$result = $wp_filesystem->delete( $mu_plugin );
+		}
+
 		if ( $result && ! $wp_filesystem->is_file( $mu_plugin ) ) {
-			$source_mu_plugin = wp_normalize_path( UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimizer.php' );
+			$source_mu_plugin = wp_normalize_path(
+				UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimizer.php'
+			);
 			$result           = $wp_filesystem->copy( $source_mu_plugin, $mu_plugin );
 		}
 

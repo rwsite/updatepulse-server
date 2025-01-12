@@ -30,7 +30,6 @@ $upserv_mu_plugin = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ) . 'u
 $upserv_dir       = trailingslashit( $wp_filesystem->wp_content_dir() . 'updatepulse-server' );
 
 $wp_filesystem->delete( $upserv_mu_plugin );
-$wp_filesystem->delete( $upserv_mu_plugin . '.backup' );
 $wp_filesystem->delete( $upserv_mdir, true );
 
 as_unschedule_all_actions( 'upserv_cleanup' );

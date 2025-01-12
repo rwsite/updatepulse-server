@@ -24,7 +24,7 @@
 		* [Public License API](#public-license-api)
 	* [Help](#help)
 		* [Provide updates with UpdatePulse Server - packages requirements](#provide-updates-with-updatepulse-server---packages-requirements)
-		* [Requests optimisation](#requests-optimisation)
+		* [UpdatePulse Server Endpoint Optimizer - requests optimisation](#updatepulse-server-endpoint-optimizer---requests-optimisation)
 		* [More help...](#more-help)
 
 
@@ -365,17 +365,17 @@ See `wp-content/plugins/updatepulse-server/integration/dummy-generic` for exampl
 
 Unless "Use Remote Repository Service" is checked in "Remote Sources", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
 
-### Requests optimisation
+### UpdatePulse Server Endpoint Optimizer - requests optimisation
 
-When the remote clients where your plugins and themes are installed send a request to check for updates or download a package, this server's WordPress installation is loaded, with its own plugins and themes. This is not optimised if left untouched because unnecessary action and filter hooks that execute before `parse_request` action hook are also triggered, even though the request is not designed to produce any on-screen output or further computation.
+When remote clients with your packages installed send requests to check for updates or download packages, the WordPress installation on this server is loaded, along with its plugins and themes. If left unoptimized, unnecessary action and filter hooks are triggered before the `parse_request` action hook, even though these requests are not intended to generate on-screen output or perform additional computations.
 
-To solve this, the file `wp-content/plugins/updatepulse-server/optimisation/upserv-endpoint-optimiser.php` is automatically copied to `wp-content/mu-plugins/upserv-endpoint-optimiser.php`. This effectively creates a Must Use Plugin running before everything else and preventing themes and other plugins from being executed when an update request or a license API request is received by UpdatePulse Server.
+To address this, the file `wp-content/plugins/updatepulse-server/optimisation/upserv-endpoint-optimiser.php` is automatically copied to `wp-content/mu-plugins/upserv-endpoint-optimiser.php` upon activation of UpdatePulse Server, and re-applied each time the plugin is updated (with a new version if present).
 
-You may edit the variable `$upserv_always_active_plugins` of the MU Plugin file to allow some plugins to run anyway, or set the `$upserv_bypass_themes` to `false` to allow `functions.php` files to be included, for example to hook into WP Plugin Server actions and filters. If in use and a new version is available, the MU Plugin will be backed-up to `wp-content/mu-plugins/upserv-endpoint-optimiser.php.backup` when updating UpdatePulse Server and will automatically be replaced with its new version. If necessary, make sure to report any previous customization from the backup to the new file.
+The resulting Must Use Plugin runs before everything else, preventing themes and other plugins from executing when UpdatePulse Server receives an API request.
 
-The MU Plugin also provides the global variables `$upserv_doing_update_api_request` and `$upserv_doing_license_api_request` that can be tested when adding hooks and filters would you choose to keep some plugins active with `$upserv_always_active_plugins` or keep `functions.php` from themes included with `$upserv_bypass_themes` set to `false`.
+To alter the behaviour of the optimiser, see the `upserv_mu_optimizer_*` filters in [Miscellaneous](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/misc.md).
 
 ### More help...
 
-For more help on how to use UpdatePulse Server, please open an issue - bugfixes are welcome via pull requests, detailed bug reports with accurate pointers as to where and how they occur in the code will be addressed in a timely manner, and a fee will apply for any other request if they are addressed.  
+For more help on how to use UpdatePulse Server, please open an issue - bugfixes are welcome via pull requests, detailed bug reports with accurate pointers as to where and how they occur in the code will be addressed in a timely manner, and a fee will apply for any other request (if they are addressed).  
 If and only if you found a security issue, please contact `updatepulse@anyape.com` with full details for responsible disclosure.

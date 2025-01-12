@@ -23,10 +23,13 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 			* [upserv\_schedule\_webhook](#upserv_schedule_webhook)
 			* [upserv\_fire\_webhook](#upserv_fire_webhook)
 	* [Actions](#actions)
+		* [upserv\_mu\_optimizer\_ready](#upserv_mu_optimizer_ready)
 		* [upserv\_no\_api\_includes](#upserv_no_api_includes)
 		* [upserv\_no\_priority\_api\_includes](#upserv_no_priority_api_includes)
 		* [upserv\_remote\_sources\_options\_updated](#upserv_remote_sources_options_updated)
 	* [Filters](#filters)
+		* [upserv\_mu\_optimizer\_active\_plugins](#upserv_mu_optimizer_active_plugins)
+		* [upserv\_mu\_optimizer\_doing\_api\_request](#upserv_mu_optimizer_doing_api_request)
 		* [upserv\_is\_api\_request](#upserv_is_api_request)
 		* [upserv\_page\_upserv\_scripts\_l10n](#upserv_page_upserv_scripts_l10n)
 		* [upserv\_nonce\_api\_payload](#upserv_nonce_api_payload)
@@ -646,6 +649,26 @@ UpdatePulse Server gives developers the possibility to have their plugins react 
 **Warning**: the filters below with the mention "Fired during API requests" need to be used with caution. Although they may be triggered when using the functions above, these filters will possibly be called when the Update API, License API, Packages API or a Webhook is called. Registering functions doing heavy computation to these filters can seriously degrade the server's performances.  
 
 ___
+### upserv_mu_optimizer_ready
+
+```php
+do_action( 'upserv_mu_optimizer_ready', bool $doing_api, array|bool $api_active_plugins, array|bool $removed_hooks );
+```
+
+**Description**
+Fired when the Must Used Plugin `UpdatePulse Server Endpoint Optimizer` has been executed.
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action ; if within, the action must have a priority lower than `0`.
+
+**Parameters**
+`$doing_api`
+> (bool) whether the current request is made by a remote client interacting with any of the APIs
+
+`$api_active_plugins`
+> (array|bool) the plugins still active after the optimizer has run (`false` if `$doing_api` is not truthy)
+
+`$removed_hooks`
+> (array|bool) the hooks removed by the optimizer (`false` if `$doing_api` is not truthy)
+___
 ### upserv_no_api_includes
 
 ```php
@@ -686,6 +709,45 @@ UpdatePulse Server gives developers the possibility to customize its behavior wi
 **Warning**: the filters below with the mention "Fired during API requests" need to be used with caution. Although they may be triggered when using the functions above, these filters will possibly be called when the Update API, License API, Packages API or a Webhook is called. Registering functions doing heavy computation to these filters can seriously degrade the server's performances.  
 
 ___
+### upserv_mu_optimizer_active_plugins
+
+```php
+apply_filters( 'upserv_mu_optimizer_active_plugins', array $active_plugins );
+```
+
+**Description**
+Filter the plugins to keep active when a request is made by a remote client to interact with any of the APIs.  
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action ; if within, the action must have a priority lower than `0`.
+
+**Parameters**
+`$active_plugins`
+> (array) the plugins to keep active when a request is made by a remote client to interact with any of the APIs  
+> Example:
+```php
+array(
+	'updatepulse-server/updatepulse-server.php', // default value
+	'plugin-slug/plugin-file.php',
+	'other-plugin-slug/other-plugin-file.php',
+	'plugin-folder/plugin-file.php',
+)
+```
+___
+### upserv_mu_optimizer_doing_api_request
+
+```php
+apply_filters( 'upserv_mu_optimizer_doing_api_request', bool $doing_api );
+```
+
+**Description**
+Filter whether the current request must be treated as an API request.  
+The value is cached in `'upserv_mu_doing_api'` (group `''updatepulse-server''`) with `wp_cache_set()` and used before [upserv_is_api_request](#upserv_is_api_request) is fired.
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action ; if within, the action must have a priority lower than `0`.
+
+**Parameters**
+`$doing_api`
+> (bool) whether the current request must be treated as an API request  
+> By default, `true` if the first fragment after `home_url()` matches the regex `/^updatepulse-server-((.*?)-api|nonce|token)$/`
+___
 ### upserv_is_api_request
 
 ```php
@@ -698,6 +760,7 @@ Filter whether the current request must be treated as an API request.
 **Parameters**  
 `$is_api_request`
 > (bool) whether the current request must be treated as an API request  
+> By default, `true` if the value of `wp_cache_get( 'upserv_mu_doing_api', 'updatepulse-server' )` is truthy, or a recalculated value otherwise.
 
 ___
 ### upserv_page_upserv_scripts_l10n

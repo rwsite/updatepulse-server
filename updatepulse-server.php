@@ -134,7 +134,10 @@ if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
 }
 
 function upserv_run() {
-	wp_cache_add_non_persistent_groups( 'updatepulse-server' );
+
+	if ( ! did_action( 'upserv_mu_optimizer_ready' ) ) {
+		wp_cache_add_non_persistent_groups( 'updatepulse-server' );
+	}
 
 	require_once UPSERV_PLUGIN_PATH . 'functions.php';
 

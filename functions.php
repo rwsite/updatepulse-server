@@ -76,12 +76,15 @@ if ( ! function_exists( 'upserv_is_doing_package_api_request' ) ) {
 
 if ( ! function_exists( 'upserv_is_doing_api_request' ) ) {
 	function upserv_is_doing_api_request() {
-		$is_api_request = (
-			upserv_is_doing_license_api_request() ||
-			upserv_is_doing_update_api_request() ||
-			upserv_is_doing_webhook_api_request() ||
-			upserv_is_doing_package_api_request()
-		);
+		$mu_doing_api   = wp_cache_get( 'upserv_mu_doing_api', 'updatepulse-server' );
+		$is_api_request = $mu_doing_api ?
+			$mu_doing_api :
+			(
+				upserv_is_doing_license_api_request() ||
+				upserv_is_doing_update_api_request() ||
+				upserv_is_doing_webhook_api_request() ||
+				upserv_is_doing_package_api_request()
+			);
 
 		return apply_filters( 'upserv_is_api_request', $is_api_request );
 	}

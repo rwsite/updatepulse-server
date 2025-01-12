@@ -18,6 +18,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
 		* [upserv\_get\_root\_data\_dir](#upserv_get_root_data_dir)
 		* [upserv\_get\_packages\_data\_dir](#upserv_get_packages_data_dir)
 		* [upserv\_get\_logs\_data\_dir](#upserv_get_logs_data_dir)
+		* [upserv\_get\_cache\_data\_dir](#upserv_get_cache_data_dir)
 		* [upserv\_is\_doing\_update\_api\_request](#upserv_is_doing_update_api_request)
 		* [upserv\_is\_doing\_package\_api\_request](#upserv_is_doing_package_api_request)
 		* [upserv\_check\_remote\_package\_update](#upserv_check_remote_package_update)
@@ -745,6 +746,19 @@ Get the path to the plugin's log directory.
 
 **Return value**
 > (string) the path to the plugin's log directory.
+
+___
+### upserv_get_cache_data_dir
+
+```php
+upserv_get_cache_data_dir();
+```
+
+**Description**
+Get the path to the plugin's package cache directory.
+
+**Return value**
+> (string) the path to the plugin's package cache directory
 
 ___
 ### upserv_is_doing_update_api_request
@@ -1504,7 +1518,7 @@ ___
 
 
 ```php
-do_action( 'upserv_before_remote_package_zip', (string) $package_slug, (string) $files_path, (string) $archive_path );
+do_action( 'upserv_before_remote_package_zip', string $package_slug, string $files_path, string $archive_path );
 ```
 
 **Description**  
@@ -2661,7 +2675,7 @@ ___
 ### upserv_repository_filter_packages
 
 ```php
-apply_filters( 'upserv_repository_filter_packages', (bool) $filter_packages, (array) $info );
+apply_filters( 'upserv_repository_filter_packages', bool $filter_packages, array $info );
 ```
 
 **Description**
@@ -2677,7 +2691,7 @@ Filter whether to filter the packages retrieved from the Remote Repository Servi
 ### upserv_pre_filter_packages_info
 
 ```php
-apply_filters( 'upserv_pre_filter_packages_info', (array) $info, (string) $file_content );
+apply_filters( 'upserv_pre_filter_packages_info', array $info, string $file_content );
 ```
 
 **Description**
@@ -2695,7 +2709,7 @@ ___
 ### upserv_filter_packages_info
 
 ```php
-apply_filters( 'upserv_filter_packages_info', (array) $info, (string) $file_content );
+apply_filters( 'upserv_filter_packages_info', array $info, string $file_content );
 ```
 
 **Description**
@@ -2712,7 +2726,7 @@ ___
 ### upserv_filter_packages_filename
 
 ```php
-apply_filters( 'upserv_filter_packages_filename', (string) $file_name );
+apply_filters( 'upserv_filter_packages_filename', string $file_name );
 ```
 
 **Description**
