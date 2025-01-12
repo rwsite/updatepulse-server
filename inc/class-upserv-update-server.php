@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse;
+namespace Anyape\UpdatePulse\Server;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 

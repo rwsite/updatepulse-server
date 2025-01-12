@@ -4,14 +4,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-use Anyape\UpdatePulse\UPServ_Nonce;
-use Anyape\UpdatePulse\UPServ_License_API;
-use Anyape\UpdatePulse\UPServ_Webhook_API;
-use Anyape\UpdatePulse\UPServ_Update_API;
-use Anyape\UpdatePulse\UPServ_Package_API;
-use Anyape\UpdatePulse\UPServ_Data_Manager;
-use Anyape\UpdatePulse\UPServ_Package_Manager;
-use Anyape\UpdatePulse\UPServ;
+use Anyape\UpdatePulse\Server\UPServ_Nonce;
+use Anyape\UpdatePulse\Server\UPServ_License_API;
+use Anyape\UpdatePulse\Server\UPServ_Webhook_API;
+use Anyape\UpdatePulse\Server\UPServ_Update_API;
+use Anyape\UpdatePulse\Server\UPServ_Package_API;
+use Anyape\UpdatePulse\Server\UPServ_Data_Manager;
+use Anyape\UpdatePulse\Server\UPServ_Package_Manager;
+use Anyape\UpdatePulse\Server\UPServ;
 
 if ( ! function_exists( 'php_log' ) ) {
 	function php_log( $message = '', $prefix = '' ) {

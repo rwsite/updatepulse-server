@@ -15,19 +15,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Anyape\UpdatePulse\Updater\V2_0\UpdatePulse_Updater;
-use Anyape\UpdatePulse\UPServ_Nonce;
-use Anyape\UpdatePulse\UPServ_License_API;
-use Anyape\UpdatePulse\UPServ_Webhook_API;
-use Anyape\UpdatePulse\UPServ_Update_API;
-use Anyape\UpdatePulse\UPServ_Package_API;
-use Anyape\UpdatePulse\UPServ_Cloud_Storage_Manager;
-use Anyape\UpdatePulse\UPServ_Data_Manager;
-use Anyape\UpdatePulse\UPServ_Remote_Sources_Manager;
-use Anyape\UpdatePulse\UPServ_Webhook_Manager;
-use Anyape\UpdatePulse\UPServ_Package_Manager;
-use Anyape\UpdatePulse\UPServ_License_Manager;
-use Anyape\UpdatePulse\UPServ_API_Manager;
-use Anyape\UpdatePulse\UPServ;
+use Anyape\UpdatePulse\Server\UPServ_Nonce;
+use Anyape\UpdatePulse\Server\UPServ_License_API;
+use Anyape\UpdatePulse\Server\UPServ_Webhook_API;
+use Anyape\UpdatePulse\Server\UPServ_Update_API;
+use Anyape\UpdatePulse\Server\UPServ_Package_API;
+use Anyape\UpdatePulse\Server\UPServ_Cloud_Storage_Manager;
+use Anyape\UpdatePulse\Server\UPServ_Data_Manager;
+use Anyape\UpdatePulse\Server\UPServ_Remote_Sources_Manager;
+use Anyape\UpdatePulse\Server\UPServ_Webhook_Manager;
+use Anyape\UpdatePulse\Server\UPServ_Package_Manager;
+use Anyape\UpdatePulse\Server\UPServ_License_Manager;
+use Anyape\UpdatePulse\Server\UPServ_API_Manager;
+use Anyape\UpdatePulse\Server\UPServ;
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before;
@@ -72,7 +72,7 @@ foreach ( $require as $file ) {
 	}
 }
 
-if ( class_exists( 'Anyape\UpdatePulse\UPServ_Nonce' ) ) {
+if ( class_exists( 'Anyape\UpdatePulse\Server\UPServ_Nonce' ) ) {
 	UPServ_Nonce::register();
 	UPServ_Nonce::init_auth(
 		array_merge(

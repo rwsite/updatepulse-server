@@ -21,9 +21,8 @@ Before deploying the plugin or theme, make sure to:
 ### Code to include in main plugin file or functions.php
 
 ```php
+use Anyape\UpdatePulse\Updater\v2_0\UpdatePulse_Updater;
 require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
-
-use Anyape\UpdatePulse\UpdatePulse_Updater_2_0 as UpdatePulse_Updater;
 
 $prefix_updater = new UpdatePulse_Updater(
 	wp_normalize_path( __FILE__ ),
