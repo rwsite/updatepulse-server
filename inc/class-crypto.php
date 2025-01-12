@@ -1,6 +1,10 @@
 <?php
 
-class Anyape_Crypto {
+namespace Anyape\Crypto;
+
+use Exception;
+
+class Crypto {
 
 	const METHOD        = 'aes-256-cbc';
 	const SLASH_REPLACE = '_';
