@@ -35,7 +35,7 @@ function upserv_muplugins_loaded() {
 	$url       = 'https://' . $host . $_SERVER['REQUEST_URI'];
 	$path      = str_replace( trailingslashit( home_url() ), '', $url );
 	$frags     = explode( '/', $path );
-	$doing_api = preg_match( '/^updatepulse-server-(.*?)-(api|nonce|token)$/', $frags[0] );
+	$doing_api = preg_match( '/^updatepulse-server-((.*?)-api|nonce|token)$/', $frags[0] );
 
 	if ( apply_filters( 'upserv_mu_doing_api_request', $doing_api ) ) {
 		$hooks = array(
