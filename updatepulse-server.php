@@ -100,15 +100,17 @@ if (
 	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-manager.php';
 	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-api-manager.php';
 
-	$act_deact = array(
-		'UPServ',
-		'UPServ_License_Manager',
-		'UPServ_Nonce',
-		'UPServ_Webhook_manager',
+	$plugin_registration_classes = apply_filters(
+		'upserv_mu_plugin_registration_classes',
+		array(
+			__NAMESPACE__ . '\\UPServ',
+			__NAMESPACE__ . '\\UPServ_License_Manager',
+			__NAMESPACE__ . '\\UPServ_Nonce',
+			__NAMESPACE__ . '\\UPServ_Webhook_manager',
+		)
 	);
 
-	foreach ( $act_deact as $class ) {
-		$class = __NAMESPACE__ . '\\' . $class;
+	foreach ( $plugin_registration_classes as $class ) {
 
 		if ( method_exists( $class, 'activate' ) ) {
 			register_activation_hook( UPSERV_PLUGIN_FILE, array( $class, 'activate' ) );
