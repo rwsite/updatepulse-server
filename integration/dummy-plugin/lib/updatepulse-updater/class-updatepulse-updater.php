@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * UpdatePulse Updater
  * Plugins and themes update library to enable with UpdatePulse Server
