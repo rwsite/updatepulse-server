@@ -237,7 +237,7 @@ function upserv_tests_log( $message, $array_or_object = null ) {
 	}
 
 	if ( 'filelog' === $upserv_output_log ) {
-		$log_file = UPServ_Data_Manager::get_data_dir( 'logs' ) . 'tests.log';
+		$log_file = upserv_get_logs_data_dir() . 'tests.log';
 		$handle   = fopen( $log_file, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 
 		if ( $handle && flock( $handle, LOCK_EX ) ) {

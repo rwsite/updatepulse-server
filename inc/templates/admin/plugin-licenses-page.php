@@ -2,7 +2,7 @@
 	exit; // Exit if accessed directly
 } ?>
 <div class="wrap upserv-wrap">
-	<?php UPServ::get_instance()->display_settings_header( $result ); ?>
+	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
 	<?php if ( get_option( 'upserv_use_licenses' ) ) : ?>
 	<form autocomplete="off" id="upserv-licenses-list" action="" method="post">
 		<h3><?php esc_html_e( 'Licenses', 'updatepulse-server' ); ?></h3>

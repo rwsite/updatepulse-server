@@ -4,6 +4,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use Anyape\UpdatePulse\UPServ_Nonce;
+use Anyape\UpdatePulse\UPServ_License_API;
+use Anyape\UpdatePulse\UPServ_Webhook_API;
+use Anyape\UpdatePulse\UPServ_Update_API;
+use Anyape\UpdatePulse\UPServ_Package_API;
+use Anyape\UpdatePulse\UPServ_Data_Manager;
+use Anyape\UpdatePulse\UPServ_Package_Manager;
+use Anyape\UpdatePulse\UPServ;
+
 if ( ! function_exists( 'php_log' ) ) {
 	function php_log( $message = '', $prefix = '' ) {
 		$prefix   = $prefix ? ' ' . $prefix . ' => ' : ' => ';
@@ -93,6 +102,12 @@ if ( ! function_exists( 'upserv_get_packages_data_dir' ) ) {
 if ( ! function_exists( 'upserv_get_logs_data_dir' ) ) {
 	function upserv_get_logs_data_dir() {
 		return UPServ_Data_Manager::get_data_dir( 'logs' );
+	}
+}
+
+if ( ! function_exists( 'upserv_get_cache_data_dir' ) ) {
+	function upserv_get_cache_data_dir() {
+		return UPServ_Data_Manager::get_data_dir( 'cache' );
 	}
 }
 

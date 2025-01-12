@@ -1,8 +1,12 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use Exception;
 
 class UPServ {
 	protected static $instance;
@@ -27,6 +31,7 @@ class UPServ {
 				add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 99, 1 );
 				add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 99, 2 );
 				add_filter( 'action_scheduler_retention_period', array( $this, 'action_scheduler_retention_period' ), 10, 0 );
+				add_filter( 'upserv_get_admin_template_args', array( $this, 'upserv_get_admin_template_args' ), 10, 2 );
 			}
 
 			add_action( 'init', array( $this, 'load_textdomain' ), 10, 0 );
@@ -245,6 +250,15 @@ class UPServ {
 
 	public function action_scheduler_retention_period() {
 		return DAY_IN_SECONDS;
+	}
+
+	public function upserv_get_admin_template_args( $args, $template_name ) {
+
+		if ( preg_match( '/^plugin-.*-page\.php$/', $template_name ) ) {
+			$args['header'] = $this->display_settings_header( wp_cache_get( 'settings_notice', 'upserv' ) );
+		}
+
+		return $args;
 	}
 
 	// Misc. -------------------------------------------------------

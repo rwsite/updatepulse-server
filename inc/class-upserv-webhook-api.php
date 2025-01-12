@@ -1,8 +1,12 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use WP_Error;
 
 class UPServ_Webhook_API {
 	protected static $doing_update_api_request = null;

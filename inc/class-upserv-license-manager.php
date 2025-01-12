@@ -1,8 +1,13 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use DateTime;
+use DateTimeZone;
 
 class UPServ_License_Manager {
 
@@ -266,25 +271,22 @@ class UPServ_License_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		$result         = $this->plugin_options_handler();
 		$licenses_table = $this->licenses_table;
+		$notices        = wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 
-		if ( ! $result ) {
+		if ( ! $notices ) {
 
 			if ( ! empty( $this->errors ) ) {
-				$result = $this->errors;
+				$notices = $this->errors;
 			} else {
-				$result = $this->message;
+				$notices = $this->message;
 			}
 		}
 
 		$licenses_table->prepare_items();
 		upserv_get_admin_template(
 			'plugin-licenses-page.php',
-			array(
-				'licenses_table' => $licenses_table,
-				'result'         => $result,
-			)
+			array( 'licenses_table' => $licenses_table )
 		);
 	}
 

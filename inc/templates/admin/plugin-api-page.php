@@ -2,7 +2,7 @@
 	exit; // Exit if accessed directly
 } ?>
 <div class="wrap upserv-wrap">
-	<?php UPServ::get_instance()->display_settings_header( $result ); ?>
+	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
 	<form autocomplete="off" id="upserv-api-settings" action="" method="post">
 		<h3><?php esc_html_e( 'Package API', 'updatepulse-server' ); ?></h3>
 		<table class="form-table">

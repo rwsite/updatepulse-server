@@ -1,8 +1,12 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use WP_List_Table;
 
 class UPServ_Licenses_Table extends WP_List_Table {
 

@@ -1,8 +1,14 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use WP_CLI_Command;
+use WP_CLI;
+use WP_Error;
 
 class UPServ_CLI extends WP_CLI_Command {
 	protected const RESOURCE_NOT_FOUND = 3;

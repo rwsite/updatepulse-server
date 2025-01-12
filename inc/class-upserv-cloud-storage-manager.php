@@ -1,11 +1,19 @@
 <?php
 
-use PhpS3\PhpS3;
-use PhpS3\PhpS3Exception;
+namespace Anyape\UpdatePulse;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use PhpS3\PhpS3;
+use PhpS3\PhpS3Exception;
+use WP_Error;
+use Wpup_FileCache;
+use WshWordPressPackageParser_Extended;
+use Wpup_Package_Extended;
+use Wpup_ZipMetadataParser;
+use Wpup_InvalidPackageException;
 
 class UPServ_Cloud_Storage_Manager {
 	protected static $instance;

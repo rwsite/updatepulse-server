@@ -1,5 +1,7 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
@@ -273,7 +275,7 @@ class UPServ_Update_API {
 		$config            = self::get_config();
 		$server_class_name = apply_filters(
 			'upserv_server_class_name',
-			'UPServ_Update_Server',
+			__NAMESPACE__ . '\\UPServ_Update_Server',
 			$package_id,
 			$config
 		);

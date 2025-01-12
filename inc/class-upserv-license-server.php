@@ -1,8 +1,15 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use Anyape\Crypto\Crypto;
+use Exception;
+use DateTime;
+use DateTimeZone;
 
 class UPServ_License_Server {
 
@@ -273,7 +280,7 @@ class UPServ_License_Server {
 		$hmac_key      = $license->hmac_key;
 		$crypto_key    = $license->crypto_key;
 		$crypt_payload = array( $domain, $license->package_slug, $license->license_key, $license->id );
-		$signature     = Anyape_Crypto::encrypt( implode( '|', $crypt_payload ), $crypto_key, $hmac_key );
+		$signature     = Crypto::encrypt( implode( '|', $crypt_payload ), $crypto_key, $hmac_key );
 
 		return $signature;
 	}
@@ -289,7 +296,7 @@ class UPServ_License_Server {
 			$payload = null;
 
 			try {
-				$payload = Anyape_Crypto::decrypt( $crypt, $crypto_key, $hmac_key );
+				$payload = Crypto::decrypt( $crypt, $crypto_key, $hmac_key );
 			} catch ( Exception $e ) {
 				$payload = false;
 			}

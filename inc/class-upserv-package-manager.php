@@ -1,8 +1,19 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use WP_Error;
+use WshWordPressPackageParser_Extended;
+use ZipArchive;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
+use Wpup_FileCache;
+use Wpup_Package_Extended;
+use Exception;
 
 class UPServ_Package_Manager {
 
@@ -373,10 +384,10 @@ class UPServ_Package_Manager {
 		$this->packages_table->set_rows( $package_rows );
 		$this->packages_table->prepare_items();
 
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 		upserv_get_admin_template(
 			'plugin-packages-page.php',
 			array(
-				'result'               => $this->plugin_options_handler(),
 				'action_error'         => '',
 				'default_cache_size'   => self::DEFAULT_LOGS_MAX_SIZE,
 				'default_logs_size'    => self::DEFAULT_CACHE_MAX_SIZE,

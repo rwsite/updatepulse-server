@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * UpdatePulse Updater
  * Plugins and themes update library to enable with UpdatePulse Server
@@ -7,8 +7,16 @@
  * @version 2.0
  * @copyright Alexandre Froger - https://www.froger.me
  */
+
+namespace Anyape\UpdatePulse\Updater\v2_0;
+
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
+use DateTime;
+use DateTimeZone;
+use WP_Error;
+use RuntimeException;
+use stdClass;
 use YahnisElsts\PluginUpdateChecker\v5p3\PucFactory;
 
 /* ================================================================================================ */
@@ -36,6 +44,7 @@ use YahnisElsts\PluginUpdateChecker\v5p3\PucFactory;
 
 /** Enable updates **/
 /* phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+use Anyape\UpdatePulse\Updater\v2_0\UpdatePulse_Updater;
 require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
 
 $prefix_updater = new UpdatePulse_Updater(
@@ -46,11 +55,9 @@ $prefix_updater = new UpdatePulse_Updater(
 
 /* ================================================================================================ */
 
-if ( ! class_exists( 'UpdatePulse_Updater' ) ) {
+if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 
 	class UpdatePulse_Updater {
-		const VERSION = '2.0';
-
 		private $license_server_url;
 		private $package_slug;
 		private $update_server_url;
@@ -126,7 +133,7 @@ if ( ! class_exists( 'UpdatePulse_Updater' ) ) {
 			$metadata_url            = trailingslashit( $this->update_server_url ) . '?action=get_metadata&package_id=';
 			$metadata_url           .= rawurlencode( $this->package_slug );
 
-			if ( ! class_exists( 'PucFactory' ) ) {
+			if ( ! class_exists( 'YahnisElsts\PluginUpdateChecker\v5p3\PucFactory' ) ) {
 				require $this->package_path . 'lib/plugin-update-checker/plugin-update-checker.php';
 			}
 

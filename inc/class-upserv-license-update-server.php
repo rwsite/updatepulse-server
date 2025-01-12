@@ -1,8 +1,12 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use Wpup_Package;
 
 class UPServ_License_Update_Server extends UPServ_Update_Server {
 

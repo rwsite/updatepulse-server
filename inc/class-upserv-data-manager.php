@@ -1,8 +1,13 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class UPServ_Data_Manager {
 	public static $transient_data_dirs = array(
@@ -153,7 +158,9 @@ class UPServ_Data_Manager {
 		}
 
 		$directory              = self::get_data_dir( $type );
-		$max_size_constant_name = 'UPServ_Package_Manager::DEFAULT_' . strtoupper( $type ) . '_MAX_SIZE';
+		$max_size_constant_name = __NAMESPACE__ . '\\UPServ_Package_Manager::DEFAULT_'
+			. strtoupper( $type )
+			. '_MAX_SIZE';
 		$default_max_size       = defined( $max_size_constant_name ) ? constant( $max_size_constant_name ) : 0;
 		$cleanup                = false;
 		$is_dir                 = $wp_filesystem->is_dir( $directory );
@@ -274,7 +281,7 @@ class UPServ_Data_Manager {
 				$params[] = true;
 			}
 
-			$hook = array( 'UPSERV_Data_Manager', 'maybe_cleanup' );
+			$hook = array( __NAMESPACE__ . '\\UPServ_Data_Manager', 'maybe_cleanup' );
 
 			add_action( 'upserv_cleanup', $hook, 10, 2 );
 			do_action( 'upserv_registered_cleanup_schedule', $type, $params );

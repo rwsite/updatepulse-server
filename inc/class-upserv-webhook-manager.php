@@ -1,8 +1,12 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use stdClass;
 
 class UPServ_Webhook_Manager {
 

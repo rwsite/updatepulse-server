@@ -23,6 +23,8 @@ Before deploying the plugin or theme, make sure to:
 ```php
 require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
 
+use Anyape\UpdatePulse\UpdatePulse_Updater_2_0 as UpdatePulse_Updater;
+
 $prefix_updater = new UpdatePulse_Updater(
 	wp_normalize_path( __FILE__ ),
 	0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()

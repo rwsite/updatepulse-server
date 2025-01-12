@@ -1,8 +1,12 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use stdClass;
 
 class UPServ_API_Manager {
 
@@ -144,12 +148,10 @@ class UPServ_API_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		$result = $this->plugin_options_handler();
-
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 		upserv_get_admin_template(
 			'plugin-api-page.php',
 			array(
-				'result'              => $result,
 				'license_api_actions' => apply_filters(
 					'upserv_api_license_actions',
 					array()

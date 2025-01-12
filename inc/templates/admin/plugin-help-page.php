@@ -2,7 +2,7 @@
 	exit; // Exit if accessed directly
 } ?>
 <div class="wrap upserv-wrap">
-	<?php UPServ::get_instance()->display_settings_header( '' ); ?>
+	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
 	<div class="help-content">
 		<h2><?php esc_html_e( 'Provide updates with UpdatePulse Server - packages requirements', 'updatepulse-server' ); ?></h2>
 		<p>
@@ -13,14 +13,12 @@
 			<li>
 			<?php
 			printf(
-				// translators: %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>, %5$s is <code>updatepulse-updater</code>, %6$s is <code>plugin-update-checker</code>
-				esc_html__( 'Add a %1$s directory with the %2$s and %3$s libraries to the root of the package (provided in %4$s ; %5$s can be customized as you see fit, but %6$s should be left untouched).', 'updatepulse-server' ),
+				// translators: %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>
+				esc_html__( 'Add a %1$s directory with the %2$s and %3$s libraries to the root of the package (provided in %4$s).', 'updatepulse-server' ),
 				'<code>lib</code>',
 				'<code>plugin-update-checker</code>',
 				'<code>updatepulse-updater</code>',
 				'<code>dummy-[plugin|theme]</code>',
-				'<code>updatepulse-updater</code>',
-				'<code>plugin-update-checker</code>',
 			);
 			?>
 			</li>
@@ -33,14 +31,18 @@
 				);
 				?>
 				<br>
-<pre>/** Enable updates - note the  `$prefix_updater` variable: change `prefix` to a unique string for your package **/
+<pre>/** Enable updates - note the  `$prefix_updater` variable: change `prefix` to a unique string for your package.
+ * Replace vX_X with the version of the UpdatePulse Updater you are using
+ * @see /lib/updatepulse-updater/class-updatepulse-updater.php
+ **/
+use Anyape\UpdatePulse\Updater\vX_X\UpdatePulse_Updater;
 require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
 
 $prefix_updater = new UpdatePulse_Updater(
 	wp_normalize_path( __FILE__ ),
 	0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
 );
-);</pre>
+</pre>
 			</li>
 			<li>
 				<?php

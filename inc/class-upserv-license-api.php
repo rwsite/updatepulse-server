@@ -1,5 +1,7 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
@@ -500,7 +502,7 @@ class UPServ_License_API {
 		if ( $package_use_license && $use_licenses ) {
 			require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-update-server.php';
 
-			$class_name = 'UPServ_License_Update_Server';
+			$class_name = __NAMESPACE__ . '\\UPServ_License_Update_Server';
 		}
 
 		return $class_name;

@@ -25,6 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 * @see https://github.com/anyape/updatepulse-server/tree/main/integration/dummy-theme/lib/updatepulse-updater
 **/
 
+use Anyape\UpdatePulse\Updater\v2_0\UpdatePulse_Updater;
 require_once plugin_dir_path( __FILE__ ) . 'lib/updatepulse-updater/class-updatepulse-updater.php';
 
 /** Enable plugin updates**/

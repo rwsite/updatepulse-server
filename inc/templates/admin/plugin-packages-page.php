@@ -2,7 +2,7 @@
 	exit; // Exit if accessed directly
 } ?>
 <div class="wrap upserv-wrap">
-	<?php UPServ::get_instance()->display_settings_header( $result ); ?>
+	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
 	<form autocomplete="off" id="upserv-packages-list" action="" method="post">
 		<h3><?php esc_html_e( 'Packages', 'updatepulse-server' ); ?></h3>
 		<?php $packages_table->search_box( 'Search', 'updatepulse-server' ); ?>
@@ -128,7 +128,7 @@
 						printf(
 							// translators: %s is <code>cache_dir_path</code>
 							esc_html__( 'Maximum size in MB for the %s directory. If the size of the directory grows larger, its content will be deleted at next cron run (checked hourly). The size indicated in the "Force Clean" button is the real current size.', 'updatepulse-server' ),
-							'<code>' . esc_html( UPServ_Data_Manager::get_data_dir( 'cache' ) ) . '</code>'
+							'<code>' . esc_html( upserv_get_cache_data_dir() ) . '</code>'
 						);
 						?>
 					</p>
@@ -145,7 +145,7 @@
 						printf(
 							// translators: %s is <code>logs_dir_path</code>
 							esc_html__( 'Maximum size in MB for the %s directory. If the size of the directory grows larger, its content will be deleted at next cron run (checked hourly). The size indicated in the "Force Clean" button is the real current size.', 'updatepulse-server' ),
-							'<code>' . esc_html( UPServ_Data_Manager::get_data_dir( 'logs' ) ) . '</code>'
+							'<code>' . esc_html( upserv_get_logs_data_dir() ) . '</code>'
 						);
 						?>
 					</p>

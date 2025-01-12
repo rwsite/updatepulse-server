@@ -10,16 +10,31 @@ Text Domain: updatepulse-server
 Domain Path: /languages
 */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
+use Anyape\UpdatePulse\Updater\V2_0\UpdatePulse_Updater;
+use Anyape\UpdatePulse\UPServ_Nonce;
+use Anyape\UpdatePulse\UPServ_License_API;
+use Anyape\UpdatePulse\UPServ_Webhook_API;
+use Anyape\UpdatePulse\UPServ_Update_API;
+use Anyape\UpdatePulse\UPServ_Package_API;
+use Anyape\UpdatePulse\UPServ_Cloud_Storage_Manager;
+use Anyape\UpdatePulse\UPServ_Data_Manager;
+use Anyape\UpdatePulse\UPServ_Remote_Sources_Manager;
+use Anyape\UpdatePulse\UPServ_Webhook_Manager;
+use Anyape\UpdatePulse\UPServ_Package_Manager;
+use Anyape\UpdatePulse\UPServ_License_Manager;
+use Anyape\UpdatePulse\UPServ_API_Manager;
+use Anyape\UpdatePulse\UPServ;
+
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before;
 
 	$upserv_mem_before     = memory_get_peak_usage();
 	$upserv_scripts_before = get_included_files();
 	$upserv_queries_before = $wpdb->queries;
-}
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly
 }
 
 if ( ! defined( 'UPSERV_PLUGIN_PATH' ) ) {
@@ -57,55 +72,63 @@ foreach ( $require as $file ) {
 	}
 }
 
-if ( ! did_action( 'upserv_mu_init' ) ) {
+if ( class_exists( 'Anyape\UpdatePulse\UPServ_Nonce' ) ) {
+	UPServ_Nonce::register();
+	UPServ_Nonce::init_auth(
+		array_merge(
+			json_decode( get_option( 'upserv_package_private_api_keys', '{}' ), true ),
+			json_decode( get_option( 'upserv_license_private_api_keys', '{}' ), true ),
+		)
+	);
+}
 
-	if ( class_exists( 'UPServ_Nonce' ) ) {
-		UPServ_Nonce::register();
-		UPServ_Nonce::init_auth(
-			array_merge(
-				json_decode( get_option( 'upserv_package_private_api_keys', '{}' ), true ),
-				json_decode( get_option( 'upserv_license_private_api_keys', '{}' ), true ),
-			)
-		);
+if ( ! UPServ_License_API::is_doing_api_request() ) {
+	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server/loader.php';
+	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server-extended/loader.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-update-server.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-api.php';
+}
+
+if (
+	! UPServ_Update_API::is_doing_api_request() &&
+	! UPServ_License_API::is_doing_api_request()
+) {
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-remote-sources-manager.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-webhook-manager.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-manager.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-api-manager.php';
+
+	$act_deact = array(
+		'UPServ',
+		'UPServ_License_Manager',
+		'UPServ_Nonce',
+		'UPServ_Webhook_manager',
+	);
+
+	foreach ( $act_deact as $class ) {
+		$class = __NAMESPACE__ . '\\' . $class;
+
+		if ( method_exists( $class, 'activate' ) ) {
+			register_activation_hook( UPSERV_PLUGIN_FILE, array( $class, 'activate' ) );
+		}
+
+		if ( method_exists( $class, 'deactivate' ) ) {
+			register_deactivation_hook( UPSERV_PLUGIN_FILE, array( $class, 'deactivate' ) );
+		}
+
+		if ( method_exists( $class, 'uninstall' ) ) {
+			register_uninstall_hook( UPSERV_PLUGIN_FILE, array( $class, 'uninstall ' ) );
+		}
 	}
+}
 
-	if ( ! UPServ_License_API::is_doing_api_request() ) {
-		require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server/loader.php';
-		require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server-extended/loader.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-update-server.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-api.php';
-	}
+if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
+	require_once UPSERV_PLUGIN_PATH . 'functions.php';
+	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-cli.php';
 
-	if (
-		! UPServ_Update_API::is_doing_api_request() &&
-		! UPServ_License_API::is_doing_api_request()
-	) {
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-remote-sources-manager.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-webhook-manager.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-manager.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-api-manager.php';
-
-		register_activation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ', 'activate' ) );
-		register_deactivation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ', 'deactivate' ) );
-		register_uninstall_hook( UPSERV_PLUGIN_FILE, array( 'UPServ', 'uninstall' ) );
-		register_activation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_License_Manager', 'activate' ) );
-		register_deactivation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_License_Manager', 'deactivate' ) );
-		register_activation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_Nonce', 'activate' ) );
-		register_deactivation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_Nonce', 'deactivate' ) );
-		register_uninstall_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_Nonce', 'uninstall' ) );
-		register_activation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_Webhook_manager', 'activate' ) );
-		register_deactivation_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_Webhook_manager', 'deactivate' ) );
-		register_uninstall_hook( UPSERV_PLUGIN_FILE, array( 'UPServ_Webhook_manager', 'uninstall' ) );
-	}
-
-	if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
-		require_once UPSERV_PLUGIN_PATH . 'functions.php';
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-cli.php';
-
-		WP_CLI::add_command( 'updatepulse-server', 'UPServ_CLI' );
-	}
+	WP_CLI::add_command( 'updatepulse-server', __NAMESPACE__ . '\\UPServ_CLI' );
 }
 
 function upserv_run() {

@@ -1,8 +1,12 @@
 <?php
 
+namespace Anyape\UpdatePulse;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use WP_Error;
 
 class UPServ_Remote_Sources_Manager {
 
@@ -345,10 +349,10 @@ class UPServ_Remote_Sources_Manager {
 			);
 		}
 
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 		upserv_get_admin_template(
 			'plugin-remote-sources-page.php',
 			array(
-				'result'               => $this->plugin_options_handler(),
 				'action_error'         => '',
 				'registered_schedules' => $registered_schedules,
 				'schedules'            => $schedules,
