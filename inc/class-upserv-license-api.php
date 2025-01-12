@@ -29,7 +29,7 @@ class UPServ_License_API {
 
 			if ( $init_hooks ) {
 				require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-server.php';
-				require_once UPSERV_PLUGIN_PATH . 'inc/class-anyape-crypto.php';
+				require_once UPSERV_PLUGIN_PATH . 'inc/class-crypto.php';
 
 				if ( ! self::is_doing_api_request() ) {
 					add_action( 'init', array( $this, 'add_endpoints' ), -99, 0 );
