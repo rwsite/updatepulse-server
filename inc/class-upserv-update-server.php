@@ -1,8 +1,21 @@
 <?php
 require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
 
+namespace Anyape\UpdatePulse;
+
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
+
+use Wpup_UpdateServer;
+use Wpup_Package;
+use WshWordPressPackageParser_Extended;
+use Wpup_FileCache;
+use Wpup_Package_Extended;
+use Wpup_Request;
+use DateTime;
+use DateTimeZone;
+use WP_Error;
+use Exception;
 class UPServ_Update_Server extends Wpup_UpdateServer {
 
 	const LOCK_REMOTE_UPDATE_SEC = 10;
