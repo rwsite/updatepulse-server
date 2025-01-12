@@ -39,7 +39,11 @@ class UPServ_Update_API {
 	// WordPress hooks ---------------------------------------------
 
 	public function add_endpoints() {
-		add_rewrite_rule( '^updatepulse-server-update-api/*$', 'index.php?$matches[1]&__upserv_update_api=1&', 'top' );
+		add_rewrite_rule(
+			'^updatepulse-server-update-api/*$',
+			'index.php?$matches[1]&__upserv_update_api=1&',
+			'top'
+		);
 	}
 
 	public function parse_request() {

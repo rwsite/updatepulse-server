@@ -42,7 +42,11 @@ class UPServ_Webhook_API {
 
 	public function add_endpoints() {
 		add_rewrite_rule( '^updatepulse-server-webhook$', 'index.php?__upserv_webhook=1&', 'top' );
-		add_rewrite_rule( '^updatepulse-server-webhook/(plugin|theme|generic)/(.+)?$', 'index.php?type=$matches[1]&package_id=$matches[2]&__upserv_webhook=1&', 'top' );
+		add_rewrite_rule(
+			'^updatepulse-server-webhook/(plugin|theme|generic)/(.+)?$',
+			'index.php?type=$matches[1]&package_id=$matches[2]&__upserv_webhook=1&',
+			'top'
+		);
 	}
 
 	public function parse_request() {

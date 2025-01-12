@@ -450,8 +450,16 @@ class UPServ_License_API {
 	// WordPress hooks ---------------------------------------------
 
 	public function add_endpoints() {
-		add_rewrite_rule( '^updatepulse-server-license-api/*$', 'index.php?$matches[1]&__upserv_license_api=1&', 'top' );
-		add_rewrite_rule( '^updatepulse-server-license-api$', 'index.php?&__upserv_license_api=1&', 'top' );
+		add_rewrite_rule(
+			'^updatepulse-server-license-api/*$',
+			'index.php?$matches[1]&__upserv_license_api=1&',
+			'top'
+		);
+		add_rewrite_rule(
+			'^updatepulse-server-license-api$',
+			'index.php?&__upserv_license_api=1&',
+			'top'
+		);
 	}
 
 	public function parse_request() {

@@ -130,7 +130,8 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 			$this->update_server_url = trailingslashit( $update_server_url ) . 'updatepulse-server-update-api/';
 			$this->package_slug      = $package_slug;
 			$this->require_license   = $require_license;
-			$metadata_url            = trailingslashit( $this->update_server_url ) . '?action=get_metadata&package_id=';
+			$metadata_url            = trailingslashit( $this->update_server_url )
+				. '?action=get_metadata&package_id=';
 			$metadata_url           .= rawurlencode( $this->package_slug );
 
 			if ( ! class_exists( 'YahnisElsts\PluginUpdateChecker\v5p3\PucFactory' ) ) {
@@ -142,7 +143,8 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 			$this->update_checker->addQueryArgFilter( array( $this, 'filter_update_checks' ) );
 
 			if ( $this->require_license ) {
-				$this->license_server_url = trailingslashit( $update_server_url ) . 'updatepulse-server-license-api/';
+				$this->license_server_url = trailingslashit( $update_server_url )
+					. 'updatepulse-server-license-api/';
 
 				$this->update_checker->addResultFilter( array( $this, 'set_license_error_notice_content' ) );
 
@@ -181,7 +183,9 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 		public function wp_prepare_themes_for_js( $prepared_themes ) {
 
 			if ( isset( $prepared_themes[ $this->package_slug ] ) ) {
-				$prepared_themes[ $this->package_slug ]['description'] .= '<div>' . $this->get_license_form() . '</div>';
+				$prepared_themes[ $this->package_slug ]['description'] .= '<div>'
+					. $this->get_license_form()
+					. '</div>';
 			}
 
 			return $prepared_themes;
@@ -254,7 +258,13 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 					'ajax_url'      => admin_url( 'admin-ajax.php' ),
 				);
 
-				wp_enqueue_script( 'updatepulse-updater-script', $this->package_url . '/lib/updatepulse-updater/js/main' . $js_ext, array( 'jquery' ), $ver_js, true );
+				wp_enqueue_script(
+					'updatepulse-updater-script',
+					$this->package_url . '/lib/updatepulse-updater/js/main' . $js_ext,
+					array( 'jquery' ),
+					$ver_js,
+					true
+				);
 				wp_localize_script( 'updatepulse-updater-script', 'UPupdater', $params );
 
 				if ( ! wp_style_is( 'updatepulse-updater-style' ) ) {
@@ -450,7 +460,11 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 
 			if ( 'update' === $options['action'] ) {
 
-				if ( 'plugin' === $options['type'] && isset( $options['plugins'] ) && is_array( $options['plugins'] ) ) {
+				if (
+					'plugin' === $options['type'] &&
+					isset( $options['plugins'] ) &&
+					is_array( $options['plugins'] )
+				) {
 
 					foreach ( $options['plugins'] as $plugin ) {
 
@@ -460,7 +474,11 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 					}
 				}
 
-				if ( 'theme' === $options['type'] && isset( $options['themes'] ) && is_array( $options['themes'] ) ) {
+				if (
+					'theme' === $options['type'] &&
+					isset( $options['themes'] ) &&
+					is_array( $options['themes'] )
+				) {
 
 					foreach ( $options['themes'] as $theme ) {
 
@@ -511,8 +529,16 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 		}
 
 		public function get_template( $template_name, $args = array(), $load = true, $required_once = false ) {
-			$template_name = apply_filters( 'upupdater_' . $this->package_id . '_get_template_name', $template_name, $args );
-			$template_args = apply_filters( 'upupdater_' . $this->package_id . '_get_template_args', $args, $template_name );
+			$template_name = apply_filters(
+				'upupdater_' . $this->package_id . '_get_template_name',
+				$template_name,
+				$args
+			);
+			$template_args = apply_filters(
+				'upupdater_' . $this->package_id . '_get_template_args',
+				$args,
+				$template_name
+			);
 
 			if ( ! empty( $template_args ) ) {
 
