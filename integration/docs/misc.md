@@ -30,6 +30,8 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 	* [Filters](#filters)
 		* [upserv\_mu\_optimizer\_active\_plugins](#upserv_mu_optimizer_active_plugins)
 		* [upserv\_mu\_optimizer\_doing\_api\_request](#upserv_mu_optimizer_doing_api_request)
+		* [upserv\_mu\_require](#upserv_mu_require)
+		* [upserv\_mu\_plugin\_registration\_classes](#upserv_mu_plugin_registration_classes)
 		* [upserv\_is\_api\_request](#upserv_is_api_request)
 		* [upserv\_page\_upserv\_scripts\_l10n](#upserv_page_upserv_scripts_l10n)
 		* [upserv\_nonce\_api\_payload](#upserv_nonce_api_payload)
@@ -747,6 +749,36 @@ Must be subscribed to in another MU plugin before or within the `muplugins_loade
 `$doing_api`
 > (bool) whether the current request must be treated as an API request  
 > By default, `true` if the first fragment after `home_url()` matches the regex `/^updatepulse-server-((.*?)-api|nonce|token)$/`
+
+___
+### upserv_mu_require
+
+```php
+apply_filters( 'upserv_mu_require', array $require );
+```
+
+**Description**
+Filter the files to require when initializing UpdatePulse Server.  
+Must be subscribed to in a MU plugin to guarantee the correct order of execution.
+
+**Parameters**
+`$require`
+> (array) the absolute paths to the files to require when initializing UpdatePulse Server
+___
+### upserv_mu_plugin_registration_classes
+
+```php
+apply_filters( 'upserv_mu_plugin_registration_classes', array $classes );
+```
+
+**Description**
+Filter the classes used to register `register_activation_hook`, `register_deactivation_hook` and `register_uninstall_hook`.  
+Must be subscribed to in a MU plugin to guarantee the correct order of execution.
+
+**Parameters**
+`$classes`
+> (array) the classes used to register the hooks ; they may have at least one of the following methods implemented: `activation`, `deactivation`, `uninstall`
+
 ___
 ### upserv_is_api_request
 
