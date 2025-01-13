@@ -462,6 +462,21 @@ class UPServ_Cloud_Storage_Manager {
 		try {
 
 			if ( $local_ready ) {
+
+				// $args = array(
+				// 	$filename,
+				// 	$config['storage_unit'],
+				// 	self::$virtual_dir . '/' . $slug . '.zip',
+				// 	PhpS3::ACL_PRIVATE,
+				// 	array(),
+				// 	array(
+				// 		'x-amz-checksum-sha256' => hash_file( 'sha256', $filename ),
+				// 	),
+				// );
+
+
+				// self::$cloud_storage->putObjectFile( ...$args );
+
 				self::$cloud_storage->putObjectFile(
 					$filename,
 					$config['storage_unit'],
@@ -543,6 +558,16 @@ class UPServ_Cloud_Storage_Manager {
 					self::$virtual_dir . '/' . reset( $package_slugs ) . '.zip',
 					$archive_path
 				);
+
+				// php_log(
+				// 	array(
+				// 		'md5'    => hash_file( 'md5', $archive_path ),
+				// 		'sha1'   => hash_file( 'sha1', $archive_path ),
+				// 		'sha256' => hash_file( 'sha256', $archive_path ),
+				// 		'sha512' => hash_file( 'sha512', $archive_path ),
+				// 	)
+				// );
+
 			} catch ( PhpS3Exception $e ) {
 				php_log( $e );
 			}

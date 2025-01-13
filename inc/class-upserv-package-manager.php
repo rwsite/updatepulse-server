@@ -543,10 +543,80 @@ class UPServ_Package_Manager {
 
 		global $wp_filesystem;
 
-		if ( ! empty( $archive_path ) && ! empty( $archive_name ) ) {
+		if ( ! empty( $archive_path ) && is_file( $archive_path ) && ! empty( $archive_name ) ) {
 
 			if ( ini_get( 'zlib.output_compression' ) ) {
 				@ini_set( 'zlib.output_compression', 'Off' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.IniSet.Risky
+			}
+
+			$md5 = md5_file( $archive_path );
+
+			if ( $md5 ) {
+				header( 'Content-MD5: ' . $md5 );
+			}
+
+			// Add Content-Digest or Repr-Digest header based on requested priority
+			$digest_requested = isset( $_SERVER['HTTP_WANT_DIGEST'] ) && is_string( $_SERVER['HTTP_WANT_DIGEST'] ) ?
+				$_SERVER['HTTP_WANT_DIGEST'] :
+				( isset( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) && is_string( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) ?
+					$_SERVER['HTTP_WANT_REPR_DIGEST'] :
+					'sha-256=1'
+				);
+			$digest_field     = isset( $_SERVER['HTTP_WANT_DIGEST'] ) ?
+				'Content-Digest' :
+				( isset( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) ? 'Repr-Digest' : 'Content-Digest' );
+
+			if ( $digest_requested && $digest_field ) {
+				$digests = array_map(
+					function( $digest ) {
+
+						if ( strpos( $digest, '=' ) === false ) {
+							return array( '', 0 ); // Return default value if '=' delimiter is missing
+						}
+
+						$parts = explode( '=', strtolower( trim( $digest ) ) );
+
+						return array(
+							$parts[0], // Algorithm
+							isset( $parts[1] ) ? (int) $parts[1] : 0 // Priority
+						);
+					},
+					explode( ',', $digest_requested )
+				);
+
+				$sha_digests = array_filter(
+					$digests,
+					function( $digest ) {
+						return ! empty( $digest[0] ) && str_starts_with( $digest[0], 'sha-' );
+					}
+				);
+
+				// Find the digest with the highest priority
+				$selected_digest = array_reduce(
+					$sha_digests,
+					function( $carry, $item ) {
+						return $carry[1] > $item[1] ? $carry : $item;
+					},
+					array( '', 0 )
+				);
+
+				if ( ! empty( $selected_digest[0] ) ) {
+					$digest = str_replace( '-', '', $selected_digest[0] );
+
+
+					if ( ! in_array( $digest, hash_algos(), true ) ) {
+						$digest = '';
+					}
+
+					$hash = hash_file( $digest, $archive_path );
+
+					if ( $hash ) {
+						$safe_digest = htmlspecialchars( $digest, ENT_QUOTES, 'UTF-8' );
+						$safe_hash   = htmlspecialchars( $hash, ENT_QUOTES, 'UTF-8' );
+
+						header( "$digest_field: $safe_digest=$safe_hash" );
+					}
+				}
 			}
 
 			header( 'Content-Type: application/zip' );
@@ -602,6 +672,12 @@ class UPServ_Package_Manager {
 						$package_info['file_path']          = $package_directory . $slug . '.zip';
 						$package_info['file_size']          = $package->getFileSize();
 						$package_info['file_last_modified'] = $package->getLastModified();
+						$package_info['digests']            = array(
+							'md5'     => hash_file( 'md5', $package_info['file_path'] ),
+							'sha-1'   => hash_file( 'sha', $package_info['file_path'] ),
+							'sha-256' => hash_file( 'sha256', $package_info['file_path'] ),
+							'sha-512' => hash_file( 'sha512', $package_info['file_path'] ),
+						);
 					}
 				}
 			}
