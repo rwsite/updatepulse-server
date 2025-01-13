@@ -307,6 +307,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		$request->token = $request->param( 'token' );
 
 		if ( $request->param( 'license_key' ) ) {
+			$result = false;
 
 			if ( $request->param( 'licensed_with' ) ) {
 				$info = upserv_get_package_info( $request->slug, false );
