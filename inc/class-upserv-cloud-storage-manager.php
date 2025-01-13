@@ -911,8 +911,6 @@ class UPServ_Cloud_Storage_Manager {
 							$package_info['digest'][ $key ] = $info['x-amz-meta-updatepulse-digests-' . $key ];
 						}
 					}
-
-					php_log( $package_info );
 				}
 			}
 		} catch ( Exception $e ) {
