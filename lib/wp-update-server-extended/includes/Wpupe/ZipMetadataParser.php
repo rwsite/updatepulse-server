@@ -39,6 +39,8 @@ class Wpup_ZipMetadataParser_Extended extends Wpup_ZipMetadataParser {
 					'message'         => 'Error parsing package',
 					'filename'        => $this->filename,
 					'packageInfo'     => $this->packageInfo,
+					'$_GET'          => $_GET, // phpcs:ignore
+					'$_POST'         => $_POST, // phpcs:ignore
 					'debug_backtrace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5)
 				),
 			);
