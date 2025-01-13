@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use PhpS3\PhpS3;
 use PhpS3\PhpS3Exception;
+use Exception;
 use WP_Error;
 use Wpup_FileCache;
 use WshWordPressPackageParser_Extended;
@@ -223,7 +224,15 @@ class UPServ_Cloud_Storage_Manager {
 					}
 				}
 			} catch ( PhpS3Exception $e ) {
-				php_log( $e );
+				php_log(
+					array(
+						'error'  => $e->getMessage(),
+						'file'   => $e->getFile(),
+						'line'   => $e->getLine(),
+						'caller' => $e->getTrace()[1],
+						'slugs'  => $slugs,
+					)
+				);
 			}
 		}
 
@@ -245,7 +254,14 @@ class UPServ_Cloud_Storage_Manager {
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'  => $e->getMessage(),
+					'file'   => $e->getFile(),
+					'line'   => $e->getLine(),
+					'caller' => $e->getTrace()[1],
+				)
+			);
 		}
 
 		return $package_paths;
@@ -268,7 +284,15 @@ class UPServ_Cloud_Storage_Manager {
 
 			return (bool) $info;
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'  => $e->getMessage(),
+					'file'   => $e->getFile(),
+					'line'   => $e->getLine(),
+					'caller' => $e->getTrace()[1],
+					'slug'   => $slug,
+				)
+			);
 
 			return $package_exists;
 		}
@@ -298,9 +322,20 @@ class UPServ_Cloud_Storage_Manager {
 				$cache->clear( $cache_key );
 			}
 
-			$result = self::$cloud_storage->deleteObject( $config['storage_unit'], self::$virtual_dir . '/' . $slug . '.zip' );
+			$result = self::$cloud_storage->deleteObject(
+				$config['storage_unit'],
+				self::$virtual_dir . '/' . $slug . '.zip'
+			);
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'  => $e->getMessage(),
+					'file'   => $e->getFile(),
+					'line'   => $e->getLine(),
+					'caller' => $e->getTrace()[1],
+					'slug'   => $slug,
+				)
+			);
 		}
 
 		return $result;
@@ -411,7 +446,14 @@ class UPServ_Cloud_Storage_Manager {
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'  => $e->getMessage(),
+					'file'   => $e->getFile(),
+					'line'   => $e->getLine(),
+					'caller' => $e->getTrace()[1],
+				)
+			);
 		}
 	}
 
@@ -439,7 +481,15 @@ class UPServ_Cloud_Storage_Manager {
 					$local_meta = WshWordPressPackageParser_Extended::parsePackage( $filename, true );
 				}
 			} catch ( PhpS3Exception $e ) {
-				php_log( $e );
+				php_log(
+					array(
+						'error'    => $e->getMessage(),
+						'file'     => $e->getFile(),
+						'line'     => $e->getLine(),
+						'caller'   => $e->getTrace()[1],
+						'filename' => $local_package->getFileName(),
+					)
+				);
 			}
 		}
 
@@ -462,29 +512,32 @@ class UPServ_Cloud_Storage_Manager {
 		try {
 
 			if ( $local_ready ) {
-
-				// $args = array(
-				// 	$filename,
-				// 	$config['storage_unit'],
-				// 	self::$virtual_dir . '/' . $slug . '.zip',
-				// 	PhpS3::ACL_PRIVATE,
-				// 	array(),
-				// 	array(
-				// 		'x-amz-checksum-sha256' => base64_encode( hash_file( 'sha256', $filename ) ),
-				// 	),
-				// );
-
-
-				// self::$cloud_storage->putObjectFile( ...$args );
-
-				self::$cloud_storage->putObjectFile(
-					$filename,
+				$args = array(
+					self::$cloud_storage::inputFile( $filename ),
 					$config['storage_unit'],
-					self::$virtual_dir . '/' . $slug . '.zip'
+					self::$virtual_dir . '/' . $slug . '.zip',
+					PhpS3::ACL_PRIVATE,
+					array(
+						'updatepulse-digests-sha1'   => hash_file( 'sha1', $filename ),
+						'updatepulse-digests-sha256' => hash_file( 'sha256', $filename ),
+						'updatepulse-digests-sha512' => hash_file( 'sha512', $filename ),
+						'updatepulse-digests-crc32'  => hash_file( 'crc32b', $filename ),
+						'updatepulse-digests-crc32c' => hash_file( 'crc32c', $filename ),
+					),
 				);
+
+				self::$cloud_storage->putObject( ...$args );
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'    => $e->getMessage(),
+					'file'     => $e->getFile(),
+					'line'     => $e->getLine(),
+					'caller'   => $e->getTrace()[1],
+					'filename' => $filename,
+				)
+			);
 		}
 
 		if ( $wp_filesystem->is_file( $filename ) ) {
@@ -513,7 +566,15 @@ class UPServ_Cloud_Storage_Manager {
 				self::$virtual_dir . '/' . $slug . '.zip'
 			);
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'    => $e->getMessage(),
+					'file'     => $e->getFile(),
+					'line'     => $e->getLine(),
+					'caller'   => $e->getTrace()[1],
+					'filename' => $filename,
+				)
+			);
 		}
 
 		if ( $wp_filesystem->is_file( $filename ) ) {
@@ -541,7 +602,15 @@ class UPServ_Cloud_Storage_Manager {
 				$save = false === $info;
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'    => $e->getMessage(),
+					'file'     => $e->getFile(),
+					'line'     => $e->getLine(),
+					'caller'   => $e->getTrace()[1],
+					'filename' => $filename,
+				)
+			);
 		}
 
 		return $save;
@@ -555,21 +624,19 @@ class UPServ_Cloud_Storage_Manager {
 			try {
 				self::$cloud_storage->getObject(
 					$config['storage_unit'],
-					self::$virtual_dir . '/' . reset( $package_slugs ) . '.zip',
+					self::$virtual_dir . '/' . $package_slugs[0] . '.zip',
 					$archive_path
 				);
-
-				// php_log(
-				// 	array(
-				// 		'md5'    => hash_file( 'md5', $archive_path ),
-				// 		'sha1'   => hash_file( 'sha1', $archive_path ),
-				// 		'sha256' => hash_file( 'sha256', $archive_path ),
-				// 		'sha512' => hash_file( 'sha512', $archive_path ),
-				// 	)
-				// );
-
 			} catch ( PhpS3Exception $e ) {
-				php_log( $e );
+				php_log(
+					array(
+						'error'    => $e->getMessage(),
+						'file'     => $e->getFile(),
+						'line'     => $e->getLine(),
+						'caller'   => $e->getTrace()[1],
+						'filename' => $archive_path,
+					)
+				);
 			}
 		} elseif ( ! empty( $package_slugs ) ) {
 			WP_Filesystem();
@@ -603,7 +670,15 @@ class UPServ_Cloud_Storage_Manager {
 						$filename
 					);
 				} catch ( PhpS3Exception $e ) {
-					php_log( $e );
+					php_log(
+						array(
+							'error'    => $e->getMessage(),
+							'file'     => $e->getFile(),
+							'line'     => $e->getLine(),
+							'caller'   => $e->getTrace()[1],
+							'filename' => $filename,
+						)
+					);
 				}
 			}
 		}
@@ -706,7 +781,15 @@ class UPServ_Cloud_Storage_Manager {
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log( $e );
+			php_log(
+				array(
+					'error'    => $e->getMessage(),
+					'file'     => $e->getFile(),
+					'line'     => $e->getLine(),
+					'caller'   => $e->getTrace()[1],
+					'filename' => $filename,
+				)
+			);
 		}
 
 		if ( $wp_filesystem->is_file( $filename ) ) {
@@ -775,7 +858,15 @@ class UPServ_Cloud_Storage_Manager {
 						try {
 							$package = Wpup_Package_Extended::fromArchive( $filename, $slug, $cache );
 						} catch ( Wpup_InvalidPackageException $e ) {
-							php_log( $e );
+							php_log(
+								array(
+									'error'    => $e->getMessage(),
+									'file'     => $e->getFile(),
+									'line'     => $e->getLine(),
+									'caller'   => $e->getTrace()[1],
+									'filename' => $filename,
+								)
+							);
 
 							$cleanup = true;
 						}
@@ -795,6 +886,13 @@ class UPServ_Cloud_Storage_Manager {
 				}
 
 				if ( $package_info ) {
+					$digest_keys = array(
+						'crc32',
+						'crc32c',
+						'sha1',
+						'sha256',
+						'sha512',
+					);
 
 					if ( ! isset( $package_info['type'] ) ) {
 						$package_info['type'] = 'unknown';
@@ -804,12 +902,31 @@ class UPServ_Cloud_Storage_Manager {
 					$package_info['file_path']          = 'cloudStorage://' . self::$virtual_dir . '/' . $slug . '.zip';
 					$package_info['file_size']          = $info['size'];
 					$package_info['file_last_modified'] = $info['time'];
+					$package_info['etag']               = $info['hash'];
+					$package_info['digest']             = array();
+
+					foreach ( $digest_keys as $key ) {
+
+						if ( isset( $info['x-amz-meta-updatepulse-digests-' . $key ] ) ) {
+							$package_info['digest'][ $key ] = $info['x-amz-meta-updatepulse-digests-' . $key ];
+						}
+					}
+
+					php_log( $package_info );
 				}
 			}
-		} catch ( PhpS3Exception $e ) {
+		} catch ( Exception $e ) {
 
 			if ( $e instanceof PhpS3Exception ) {
-				php_log( $e );
+				php_log(
+					array(
+						'error'    => $e->getMessage(),
+						'file'     => $e->getFile(),
+						'line'     => $e->getLine(),
+						'caller'   => $e->getTrace()[1],
+						'filename' => $filename,
+					)
+				);
 			} else {
 				php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
 
@@ -867,7 +984,14 @@ class UPServ_Cloud_Storage_Manager {
 					}
 				}
 			} catch ( PhpS3Exception $e ) {
-				php_log( $e );
+				php_log(
+					array(
+						'error'  => $e->getMessage(),
+						'file'   => $e->getFile(),
+						'line'   => $e->getLine(),
+						'caller' => $e->getTrace()[1],
+					)
+				);
 			}
 
 			wp_cache_set( 'upserv-getBucket', $contents, 'updatepulse-server' );

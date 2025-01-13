@@ -568,7 +568,7 @@ class UPServ_Package_Manager {
 
 			if ( $digest_requested && $digest_field ) {
 				$digests = array_map(
-					function( $digest ) {
+					function ( $digest ) {
 
 						if ( strpos( $digest, '=' ) === false ) {
 							return array( '', 0 ); // Return default value if '=' delimiter is missing
@@ -578,7 +578,7 @@ class UPServ_Package_Manager {
 
 						return array(
 							$parts[0], // Algorithm
-							isset( $parts[1] ) ? (int) $parts[1] : 0 // Priority
+							isset( $parts[1] ) ? (int) $parts[1] : 0, // Priority
 						);
 					},
 					explode( ',', $digest_requested )
@@ -586,7 +586,7 @@ class UPServ_Package_Manager {
 
 				$sha_digests = array_filter(
 					$digests,
-					function( $digest ) {
+					function ( $digest ) {
 						return ! empty( $digest[0] ) && str_starts_with( $digest[0], 'sha-' );
 					}
 				);
@@ -594,7 +594,7 @@ class UPServ_Package_Manager {
 				// Find the digest with the highest priority
 				$selected_digest = array_reduce(
 					$sha_digests,
-					function( $carry, $item ) {
+					function ( $carry, $item ) {
 						return $carry[1] > $item[1] ? $carry : $item;
 					},
 					array( '', 0 )
@@ -602,7 +602,6 @@ class UPServ_Package_Manager {
 
 				if ( ! empty( $selected_digest[0] ) ) {
 					$digest = str_replace( '-', '', $selected_digest[0] );
-
 
 					if ( ! in_array( $digest, hash_algos(), true ) ) {
 						$digest = '';
@@ -672,11 +671,13 @@ class UPServ_Package_Manager {
 						$package_info['file_path']          = $package_directory . $slug . '.zip';
 						$package_info['file_size']          = $package->getFileSize();
 						$package_info['file_last_modified'] = $package->getLastModified();
+						$package_info['etag']               = hash_file( 'md5', $package_info['file_path'] );
 						$package_info['digests']            = array(
-							'md5'     => hash_file( 'md5', $package_info['file_path'] ),
-							'sha-1'   => hash_file( 'sha', $package_info['file_path'] ),
-							'sha-256' => hash_file( 'sha256', $package_info['file_path'] ),
-							'sha-512' => hash_file( 'sha512', $package_info['file_path'] ),
+							'sha1'   => hash_file( 'sha', $package_info['file_path'] ),
+							'sha256' => hash_file( 'sha256', $package_info['file_path'] ),
+							'sha512' => hash_file( 'sha512', $package_info['file_path'] ),
+							'crc32'  => hash_file( 'crc32b', $package_info['file_path'] ),
+							'crc32c' => hash_file( 'crc32c', $package_info['file_path'] ),
 						);
 					}
 				}
