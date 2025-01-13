@@ -134,7 +134,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 							$info
 						)
 					) {
-						$this->remove_package( $safe_slug );
+						$this->remove_package( $safe_slug, true );
 
 						do_action( 'upserv_download_remote_package_aborted', $safe_slug, $this->type, $info );
 
@@ -142,7 +142,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 					}
 
 					if ( $info && ! is_wp_error( $info ) ) {
-						$this->remove_package( $safe_slug );
+						$this->remove_package( $safe_slug, true );
 
 						$package = $this->download_remote_package( $info['download_url'] );
 
@@ -251,6 +251,10 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 		if ( $force ) {
 			self::unlock_update_from_remote( $slug );
+		}
+
+		if ( self::is_update_from_remote_locked( $slug ) ) {
+			return false;
 		}
 
 		self::lock_update_from_remote( $slug );
