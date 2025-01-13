@@ -903,7 +903,7 @@ class UPServ_Cloud_Storage_Manager {
 					$package_info['file_size']          = $info['size'];
 					$package_info['file_last_modified'] = $info['time'];
 					$package_info['etag']               = $info['hash'];
-					$package_info['digest']             = array();
+					$package_info['digests']            = array();
 
 					foreach ( $digest_keys as $key ) {
 
