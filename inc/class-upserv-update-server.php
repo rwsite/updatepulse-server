@@ -28,6 +28,8 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	protected $update_checker;
 	protected $type;
 	protected $filter_packages_file_content;
+	protected $license_key;
+	protected $license_signature;
 
 	public function __construct(
 		$use_remote_repository,
@@ -140,8 +142,6 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 					}
 
 					if ( $info && ! is_wp_error( $info ) ) {
-						require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-zip-package-manager.php';
-
 						$this->remove_package( $safe_slug );
 
 						$package = $this->download_remote_package( $info['download_url'] );
@@ -306,6 +306,41 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 		$request->token = $request->param( 'token' );
 
+		if ( $request->param( 'license_key' ) ) {
+
+			if ( $request->param( 'licensed_with' ) ) {
+				$info = upserv_get_package_info( $request->slug, false );
+
+				if (
+					$info &&
+					isset( $info['licensed_with'] ) &&
+					$request->param( 'licensed_with' ) === $info['licensed_with']
+				) {
+					$main_package_info = upserv_get_package_info( $info['licensed_with'], false );
+					$result            = $this->verify_license_exists(
+						$info['licensed_with'],
+						$main_package_info['type'],
+						$request->param( 'license_key' )
+					);
+				}
+			}
+
+			if ( ! $result ) {
+				$result = $this->verify_license_exists(
+					$request->slug,
+					$request->type,
+					$request->param( 'license_key' )
+				);
+			}
+
+			$request->license_key       = $request->param( 'license_key' );
+			$request->license_signature = $request->param( 'license_signature' );
+			$request->license           = $result;
+
+			$this->license_key       = $request->license_key;
+			$this->license_signature = $request->license_signature;
+		}
+
 		return $request;
 	}
 
@@ -320,6 +355,21 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 			$this->exitWithError( $message, 403 );
 		}
+
+		if ( ! upserv_is_package_require_license( $request->slug ) ) {
+			return;
+		}
+
+		$license           = $request->license;
+		$license_signature = $request->license_signature;
+		$valid             = $this->is_license_valid( $license, $license_signature );
+
+		if (
+			'download' === $request->action &&
+			! apply_filters( 'upserv_license_valid', $valid, $license, $license_signature )
+		) {
+			$this->exitWithError( 'Invalid license key or signature.', 403 );
+		}
 	}
 
 	protected function generateDownloadUrl( Wpup_Package $package ) {
@@ -329,10 +379,17 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 		$query = array(
 			'action'      => 'download',
-			'token'       => upserv_create_nonce(),
 			'package_id'  => $package->slug,
 			'update_type' => $this->type,
 		);
+
+		if ( upserv_is_package_require_license( $package->slug )) {
+			$query['token']             = upserv_create_nonce( true, DAY_IN_SECONDS / 2 );
+			$query['license_key']       = $this->license_key;
+			$query['license_signature'] = $this->license_signature;
+		} else {
+			$query['token']= upserv_create_nonce();
+		}
 
 		return self::addQueryArg( $query, $this->serverUrl ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
@@ -460,6 +517,43 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		exit;
 	}
 
+	protected function filterMetadata( $meta, $request ) {
+		$meta = parent::filterMetadata( $meta, $request );
+
+		if ( ! upserv_is_package_require_license( $meta['slug'] ) ) {
+			return $meta;
+		}
+
+		$license           = $request->license;
+		$license_signature = $request->license_signature;
+
+		if ( is_object( $license ) || is_array( $license ) ) {
+			$meta['license'] = $this->prepare_license_for_output( $license );
+		}
+
+		if (
+			apply_filters(
+				'upserv_license_valid',
+				$this->is_license_valid( $license, $license_signature ),
+				$license,
+				$license_signature
+			)
+		) {
+			$args                 = array(
+				'license_key'       => $request->license_key,
+				'license_signature' => $request->license_signature,
+			);
+			$meta['download_url'] = self::addQueryArg( $args, $meta['download_url'] );
+		} else {
+			unset( $meta['download_url'] );
+			unset( $meta['license'] );
+
+			$meta['license_error'] = $this->get_license_error( $license );
+		}
+
+		return $meta;
+	}
+
 	// Misc. -------------------------------------------------------
 
 	protected static function unlock_update_from_remote( $slug ) {
@@ -546,9 +640,6 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 				E_USER_ERROR
 			);
 		}
-
-		require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/Puc/v5p3/Vcs/' . $api_class . '.php';
-		require UPSERV_PLUGIN_PATH . '/lib/plugin-update-checker/plugin-update-checker.php';
 
 		$api_class = 'YahnisElsts\PluginUpdateChecker\v5p3\Vcs\\' . $api_class;
 		$params    = array();
@@ -674,5 +765,100 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		}
 
 		return $local_filename;
+	}
+
+		protected function get_license_error( $license ) {
+
+		if ( ! $license ) {
+			$error = (object) array();
+
+			return $error;
+		}
+
+		if ( ! is_object( $license ) ) {
+			$error = (object) array(
+				'license_key' => $this->license_key,
+			);
+
+			return $error;
+		}
+
+		switch ( $license->status ) {
+			case 'blocked':
+				$error = (object) array(
+					'status' => 'blocked',
+				);
+
+				return $error;
+			case 'expired':
+				$error = (object) array(
+					'status'      => 'expired',
+					'date_expiry' => $license->date_expiry,
+				);
+
+				return $error;
+			case 'pending':
+				$error = (object) array(
+					'status' => 'pending',
+				);
+
+				return $error;
+			default:
+				$error = (object) array(
+					'status' => 'invalid',
+				);
+
+				return $error;
+		}
+	}
+
+	protected function verify_license_exists( $slug, $type, $license_key ) {
+		$license_server = new UPServ_License_Server();
+		$payload        = array( 'license_key' => $license_key );
+		$result         = $license_server->read_license( $payload );
+
+		if (
+			is_object( $result ) &&
+			$slug === $result->package_slug &&
+			strtolower( $type ) === strtolower( $result->package_type )
+		) {
+			$result->result  = 'success';
+			$result->message = __( 'License key details retrieved.', 'updatepulse-server' );
+		} else {
+			$result = false;
+		}
+
+		return $result;
+	}
+
+	protected function prepare_license_for_output( $license ) {
+		$output = json_decode( wp_json_encode( $license ), true );
+
+		unset( $output['id'] );
+		unset( $output['hmac_key'] );
+		unset( $output['crypto_key'] );
+		unset( $output['data'] );
+		unset( $output['owner_name'] );
+		unset( $output['email'] );
+		unset( $output['company_name'] );
+
+		return apply_filters( 'upserv_license_update_server_prepare_license_for_output', $output, $license );
+	}
+
+	protected function is_license_valid( $license, $license_signature ) {
+		$valid = false;
+
+		if ( is_object( $license ) && ! is_wp_error( $license ) && 'activated' === $license->status ) {
+
+			if ( apply_filters( 'upserv_license_bypass_signature', false, $license ) ) {
+				$valid = $this->license_key === $license->license_key;
+			} else {
+				$license_server = new UPServ_License_Server();
+				$valid          = $this->license_key === $license->license_key &&
+					$license_server->is_signature_valid( $license->license_key, $license_signature );
+			}
+		}
+
+		return $valid;
 	}
 }

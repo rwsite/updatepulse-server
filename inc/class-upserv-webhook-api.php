@@ -308,13 +308,9 @@ class UPServ_Webhook_API {
 	}
 
 	protected function handle_api_request() {
+		WP_Filesystem();
+
 		global $wp, $wp_filesystem;
-
-		if ( empty( $wp_filesystem ) ) {
-			require_once ABSPATH . '/wp-admin/includes/file.php';
-
-			WP_Filesystem();
-		}
 
 		if ( isset( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ) {
 			$this->handle_remote_test();

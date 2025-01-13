@@ -22,14 +22,10 @@ class UPServ_License_API {
 		if ( get_option( 'upserv_use_licenses' ) ) {
 
 			if ( $local_request ) {
-				require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-server.php';
-
 				$this->init_server();
 			}
 
 			if ( $init_hooks ) {
-				require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-server.php';
-				require_once UPSERV_PLUGIN_PATH . 'inc/class-crypto.php';
 
 				if ( ! self::is_doing_api_request() ) {
 					add_action( 'init', array( $this, 'add_endpoints' ), -99, 0 );
@@ -46,7 +42,6 @@ class UPServ_License_API {
 
 				add_filter( 'query_vars', array( $this, 'query_vars' ), -99, 1 );
 				add_filter( 'upserv_handle_update_request_params', array( $this, 'upserv_handle_update_request_params' ), 0, 1 );
-				add_filter( 'upserv_server_class_name', array( $this, 'upserv_server_class_name' ), 0, 2 );
 				add_filter( 'upserv_api_license_actions', array( $this, 'upserv_api_license_actions' ), 0, 1 );
 				add_filter( 'upserv_api_webhook_events', array( $this, 'upserv_api_webhook_events' ), 0, 1 );
 				add_filter( 'upserv_nonce_api_payload', array( $this, 'upserv_nonce_api_payload' ), 0, 1 );
@@ -501,19 +496,6 @@ class UPServ_License_API {
 				null;
 
 		return $params;
-	}
-
-	public function upserv_server_class_name( $class_name, $package_id ) {
-		$use_licenses        = get_option( 'upserv_use_licenses' );
-		$package_use_license = upserv_is_package_require_license( $package_id );
-
-		if ( $package_use_license && $use_licenses ) {
-			require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-update-server.php';
-
-			$class_name = __NAMESPACE__ . '\\UPServ_License_Update_Server';
-		}
-
-		return $class_name;
 	}
 
 	public function upserv_api_license_actions( $actions ) {

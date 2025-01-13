@@ -26,8 +26,6 @@ class UPServ_Cloud_Storage_Manager {
 	public const DOWNLOAD_URL_LIFETIME = MINUTE_IN_SECONDS;
 
 	public function __construct( $init_hooks = false ) {
-		require_once UPSERV_PLUGIN_PATH . 'lib/PhpS3/PhpS3.php';
-
 		$config = self::get_config();
 
 		if ( ! self::$cloud_storage instanceof PhpS3 ) {

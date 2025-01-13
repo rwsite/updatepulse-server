@@ -182,8 +182,6 @@ if ( ! function_exists( 'upserv_delete_package' ) ) {
 
 if ( ! function_exists( 'upserv_get_package_info' ) ) {
 	function upserv_get_package_info( $package_slug, $json_encode = true ) {
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
-
 		$result          = $json_encode ? '{}' : array();
 		$package_manager = new UPServ_Package_Manager();
 		$package_info    = $package_manager->get_package_info( $package_slug );
@@ -206,8 +204,6 @@ if ( ! function_exists( 'upserv_is_package_require_license' ) ) {
 
 if ( ! function_exists( 'upserv_get_batch_package_info' ) ) {
 	function upserv_get_batch_package_info( $search, $json_encode = true ) {
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
-
 		$result          = $json_encode ? '{}' : array();
 		$package_manager = new UPServ_Package_Manager();
 		$package_info    = $package_manager->get_batch_package_info( $search );
@@ -222,8 +218,6 @@ if ( ! function_exists( 'upserv_get_batch_package_info' ) ) {
 
 if ( ! function_exists( 'upserv_download_local_package' ) ) {
 	function upserv_download_local_package( $package_slug, $package_path = null, $exit_or_die = true ) {
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
-
 		$package_manager = new UPServ_Package_Manager();
 
 		if ( null === $package_path ) {
@@ -380,8 +374,6 @@ if ( ! function_exists( 'upserv_get_admin_template' ) ) {
 
 if ( ! function_exists( 'upserv_init_nonce_auth' ) ) {
 	function upserv_init_nonce_auth( $private_auth_key ) {
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-nonce.php';
-
 		UPServ_Nonce::init_auth( $private_auth_key );
 	}
 }
@@ -394,8 +386,6 @@ if ( ! function_exists( 'upserv_create_nonce' ) ) {
 		$return_type = UPServ_Nonce::NONCE_ONLY,
 		$store = true
 	) {
-		require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-nonce.php';
-
 		return UPServ_Nonce::create_nonce( $true_nonce, $expiry_length, $data, $return_type, $store );
 	}
 }

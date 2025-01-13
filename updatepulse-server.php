@@ -28,6 +28,7 @@ use Anyape\UpdatePulse\Server\UPServ_Package_Manager;
 use Anyape\UpdatePulse\Server\UPServ_License_Manager;
 use Anyape\UpdatePulse\Server\UPServ_API_Manager;
 use Anyape\UpdatePulse\Server\UPServ;
+use Anyape\Crypto\Crypto;
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before;
@@ -54,12 +55,7 @@ if ( ! defined( 'UPSERV_MB_TO_B' ) ) {
 }
 
 $require = array(
-	UPSERV_PLUGIN_PATH . 'inc/class-upserv-nonce.php',
-	UPSERV_PLUGIN_PATH . 'inc/class-upserv-data-manager.php',
-	UPSERV_PLUGIN_PATH . 'inc/class-upserv-cloud-storage-manager.php',
-	UPSERV_PLUGIN_PATH . 'inc/class-upserv-update-api.php',
-	UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-api.php',
-	UPSERV_PLUGIN_PATH . 'inc/class-upserv-webhook-api.php',
+	UPSERV_PLUGIN_PATH . 'autoload.php',
 );
 
 $require   = apply_filters( 'upserv_mu_require', $require );
@@ -85,21 +81,12 @@ if ( class_exists( 'Anyape\UpdatePulse\Server\UPServ_Nonce' ) ) {
 if ( ! UPServ_License_API::is_doing_api_request() ) {
 	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server/loader.php';
 	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server-extended/loader.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-update-server.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-api.php';
 }
 
 if (
 	! UPServ_Update_API::is_doing_api_request() &&
 	! UPServ_License_API::is_doing_api_request()
 ) {
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-remote-sources-manager.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-webhook-manager.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-package-manager.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-license-manager.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-api-manager.php';
-
 	$plugin_registration_classes = apply_filters(
 		'upserv_mu_plugin_registration_classes',
 		array(
@@ -128,7 +115,6 @@ if (
 
 if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
 	require_once UPSERV_PLUGIN_PATH . 'functions.php';
-	require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-cli.php';
 
 	WP_CLI::add_command( 'updatepulse-server', __NAMESPACE__ . '\\UPServ_CLI' );
 }
@@ -202,14 +188,10 @@ function upserv_run() {
 		}
 
 		if ( ! isset( $objects['package_manager'] ) ) {
-			require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-packages-table.php';
-
 			$objects['package_manager'] = new UPServ_Package_Manager( true );
 		}
 
 		if ( ! isset( $objects['license_manager'] ) ) {
-			require_once UPSERV_PLUGIN_PATH . 'inc/class-upserv-licenses-table.php';
-
 			$objects['license_manager'] = new UPServ_License_Manager( true );
 		}
 
