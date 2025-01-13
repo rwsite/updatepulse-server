@@ -305,7 +305,7 @@ class UPServ_Package_Manager {
 
 			if ( $valid && ! $parsed_info ) {
 				$valid      = false;
-				$error_text = __( 'The uploaded package is not a valid WordPress package, or if it is a plugin, the main plugin file could not be found.', 'updatepulse-server' );
+				$error_text = __( 'The uploaded package is not a valid Generic, Theme or Plugin package.', 'updatepulse-server' );
 			}
 
 			if ( $valid ) {
