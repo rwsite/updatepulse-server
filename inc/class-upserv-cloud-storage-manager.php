@@ -908,7 +908,7 @@ class UPServ_Cloud_Storage_Manager {
 					foreach ( $digest_keys as $key ) {
 
 						if ( isset( $info['x-amz-meta-updatepulse-digests-' . $key ] ) ) {
-							$package_info['digest'][ $key ] = $info['x-amz-meta-updatepulse-digests-' . $key ];
+							$package_info['digests'][ $key ] = $info['x-amz-meta-updatepulse-digests-' . $key ];
 						}
 					}
 				}
