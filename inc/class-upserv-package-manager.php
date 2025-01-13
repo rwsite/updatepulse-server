@@ -178,8 +178,6 @@ class UPServ_Package_Manager {
 			$slug = filter_input( INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( $slug ) {
-				UPServ_Update_Server::unlock_update_from_remote( $slug );
-
 				$api    = UPServ_Update_API::get_instance();
 				$result = $api->download_remote_package( $slug, null, true );
 			} else {
@@ -316,10 +314,7 @@ class UPServ_Package_Manager {
 				$slug        = str_replace( '.zip', '', $filename );
 				$type        = ucfirst( $parsed_info['type'] );
 				$destination = UPServ_Data_Manager::get_data_dir( 'packages' ) . $filename;
-
-				UPServ_Update_Server::unlock_update_from_remote( $filename );
-
-				$result = $wp_filesystem->move( $source, $destination, true );
+				$result      = $wp_filesystem->move( $source, $destination, true );
 			} else {
 				$result = false;
 
@@ -451,20 +446,11 @@ class UPServ_Package_Manager {
 			$package_name = $slug . '.zip';
 
 			if ( in_array( $package_name, $package_names, true ) ) {
-				$update_server_class = get_class( $update_server );
-				$result              = false;
+				do_action( 'upserv_package_manager_pre_delete_package', $slug );
 
-				if ( ! $update_server_class::is_update_from_remote_locked( $slug ) ) {
-					$update_server_class::lock_update_from_remote( $slug );
+				$result = $update_server->remove_package( $slug );
 
-					do_action( 'upserv_package_manager_pre_delete_package', $slug );
-
-					$result = $update_server->remove_package( $slug );
-
-					do_action( 'upserv_package_manager_deleted_package', $slug );
-
-					$update_server_class::unlock_update_from_remote( $slug );
-				}
+				do_action( 'upserv_package_manager_deleted_package', $slug, $result );
 
 				if ( $result ) {
 					$deleted_package_slugs[] = $slug;

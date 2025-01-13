@@ -210,7 +210,7 @@ class UPServ_Update_API {
 		$this->update_server->set_type( $type );
 
 		if ( $force || $this->update_server->check_remote_package_update( $slug ) ) {
-			$result = $this->update_server->save_remote_package_to_local( $slug );
+			$result = $this->update_server->save_remote_package_to_local( $slug, $force );
 		}
 
 		return $result;

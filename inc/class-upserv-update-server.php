@@ -54,37 +54,6 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 	// Misc. -------------------------------------------------------
 
-	public static function unlock_update_from_remote( $slug ) {
-		$locks = get_option( 'upserv_update_from_remote_locks' );
-
-		if ( ! is_array( $locks ) ) {
-			update_option( 'upserv_update_from_remote_locks', array() );
-		} elseif ( array_key_exists( $slug, $locks ) ) {
-			unset( $locks[ $slug ] );
-
-			update_option( 'upserv_update_from_remote_locks', $locks );
-		}
-	}
-
-	public static function lock_update_from_remote( $slug ) {
-		$locks = get_option( 'upserv_update_from_remote_locks' );
-
-		if ( ! is_array( $locks ) ) {
-			update_option( 'upserv_update_from_remote_locks', array( $slug => time() + self::LOCK_REMOTE_UPDATE_SEC ) );
-		} elseif ( ! array_key_exists( $slug, $locks ) ) {
-			$locks[ $slug ] = time() + self::LOCK_REMOTE_UPDATE_SEC;
-
-			update_option( 'upserv_update_from_remote_locks', $locks );
-		}
-	}
-
-	public static function is_update_from_remote_locked( $slug ) {
-		$locks     = get_option( 'upserv_update_from_remote_locks' );
-		$is_locked = is_array( $locks ) && array_key_exists( $slug, $locks ) && $locks[ $slug ] >= time();
-
-		return $is_locked;
-	}
-
 	public function pre_filter_package_info( $info, $api, $ref ) {
 		$abort        = true;
 		$_file        = apply_filters( 'upserv_filter_packages_filename', 'updatepulse.json' );
@@ -138,8 +107,12 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		return $info;
 	}
 
-	public function save_remote_package_to_local( $safe_slug ) {
+	public function save_remote_package_to_local( $safe_slug, $force = false ) {
 		$local_ready = false;
+
+		if ( $force ) {
+			self::unlock_update_from_remote( $safe_slug );
+		}
 
 		if ( ! self::is_update_from_remote_locked( $safe_slug ) ) {
 			self::lock_update_from_remote( $safe_slug );
@@ -271,10 +244,16 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		return $needs_update;
 	}
 
-	public function remove_package( $slug ) {
+	public function remove_package( $slug, $force = false ) {
 		WP_Filesystem();
 
 		global $wp_filesystem;
+
+		if ( $force ) {
+			self::unlock_update_from_remote( $slug );
+		}
+
+		self::lock_update_from_remote( $slug );
 
 		$package_path = trailingslashit( $this->packageDirectory ) . $slug . '.zip'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$result       = false;
@@ -306,6 +285,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		}
 
 		do_action( 'upserv_removed_package', $result, $type, $slug );
+		self::unlock_update_from_remote( $slug );
 
 		return $result;
 	}
@@ -481,6 +461,35 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	}
 
 	// Misc. -------------------------------------------------------
+
+	protected static function unlock_update_from_remote( $slug ) {
+		$locks = get_option( 'upserv_update_from_remote_locks' );
+		$locks = is_array( $locks ) ? $locks : array();
+
+		if ( array_key_exists( $slug, $locks ) ) {
+			unset( $locks[ $slug ] );
+		}
+
+		update_option( 'upserv_update_from_remote_locks', $locks );
+	}
+
+	protected static function lock_update_from_remote( $slug ) {
+		$locks = get_option( 'upserv_update_from_remote_locks', array() );
+		$locks = is_array( $locks ) ? $locks : array();
+
+		if ( ! array_key_exists( $slug, $locks ) ) {
+			$locks[ $slug ] = time() + self::LOCK_REMOTE_UPDATE_SEC;
+
+			update_option( 'upserv_update_from_remote_locks', $locks );
+		}
+	}
+
+	protected static function is_update_from_remote_locked( $slug ) {
+		$locks     = get_option( 'upserv_update_from_remote_locks' );
+		$is_locked = is_array( $locks ) && array_key_exists( $slug, $locks ) && $locks[ $slug ] >= time();
+
+		return $is_locked;
+	}
 
 	protected static function build_update_checker(
 		$metadata_url,
