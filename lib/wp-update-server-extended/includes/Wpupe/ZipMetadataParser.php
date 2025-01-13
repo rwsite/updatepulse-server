@@ -34,6 +34,15 @@ class Wpup_ZipMetadataParser_Extended extends Wpup_ZipMetadataParser {
 			$this->setSlug();
 			$this->setType();
 		} else {
+			php_log(
+				array(
+					'message'         => 'Error parsing package',
+					'filename'        => $this->filename,
+					'packageInfo'     => $this->packageInfo,
+					'debug_backtrace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 5)
+				),
+			);
+
 			throw new Wpup_InvalidPackageException(sprintf('The specified file %s does not contain a valid Generic package or WordPress plugin or theme.', $this->filename));
 		}
 	}

@@ -521,7 +521,10 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	protected function filterMetadata( $meta, $request ) {
 		$meta = parent::filterMetadata( $meta, $request );
 
-		if ( ! upserv_is_package_require_license( $meta['slug'] ) ) {
+		if (
+			! isset( $meta['slug'] ) ||
+			! upserv_is_package_require_license( $meta['slug'] )
+		) {
 			return $meta;
 		}
 
