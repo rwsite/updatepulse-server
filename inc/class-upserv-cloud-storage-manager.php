@@ -470,7 +470,7 @@ class UPServ_Cloud_Storage_Manager {
 				// 	PhpS3::ACL_PRIVATE,
 				// 	array(),
 				// 	array(
-				// 		'x-amz-checksum-sha256' => hash_file( 'sha256', $filename ),
+				// 		'x-amz-checksum-sha256' => base64_encode( hash_file( 'sha256', $filename ) ),
 				// 	),
 				// );
 
