@@ -80,11 +80,11 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 
 			$this->package_path = trailingslashit( $package_path );
 
-			if ( ! $wp_filesystem->exists( $package_path . '/updatepulse.json' ) ) {
+			if ( ! $wp_filesystem->exists( $this->package_path . 'updatepulse.json' ) ) {
 				throw new RuntimeException(
 					sprintf(
 						'The package updater cannot find the updatepulse.json file in "%s". ',
-						esc_html( htmlentities( $package_path ) )
+						esc_html( htmlentities( $this->package_path ) )
 					)
 				);
 			}
@@ -92,16 +92,15 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 			$info               = array();
 			$update_server_url  = $this->get_option( 'server' );
 			$file_path          = '';
-			$package_path_parts = explode( '/', $package_path );
+			$package_path_parts = explode( '/', untrailingslashit( $this->package_path ) );
+			$package_slug       = $package_path_parts[ count( $package_path_parts ) - 1 ];
 
 			$this->set_type();
 
 			if ( 'Plugin' === $this->type ) {
-				$package_slug      = $package_path_parts[ count( $package_path_parts ) - 2 ];
 				$this->package_url = plugin_dir_url( $package_file_path );
 				$file_path         = $package_file_path;
 			} elseif ( 'Theme' === $this->type ) {
-				$package_slug      = $package_path_parts[ count( $package_path_parts ) - 1 ];
 				$this->package_url = trailingslashit( get_theme_root_uri() ) . $package_slug;
 				$file_path         = dirname( $package_file_path ) . '/style.css';
 			}
@@ -622,11 +621,10 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 			}
 
 			if ( $other_package_slug && $this->package_path ) {
-				$package_path           = trailingslashit( $this->package_path );
-				$package_path           = explode( '/', $this->package_path );
-				$index                  = count( $package_path ) - 2;
-				$package_path[ $index ] = $other_package_slug;
-				$package_path           = implode( '/', $package_path );
+				$parts           = explode( '/', untrailingslashit( $this->package_path ) );
+				$index           = count( $parts ) - 1;
+				$parts[ $index ] = $other_package_slug;
+				$package_path    = trailingslashit( implode( '/', $package_path ) );
 
 				if ( $wp_filesystem->exists( $package_path . 'updatepulse.json' ) ) {
 					$updatepulse_json = $wp_filesystem->get_contents( $package_path . 'updatepulse.json' );
