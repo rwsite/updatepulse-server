@@ -113,26 +113,31 @@ class UPServ_License_API {
 		}
 
 		if ( ! is_array( $result ) ) {
-			$result                   = array( $result );
 			$this->http_response_code = 400;
+			$result                   = array( 'message' => $result );
 		} elseif ( empty( $result ) ) {
 			$this->http_response_code = 404;
 			$result                   = array(
+				'count'   => 0,
 				'message' => __( 'Licenses not found.', 'updatepulse-server' ),
 			);
+		} else {
+			$result['count'] = count( $result );
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function read( $license_data ) {
 		$result = $this->license_server->read_license( $license_data );
 
 		if ( ! is_object( $result ) ) {
+
 			if ( isset( $result['license_not_found'] ) ) {
 				$this->http_response_code = 404;
 			} else {
 				$this->http_response_code = 400;
+				$result                   = array();
 			}
 		} elseif ( ! isset( $result->license_key ) ) {
 			$this->http_response_code = 404;
@@ -145,11 +150,18 @@ class UPServ_License_API {
 	}
 
 	public function edit( $license_data ) {
-		unset( $license_data['data']['api_owner'] );
+
+		if ( upserv_is_doing_api_request() ) {
+
+			if ( ! $this->api_access || ! $this->api_key_id || ! in_array( 'other', $this->api_access, true ) ) {
+				unset( $license_data['data']['api_owner'] );
+			}
+		}
 
 		$result = $this->license_server->edit_license( $license_data );
 
 		if ( ! is_object( $result ) ) {
+
 			if ( isset( $result['license_not_found'] ) ) {
 				$this->http_response_code = 404;
 			} else {
@@ -162,7 +174,7 @@ class UPServ_License_API {
 			);
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function add( $license_data ) {
@@ -181,13 +193,14 @@ class UPServ_License_API {
 			$this->http_response_code = 400;
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function delete( $license_data ) {
 		$result = $this->license_server->delete_license( $license_data );
 
 		if ( ! is_object( $result ) ) {
+
 			if ( isset( $license['license_not_found'] ) ) {
 				$this->http_response_code = 404;
 			} else {
@@ -200,7 +213,7 @@ class UPServ_License_API {
 			);
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function check( $license_data ) {
@@ -209,14 +222,23 @@ class UPServ_License_API {
 		$raw_result   = array();
 
 		if ( is_object( $result ) ) {
-			$raw_result = clone $result;
+			$num_allowed_domains = 0;
+			$raw_result          = clone $result;
 
+			if ( isset( $result->allowed_domains ) && is_array( $result->allowed_domains ) ) {
+				$num_allowed_domains = count( $result->allowed_domains );
+			}
+
+			$result->num_allowed_domains = $num_allowed_domains;
+
+			unset( $result->allowed_domains );
 			unset( $result->hmac_key );
 			unset( $result->crypto_key );
 			unset( $result->data );
 			unset( $result->owner_name );
 			unset( $result->email );
 			unset( $result->company_name );
+			unset( $result->txn_id );
 		} else {
 			$result     = array(
 				'license_key' => isset( $license_data['license_key'] ) ?
@@ -234,7 +256,7 @@ class UPServ_License_API {
 			$this->http_response_code = 400;
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function activate( $license_data ) {
@@ -334,7 +356,7 @@ class UPServ_License_API {
 			$this->http_response_code = 400;
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function deactivate( $license_data ) {
@@ -439,7 +461,7 @@ class UPServ_License_API {
 			$this->http_response_code = 400;
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	// WordPress hooks ---------------------------------------------
@@ -911,8 +933,8 @@ class UPServ_License_API {
 						do_action( 'upserv_license_api_request', $method, $payload );
 
 						if ( method_exists( $this, $method ) ) {
-							$response                 = $this->$method( $payload );
-							$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+							$response               = $this->$method( $payload );
+							$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 						} else {
 							$this->http_response_code = 400;
 							$response                 = array(

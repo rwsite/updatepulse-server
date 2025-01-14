@@ -170,23 +170,21 @@ Response `$data` - **success**:
 	"id": "99",
 	"license_key": "example-license",
 	"max_allowed_domains": "2",
-	"allowed_domains": [
-		"domain1.example.com",
-	],
 	"status": "activated",
-	"txn_id": "#111111111",
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
 	"package_slug": "example-package",
-	"package_type": "plugin"
+	"package_type": "plugin",
+	"used_allowed_domains": "1",
+	"time_elapsed": "0.034"
 }
 ```
 
 Response `$data` - **failure** (in case of invalid `license_key`):
 ```json
 {
-	"license_key": "example-license"
+	"license_key": "example-license",
 }
 ```
 
@@ -219,7 +217,8 @@ Response `$data` - **success**:
 	"date_expiry": "2099-12-31",
 	"package_slug": "example-package",
 	"package_type": "plugin",
-	"license_signature": "some_complex_encrypted_string-some_complex_hmac"
+	"license_signature": "some_complex_encrypted_string-some_complex_hmac",
+	"time_elapsed": "0.034"
 }
 ```
 
@@ -280,7 +279,8 @@ Response `$data` - **success** (in case some domains are still activated):
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
 	"package_slug": "example-package",
-	"package_type": "plugin"
+	"package_type": "plugin",
+	"time_elapsed": "0.034"
 }
 ```
 
@@ -419,8 +419,8 @@ $params = array(
 
 Response `$data` - **success**:
 ```json
-[
-	{
+{
+	"example-license": {
 		"id": "99",
 		"license_key": "example-license",
 		"max_allowed_domains": "2",
@@ -442,9 +442,13 @@ Response `$data` - **success**:
 		},
 		"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
 		"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa"
-		},
-	...
-]
+	},
+	"another-license": {
+		...
+	},
+	"count": 2,
+	"time_elapsed": "0.021"
+}
 ```
 
 Response `$data` - **failure** (in case of malformed License Query - same as no result):
@@ -486,7 +490,8 @@ Response `$data` - **success**:
 		"api_owner": "private_key_id"
 	},
 	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa"
+	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+	"time_elapsed": "0.034"
 }
 ```
 
@@ -545,7 +550,8 @@ Response `$data` - **success**:
 		"api_owner": "private_key_id"
 	},
 	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa"
+	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+	"time_elapsed": "0.034"
 }
 ```
 
@@ -609,7 +615,8 @@ Response `$data` - **success**:
 		"api_owner": "private_key_id"
 	},
 	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa"
+	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+	"time_elapsed": "0.034"
 }
 ```
 
@@ -658,7 +665,8 @@ Response `$data` - **success**:
 		"api_owner": "private_key_id"
 	},
 	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa"
+	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+	"time_elapsed": "0.034"
 }
 ```
 

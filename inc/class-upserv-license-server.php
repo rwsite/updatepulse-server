@@ -114,17 +114,19 @@ class UPServ_License_Server {
 			$prepare_args[] = $browsing_query['offset'];
 		}
 
-		$licenses = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$rows     = $wpdb->get_results( $wpdb->prepare( $sql, $prepare_args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$licenses = array();
 
-		if ( ! empty( $licenses ) ) {
+		if ( ! empty( $rows ) ) {
 
-			foreach ( $licenses as $index => $license ) {
-				$licenses[ $index ]->max_allowed_domains = intval( $license->max_allowed_domains );
-				$licenses[ $index ]->allowed_domains     = maybe_unserialize( $license->allowed_domains );
-				$licenses[ $index ]->data                = json_decode( $license->data, true );
-				$licenses[ $index ]->data                = ( null === $license->data ) ?
+			foreach ( $rows as $row ) {
+				$row->max_allowed_domains      = intval( $row->max_allowed_domains );
+				$row->allowed_domains          = maybe_unserialize( $row->allowed_domains );
+				$row->data                     = json_decode( $row->data, true );
+				$row->data                     = ( null === $row->data ) ?
 					array() :
-					$license->data;
+					$row->data;
+				$licenses[ $row->license_key ] = $row;
 			}
 		}
 
