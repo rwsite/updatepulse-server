@@ -307,6 +307,10 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	protected function initRequest( $query = null, $headers = null ) {
 		$request = parent::initRequest( $query, $headers );
 
+		if ( ! upserv_is_package_whitelisted( $request->slug ) ) {
+			$this->exitWithError( 'Invalid package.', 404 );
+		}
+
 		if ( $request->param( 'type' ) ) {
 			$request->type = $request->param( 'type' );
 			$this->type    = ucfirst( $request->type );

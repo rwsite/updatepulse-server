@@ -210,7 +210,7 @@ class UPServ_Update_API {
 		$this->update_server->set_type( $type );
 
 		if ( ! upserv_is_package_whitelisted( $slug ) ) {
-			upserv_whitelist_package( $slug, $this->update_server->repository_service_url() );
+			upserv_whitelist_package( $slug, $this->update_server->get_repository_service_url() );
 		}
 
 		if ( $force || $this->update_server->check_remote_package_update( $slug ) ) {
