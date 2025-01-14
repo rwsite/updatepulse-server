@@ -41,7 +41,7 @@ class UPServ_Package_Manager {
 			add_action( 'wp_ajax_upserv_manual_package_upload', array( $this, 'manual_package_upload' ), 10, 0 );
 			add_action( 'load-toplevel_page_upserv-page', array( $this, 'add_page_options' ), 10, 0 );
 			add_action( 'upserv_package_manager_pre_delete_package', array( $this, 'upserv_package_manager_pre_delete_package' ), 10, 1 );
-			add_action( 'upserv_package_manager_deleted_package', array( $this, 'upserv_package_manager_deleted_package' ), 10, 1 );
+			add_action( 'upserv_package_manager_deleted_package', array( $this, 'upserv_package_manager_deleted_package' ), 20, 1 );
 			add_action( 'upserv_download_remote_package_aborted', array( $this, 'upserv_download_remote_package_aborted' ), 10, 3 );
 
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 10, 1 );

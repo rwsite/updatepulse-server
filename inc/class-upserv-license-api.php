@@ -33,12 +33,12 @@ class UPServ_License_API {
 
 				add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
 				add_action( 'upserv_pre_activate_license', array( $this, 'upserv_bypass_did_edit_license_action' ), 10, 0 );
-				add_action( 'upserv_did_activate_license', array( $this, 'upserv_did_license_action' ), 10, 2 );
+				add_action( 'upserv_did_activate_license', array( $this, 'upserv_did_license_action' ), 20, 2 );
 				add_action( 'upserv_pre_deactivate_license', array( $this, 'upserv_bypass_did_edit_license_action' ), 10, 0 );
-				add_action( 'upserv_did_deactivate_license', array( $this, 'upserv_did_license_action' ), 10, 2 );
-				add_action( 'upserv_did_add_license', array( $this, 'upserv_did_license_action' ), 10, 2 );
-				add_action( 'upserv_did_edit_license', array( $this, 'upserv_did_license_action' ), 10, 3 );
-				add_action( 'upserv_did_delete_license', array( $this, 'upserv_did_license_action' ), 10, 2 );
+				add_action( 'upserv_did_deactivate_license', array( $this, 'upserv_did_license_action' ), 20, 2 );
+				add_action( 'upserv_did_add_license', array( $this, 'upserv_did_license_action' ), 20, 2 );
+				add_action( 'upserv_did_edit_license', array( $this, 'upserv_did_license_action' ), 20, 3 );
+				add_action( 'upserv_did_delete_license', array( $this, 'upserv_did_license_action' ), 20, 2 );
 
 				add_filter( 'query_vars', array( $this, 'query_vars' ), -99, 1 );
 				add_filter( 'upserv_handle_update_request_params', array( $this, 'upserv_handle_update_request_params' ), 0, 1 );

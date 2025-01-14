@@ -24,10 +24,10 @@ class UPServ_Package_API {
 			}
 
 			add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
-			add_action( 'upserv_saved_remote_package_to_local', array( $this, 'upserv_saved_remote_package_to_local' ), 10, 3 );
-			add_action( 'upserv_pre_delete_package', array( $this, 'upserv_pre_delete_package' ), 10, 2 );
-			add_action( 'upserv_did_delete_package', array( $this, 'upserv_did_delete_package' ), 10, 3 );
-			add_action( 'upserv_did_download_package', array( $this, 'upserv_did_download_package' ), 10, 1 );
+			add_action( 'upserv_saved_remote_package_to_local', array( $this, 'upserv_saved_remote_package_to_local' ), 20, 3 );
+			add_action( 'upserv_pre_delete_package', array( $this, 'upserv_pre_delete_package' ), 0, 2 );
+			add_action( 'upserv_did_delete_package', array( $this, 'upserv_did_delete_package' ), 20, 3 );
+			add_action( 'upserv_did_download_package', array( $this, 'upserv_did_download_package' ), 20, 1 );
 
 			add_filter( 'query_vars', array( $this, 'query_vars' ), -99, 1 );
 			add_filter( 'upserv_api_package_actions', array( $this, 'upserv_api_package_actions' ), 0, 1 );
