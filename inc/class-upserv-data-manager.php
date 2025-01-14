@@ -18,6 +18,7 @@ class UPServ_Data_Manager {
 
 	public static $persistent_data_dirs = array(
 		'packages',
+		'whitelist',
 	);
 
 	public static $transient_data_db = array(

@@ -114,6 +114,42 @@ if ( ! function_exists( 'upserv_get_cache_data_dir' ) ) {
 	}
 }
 
+if ( ! function_exists( 'upserv_get_whitelist_data_dir' ) ) {
+	function upserv_get_whitelist_data_dir() {
+		return UPServ_Data_Manager::get_data_dir( 'whitelist' );
+	}
+}
+
+if ( ! function_exists( 'upserv_is_package_whitelisted' ) ) {
+	function upserv_is_package_whitelisted( $package_slug ) {
+		return UPServ_Package_Manager::get_instance()->is_package_whitelisted( $package_slug );
+	}
+}
+
+if ( ! function_exists( 'upserv_whitelist_package' ) ) {
+	function upserv_whitelist_package( $package_slug, $repository_service_url ) {
+		return UPServ_Package_Manager::get_instance()->whitelist_package(
+			$package_slug,
+			$repository_service_url
+		);
+	}
+}
+
+if ( ! function_exists( 'upserv_unwhitelist_package' ) ) {
+	function upserv_unwhitelist_package( $package_slug ) {
+		return UPServ_Package_Manager::get_instance()->unwhitelist_package( $package_slug );
+	}
+}
+
+if ( ! function_exists( 'upserv_get_package_whitelist_info' ) ) {
+	function upserv_get_package_whitelist_info( $package_slug, $json_encode = true ) {
+		return UPServ_Package_Manager::get_instance()->get_package_whitelist_info(
+			$package_slug,
+			$json_encode
+		);
+	}
+}
+
 if ( ! function_exists( 'upserv_force_cleanup_cache' ) ) {
 	function upserv_force_cleanup_cache() {
 		return UPServ_Data_Manager::maybe_cleanup( 'cache', true );

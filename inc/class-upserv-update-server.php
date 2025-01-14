@@ -56,6 +56,10 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 	// Misc. -------------------------------------------------------
 
+	public function get_repository_service_url() {
+		return $this->repository_service_url;
+	}
+
 	public function pre_filter_package_info( $info, $api, $ref ) {
 		$abort        = true;
 		$_file        = apply_filters( 'upserv_filter_packages_filename', 'updatepulse.json' );

@@ -453,6 +453,8 @@ class UPServ_Package_Manager {
 				do_action( 'upserv_package_manager_deleted_package', $slug, $result );
 
 				if ( $result ) {
+					upserv_unwhitelist_package( $slug );
+
 					$deleted_package_slugs[] = $slug;
 
 					unset( $this->rows[ $slug ] );
@@ -782,6 +784,96 @@ class UPServ_Package_Manager {
 		}
 
 		return $packages;
+	}
+
+	public function is_package_whitelisted( $package_slug ) {
+		$whitelist = upserv_get_whitelist_data_dir();
+		$filename  = sanitize_file_name( $package_slug . '.json' );
+
+		WP_Filesystem();
+
+		global $wp_filesystem;
+
+		return apply_filters(
+			'upserv_is_package_whitelisted',
+			$wp_filesystem->is_file( trailingslashit( $whitelist ) . $filename ),
+			$package_slug
+		);
+	}
+
+	public function whitelist_package( $package_slug, $repository_service_url ) {
+		$whitelist = upserv_get_whitelist_data_dir();
+		$filename  = sanitize_file_name( $package_slug . '.json' );
+		$data      = apply_filters(
+			'upserv_whitelist_package_data',
+			array(
+				'repository_service_url' => $repository_service_url,
+				'timestamp'              => time(),
+			),
+			$package_slug
+		);
+
+		WP_Filesystem();
+
+		global $wp_filesystem;
+
+		$result = (bool) $wp_filesystem->put_contents(
+			trailingslashit( $whitelist ) . $filename,
+			wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ),
+			FS_CHMOD_FILE
+		);
+
+		do_action(
+			'upserv_whitelist_package',
+			$package_slug,
+			$repository_service_url,
+			$result
+		);
+
+		return $result;
+	}
+
+	public function unwhitelist_package( $package_slug ) {
+		$whitelist = upserv_get_whitelist_data_dir();
+		$filename  = sanitize_file_name( $package_slug . '.json' );
+
+		WP_Filesystem();
+
+		global $wp_filesystem;
+
+		$result = (bool) $wp_filesystem->delete( trailingslashit( $whitelist ) . $filename );
+
+		do_action(
+			'upserv_unwhitelist_package',
+			$package_slug,
+			$result
+		);
+
+		return $result;
+	}
+
+	public function get_package_whitelist_info( $package_slug, $json_encode = true ) {
+		$whitelist = upserv_get_whitelist_data_dir();
+		$filename  = sanitize_file_name( $package_slug . '.json' );
+		$data      = $json_encode ? '{}' : array();
+
+		WP_Filesystem();
+
+		global $wp_filesystem;
+
+		if ( $wp_filesystem->is_file( trailingslashit( $whitelist ) . $filename ) ) {
+			$data = $wp_filesystem->get_contents( trailingslashit( $whitelist ) . $filename );
+
+			if ( ! $json_encode ) {
+				$data = json_decode( $data, true );
+			}
+		}
+
+		return apply_filters(
+			'upserv_get_package_whitelist_info',
+			$data,
+			$package_slug
+		);
 	}
 
 	/*******************************************************************
