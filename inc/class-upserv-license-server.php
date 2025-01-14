@@ -472,12 +472,6 @@ class UPServ_License_Server {
 		}
 	}
 
-	public function dispatch( $response, $response_status_code ) {
-		wp_send_json( $response, $response_status_code );
-
-		exit;
-	}
-
 	/*******************************************************************
 	 * Protected methods
 	 *******************************************************************/

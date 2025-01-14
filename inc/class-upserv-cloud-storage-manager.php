@@ -268,6 +268,11 @@ class UPServ_Cloud_Storage_Manager {
 	}
 
 	public function upserv_webhook_package_exists( $package_exists, $payload, $slug ) {
+
+		if ( null !== $package_exists ) {
+			return $package_exists;
+		}
+
 		$config = self::get_config();
 
 		try {
@@ -282,7 +287,7 @@ class UPServ_Cloud_Storage_Manager {
 				wp_cache_set( $slug . '-getObjectInfo', $info, 'updatepulse-server' );
 			}
 
-			return (bool) $info;
+			return null === $info ? $info : (bool) $info;
 		} catch ( PhpS3Exception $e ) {
 			php_log(
 				array(
@@ -907,8 +912,8 @@ class UPServ_Cloud_Storage_Manager {
 
 					foreach ( $digest_keys as $key ) {
 
-						if ( isset( $info['x-amz-meta-updatepulse-digests-' . $key ] ) ) {
-							$package_info['digests'][ $key ] = $info['x-amz-meta-updatepulse-digests-' . $key ];
+						if ( isset( $info[ 'x-amz-meta-updatepulse-digests-' . $key ] ) ) {
+							$package_info['digests'][ $key ] = $info[ 'x-amz-meta-updatepulse-digests-' . $key ];
 						}
 					}
 				}

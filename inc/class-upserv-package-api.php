@@ -598,6 +598,8 @@ class UPServ_Package_API {
 						} else {
 							$response = $this->$method( $payload );
 						}
+
+						$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 					} else {
 						$this->http_response_code = 400;
 						$response                 = array(
@@ -613,8 +615,6 @@ class UPServ_Package_API {
 			}
 
 			wp_send_json( $response, $this->http_response_code );
-
-			exit;
 		}
 	}
 

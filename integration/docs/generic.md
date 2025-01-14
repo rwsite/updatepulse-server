@@ -158,7 +158,7 @@ HTTP/1.1 200 OK
     "last_updated": "2024-01-01 00:00:00",
     "slug": "dummy-generic",
     "download_url": "https:\/\/server.domain.tld\/updatepulse-server-update-api\/?action=download&token=c0c403841752170640518823d752baba&package_id=dummy-generic",
-    "request_time_elapsed": "0.386"
+    "time_elapsed": "0.392"
 }
 
 ```
@@ -179,7 +179,7 @@ HTTP/1.1 200 OK
     "last_updated": "2024-01-01 00:00:00",
     "slug": "dummy-generic",
     "license_error": {},
-    "request_time_elapsed": "0.386"
+    "time_elapsed": "0.328"
 }
 ```
 ___
@@ -214,7 +214,7 @@ In case a valid license key is provided:
         "result": "success",
         "message": "License key details retrieved."
     },
-    "request_time_elapsed": "0.274"
+    "time_elapsed": "0.302"
 }
 ```
 

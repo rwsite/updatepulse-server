@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use DateTimeZone;
+use DateTime;
 use WP_Error;
 
 class UPServ_Webhook_API {
@@ -14,6 +16,7 @@ class UPServ_Webhook_API {
 	protected static $config;
 
 	protected $webhooks;
+	protected $http_response_code = 200;
 
 	public function __construct( $init_hooks = false ) {
 		$this->webhooks = json_decode( get_option( 'upserv_webhooks', '{}' ), true );
@@ -316,7 +319,8 @@ class UPServ_Webhook_API {
 			$this->handle_remote_test();
 		}
 
-		$config = self::get_config();
+		$config   = self::get_config();
+		$response = array();
 
 		do_action( 'upserv_webhook_before_handling_request', $config );
 
@@ -380,13 +384,19 @@ class UPServ_Webhook_API {
 
 				$hook = 'upserv_check_remote_' . $package_id;
 
-				as_unschedule_all_actions( $hook );
-				do_action( 'upserv_cleared_check_remote_schedule', $package_id, $hook );
-
 				if ( $package_exists ) {
-					$params = array( $package_id, $type, true );
+					$params           = array( $package_id, $type, true );
+					$result           = true;
+					$scheduled_action = as_next_scheduled_action( $hook, $params );
+					$timestamp        = is_int( $scheduled_action ) ? $scheduled_action : false;
 
-					if ( ! as_has_scheduled_action( $hook, $params ) ) {
+					if ( ! is_int( $scheduled_action ) ) {
+
+						if ( ! $scheduled_action ) {
+							as_unschedule_all_actions( $hook );
+							do_action( 'upserv_cleared_check_remote_schedule', $package_id, $hook );
+						}
+
 						$delay     = apply_filters( 'upserv_check_remote_delay', $delay, $package_id );
 						$timestamp = ( $delay ) ?
 							time() + ( abs( intval( $delay ) ) * MINUTE_IN_SECONDS ) :
@@ -403,8 +413,46 @@ class UPServ_Webhook_API {
 							$params
 						);
 					}
+
+					if ( $result ) {
+						$date = new DateTime( 'now', new DateTimeZone( wp_timezone_string() ) );
+
+						$date->setTimestamp( $timestamp );
+
+						$response['message'] = sprintf(
+						/* translators: %1$s: package ID, %2$s: scheduled date and time */
+							__( 'Package %1$s has been scheduled for download: %2$s.', 'updatepulse-server' ),
+							sanitize_title( $package_id ),
+							$date->format( 'Y-m-d H:i:s' ) . ' (' . wp_timezone_string() . ')'
+						);
+					} else {
+						$this->http_response_code = 400;
+						$response['message']      = sprintf(
+						/* translators: %s: package ID */
+							__( 'Failed to sechedule download for package %s.', 'updatepulse-server' ),
+							sanitize_title( $package_id )
+						);
+					}
 				} else {
-					upserv_download_remote_package( $package_id, $type );
+					as_unschedule_all_actions( $hook );
+					do_action( 'upserv_cleared_check_remote_schedule', $package_id, $hook );
+
+					$result = upserv_download_remote_package( $package_id, $type );
+
+					if ( $result ) {
+						$response['message'] = sprintf(
+						/* translators: %s: package ID */
+							__( 'Package %s downloaded.', 'updatepulse-server' ),
+							sanitize_title( $package_id )
+						);
+					} else {
+						$this->http_response_code = 400;
+						$response['message']      = sprintf(
+						/* translators: %s: package ID */
+							__( 'Failed to download package %s.', 'updatepulse-server' ),
+							sanitize_title( $package_id )
+						);
+					}
 				}
 
 				do_action(
@@ -416,21 +464,19 @@ class UPServ_Webhook_API {
 					$config
 				);
 			}
-		} else {
-			$package_id = isset( $wp->query_vars['package_id'] ) ?
-				trim( rawurldecode( $wp->query_vars['package_id'] ) ) :
-				null;
 
-			if ( $package_id ) {
-				php_log( 'Invalid request signature for ' . sanitize_title( $package_id ) );
-			} else {
-				php_log( 'Invalid request signature' );
-			}
+			$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+		} else {
+			$this->http_response_code = 403;
+			$response                 = array(
+				'message' => __( 'Invalid request signature', 'updatepulse-server' ),
+			);
 
 			do_action( 'upserv_webhook_invalid_request', $config );
 		}
 
-		do_action( 'upserv_webhook_after_handling_request', $config );
+		do_action( 'upserv_webhook_after_handling_request', $config, $response );
+		wp_send_json( $response, $this->http_response_code );
 	}
 
 	protected function validate_request( $config ) {

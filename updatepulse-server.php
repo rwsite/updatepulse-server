@@ -28,7 +28,6 @@ use Anyape\UpdatePulse\Server\UPServ_Package_Manager;
 use Anyape\UpdatePulse\Server\UPServ_License_Manager;
 use Anyape\UpdatePulse\Server\UPServ_API_Manager;
 use Anyape\UpdatePulse\Server\UPServ;
-use Anyape\Crypto\Crypto;
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before;

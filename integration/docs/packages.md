@@ -2740,7 +2740,7 @@ ___
 ### upserv_webhook_package_exists
 
 ```php
-apply_filters( 'upserv_webhook_package_exists', bool $package_exists, array $payload, string $package_slug, string $type, array $config );
+apply_filters( 'upserv_webhook_package_exists', bool|null $package_exists, array $payload, string $package_slug, string $type, array $config );
 ```
 
 **Description**  
@@ -2748,7 +2748,7 @@ Filter whether the package exists on the file system before processing the Webho
 
 **Parameters**  
 `$package_exists`
-> (bool) whether the package exists on the file system  
+> (bool|null) whether the package exists on the file system ; return `null` to leave the decision to the default behavior    
 
 `$payload`
 > (array) the payload of the request  

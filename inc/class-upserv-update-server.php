@@ -388,12 +388,12 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			'update_type' => $this->type,
 		);
 
-		if ( upserv_is_package_require_license( $package->slug )) {
+		if ( upserv_is_package_require_license( $package->slug ) ) {
 			$query['token']             = upserv_create_nonce( true, DAY_IN_SECONDS / 2 );
 			$query['license_key']       = $this->license_key;
 			$query['license_signature'] = $this->license_signature;
 		} else {
-			$query['token']= upserv_create_nonce();
+			$query['token'] = upserv_create_nonce();
 		}
 
 		return self::addQueryArg( $query, $this->serverUrl ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -514,8 +514,8 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			$meta['message'] = __( 'Invalid package.', 'updatepulse-server' );
 		}
 
-		$meta                         = $this->filterMetadata( $meta, $request );
-		$meta['request_time_elapsed'] = sprintf( '%.3f', microtime( true ) - $this->startTime ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$meta                 = $this->filterMetadata( $meta, $request );
+		$meta['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 
 		$this->outputAsJson( $meta );
 
@@ -775,7 +775,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		return $local_filename;
 	}
 
-		protected function get_license_error( $license ) {
+	protected function get_license_error( $license ) {
 
 		if ( ! $license ) {
 			$error = (object) array();

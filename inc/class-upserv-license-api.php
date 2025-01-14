@@ -462,6 +462,8 @@ class UPServ_License_API {
 
 		if ( isset( $wp->query_vars['__upserv_license_api'] ) ) {
 			$this->handle_api_request();
+
+			exit;
 		}
 	}
 
@@ -909,7 +911,8 @@ class UPServ_License_API {
 						do_action( 'upserv_license_api_request', $method, $payload );
 
 						if ( method_exists( $this, $method ) ) {
-							$response = $this->$method( $payload );
+							$response                 = $this->$method( $payload );
+							$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 						} else {
 							$this->http_response_code = 400;
 							$response                 = array(
@@ -930,7 +933,7 @@ class UPServ_License_API {
 				}
 			}
 
-			$this->license_server->dispatch( $response, $this->http_response_code );
+			wp_send_json( $response, $this->http_response_code );
 		}
 	}
 

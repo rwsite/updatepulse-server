@@ -339,7 +339,7 @@ function upserv_performance_stats_log() {
 
 	upserv_tests_log( '========================================================' );
 	upserv_tests_log( '--- Start load tests ---' );
-	upserv_tests_log( 'Time elapsed: ' . timer_stop() );
+	upserv_tests_log( 'Time elapsed: ' . sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] ) );
 	upserv_tests_log( 'Total server memory used: ' . upserv_get_formatted_memory( $mem_after ) . ' / ' . ini_get( 'memory_limit' ) );
 	upserv_tests_log( 'Total number of queries: ' . count( $wpdb->queries ) );
 	upserv_tests_log( 'Total number of scripts: ' . count( $scripts_after ) );
