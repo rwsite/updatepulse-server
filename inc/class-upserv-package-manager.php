@@ -673,7 +673,7 @@ class UPServ_Package_Manager {
 						$package_info['file_last_modified'] = $package->getLastModified();
 						$package_info['etag']               = hash_file( 'md5', $package_info['file_path'] );
 						$package_info['digests']            = array(
-							'sha1'   => hash_file( 'sha', $package_info['file_path'] ),
+							'sha1'   => hash_file( 'sha1', $package_info['file_path'] ),
 							'sha256' => hash_file( 'sha256', $package_info['file_path'] ),
 							'sha512' => hash_file( 'sha512', $package_info['file_path'] ),
 							'crc32'  => hash_file( 'crc32b', $package_info['file_path'] ),
