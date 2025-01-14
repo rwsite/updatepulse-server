@@ -174,16 +174,16 @@ if ( ! function_exists( 'upserv_download_remote_package' ) ) {
 
 if ( ! function_exists( 'upserv_delete_package' ) ) {
 	function upserv_delete_package( $slug ) {
-		$api = UPServ_Package_Manager::get_instance();
+		$package_manager = UPServ_Package_Manager::get_instance();
 
-		return (bool) $api->delete_packages_bulk( array( $slug ) );
+		return (bool) $package_manager->delete_packages_bulk( array( $slug ) );
 	}
 }
 
 if ( ! function_exists( 'upserv_get_package_info' ) ) {
 	function upserv_get_package_info( $package_slug, $json_encode = true ) {
 		$result          = $json_encode ? '{}' : array();
-		$package_manager = new UPServ_Package_Manager();
+		$package_manager = UPServ_Package_Manager::get_instance();
 		$package_info    = $package_manager->get_package_info( $package_slug );
 
 		if ( $package_info ) {
@@ -205,7 +205,7 @@ if ( ! function_exists( 'upserv_is_package_require_license' ) ) {
 if ( ! function_exists( 'upserv_get_batch_package_info' ) ) {
 	function upserv_get_batch_package_info( $search, $json_encode = true ) {
 		$result          = $json_encode ? '{}' : array();
-		$package_manager = new UPServ_Package_Manager();
+		$package_manager = UPServ_Package_Manager::get_instance();
 		$package_info    = $package_manager->get_batch_package_info( $search );
 
 		if ( $package_info ) {
@@ -218,7 +218,7 @@ if ( ! function_exists( 'upserv_get_batch_package_info' ) ) {
 
 if ( ! function_exists( 'upserv_download_local_package' ) ) {
 	function upserv_download_local_package( $package_slug, $package_path = null, $exit_or_die = true ) {
-		$package_manager = new UPServ_Package_Manager();
+		$package_manager = UPServ_Package_Manager::get_instance();
 
 		if ( null === $package_path ) {
 			$package_path = upserv_get_local_package_path( $package_slug );
