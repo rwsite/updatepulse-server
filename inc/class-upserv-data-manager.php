@@ -70,7 +70,7 @@ class UPServ_Data_Manager {
 
 			foreach ( array_merge( self::$transient_data_dirs, self::$persistent_data_dirs ) as $directory ) {
 
-				if ( ! $wp_filesystem->is_dir( $root_dir . DIRECTORY_SEPARATOR . $directory ) ) {
+				if ( ! $wp_filesystem->is_dir( $root_dir . $directory ) ) {
 					$result = $result && self::create_data_dir( $directory );
 				}
 			}

@@ -89,10 +89,10 @@ if (
 	$plugin_registration_classes = apply_filters(
 		'upserv_mu_plugin_registration_classes',
 		array(
-			__NAMESPACE__ . '\\UPServ',
-			__NAMESPACE__ . '\\UPServ_License_Manager',
-			__NAMESPACE__ . '\\UPServ_Nonce',
-			__NAMESPACE__ . '\\UPServ_Webhook_manager',
+			'Anyape\\UpdatePulse\\Server\\UPServ',
+			'Anyape\\UpdatePulse\\Server\\UPServ_License_Manager',
+			'Anyape\\UpdatePulse\\Server\\UPServ_Nonce',
+			'Anyape\\UpdatePulse\\Server\\UPServ_Webhook_manager',
 		)
 	);
 
