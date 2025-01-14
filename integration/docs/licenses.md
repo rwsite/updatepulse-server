@@ -159,8 +159,8 @@ ___
 
 ```php
 $params = array(
-	'action'      => 'check',        // Action to perform when calling the License API (required)
-	'license_key' => 'test-license', // The key of the license to check (required)
+	'action'      => 'check',           // Action to perform when calling the License API (required)
+	'license_key' => 'example-license', // The key of the license to check (required)
 );
 ```
 
@@ -168,7 +168,7 @@ Response `$data` - **success**:
 ```json
 {
 	"id": "99",
-	"license_key": "test-license",
+	"license_key": "example-license",
 	"max_allowed_domains": "2",
 	"allowed_domains": [
 		"domain1.example.com",
@@ -178,7 +178,7 @@ Response `$data` - **success**:
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
-	"package_slug": "test-package",
+	"package_slug": "example-package",
 	"package_type": "plugin"
 }
 ```
@@ -186,7 +186,7 @@ Response `$data` - **success**:
 Response `$data` - **failure** (in case of invalid `license_key`):
 ```json
 {
-	"license_key": "test-license"
+	"license_key": "example-license"
 }
 ```
 
@@ -195,10 +195,10 @@ ___
 
 ```php
 $params = array(
-	'action'          => 'activate',     // Action to perform when calling the License API (required)
-	'license_key'     => 'test-license', // The key of the license to activate for the provided domain (required)
-	'allowed_domains' => 'example.com',  // Domain name for which the license needs to be activated (required)
-	'package_slug'    => 'test-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
+	'action'          => 'activate',        // Action to perform when calling the License API (required)
+	'license_key'     => 'example-license', // The key of the license to activate for the provided domain (required)
+	'allowed_domains' => 'example.com',     // Domain name for which the license needs to be activated (required)
+	'package_slug'    => 'example-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
 );
 ```
 
@@ -206,7 +206,7 @@ Response `$data` - **success**:
 ```json
 {
 	"id": "99",
-	"license_key": "test-license",
+	"license_key": "example-license",
 	"max_allowed_domains": "2",
 	"allowed_domains": [
 		"domain1.example.com",
@@ -217,7 +217,7 @@ Response `$data` - **success**:
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
-	"package_slug": "test-package",
+	"package_slug": "example-package",
 	"package_type": "plugin",
 	"license_signature": "some_complex_encrypted_string-some_complex_hmac"
 }
@@ -226,7 +226,7 @@ Response `$data` - **success**:
 Response `$data` - **failure** (in case of invalid `license_key`):
 ```json
 {
-	"license_key": "test-license"
+	"license_key": "example-license"
 }
 ```
 
@@ -259,9 +259,9 @@ ___
 ```php
 $params = array(
 	'action'          => 'deactivate',           // Action to perform when calling the License API (required)
-	'license_key'     => 'test-license',         // The key of the license to activate for the provided domain (required)
+	'license_key'     => 'example-license',      // The key of the license to activate for the provided domain (required)
 	'allowed_domains' => array( 'example.com' ), // Domain name for which the license needs to be deactivated - can be a string (required)
-	'package_slug'    => 'test-package',         // The package slug - only alphanumeric characters and dashes are allowed (required)
+	'package_slug'    => 'example-package',      // The package slug - only alphanumeric characters and dashes are allowed (required)
 );
 ```
 
@@ -269,7 +269,7 @@ Response `$data` - **success** (in case some domains are still activated):
 ```json
 {
 	"id": "99",
-	"license_key": "test-license",
+	"license_key": "example-license",
 	"max_allowed_domains": "2",
 	"allowed_domains": [
 		"domain1.example.com",
@@ -279,7 +279,7 @@ Response `$data` - **success** (in case some domains are still activated):
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
-	"package_slug": "test-package",
+	"package_slug": "example-package",
 	"package_type": "plugin"
 }
 ```
@@ -287,7 +287,7 @@ Response `$data` - **success** (in case some domains are still activated):
 Response `$data` - **failure** (in case of invalid `license_key`):
 ```json
 {
-	"license_key": "test-license"
+	"license_key": "example-license"
 }
 ```
 
@@ -302,7 +302,7 @@ Response `$data` - **success** (in case all domains have been deactivated):
 ```json
 {
 	"id": "99",
-	"license_key": "test-license",
+	"license_key": "example-license",
 	"max_allowed_domains": "2",
 	"allowed_domains": [],
 	"status": "deactivated",
@@ -310,7 +310,7 @@ Response `$data` - **success** (in case all domains have been deactivated):
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
-	"package_slug": "test-package",
+	"package_slug": "example-package",
 	"package_type": "plugin"
 }
 ```
@@ -422,7 +422,7 @@ Response `$data` - **success**:
 [
 	{
 		"id": "99",
-		"license_key": "test-license",
+		"license_key": "example-license",
 		"max_allowed_domains": "2",
 		"allowed_domains": [
 			"domain1.example.com",
@@ -435,7 +435,7 @@ Response `$data` - **success**:
 		"date_created": "2099-12-01",
 		"date_renewed": "2099-12-15",
 		"date_expiry": "2099-12-31",
-		"package_slug": "test-package",
+		"package_slug": "example-package",
 		"package_type": "plugin",
 		"data": {
 			"api_owner": "private_key_id"
@@ -457,9 +457,9 @@ ___
 
 ```php
 $params = array(
-	'action'       => 'read',         // Action to perform when calling the License API (required)
-	'license_key'  => 'test-license', // The key of the license to read
-	'api_token'    => 'token',        // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+	'action'       => 'read',            // Action to perform when calling the License API (required)
+	'license_key'  => 'example-license', // The key of the license to read
+	'api_token'    => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -467,7 +467,7 @@ Response `$data` - **success**:
 ```json
 {
 	"id": "99",
-	"license_key": "test-license",
+	"license_key": "example-license",
 	"max_allowed_domains": "2",
 	"allowed_domains": [
 		"domain1.example.com",
@@ -480,7 +480,7 @@ Response `$data` - **success**:
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
-	"package_slug": "test-package",
+	"package_slug": "example-package",
 	"package_type": "plugin",
 	"data": {
 		"api_owner": "private_key_id"
@@ -500,10 +500,10 @@ ___
 
 ```php
 $params = array(
-	'action'              => 'edit',              // Action to perform when calling the License API (required)
-	'license_key'         => 'test-license-new',  // The key of the license to edit (required - used to identify the record to edit)
-	'max_allowed_domains' => '99',                // The maximum number of domains allowed to use the license - minimum 1 (required)
-	'allowed_domains'     => array(               // Domains currently allowed to use the license (optional)
+	'action'              => 'edit',                // Action to perform when calling the License API (required)
+	'license_key'         => 'example-license-new', // The key of the license to edit (required - used to identify the record to edit)
+	'max_allowed_domains' => '99',                  // The maximum number of domains allowed to use the license - minimum 1 (required)
+	'allowed_domains'     => array(                 // Domains currently allowed to use the license (optional)
 		'different1.example.com',
 		'different2.example.com',
 	),
@@ -525,7 +525,7 @@ Response `$data` - **success**:
 ```json
 {
 	"id": "99",
-	"license_key": "test-license-new",
+	"license_key": "example-license-new",
 	"max_allowed_domains": "99",
 	"allowed_domains": [
 		"different1.example.com",
@@ -565,24 +565,24 @@ ___
 
 ```php
 $params = array(
-	'action'              => 'add',           // Action to perform when calling the License API (required)
-	'license_key'         => 'test-license',  // The key of the license to add (required)
-	'max_allowed_domains' => '2',             // The maximum number of domains allowed to use the license - minimum 1 (required)
-	'allowed_domains'     => array(           // Domains currently allowed to use the license (optional)
+	'action'              => 'add',             // Action to perform when calling the License API (required)
+	'license_key'         => 'example-license', // The key of the license to add (required)
+	'max_allowed_domains' => '2',               // The maximum number of domains allowed to use the license - minimum 1 (required)
+	'allowed_domains'     => array(             // Domains currently allowed to use the license (optional)
 		'domain1.example.com',
 		'domain2.example.com',
 	),
-	'status'              => 'pending',       // The status of the license - one of pending, activated, deactivated, on-hold, blocked, expired (required)
-	'owner_name'          => 'Test Owner',    // The full name of the owner of the license (optional)
-	'email'               => 'test@test.com', // The email registered with the license (required)
-	'company_name'        => 'Test Company',  // The company of the owner of the license (optional)
-	'txn_id'              => '#111111111',    // If applicable, the transaction identifier associated to the purchase of the license (optional)
-	'date_created'        => '2099-12-01',    // Creation date of the license - YYYY-MM-DD  (required)
-	'date_renewed'        => '2099-12-015',   // Date of the last time the license was renewed -\n YYYY-MM-DD (optional)
-	'date_expiry'         => '2099-12-31',    // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
-	'package_slug'        => 'test-package',  // The package slug - only alphanumeric characters and dashes are allowed (required)
-	'package_type'        => 'plugin',        // Type of package the license is for - one of plugin, theme, generic (required)
-	'api_token'           => 'token',         // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+	'status'              => 'pending',         // The status of the license - one of pending, activated, deactivated, on-hold, blocked, expired (required)
+	'owner_name'          => 'Test Owner',      // The full name of the owner of the license (optional)
+	'email'               => 'test@test.com',   // The email registered with the license (required)
+	'company_name'        => 'Test Company',    // The company of the owner of the license (optional)
+	'txn_id'              => '#111111111',      // If applicable, the transaction identifier associated to the purchase of the license (optional)
+	'date_created'        => '2099-12-01',      // Creation date of the license - YYYY-MM-DD  (required)
+	'date_renewed'        => '2099-12-015',     // Date of the last time the license was renewed -\n YYYY-MM-DD (optional)
+	'date_expiry'         => '2099-12-31',      // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
+	'package_slug'        => 'example-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
+	'package_type'        => 'plugin',          // Type of package the license is for - one of plugin, theme, generic (required)
+	'api_token'           => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -590,7 +590,7 @@ Response `$data` - **success**:
 ```json
 {
 	"id": "99",
-	"license_key": "test-license",
+	"license_key": "example-license",
 	"max_allowed_domains": "2",
 	"allowed_domains": [
 		"domain1.example.com",
@@ -603,7 +603,7 @@ Response `$data` - **success**:
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
-	"package_slug": "test-package",
+	"package_slug": "example-package",
 	"package_type": "plugin",
 	"data": {
 		"api_owner": "private_key_id"
@@ -629,9 +629,9 @@ ___
 
 ```php
 $params = array(
-	'action'       => 'delete',       // Action to perform when calling the License API (required)
-	'license_key'  => 'test-license', // The key of the license to delete
-	'api_token'    => 'token',        // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+	'action'       => 'delete',          // Action to perform when calling the License API (required)
+	'license_key'  => 'example-license', // The key of the license to delete
+	'api_token'    => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
@@ -639,7 +639,7 @@ Response `$data` - **success**:
 ```json
 {
 	"id": "99",
-	"license_key": "test-license",
+	"license_key": "example-license",
 	"max_allowed_domains": "2",
 	"allowed_domains": [
 		"domain1.example.com",
@@ -652,7 +652,7 @@ Response `$data` - **success**:
 	"date_created": "2099-12-01",
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
-	"package_slug": "test-package",
+	"package_slug": "example-package",
 	"package_type": "plugin",
 	"data": {
 		"api_owner": "private_key_id"
