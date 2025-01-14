@@ -4,133 +4,141 @@
 UpdatePulse Server offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin when managing packages.  
 
 * [UpdatePulse Server - Packages - Developer documentation](#updatepulse-server---packages---developer-documentation)
-	* [API](#api)
-		* [Public API](#public-api)
-			* [download](#download)
-		* [Private API](#private-api)
-			* [browse](#browse)
-			* [read](#read)
-			* [edit](#edit)
-			* [add](#add)
-			* [delete](#delete)
-			* [signed\_url](#signed_url)
-	* [Functions](#functions)
-		* [upserv\_get\_root\_data\_dir](#upserv_get_root_data_dir)
-		* [upserv\_get\_packages\_data\_dir](#upserv_get_packages_data_dir)
-		* [upserv\_get\_logs\_data\_dir](#upserv_get_logs_data_dir)
-		* [upserv\_get\_cache\_data\_dir](#upserv_get_cache_data_dir)
-		* [upserv\_is\_doing\_update\_api\_request](#upserv_is_doing_update_api_request)
-		* [upserv\_is\_doing\_package\_api\_request](#upserv_is_doing_package_api_request)
-		* [upserv\_check\_remote\_package\_update](#upserv_check_remote_package_update)
-		* [upserv\_check\_remote\_plugin\_update](#upserv_check_remote_plugin_update)
-		* [upserv\_check\_remote\_theme\_update](#upserv_check_remote_theme_update)
-		* [upserv\_download\_remote\_package](#upserv_download_remote_package)
-		* [upserv\_download\_remote\_plugin](#upserv_download_remote_plugin)
-		* [upserv\_download\_remote\_theme](#upserv_download_remote_theme)
-		* [upserv\_force\_cleanup\_cache](#upserv_force_cleanup_cache)
-		* [upserv\_force\_cleanup\_logs](#upserv_force_cleanup_logs)
-		* [upserv\_force\_cleanup\_tmp](#upserv_force_cleanup_tmp)
-		* [upserv\_get\_local\_package\_path](#upserv_get_local_package_path)
-		* [upserv\_download\_local\_package](#upserv_download_local_package)
-		* [upserv\_delete\_package](#upserv_delete_package)
-		* [upserv\_get\_package\_info](#upserv_get_package_info)
-		* [upserv\_get\_batch\_package\_info](#upserv_get_batch_package_info)
-		* [upserv\_is\_package\_require\_license](#upserv_is_package_require_license)
-	* [Actions](#actions)
-		* [upserv\_primed\_package\_from\_remote](#upserv_primed_package_from_remote)
-		* [upserv\_did\_manual\_upload\_package](#upserv_did_manual_upload_package)
-		* [upserv\_before\_packages\_download](#upserv_before_packages_download)
-		* [upserv\_triggered\_package\_download](#upserv_triggered_package_download)
-		* [upserv\_scheduled\_check\_remote\_event](#upserv_scheduled_check_remote_event)
-		* [upserv\_registered\_check\_remote\_schedule](#upserv_registered_check_remote_schedule)
-		* [upserv\_cleared\_check\_remote\_schedule](#upserv_cleared_check_remote_schedule)
-		* [upserv\_scheduled\_cleanup\_event](#upserv_scheduled_cleanup_event)
-		* [upserv\_registered\_cleanup\_schedule](#upserv_registered_cleanup_schedule)
-		* [upserv\_cleared\_cleanup\_schedule](#upserv_cleared_cleanup_schedule)
-		* [upserv\_did\_cleanup](#upserv_did_cleanup)
-		* [upserv\_before\_handle\_update\_request](#upserv_before_handle_update_request)
-		* [upserv\_pre\_filter\_package\_info](#upserv_pre_filter_package_info)
-		* [upserv\_filter\_package\_info](#upserv_filter_package_info)
-		* [upserv\_download\_remote\_package\_aborted](#upserv_download_remote_package_aborted)
-		* [upserv\_downloaded\_remote\_package](#upserv_downloaded_remote_package)
-		* [upserv\_saved\_remote\_package\_to\_local](#upserv_saved_remote_package_to_local)
-		* [upserv\_checked\_remote\_package\_update](#upserv_checked_remote_package_update)
-		* [upserv\_removed\_package](#upserv_removed_package)
-		* [upserv\_before\_remote\_package\_zip](#upserv_before_remote_package_zip)
-		* [upserv\_did\_browse\_package](#upserv_did_browse_package)
-		* [upserv\_did\_read\_package](#upserv_did_read_package)
-		* [upserv\_did\_edit\_package](#upserv_did_edit_package)
-		* [upserv\_did\_add\_package](#upserv_did_add_package)
-		* [upserv\_pre\_delete\_package](#upserv_pre_delete_package)
-		* [upserv\_did\_delete\_package](#upserv_did_delete_package)
-		* [upserv\_did\_download\_package](#upserv_did_download_package)
-		* [upserv\_did\_signed\_url\_package](#upserv_did_signed_url_package)
-		* [upserv\_package\_api\_request](#upserv_package_api_request)
-		* [upserv\_remote\_sources\_options\_updated](#upserv_remote_sources_options_updated)
-		* [upserv\_package\_options\_updated](#upserv_package_options_updated)
-		* [upserv\_check\_remote\_update](#upserv_check_remote_update)
-		* [upserv\_udpdate\_manager\_request\_action](#upserv_udpdate_manager_request_action)
-		* [upserv\_package\_manager\_pre\_delete\_package](#upserv_package_manager_pre_delete_package)
-		* [upserv\_package\_manager\_deleted\_package](#upserv_package_manager_deleted_package)
-		* [upserv\_package\_manager\_pre\_delete\_packages\_bulk](#upserv_package_manager_pre_delete_packages_bulk)
-		* [upserv\_package\_manager\_deleted\_packages\_bulk](#upserv_package_manager_deleted_packages_bulk)
-		* [upserv\_before\_packages\_download\_repack](#upserv_before_packages_download_repack)
-		* [upserv\_triggered\_packages\_download](#upserv_triggered_packages_download)
-		* [upserv\_after\_packages\_download](#upserv_after_packages_download)
-		* [upserv\_get\_package\_info](#upserv_get_package_info-1)
-		* [upserv\_find\_package\_no\_cache](#upserv_find_package_no_cache)
-		* [upserv\_update\_server\_action\_download](#upserv_update_server_action_download)
-		* [upserv\_webhook\_before\_processing\_request](#upserv_webhook_before_processing_request)
-		* [upserv\_webhook\_after\_processing\_request](#upserv_webhook_after_processing_request)
-		* [upserv\_packages\_table\_cell](#upserv_packages_table_cell)
-	* [Filters](#filters)
-		* [upserv\_submitted\_package\_config](#upserv_submitted_package_config)
-		* [upserv\_submitted\_remote\_sources\_config](#upserv_submitted_remote_sources_config)
-		* [upserv\_schedule\_cleanup\_frequency](#upserv_schedule_cleanup_frequency)
-		* [upserv\_check\_remote\_frequency](#upserv_check_remote_frequency)
-		* [upserv\_handle\_update\_request\_params](#upserv_handle_update_request_params)
-		* [upserv\_update\_api\_config](#upserv_update_api_config)
-		* [upserv\_update\_server](#upserv_update_server)
-		* [upserv\_update\_checker](#upserv_update_checker)
-		* [upserv\_cloud\_storage\_virtual\_dir](#upserv_cloud_storage_virtual_dir)
-		* [upserv\_cloud\_storage\_api\_config](#upserv_cloud_storage_api_config)
-		* [upserv\_package\_api\_config](#upserv_package_api_config)
-		* [upserv\_package\_browse](#upserv_package_browse)
-		* [upserv\_package\_read](#upserv_package_read)
-		* [upserv\_package\_edit](#upserv_package_edit)
-		* [upserv\_package\_add](#upserv_package_add)
-		* [upserv\_package\_delete](#upserv_package_delete)
-		* [upserv\_package\_signed\_url](#upserv_package_signed_url)
-		* [upserv\_package\_signed\_url\_token](#upserv_package_signed_url_token)
-		* [upserv\_package\_public\_api\_actions](#upserv_package_public_api_actions)
-		* [upserv\_package\_api\_request\_authorized](#upserv_package_api_request_authorized)
-		* [upserv\_packages\_table\_columns](#upserv_packages_table_columns)
-		* [upserv\_packages\_table\_sortable\_columns](#upserv_packages_table_sortable_columns)
-		* [upserv\_packages\_table\_bulk\_actions](#upserv_packages_table_bulk_actions)
-		* [upserv\_use\_recurring\_schedule](#upserv_use_recurring_schedule)
-		* [upserv\_remote\_sources\_manager\_get\_package\_slugs](#upserv_remote_sources_manager_get_package_slugs)
-		* [upserv\_server\_class\_name](#upserv_server_class_name)
-		* [upserv\_delete\_packages\_bulk\_paths](#upserv_delete_packages_bulk_paths)
-		* [upserv\_package\_manager\_get\_package\_info](#upserv_package_manager_get_package_info)
-		* [upserv\_package\_manager\_package\_info](#upserv_package_manager_package_info)
-		* [upserv\_batch\_package\_info\_include](#upserv_batch_package_info_include)
-		* [upserv\_package\_manager\_get\_batch\_package\_info](#upserv_package_manager_get_batch_package_info)
-		* [upserv\_package\_manager\_batch\_package\_info](#upserv_package_manager_batch_package_info)
-		* [upserv\_check\_remote\_package\_update\_local\_meta](#upserv_check_remote_package_update_local_meta)
-		* [upserv\_check\_remote\_package\_update\_no\_local\_meta\_needs\_update](#upserv_check_remote_package_update_no_local_meta_needs_update)
-		* [upserv\_remove\_package\_result](#upserv_remove_package_result)
-		* [upserv\_update\_server\_action\_download\_handled](#upserv_update_server_action_download_handled)
-		* [upserv\_save\_remote\_to\_local](#upserv_save_remote_to_local)
-		* [upserv\_download\_remote\_package](#upserv_download_remote_package-1)
-		* [upserv\_repository\_filter\_packages](#upserv_repository_filter_packages)
-		* [upserv\_pre\_filter\_packages\_info](#upserv_pre_filter_packages_info)
-		* [upserv\_filter\_packages\_info](#upserv_filter_packages_info)
-		* [upserv\_filter\_packages\_filename](#upserv_filter_packages_filename)
-		* [upserv\_webhook\_package\_exists](#upserv_webhook_package_exists)
-		* [upserv\_webhook\_process\_request](#upserv_webhook_process_request)
-		* [upserv\_package\_option\_update](#upserv_package_option_update)
-		* [upserv\_remote\_source\_option\_update](#upserv_remote_source_option_update)
-		* [upserv\_api\_package\_actions](#upserv_api_package_actions)
+    * [API](#api)
+        * [Public API](#public-api)
+            * [download](#download)
+        * [Private API](#private-api)
+            * [browse](#browse)
+            * [read](#read)
+            * [edit](#edit)
+            * [add](#add)
+            * [delete](#delete)
+            * [signed\_url](#signed_url)
+    * [Functions](#functions)
+        * [upserv\_get\_root\_data\_dir](#upserv_get_root_data_dir)
+        * [upserv\_get\_packages\_data\_dir](#upserv_get_packages_data_dir)
+        * [upserv\_get\_logs\_data\_dir](#upserv_get_logs_data_dir)
+        * [upserv\_get\_cache\_data\_dir](#upserv_get_cache_data_dir)
+        * [upserv\_is\_doing\_update\_api\_request](#upserv_is_doing_update_api_request)
+        * [upserv\_is\_doing\_package\_api\_request](#upserv_is_doing_package_api_request)
+        * [upserv\_check\_remote\_package\_update](#upserv_check_remote_package_update)
+        * [upserv\_check\_remote\_plugin\_update](#upserv_check_remote_plugin_update)
+        * [upserv\_check\_remote\_theme\_update](#upserv_check_remote_theme_update)
+        * [upserv\_download\_remote\_package](#upserv_download_remote_package)
+        * [upserv\_download\_remote\_plugin](#upserv_download_remote_plugin)
+        * [upserv\_download\_remote\_theme](#upserv_download_remote_theme)
+        * [upserv\_force\_cleanup\_cache](#upserv_force_cleanup_cache)
+        * [upserv\_force\_cleanup\_logs](#upserv_force_cleanup_logs)
+        * [upserv\_force\_cleanup\_tmp](#upserv_force_cleanup_tmp)
+        * [upserv\_get\_local\_package\_path](#upserv_get_local_package_path)
+        * [upserv\_download\_local\_package](#upserv_download_local_package)
+        * [upserv\_delete\_package](#upserv_delete_package)
+        * [upserv\_get\_package\_info](#upserv_get_package_info)
+        * [upserv\_get\_batch\_package\_info](#upserv_get_batch_package_info)
+        * [upserv\_is\_package\_require\_license](#upserv_is_package_require_license)
+    * [Actions](#actions)
+        * [upserv\_primed\_package\_from\_remote](#upserv_primed_package_from_remote)
+        * [upserv\_did\_manual\_upload\_package](#upserv_did_manual_upload_package)
+        * [upserv\_before\_packages\_download](#upserv_before_packages_download)
+        * [upserv\_triggered\_package\_download](#upserv_triggered_package_download)
+        * [upserv\_scheduled\_check\_remote\_event](#upserv_scheduled_check_remote_event)
+        * [upserv\_registered\_check\_remote\_schedule](#upserv_registered_check_remote_schedule)
+        * [upserv\_cleared\_check\_remote\_schedule](#upserv_cleared_check_remote_schedule)
+        * [upserv\_scheduled\_cleanup\_event](#upserv_scheduled_cleanup_event)
+        * [upserv\_registered\_cleanup\_schedule](#upserv_registered_cleanup_schedule)
+        * [upserv\_cleared\_cleanup\_schedule](#upserv_cleared_cleanup_schedule)
+        * [upserv\_did\_cleanup](#upserv_did_cleanup)
+        * [upserv\_before\_handle\_update\_request](#upserv_before_handle_update_request)
+        * [upserv\_pre\_filter\_package\_info](#upserv_pre_filter_package_info)
+        * [upserv\_filter\_package\_info](#upserv_filter_package_info)
+        * [upserv\_download\_remote\_package\_aborted](#upserv_download_remote_package_aborted)
+        * [upserv\_downloaded\_remote\_package](#upserv_downloaded_remote_package)
+        * [upserv\_saved\_remote\_package\_to\_local](#upserv_saved_remote_package_to_local)
+        * [upserv\_checked\_remote\_package\_update](#upserv_checked_remote_package_update)
+        * [upserv\_removed\_package](#upserv_removed_package)
+        * [upserv\_before\_remote\_package\_zip](#upserv_before_remote_package_zip)
+        * [upserv\_did\_browse\_package](#upserv_did_browse_package)
+        * [upserv\_did\_read\_package](#upserv_did_read_package)
+        * [upserv\_did\_edit\_package](#upserv_did_edit_package)
+        * [upserv\_did\_add\_package](#upserv_did_add_package)
+        * [upserv\_pre\_delete\_package](#upserv_pre_delete_package)
+        * [upserv\_did\_delete\_package](#upserv_did_delete_package)
+        * [upserv\_did\_download\_package](#upserv_did_download_package)
+        * [upserv\_did\_signed\_url\_package](#upserv_did_signed_url_package)
+        * [upserv\_package\_api\_request](#upserv_package_api_request)
+        * [upserv\_remote\_sources\_options\_updated](#upserv_remote_sources_options_updated)
+        * [upserv\_package\_options\_updated](#upserv_package_options_updated)
+        * [upserv\_check\_remote\_update](#upserv_check_remote_update)
+        * [upserv\_udpdate\_manager\_request\_action](#upserv_udpdate_manager_request_action)
+        * [upserv\_package\_manager\_pre\_delete\_package](#upserv_package_manager_pre_delete_package)
+        * [upserv\_package\_manager\_deleted\_package](#upserv_package_manager_deleted_package)
+        * [upserv\_package\_manager\_pre\_delete\_packages\_bulk](#upserv_package_manager_pre_delete_packages_bulk)
+        * [upserv\_package\_manager\_deleted\_packages\_bulk](#upserv_package_manager_deleted_packages_bulk)
+        * [upserv\_before\_packages\_download\_repack](#upserv_before_packages_download_repack)
+        * [upserv\_triggered\_packages\_download](#upserv_triggered_packages_download)
+        * [upserv\_after\_packages\_download](#upserv_after_packages_download)
+        * [upserv\_get\_package\_info](#upserv_get_package_info-1)
+        * [upserv\_find\_package\_no\_cache](#upserv_find_package_no_cache)
+        * [upserv\_update\_server\_action\_download](#upserv_update_server_action_download)
+        * [upserv\_webhook\_before\_handling\_request](#upserv_webhook_before_handling_request)
+        * [upserv\_webhook\_before\_processing\_request](#upserv_webhook_before_processing_request)
+        * [upserv\_webhook\_after\_processing\_request](#upserv_webhook_after_processing_request)
+        * [upserv\_webhook\_after\_handling\_request](#upserv_webhook_after_handling_request)
+        * [upserv\_webhook\_invalid\_request](#upserv_webhook_invalid_request)
+        * [upserv\_packages\_table\_cell](#upserv_packages_table_cell)
+    * [Filters](#filters)
+        * [upserv\_submitted\_package\_config](#upserv_submitted_package_config)
+        * [upserv\_submitted\_remote\_sources\_config](#upserv_submitted_remote_sources_config)
+        * [upserv\_schedule\_cleanup\_frequency](#upserv_schedule_cleanup_frequency)
+        * [upserv\_check\_remote\_frequency](#upserv_check_remote_frequency)
+        * [upserv\_handle\_update\_request\_params](#upserv_handle_update_request_params)
+        * [upserv\_update\_api\_config](#upserv_update_api_config)
+        * [upserv\_update\_server](#upserv_update_server)
+        * [upserv\_update\_checker](#upserv_update_checker)
+        * [upserv\_cloud\_storage\_virtual\_dir](#upserv_cloud_storage_virtual_dir)
+        * [upserv\_cloud\_storage\_api\_config](#upserv_cloud_storage_api_config)
+        * [upserv\_package\_api\_config](#upserv_package_api_config)
+        * [upserv\_package\_browse](#upserv_package_browse)
+        * [upserv\_package\_read](#upserv_package_read)
+        * [upserv\_package\_edit](#upserv_package_edit)
+        * [upserv\_package\_add](#upserv_package_add)
+        * [upserv\_package\_delete](#upserv_package_delete)
+        * [upserv\_package\_signed\_url](#upserv_package_signed_url)
+        * [upserv\_package\_signed\_url\_token](#upserv_package_signed_url_token)
+        * [upserv\_package\_public\_api\_actions](#upserv_package_public_api_actions)
+        * [upserv\_package\_api\_request\_authorized](#upserv_package_api_request_authorized)
+        * [upserv\_packages\_table\_columns](#upserv_packages_table_columns)
+        * [upserv\_packages\_table\_sortable\_columns](#upserv_packages_table_sortable_columns)
+        * [upserv\_packages\_table\_bulk\_actions](#upserv_packages_table_bulk_actions)
+        * [upserv\_use\_recurring\_schedule](#upserv_use_recurring_schedule)
+        * [upserv\_remote\_sources\_manager\_get\_package\_slugs](#upserv_remote_sources_manager_get_package_slugs)
+        * [upserv\_server\_class\_name](#upserv_server_class_name)
+        * [upserv\_delete\_packages\_bulk\_paths](#upserv_delete_packages_bulk_paths)
+        * [upserv\_package\_manager\_get\_package\_info](#upserv_package_manager_get_package_info)
+        * [upserv\_package\_manager\_package\_info](#upserv_package_manager_package_info)
+        * [upserv\_batch\_package\_info\_include](#upserv_batch_package_info_include)
+        * [upserv\_package\_manager\_get\_batch\_package\_info](#upserv_package_manager_get_batch_package_info)
+        * [upserv\_package\_manager\_batch\_package\_info](#upserv_package_manager_batch_package_info)
+        * [upserv\_check\_remote\_package\_update\_local\_meta](#upserv_check_remote_package_update_local_meta)
+        * [upserv\_check\_remote\_package\_update\_no\_local\_meta\_needs\_update](#upserv_check_remote_package_update_no_local_meta_needs_update)
+        * [upserv\_remove\_package\_result](#upserv_remove_package_result)
+        * [upserv\_update\_server\_action\_download\_handled](#upserv_update_server_action_download_handled)
+        * [upserv\_save\_remote\_to\_local](#upserv_save_remote_to_local)
+        * [upserv\_download\_remote\_package](#upserv_download_remote_package-1)
+        * [upserv\_repository\_filter\_packages](#upserv_repository_filter_packages)
+        * [upserv\_pre\_filter\_packages\_info](#upserv_pre_filter_packages_info)
+        * [upserv\_filter\_packages\_info](#upserv_filter_packages_info)
+        * [upserv\_filter\_packages\_filename](#upserv_filter_packages_filename)
+        * [upserv\_webhook\_config](#upserv_webhook_config)
+        * [upserv\_webhook\_secret](#upserv_webhook_secret)
+        * [upserv\_webhook\_signature](#upserv_webhook_signature)
+        * [upserv\_webhook\_validate\_request](#upserv_webhook_validate_request)
+        * [upserv\_webhook\_package\_exists](#upserv_webhook_package_exists)
+        * [upserv\_webhook\_process\_request](#upserv_webhook_process_request)
+        * [upserv\_webhook\_response](#upserv_webhook_response)
+        * [upserv\_package\_option\_update](#upserv_package_option_update)
+        * [upserv\_remote\_source\_option\_update](#upserv_remote_source_option_update)
+        * [upserv\_api\_package\_actions](#upserv_api_package_actions)
 
 ## API
 
@@ -141,7 +149,7 @@ In case the API is accessed with an invalid `action` parameter, the following re
 Response `$data` - malformed request:
 ```json
 {
-	"message": "Package API action not found"
+    "message": "Package API action not found"
 }
 ```
 
@@ -151,30 +159,30 @@ The description of the API further below is using the following code as referenc
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme. generic), and package-slug with the slug of the package  
 
 $response = wp_remote_post(
-	$url,
-	array(
-		'method'      => 'POST',
-		'timeout'     => 45,
-		'redirection' => 5,
-		'httpversion' => '1.0',
-		'blocking'    => true,
-		'headers'     => array(),
-		'body'        => $params,
-		'cookies'     => array(),
-	);
+    $url,
+    array(
+        'method'      => 'POST',
+        'timeout'     => 45,
+        'redirection' => 5,
+        'httpversion' => '1.0',
+        'blocking'    => true,
+        'headers'     => array(),
+        'body'        => $params,
+        'cookies'     => array(),
+    );
 );
 
 if ( is_wp_error( $response ) ) {
-	printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
+    printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
 } else {
-	$data         = wp_remote_retrieve_body( $response );
-	$decoded_data = json_decode( $data );
+    $data         = wp_remote_retrieve_body( $response );
+    $decoded_data = json_decode( $data );
 
-	if ( '200' === $response['response']['code'] ) {
-		// Handle success with $decoded_data
-	} else {
-		// Handle failure with $decoded_data
-	}
+    if ( '200' === $response['response']['code'] ) {
+        // Handle success with $decoded_data
+    } else {
+        // Handle failure with $decoded_data
+    }
 }
 ```
 
@@ -191,13 +199,13 @@ The URL can also be built manually, with a token can also be acquired with the f
 
 ```php
 $params = array(
-	'data' => array(
-		'package_slug' => 'package-slug', // The slug of the package  
-		'type'         => 'package-type', // The type of package (plugin, theme, generic)
-		'actions'      => array(          // The actions the token can be used for
-			'download',
-		),
-	),
+    'data' => array(
+        'package_slug' => 'package-slug', // The slug of the package  
+        'type'         => 'package-type', // The type of package (plugin, theme, generic)
+        'actions'      => array(          // The actions the token can be used for
+            'download',
+        ),
+    ),
 );
 ```
 
@@ -212,8 +220,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-	'action' => 'download',    // Action to perform when calling the Package API (required)
-	'token'  => 'nonce_value', // The authorization token (required)
+    'action' => 'download',    // Action to perform when calling the Package API (required)
+    'token'  => 'nonce_value', // The authorization token (required)
 );
 ```
 
@@ -243,34 +251,34 @@ $url        = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.
 $api_key_id = getenv( 'UPSERV_LICENSE_API_KEY_ID' );          // This exampe assumes the API Key ID is stored in environment variables
 $api_key    = getenv( 'UPSERV_LICENSE_API_KEY' );             // This exampe assumes the API Key is stored in environment variables
 $payload    = array(
-	'api' => 'package', // The target API (required ; must be `'package'` to access the package Private API)
+    'api' => 'package', // The target API (required ; must be `'package'` to access the package Private API)
 );
 $cred_sign  = upserv_build_nonce_api_signature( $api_key_id, $api_key, time(), $payload );
 
 $payload['api_credentials'] = $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-UpdatePulse-API-Credentials header is absent)
 $payload['api_signature']   = $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case X-UpdatePulse-API-Signature header is absent)
 
-$response   = wp_remote_post(
-	$url,
-	array(
-		'headers' => array(
-			'X-UpdatePulse-API-Credentials' => $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case `api_credentials` is absent from the body)
-			'X-UpdatePulse-API-Signature'   => $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case `api_signature` is absent from the body)
-		),
-		'body'    => $payload
-	);
+$response = wp_remote_post(
+    $url,
+    array(
+        'headers' => array(
+            'X-UpdatePulse-API-Credentials' => $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case `api_credentials` is absent from the body)
+            'X-UpdatePulse-API-Signature'   => $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case `api_signature` is absent from the body)
+        ),
+        'body'    => $payload
+    );
 );
 
 if ( is_wp_error( $response ) ) {
-	printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
+    printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
 } else {
-	$data = wp_remote_retrieve_body( $response );
+    $data = wp_remote_retrieve_body( $response );
 
-	if ( '200' === $response['response']['code'] ) {
-		error_log( $data );
-	} else {
-		// Handle failure with $data
-	}
+    if ( '200' === $response['response']['code'] ) {
+        error_log( $data );
+    } else {
+        // Handle failure with $data
+    }
 }
 ```
 
@@ -297,7 +305,7 @@ In case the token is invalid, all the actions of the Private API return the same
 Response `$data` - forbidden access:
 ```json
 {
-	"message": "Unauthorized access"
+    "message": "Unauthorized access"
 }
 ```
 In case the Private API is accessed via the `GET` method, all the actions return the same response (message's language depending on available translations), with HTTP response code set to `405`:
@@ -305,7 +313,7 @@ In case the Private API is accessed via the `GET` method, all the actions return
 Response `$data` - unauthorized method:
 ```json
 {
-	"message": "Unauthorized GET method"
+    "message": "Unauthorized GET method"
 }
 ```
 ___
@@ -319,28 +327,29 @@ $url = 'https://domain.tld/updatepulse-server-package-api/'; // Replace domain.t
 
 ```php
 $params = array(
-	'action'       => 'browse',         // Action to perform when calling the Package API (required)
-	'browse_query' => wp_json_encode(   
-		array( 'search' => 'keyword' )
-	),                                 // the JSON representation of an array with a single key 'search' with the value being the keyword used to search in package's slug and package's name (optional - case insensitive)
-	'api_auth_key' => 'secret',        // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'       => 'browse',         // Action to perform when calling the Package API (required)
+    'browse_query' => wp_json_encode(   
+        array( 'search' => 'keyword' )
+    ),                                 // the JSON representation of an array with a single key 'search' with the value being the keyword used to search in package's slug and package's name (optional - case insensitive)
+    'api_auth_key' => 'secret',        // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
 Response `$data` - **success**:
 ```json
 {
-	"theme-slug": {
-		...
-	},
-	"plugin-slug": {
-	   ...
-	},
-	"generic-slug": {
-	   ...
-	},
-	...,
-	"count": 99
+    "theme-slug": {
+        ...
+    },
+    "plugin-slug": {
+       ...
+    },
+    "generic-slug": {
+       ...
+    },
+    ...,
+    "count": 99,
+    "time_elapsed": "0.025"
 }
 ```
 
@@ -362,8 +371,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-	'action'       => 'read',   // Action to perform when calling the Package API (required)
-	'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'       => 'read',   // Action to perform when calling the Package API (required)
+    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -372,73 +381,119 @@ Response `$data` - **success**:
 Values format in case of a plugin package:
 ```json
 {
-	"name": "Plugin Name",
-	"version": "1.4.14",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld\/",
-	"requires": "9.9.9",
-	"tested": "9.9.9",
-	"requires_php": "8.2",
-	"sections": {
-		"description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
-		"extra_section": "<p>An extra section.<\/p>",
-		"installation": "<p>Installation instructions.<\/p>",
-		"changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
-	},
-	"last_updated": "9999-00-00 99:99:99",
-	"icons": {
-		"1x": "https:\/\/domain.tld\/icon-128x128.png",
-		"2x": "https:\/\/domain.tld\/icon-256x256.png"
-	},
-	"banners": {
-		"low": "https:\/\/domain.tld\/banner-722x250.png",
-		"high": "https:\/\/domain.tld\/banner-1544x500.png"
-	},
-	"slug": "plugin-slug",
-	"type": "plugin",
-	"file_name": "plugin-slug.zip",
-	"file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Plugin Name",
+    "version": "1.4.14",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld\/",
+    "requires": "9.9.9",
+    "tested": "9.9.9",
+    "requires_php": "8.2",
+    "sections": {
+        "description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
+        "extra_section": "<p>An extra section.<\/p>",
+        "installation": "<p>Installation instructions.<\/p>",
+        "changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
+    },
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "plugin-slug",
+    "type": "plugin",
+    "file_name": "plugin-slug.zip",
+    "file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "659b08d161917b3730ec864f032ddfd2",
+    "digests": {
+        "crc32": "2e052a03",
+        "crc32c": "96f0852b",
+        "sha1": "a9c1a1578b66a8f7c9af14b6e250355adb93350c",
+        "sha256": "6e1acdb295fc9ba4a394397eec23e8b49d07b124256ff90655e1eb4e434a6b2d",
+        "sha512": "f6f2b9e05164bc5c7355c7e43decabab90ddc2198aa22a8c7057d221575b06570df9a571797b5b070475e3ddb10b73a28d1440dbc86ea6a76479046e19c12488"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
 Values format in case of a theme package:
 ```json
 {
-	"name": "Theme Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"details_url": "https:\/\/domain.tld\/",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "theme-slug",
-	"type": "theme",
-	"file_name": "theme-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Theme Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "details_url": "https:\/\/domain.tld\/",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "theme-slug",
+    "type": "theme",
+    "file_name": "theme-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "3430580951143a26c4990e51b20f10d8",
+    "digests": {
+        "crc32": "9c589e52",
+        "crc32c": "f5b14062",
+        "sha1": "7d62fd20935526bfd976abdd773b251cae17fb17",
+        "sha256": "3d61933a6d8a71e6debf0635b697fbf947913d0cacf310a6ddd69b2a1e7b6437",
+        "sha512": "1a38954ced94dba57081eed3579e60f6b666a6a795490937b210a9818bfe871bafc8a29a137dde6807ae03f203a57e5eb09173dd81788017f4711414f3d76c17"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
 Values format in case of a generic package:
 ```json
 {
-	"name": "Generic Package Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"description": "Generic package description.",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "generic-slug",
-	"type": "generic",
-	"file_name": "generic-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Generic Package Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "description": "Generic package description.",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "generic-slug",
+    "type": "generic",
+    "file_name": "generic-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "5029323eae58a054885b870303e51437",
+    "digests": {
+        "crc32": "fbd0e585",
+        "crc32c": "e4f2f215",
+        "sha1": "53b1078d4a3cc3f72ec3140b76d35d21e3a503be",
+        "sha256": "dc3b9a4cccd038fb5c335664891ecb0edd95f1314a2c19afe63e6334590364bc",
+        "sha512": "c6685c6cb30b9e63fc189de5cce4694fe0719afe44067b55fbc9234aee6dde0308f0575f0ffac9c7dbc1cf9ba87b587e9fd0c980738bf3e7bb25dd5946ab142d"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
@@ -458,8 +513,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-	'action'              => 'edit',   // Action to perform when calling the Package API (required)
-	'api_auth_key'        => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'              => 'edit',   // Action to perform when calling the Package API (required)
+    'api_auth_key'        => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -468,73 +523,119 @@ Response `$data` - **success**:
 Values format in case of a plugin package:
 ```json
 {
-	"name": "Plugin Name",
-	"version": "1.4.14",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld\/",
-	"requires": "9.9.9",
-	"tested": "9.9.9",
-	"requires_php": "8.2",
-	"sections": {
-		"description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
-		"extra_section": "<p>An extra section.<\/p>",
-		"installation": "<p>Installation instructions.<\/p>",
-		"changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
-	},
-	"last_updated": "9999-00-00 99:99:99",
-	"icons": {
-		"1x": "https:\/\/domain.tld\/icon-128x128.png",
-		"2x": "https:\/\/domain.tld\/icon-256x256.png"
-	},
-	"banners": {
-		"low": "https:\/\/domain.tld\/banner-722x250.png",
-		"high": "https:\/\/domain.tld\/banner-1544x500.png"
-	},
-	"slug": "plugin-slug",
-	"type": "plugin",
-	"file_name": "plugin-slug.zip",
-	"file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Plugin Name",
+    "version": "1.4.14",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld\/",
+    "requires": "9.9.9",
+    "tested": "9.9.9",
+    "requires_php": "8.2",
+    "sections": {
+        "description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
+        "extra_section": "<p>An extra section.<\/p>",
+        "installation": "<p>Installation instructions.<\/p>",
+        "changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
+    },
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-722x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "plugin-slug",
+    "type": "plugin",
+    "file_name": "plugin-slug.zip",
+    "file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "659b08d161917b3730ec864f032ddfd2",
+    "digests": {
+        "crc32": "2e052a03",
+        "crc32c": "96f0852b",
+        "sha1": "a9c1a1578b66a8f7c9af14b6e250355adb93350c",
+        "sha256": "6e1acdb295fc9ba4a394397eec23e8b49d07b124256ff90655e1eb4e434a6b2d",
+        "sha512": "f6f2b9e05164bc5c7355c7e43decabab90ddc2198aa22a8c7057d221575b06570df9a571797b5b070475e3ddb10b73a28d1440dbc86ea6a76479046e19c12488"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
 Values format in case of a theme package:
 ```json
 {
-	"name": "Theme Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"details_url": "https:\/\/domain.tld\/",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "theme-slug",
-	"type": "theme",
-	"file_name": "theme-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Theme Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "details_url": "https:\/\/domain.tld\/",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "theme-slug",
+    "type": "theme",
+    "file_name": "theme-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "3430580951143a26c4990e51b20f10d8",
+    "digests": {
+        "crc32": "9c589e52",
+        "crc32c": "f5b14062",
+        "sha1": "7d62fd20935526bfd976abdd773b251cae17fb17",
+        "sha256": "3d61933a6d8a71e6debf0635b697fbf947913d0cacf310a6ddd69b2a1e7b6437",
+        "sha512": "1a38954ced94dba57081eed3579e60f6b666a6a795490937b210a9818bfe871bafc8a29a137dde6807ae03f203a57e5eb09173dd81788017f4711414f3d76c17"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
 Values format in case of a generic package:
 ```json
 {
-	"name": "Generic Package Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"description": "Generic package description.",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "generic-slug",
-	"type": "generic",
-	"file_name": "generic-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Generic Package Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "description": "Generic package description.",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "generic-slug",
+    "type": "generic",
+    "file_name": "generic-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "5029323eae58a054885b870303e51437",
+    "digests": {
+        "crc32": "fbd0e585",
+        "crc32c": "e4f2f215",
+        "sha1": "53b1078d4a3cc3f72ec3140b76d35d21e3a503be",
+        "sha256": "dc3b9a4cccd038fb5c335664891ecb0edd95f1314a2c19afe63e6334590364bc",
+        "sha512": "c6685c6cb30b9e63fc189de5cce4694fe0719afe44067b55fbc9234aee6dde0308f0575f0ffac9c7dbc1cf9ba87b587e9fd0c980738bf3e7bb25dd5946ab142d"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
@@ -554,8 +655,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-	'action'              => 'add',    // Action to perform when calling the Package API (required)
-	'api_auth_key'        => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'              => 'add',    // Action to perform when calling the Package API (required)
+    'api_auth_key'        => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -565,73 +666,118 @@ Response `$data` - **success**:
 Values format in case of a plugin package:
 ```json
 {
-	"name": "Plugin Name",
-	"version": "1.4.14",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld\/",
-	"requires": "9.9.9",
-	"tested": "9.9.9",
-	"requires_php": "8.2",
-	"sections": {
-		"description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
-		"extra_section": "<p>An extra section.<\/p>",
-		"installation": "<p>Installation instructions.<\/p>",
-		"changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
-	},
-	"last_updated": "9999-00-00 99:99:99",
-	"icons": {
-		"1x": "https:\/\/domain.tld\/icon-128x128.png",
-		"2x": "https:\/\/domain.tld\/icon-256x256.png"
-	},
-	"banners": {
-		"low": "https:\/\/domain.tld\/banner-722x250.png",
-		"high": "https:\/\/domain.tld\/banner-1544x500.png"
-	},
-	"slug": "plugin-slug",
-	"type": "plugin",
-	"file_name": "plugin-slug.zip",
-	"file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Plugin Name",
+    "version": "1.4.14",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld\/",
+    "requires": "9.9.9",
+    "tested": "9.9.9",
+    "requires_php": "8.2",
+    "sections": {
+        "description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
+        "extra_section": "<p>An extra section.<\/p>",
+        "installation": "<p>Installation instructions.<\/p>",
+        "changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
+    },
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-722x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "slug": "plugin-slug",
+    "type": "plugin",
+    "file_name": "plugin-slug.zip",
+    "file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "659b08d161917b3730ec864f032ddfd2",
+    "digests": {
+        "crc32": "2e052a03",
+        "crc32c": "96f0852b",
+        "sha1": "a9c1a1578b66a8f7c9af14b6e250355adb93350c",
+        "sha256": "6e1acdb295fc9ba4a394397eec23e8b49d07b124256ff90655e1eb4e434a6b2d",
+        "sha512": "f6f2b9e05164bc5c7355c7e43decabab90ddc2198aa22a8c7057d221575b06570df9a571797b5b070475e3ddb10b73a28d1440dbc86ea6a76479046e19c12488"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
 Values format in case of a theme package:
 ```json
 {
-	"name": "Theme Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"details_url": "https:\/\/domain.tld\/",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "theme-slug",
-	"type": "theme",
-	"file_name": "theme-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Theme Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "details_url": "https:\/\/domain.tld\/",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "theme-slug",
+    "type": "theme",
+    "file_name": "theme-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "3430580951143a26c4990e51b20f10d8",
+    "digests": {
+        "crc32": "9c589e52",
+        "crc32c": "f5b14062",
+        "sha1": "7d62fd20935526bfd976abdd773b251cae17fb17",
+        "sha256": "3d61933a6d8a71e6debf0635b697fbf947913d0cacf310a6ddd69b2a1e7b6437",
+        "sha512": "1a38954ced94dba57081eed3579e60f6b666a6a795490937b210a9818bfe871bafc8a29a137dde6807ae03f203a57e5eb09173dd81788017f4711414f3d76c17"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
 Values format in case of a generic package:
 ```json
 {
-	"name": "Generic Package Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"description": "Generic package description.",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "generic-slug",
-	"type": "generic",
-	"file_name": "generic-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Generic Package Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "description": "Generic package description.",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "generic-slug",
+    "type": "generic",
+    "file_name": "generic-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999,
+    "etag": "5029323eae58a054885b870303e51437",
+    "digests": {
+        "crc32": "fbd0e585",
+        "crc32c": "e4f2f215",
+        "sha1": "53b1078d4a3cc3f72ec3140b76d35d21e3a503be",
+        "sha256": "dc3b9a4cccd038fb5c335664891ecb0edd95f1314a2c19afe63e6334590364bc",
+        "sha512": "c6685c6cb30b9e63fc189de5cce4694fe0719afe44067b55fbc9234aee6dde0308f0575f0ffac9c7dbc1cf9ba87b587e9fd0c980738bf3e7bb25dd5946ab142d"
+    },
+    "time_elapsed": "0.025"
 }
 ```
 
@@ -656,8 +802,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-	'action'       => 'delete', // Action to perform when calling the Package API (required)
-	'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'       => 'delete', // Action to perform when calling the Package API (required)
+    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -681,8 +827,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-	'action'       => 'signed_url', // Action to perform when calling the Package API (required)
-	'api_auth_key' => 'secret',     // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'       => 'signed_url', // Action to perform when calling the Package API (required)
+    'api_auth_key' => 'secret',     // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -691,14 +837,15 @@ Response `$data` - **success**:
 {
     "url": "https://domain.tld/updatepulse-server-package-api/package-type/package-slug/?token=nonce_value&action=download",
     "token": "nonce_value",
-    "expiry": 999999999
+    "expiry": 999999999,
+    "time_elapsed": "0.025"
 }
 ```
 
 Response `$data` - **failure** (`404` response code):
 ```json
 {
-	"message": "Package not found"
+    "message": "Package not found"
 }
 ```
 
@@ -777,7 +924,7 @@ ___
 ### upserv_is_doing_package_api_request
 
 ```php
-upserv_is_doing_package_api_request()
+upserv_is_doing_package_api_request();
 ```
 
 **Description**
@@ -790,7 +937,7 @@ ___
 ### upserv_check_remote_package_update
 
 ```php
-upserv_check_remote_package_update( $package_slug, $type )
+upserv_check_remote_package_update( $package_slug, $type );
 ```
 
 **Description**  
@@ -844,7 +991,7 @@ ___
 ### upserv_download_remote_package
 
 ```php
-upserv_download_remote_package( $slug, $type )
+upserv_download_remote_package( $slug, $type );
 ```
 
 **Description**  
@@ -971,7 +1118,7 @@ ___
 ### upserv_delete_package
 
 ```php
-upserv_delete_package( $slug )
+upserv_delete_package( $slug );
 ```
 
 **Description**  
@@ -987,7 +1134,7 @@ ___
 ### upserv_get_package_info
 
 ```php
-upserv_get_package_info( $package_slug, $json_encode = true )
+upserv_get_package_info( $package_slug, $json_encode = true );
 ```
 
 **Description**  
@@ -1006,80 +1153,99 @@ Get information about a package on the file system
 Values format in case of a plugin package:
 ```json
 {
-	"name": "Plugin Name",
-	"version": "1.4.14",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld\/",
-	"requires": "9.9.9",
-	"tested": "9.9.9",
-	"requires_php": "8.2",
-	"sections": {
-		"description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
-		"extra_section": "<p>An extra section.<\/p>",
-		"installation": "<p>Installation instructions.<\/p>",
-		"changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
-	},
-	"last_updated": "9999-00-00 99:99:99",
-	"icons": {
-		"1x": "https:\/\/domain.tld\/icon-128x128.png",
-		"2x": "https:\/\/domain.tld\/icon-256x256.png"
-	},
-	"banners": {
-		"low": "https:\/\/domain.tld\/banner-722x250.png",
-		"high": "https:\/\/domain.tld\/banner-1544x500.png"
-	},
-	"slug": "plugin-slug",
-	"type": "plugin",
-	"file_name": "plugin-slug.zip",
-	"file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Plugin Name",
+    "version": "1.4.14",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld\/",
+    "requires": "9.9.9",
+    "tested": "9.9.9",
+    "requires_php": "8.2",
+    "sections": {
+        "description": "<p>Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p>",
+        "extra_section": "<p>An extra section.<\/p>",
+        "installation": "<p>Installation instructions.<\/p>",
+        "changelog": "<p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p>"
+    },
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "plugin-slug",
+    "type": "plugin",
+    "file_name": "plugin-slug.zip",
+    "file_path": "\/webroot\/wp-content\/updatepulse-server\/packages\/plugin-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999
 }
 ```
 
 Values format in case of a theme package:
 ```json
 {
-	"name": "Theme Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"details_url": "https:\/\/domain.tld\/",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "theme-slug",
-	"type": "theme",
-	"file_name": "theme-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Theme Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "details_url": "https:\/\/domain.tld\/",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "theme-slug",
+    "type": "theme",
+    "file_name": "theme-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/theme-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999
 }
 ```
 
 Values format in case of a generic package:
 ```json
 {
-	"name": "Generic Package Name",
-	"version": "1.0.0",
-	"homepage": "https:\/\/domain.tld\/",
-	"author": "Author",
-	"author_homepage": "https:\/\/domain.tld",
-	"description": "Generic package description.",
-	"last_updated": "9999-00-00 99:99:99",
-	"slug": "generic-slug",
-	"type": "generic",
-	"file_name": "generic-slug.zip",
-	"file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
-	"file_size": 999,
-	"file_last_modified": 9999
+    "name": "Generic Package Name",
+    "version": "1.0.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "Author",
+    "author_homepage": "https:\/\/domain.tld",
+    "description": "Generic package description.",
+    "last_updated": "9999-00-00 99:99:99",
+    "icons": {
+        "1x": "https:\/\/domain.tld\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/icon-256x256.png"
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/banner-1544x500.png"
+    },
+    "require_license": false,
+    "slug": "generic-slug",
+    "type": "generic",
+    "file_name": "generic-slug.zip",
+    "file_path": "cloudStorage:\/updatepulse-packages\/generic-slug.zip",
+    "file_size": 999,
+    "file_last_modified": 9999
 }
 ```
 ___
 ### upserv_get_batch_package_info
 
 ```php
-upserv_get_batch_package_info( $search, $json_encode = true )
+upserv_get_batch_package_info( $search, $json_encode = true );
 ```
 
 **Description**  
@@ -1098,16 +1264,16 @@ Get batch information of packages on the file system
 Values format:
 ```json
 {
-	"theme-slug": {
-		...
-	},
-	"plugin-slug": {
-	   ...
-	},
-	"generic-slug": {
-	   ...
-	},
-	...
+    "theme-slug": {
+        ...
+    },
+    "plugin-slug": {
+       ...
+    },
+    "generic-slug": {
+       ...
+    },
+    ...
 }
 
 ```
@@ -1115,7 +1281,7 @@ ___
 ### upserv_is_package_require_license
 
 ```php
-upserv_is_package_require_license( $package_slug )
+upserv_is_package_require_license( $package_slug );
 ```
 
 **Description**  
@@ -1382,7 +1548,7 @@ ___
 ### upserv_pre_filter_package_info
 
 ```php
-	do_action( 'upserv_pre_filter_package_info', array $info );
+do_action( 'upserv_pre_filter_package_info', array $info );
 ```
 
 **Description**
@@ -1397,7 +1563,7 @@ ___
 ### upserv_filter_package_info
 
 ```php
-	do_action( 'upserv_filter_package_info', array $info );
+do_action( 'upserv_filter_package_info', array $info );
 ```
 
 **Description**
@@ -1412,7 +1578,7 @@ ___
 ### upserv_download_remote_package_aborted
 
 ```php
-	do_action( 'upserv_download_remote_package_aborted', string $slug, string $type, array $info );
+do_action( 'upserv_download_remote_package_aborted', string $slug, string $type, array $info );
 ```
 
 **Description**
@@ -1898,6 +2064,19 @@ Fired during client update API request.
 > (Wpup_Request) the request object  
 
 ___
+### upserv_webhook_before_handling_request
+
+```php
+do_action( 'upserv_webhook_before_handling_request', array $config );
+```
+
+**Description**
+Fired before handling a webhook request; fired whether it will be processed or not.
+
+**Parameters**
+`$config`
+> (array) the configuration used to handle webhook requests
+___
 ### upserv_webhook_before_processing_request
 
 ```php
@@ -1921,7 +2100,7 @@ Fired before processing a webhook request.
 > (bool) whether the package exists on the file system  
 
 `$config`
-> (array) the webhook configuration  
+> (array) the configuration used to handle webhook requests
 
 ___
 ### upserv_webhook_after_processing_request
@@ -1947,7 +2126,38 @@ Fired after a webhook request has been processed.
 > (bool) whether the package exists on the file system  
 
 `$config`
-> (array) the webhook configuration  
+> (array) the configuration used to handle webhook requests
+
+___
+### upserv_webhook_after_handling_request
+
+```php
+do_action( 'upserv_webhook_after_handling_request', array $config, array $response );
+```
+
+**Description**
+Fired after handling a webhook request; fired whether it was processed or not.
+
+**Parameters**
+`$config`
+> (array) the configuration used to handle webhook requests
+
+`$response`
+> (array) the response data that will be sent to the Remote Repository
+
+___
+### upserv_webhook_invalid_request
+
+```php
+do_action( 'upserv_webhook_invalid_request', array $config );
+```
+
+**Description**
+Fired when a webhook request is invalid.
+
+**Parameters**
+`$config`
+> (array) the configuration used to handle webhook requests
 
 ___
 ### upserv_packages_table_cell
@@ -2737,6 +2947,80 @@ Filter the name of the file used to filter the packages retrieved from the Remot
 > (string) the name of the file used to filter the packages retrieved from the Remote Repository Service
 
 ___
+### upserv_webhook_config
+
+```php
+apply_filters( 'upserv_webhook_config', array $config );
+```
+
+**Description**
+Filter the configuration used to handle webhook requests.
+
+**Parameters**
+`$config`
+> (array) the configuration used to handle webhook requests
+
+___
+### upserv_webhook_secret
+
+```php
+apply_filters( 'upserv_webhook_secret', string $shared_secret, array $config );
+```
+
+**Description**
+Filter the shared secret used to verify the signature of the webhook request.
+
+**Parameters**
+`$shared_secret`
+> (string) the shared secret used to verify the signature of the webhook request
+
+`$config`
+> (array) the configuration used to handle webhook requests
+
+___
+### upserv_webhook_signature
+
+```php
+apply_filters( 'upserv_webhook_signature', string $signature, string $shared_secret, array $config );
+```
+
+**Description**
+Filter the signature of the webhook request.
+
+**Parameters**
+`$signature`
+> (string) the signature of the webhook request
+
+`$shared_secret`
+> (string) the shared secret used to verify the signature of the webhook request
+
+`$config`
+> (array) the configuration used to handle webhook requests
+
+___
+### upserv_webhook_validate_request
+
+```php
+apply_filters( 'upserv_webhook_validate_request', bool $valid, string $sign, string $shared_secret, array $config );
+```
+
+**Description**
+Filter whether the webhook request is valid.
+
+**Parameters**
+`$valid`
+> (bool) whether the webhook request is valid
+
+`$sign`
+> (string) the signature of the webhook request
+
+`$shared_secret`
+> (string) the shared secret used to verify the signature of the webhook request
+
+`$config`
+> (array) the configuration used to handle webhook requests
+
+___
 ### upserv_webhook_package_exists
 
 ```php
@@ -2761,7 +3045,7 @@ Filter whether the package exists on the file system before processing the Webho
 
 
 `$config`
-> (array) the webhook configuration  
+> (array) the configuration used to handle webhook requests
 
 ___
 ### upserv_webhook_process_request
@@ -2790,7 +3074,27 @@ Filter whether to process the Webhook request.
 > (bool) whether the package exists on the file system  
 
 `$config`
-> (array) the webhook configuration  
+> (array) the configuration used to handle webhook requests
+
+___
+### upserv_webhook_response
+
+```php
+apply_filters( 'upserv_webhook_response', array $response, int $http_response_code, array $config );
+```
+
+**Description**
+Filter the response data to send to the Remote Repository Service after handling the webhook request.
+
+**Parameters**
+`$response`
+> (array) the response data to send to the Remote Repository Service
+
+`$http_response_code`
+> (int) the HTTP response code
+
+`$config`
+> (array) the configuration used to handle webhook requests
 
 ___
 ### upserv_package_option_update

@@ -395,7 +395,7 @@ ___
 ### upserv_is_doing_api_request
 
 ```php
-upserv_is_doing_api_request()
+upserv_is_doing_api_request();
 ```
 
 **Description**  
@@ -408,7 +408,7 @@ ___
 #### upserv_is_doing_webhook_api_request
 
 ```php
-upserv_is_doing_webhook_api_request()
+upserv_is_doing_webhook_api_request();
 ```
 
 **Description**  
@@ -421,7 +421,7 @@ ___
 #### upserv_init_nonce_auth
 
 ```php
-upserv_init_nonce_auth( array $private_keys )
+upserv_init_nonce_auth( array $private_keys );
 ```
 
 **Description**  
@@ -447,7 +447,7 @@ ___
 #### upserv_create_nonce
 
 ```php
-upserv_create_nonce( bool $true_nonce = true, int $expiry_length = UPServ_Nonce::DEFAULT_EXPIRY_LENGTH, array $data = array(), int $return_type = UPServ_Nonce::NONCE_ONLY, bool $store = true, bool|callable )
+upserv_create_nonce( bool $true_nonce = true, int $expiry_length = UPServ_Nonce::DEFAULT_EXPIRY_LENGTH, array $data = array(), int $return_type = UPServ_Nonce::NONCE_ONLY, bool $store = true, bool|callable );
 ```
 
 **Description**  
@@ -484,7 +484,7 @@ ___
 #### upserv_get_nonce_expiry
 
 ```php
-upserv_get_nonce_expiry( string $nonce )
+upserv_get_nonce_expiry( string $nonce );
 ```
 
 **Description**  
@@ -501,7 +501,7 @@ ___
 #### upserv_get_nonce_data
 
 ```php
-upserv_get_nonce_data( string $nonce )
+upserv_get_nonce_data( string $nonce );
 ```
 
 **Description**  
@@ -518,7 +518,7 @@ ___
 #### upserv_validate_nonce
 
 ```php
-upserv_validate_nonce( string $value )
+upserv_validate_nonce( string $value );
 ```
 
 **Description**  
@@ -536,7 +536,7 @@ ___
 #### upserv_delete_nonce
 
 ```php
-upserv_delete_nonce( string $value )
+upserv_delete_nonce( string $value );
 ```
 
 **Description**  
@@ -553,7 +553,7 @@ ___
 #### upserv_clear_nonce
 
 ```php
-upserv_clear_nonces()
+upserv_clear_nonces();
 ```
 
 **Description**  
@@ -566,7 +566,7 @@ ___
 #### upserv_build_nonce_api_signature
 
 ```php
-upserv_build_nonce_api_signature( string $api_key_id, string $api_key, int $timestamp, array $payload )
+upserv_build_nonce_api_signature( string $api_key_id, string $api_key, int $timestamp, array $payload );
 ```
 
 **Description**  
@@ -592,7 +592,7 @@ ___
 #### upserv_schedule_webhook
 
 ```php
-upserv_schedule_webhook( array $payload, string $event_type, bool $instant )
+upserv_schedule_webhook( array $payload, string $event_type, bool $instant );
 ```
 
 **Description**  
@@ -622,7 +622,7 @@ ___
 #### upserv_fire_webhook
 
 ```php
-upserv_fire_webhook( string $url, string $secret, string $body, string $action )
+upserv_fire_webhook( string $url, string $secret, string $body, string $action );
 ```
 
 **Description**  
@@ -643,7 +643,6 @@ Immediately send a event notification to `$url`, signed with `$secret` with resu
 
 **Return value**
 > (array|WP_Error) the response of the request in case of success, a `WP_Error` otherwise  
-
 ___
 ## Actions
 
@@ -731,7 +730,7 @@ array(
 	'plugin-slug/plugin-file.php',
 	'other-plugin-slug/other-plugin-file.php',
 	'plugin-folder/plugin-file.php',
-)
+);
 ```
 ___
 ### upserv_mu_optimizer_doing_api_request
@@ -1053,7 +1052,7 @@ ___
 ### upserv_api_webhook_events
 
 ```php
-apply_filters( 'upserv_api_webhook_events', array $events )
+apply_filters( 'upserv_api_webhook_events', array $events );
 ```
 
 **Description**  
@@ -1067,7 +1066,7 @@ ___
 ### upserv_webhook_fire
 
 ```php
-apply_filters( 'upserv_webhook_fire', bool $fire, array $payload, string $url, array $webhook_setting )
+apply_filters( 'upserv_webhook_fire', bool $fire, array $payload, string $url, array $webhook_setting );
 ```
 
 **Description**  
@@ -1089,7 +1088,7 @@ ___
 ### upserv_schedule_webhook_is_instant
 
 ```php
-apply_filters( 'upserv_schedule_webhook_is_instant', bool $instant, array $payload, string $event_type )
+apply_filters( 'upserv_schedule_webhook_is_instant', bool $instant, array $payload, string $event_type );
 ```
 
 **Description**
