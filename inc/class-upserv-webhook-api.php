@@ -475,6 +475,8 @@ class UPServ_Webhook_API {
 			do_action( 'upserv_webhook_invalid_request', $config );
 		}
 
+		$response = apply_filters( 'upserv_webhook_response', $response, $this->http_response_code, $config );
+
 		do_action( 'upserv_webhook_after_handling_request', $config, $response );
 		wp_send_json( $response, $this->http_response_code );
 	}
@@ -495,7 +497,7 @@ class UPServ_Webhook_API {
 				$sign = $_SERVER['HTTP_X_HUB_SIGNATURE'];
 			}
 
-			$sign = apply_filters( 'upserv_webhook_signature', $sign, $config );
+			$sign = apply_filters( 'upserv_webhook_signature', $sign, $secret, $config );
 
 			if ( $sign ) {
 				$sign_parts = explode( '=', $sign );
@@ -506,6 +508,6 @@ class UPServ_Webhook_API {
 			}
 		}
 
-		return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $config );
+		return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $config );
 	}
 }
