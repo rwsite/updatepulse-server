@@ -169,7 +169,13 @@ class UPServ_License_API {
 		if ( upserv_is_doing_api_request() ) {
 
 			if ( ! $this->api_access || ! $this->api_key_id || ! in_array( 'other', $this->api_access, true ) ) {
-				unset( $license_data['data']['api_owner'] );
+				$original = $this->read( $license_data );
+
+				if ( isset( $original->data, $original->data['api_owner'] ) ) {
+					$license_data['data']['api_owner'] = $original->data['api_owner'];
+				} else {
+					unset( $license_data['data']['api_owner'] );
+				}
 			}
 		}
 
