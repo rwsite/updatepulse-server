@@ -1,5 +1,5 @@
 # UpdatePulse Server - Packages - Developer documentation
-(Looking for the main documentation page instead? [See here](https://github.com/froger-me/wp-packages-update-server/blob/main/README.md))  
+(Looking for the main documentation page instead? [See here](https://github.com/anyape//blob/main/README.md))  
 
 UpdatePulse Server offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin when managing packages.  
 
@@ -189,7 +189,7 @@ if ( is_wp_error( $response ) ) {
 ___
 ### Public API
 
-The public API requires authorization through a nonce or token acquired via the [Nonce API](https://github.com/froger-me/wp-packages-update-server/blob/master/misc.md#nonce-api).
+The public API requires authorization through a nonce or token acquired via the [Nonce API](https://github.com/anyape//blob/master/misc.md#nonce-api).
 
 It provides a single operations: `download`.  
 
@@ -244,7 +244,7 @@ The Private API, only accessible via the POST method, requires extra authenticat
 The first action, `browse`, is particular in the sense that, unlike the other actions, its endpoint must not include the `package-type/package-slug` part of the query string (`$url = 'https://domain.tld/updatepulse-server-package-api/';`).  
 With the Private API, depending on granted privileges, developers can theoretically perform any operation on the packages stored by UpdatePulse Server - **be careful to keep the Private API Authentication Key an absolute secret!**
 
-To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/froger-me/wp-packages-update-server/blob/master/misc.md#nonce-api) ; for example:
+To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/anyape//blob/master/misc.md#nonce-api) ; for example:
 
 ```php
 $url        = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.

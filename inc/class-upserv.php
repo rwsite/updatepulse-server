@@ -139,7 +139,7 @@ class UPServ {
 	}
 
 	public function load_textdomain() {
-		load_plugin_textdomain( 'updatepulse-server', false, 'wp-packages-update-server/languages' );
+		load_plugin_textdomain( 'updatepulse-server', false, '/languages' );
 	}
 
 	public function upserv_admin_styles( $styles ) {

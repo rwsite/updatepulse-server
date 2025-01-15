@@ -37,7 +37,7 @@ class UPServ_License_Manager {
 			add_action( 'admin_menu', array( $this, 'admin_menu' ), 20, 0 );
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 20, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 20, 2 );
-			add_action( 'load-wp-packages-update-server_page_upserv-page-licenses', array( $this, 'add_page_options' ), 10, 0 );
+			add_action( 'load-_page_upserv-page-licenses', array( $this, 'add_page_options' ), 10, 0 );
 
 			add_filter( 'set-screen-option', array( $this, 'set_page_options' ), 10, 3 );
 			add_filter( 'upserv_page_upserv_scripts_l10n', array( $this, 'upserv_page_upserv_scripts_l10n' ), 10, 1 );

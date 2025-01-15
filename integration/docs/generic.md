@@ -1,5 +1,5 @@
 # UpdatePulse Server - Generic Updates Integration - Developer documentation
-(Looking for the main documentation page instead? [See here](https://github.com/froger-me/updatepulse-server/blob/main/README.md))
+(Looking for the main documentation page instead? [See here](https://github.com/anyape/updatepulse-server/blob/main/README.md))
 
 API calls can be used by generic client packages to interact with the UpdatePulse Server from any language or framework to request updates.  
 This document focuses on generic packages - WordPress plugins and themes are supported out of the box, and full integration examples are provided.  
