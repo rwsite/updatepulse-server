@@ -15,18 +15,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Anyape\UpdatePulse\Updater\V2_0\UpdatePulse_Updater;
-use Anyape\UpdatePulse\Server\UPServ_Nonce;
-use Anyape\UpdatePulse\Server\UPServ_License_API;
-use Anyape\UpdatePulse\Server\UPServ_Webhook_API;
-use Anyape\UpdatePulse\Server\UPServ_Update_API;
-use Anyape\UpdatePulse\Server\UPServ_Package_API;
-use Anyape\UpdatePulse\Server\UPServ_Cloud_Storage_Manager;
-use Anyape\UpdatePulse\Server\UPServ_Data_Manager;
-use Anyape\UpdatePulse\Server\UPServ_Remote_Sources_Manager;
-use Anyape\UpdatePulse\Server\UPServ_Webhook_Manager;
-use Anyape\UpdatePulse\Server\UPServ_Package_Manager;
-use Anyape\UpdatePulse\Server\UPServ_License_Manager;
-use Anyape\UpdatePulse\Server\UPServ_API_Manager;
+use Anyape\UpdatePulse\Server\Nonce\Nonce;
+use Anyape\UpdatePulse\Server\API\License_API;
+use Anyape\UpdatePulse\Server\API\Webhook_API;
+use Anyape\UpdatePulse\Server\API\Update_API;
+use Anyape\UpdatePulse\Server\API\Package_API;
+use Anyape\UpdatePulse\Server\Manager\Cloud_Storage_Manager;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Manager\Remote_Sources_Manager;
+use Anyape\UpdatePulse\Server\Manager\Webhook_Manager;
+use Anyape\UpdatePulse\Server\Manager\Package_Manager;
+use Anyape\UpdatePulse\Server\Manager\License_Manager;
+use Anyape\UpdatePulse\Server\Manager\API_Manager;
 use Anyape\UpdatePulse\Server\UPServ;
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
@@ -67,9 +67,9 @@ foreach ( $require as $file ) {
 	}
 }
 
-if ( class_exists( 'Anyape\UpdatePulse\Server\UPServ_Nonce' ) ) {
-	UPServ_Nonce::register();
-	UPServ_Nonce::init_auth(
+if ( class_exists( 'Anyape\UpdatePulse\Server\Nonce' ) ) {
+	Nonce::register();
+	Nonce::init_auth(
 		array_merge(
 			json_decode( get_option( 'upserv_package_private_api_keys', '{}' ), true ),
 			json_decode( get_option( 'upserv_license_private_api_keys', '{}' ), true ),
@@ -77,22 +77,22 @@ if ( class_exists( 'Anyape\UpdatePulse\Server\UPServ_Nonce' ) ) {
 	);
 }
 
-if ( ! UPServ_License_API::is_doing_api_request() ) {
+if ( ! License_API::is_doing_api_request() ) {
 	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server/loader.php';
 	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server-extended/loader.php';
 }
 
 if (
-	! UPServ_Update_API::is_doing_api_request() &&
-	! UPServ_License_API::is_doing_api_request()
+	! Update_API::is_doing_api_request() &&
+	! License_API::is_doing_api_request()
 ) {
 	$plugin_registration_classes = apply_filters(
 		'upserv_mu_plugin_registration_classes',
 		array(
 			'Anyape\\UpdatePulse\\Server\\UPServ',
-			'Anyape\\UpdatePulse\\Server\\UPServ_License_Manager',
-			'Anyape\\UpdatePulse\\Server\\UPServ_Nonce',
-			'Anyape\\UpdatePulse\\Server\\UPServ_Webhook_manager',
+			'Anyape\\UpdatePulse\\Server\\Manager\\License_Manager',
+			'Anyape\\UpdatePulse\\Server\\Nonce\\Nonce',
+			'Anyape\\UpdatePulse\\Server\\Manager\\Webhook_manager',
 		)
 	);
 
@@ -115,7 +115,7 @@ if (
 if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
 	require_once UPSERV_PLUGIN_PATH . 'functions.php';
 
-	WP_CLI::add_command( 'updatepulse-server', __NAMESPACE__ . '\\UPServ_CLI' );
+	WP_CLI::add_command( 'updatepulse-server', 'Anyape\\UpdatePulse\\Server\\CLI\\CLI' );
 }
 
 function upserv_run() {
@@ -132,11 +132,11 @@ function upserv_run() {
 	$objects              = apply_filters( 'upserv_objects', array() );
 
 	if ( ! isset( $objects['license_api'] ) ) {
-		$objects['license_api'] = new UPServ_License_API( true, false );
+		$objects['license_api'] = new License_API( true, false );
 	}
 
 	if ( ! isset( $objects['webhook_api'] ) ) {
-		$objects['webhook_api'] = new UPServ_Webhook_API( true );
+		$objects['webhook_api'] = new Webhook_API( true );
 	}
 
 	if ( ! $priority_api_request ) {
@@ -152,15 +152,15 @@ function upserv_run() {
 		);
 
 		if ( ! isset( $objects['update_api'] ) ) {
-			$objects['update_api'] = new UPServ_Update_API( true );
+			$objects['update_api'] = new Update_API( true );
 		}
 
 		if ( ! isset( $objects['package_api'] ) ) {
-			$objects['package_api'] = new UPServ_Package_API( true );
+			$objects['package_api'] = new Package_API( true );
 		}
 
 		if ( ! isset( $objects['cloud_storage_manager'] ) ) {
-			$objects['cloud_storage_manager'] = new UPServ_Cloud_Storage_Manager( true );
+			$objects['cloud_storage_manager'] = new Cloud_Storage_Manager( true );
 		}
 	}
 
@@ -175,27 +175,27 @@ function upserv_run() {
 		do_action( 'upserv_no_api_includes' );
 
 		if ( ! isset( $objects['data_manager'] ) ) {
-			$objects['data_manager'] = new UPServ_Data_Manager( true );
+			$objects['data_manager'] = new Data_Manager( true );
 		}
 
 		if ( ! isset( $objects['remote_sources_manager'] ) ) {
-			$objects['remote_sources_manager'] = new UPServ_Remote_Sources_Manager( true );
+			$objects['remote_sources_manager'] = new Remote_Sources_Manager( true );
 		}
 
 		if ( ! isset( $objects['webhook_manager'] ) ) {
-			$objects['webhook_manager'] = new UPServ_Webhook_Manager( true );
+			$objects['webhook_manager'] = new Webhook_Manager( true );
 		}
 
 		if ( ! isset( $objects['package_manager'] ) ) {
-			$objects['package_manager'] = new UPServ_Package_Manager( true );
+			$objects['package_manager'] = new Package_Manager( true );
 		}
 
 		if ( ! isset( $objects['license_manager'] ) ) {
-			$objects['license_manager'] = new UPServ_License_Manager( true );
+			$objects['license_manager'] = new License_Manager( true );
 		}
 
 		if ( ! isset( $objects['api_manager'] ) ) {
-			$objects['api_manager'] = new UPServ_API_Manager( true );
+			$objects['api_manager'] = new API_Manager( true );
 		}
 
 		if ( ! isset( $objects['plugin'] ) ) {
@@ -242,7 +242,7 @@ if (
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 
-	if ( UPServ_Update_API::is_doing_api_request() || UPServ_License_API::is_doing_api_request() ) {
+	if ( Update_API::is_doing_api_request() || License_API::is_doing_api_request() ) {
 		require_once UPSERV_PLUGIN_PATH . 'tests.php';
 	}
 }

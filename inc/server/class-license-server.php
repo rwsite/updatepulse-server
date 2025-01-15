@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Server;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -11,7 +11,7 @@ use Exception;
 use DateTime;
 use DateTimeZone;
 
-class UPServ_License_Server {
+class License_Server {
 
 	public static $license_definition = array(
 		'id'                  => 0,

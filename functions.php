@@ -4,13 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-use Anyape\UpdatePulse\Server\UPServ_Nonce;
-use Anyape\UpdatePulse\Server\UPServ_License_API;
-use Anyape\UpdatePulse\Server\UPServ_Webhook_API;
-use Anyape\UpdatePulse\Server\UPServ_Update_API;
-use Anyape\UpdatePulse\Server\UPServ_Package_API;
-use Anyape\UpdatePulse\Server\UPServ_Data_Manager;
-use Anyape\UpdatePulse\Server\UPServ_Package_Manager;
+use Anyape\UpdatePulse\Server\Nonce\Nonce;
+use Anyape\UpdatePulse\Server\API\License_API;
+use Anyape\UpdatePulse\Server\API\Webhook_API;
+use Anyape\UpdatePulse\Server\API\Update_API;
+use Anyape\UpdatePulse\Server\API\Package_API;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Manager\Package_Manager;
 use Anyape\UpdatePulse\Server\UPServ;
 
 if ( ! function_exists( 'php_log' ) ) {
@@ -52,25 +52,25 @@ if ( ! function_exists( 'upserv_assets_suffix' ) ) {
 
 if ( ! function_exists( 'upserv_is_doing_license_api_request' ) ) {
 	function upserv_is_doing_license_api_request() {
-		return UPServ_License_API::is_doing_api_request();
+		return License_API::is_doing_api_request();
 	}
 }
 
 if ( ! function_exists( 'upserv_is_doing_update_api_request' ) ) {
 	function upserv_is_doing_update_api_request() {
-		return UPServ_Update_API::is_doing_api_request();
+		return Update_API::is_doing_api_request();
 	}
 }
 
 if ( ! function_exists( 'upserv_is_doing_webhook_api_request' ) ) {
 	function upserv_is_doing_webhook_api_request() {
-		return UPServ_Webhook_API::is_doing_api_request();
+		return Webhook_API::is_doing_api_request();
 	}
 }
 
 if ( ! function_exists( 'upserv_is_doing_package_api_request' ) ) {
 	function upserv_is_doing_package_api_request() {
-		return UPServ_Package_API::is_doing_api_request();
+		return Package_API::is_doing_api_request();
 	}
 }
 
@@ -92,43 +92,43 @@ if ( ! function_exists( 'upserv_is_doing_api_request' ) ) {
 
 if ( ! function_exists( 'upserv_get_root_data_dir' ) ) {
 	function upserv_get_root_data_dir() {
-		return UPServ_Data_Manager::get_data_dir();
+		return Data_Manager::get_data_dir();
 	}
 }
 
 if ( ! function_exists( 'upserv_get_packages_data_dir' ) ) {
 	function upserv_get_packages_data_dir() {
-		return UPServ_Data_Manager::get_data_dir( 'packages' );
+		return Data_Manager::get_data_dir( 'packages' );
 	}
 }
 
 if ( ! function_exists( 'upserv_get_logs_data_dir' ) ) {
 	function upserv_get_logs_data_dir() {
-		return UPServ_Data_Manager::get_data_dir( 'logs' );
+		return Data_Manager::get_data_dir( 'logs' );
 	}
 }
 
 if ( ! function_exists( 'upserv_get_cache_data_dir' ) ) {
 	function upserv_get_cache_data_dir() {
-		return UPServ_Data_Manager::get_data_dir( 'cache' );
+		return Data_Manager::get_data_dir( 'cache' );
 	}
 }
 
 if ( ! function_exists( 'upserv_get_whitelist_data_dir' ) ) {
 	function upserv_get_whitelist_data_dir() {
-		return UPServ_Data_Manager::get_data_dir( 'whitelist' );
+		return Data_Manager::get_data_dir( 'whitelist' );
 	}
 }
 
 if ( ! function_exists( 'upserv_is_package_whitelisted' ) ) {
 	function upserv_is_package_whitelisted( $package_slug ) {
-		return UPServ_Package_Manager::get_instance()->is_package_whitelisted( $package_slug );
+		return Package_Manager::get_instance()->is_package_whitelisted( $package_slug );
 	}
 }
 
 if ( ! function_exists( 'upserv_whitelist_package' ) ) {
 	function upserv_whitelist_package( $package_slug, $repository_service_url ) {
-		return UPServ_Package_Manager::get_instance()->whitelist_package(
+		return Package_Manager::get_instance()->whitelist_package(
 			$package_slug,
 			$repository_service_url
 		);
@@ -137,13 +137,13 @@ if ( ! function_exists( 'upserv_whitelist_package' ) ) {
 
 if ( ! function_exists( 'upserv_unwhitelist_package' ) ) {
 	function upserv_unwhitelist_package( $package_slug ) {
-		return UPServ_Package_Manager::get_instance()->unwhitelist_package( $package_slug );
+		return Package_Manager::get_instance()->unwhitelist_package( $package_slug );
 	}
 }
 
 if ( ! function_exists( 'upserv_get_package_whitelist_info' ) ) {
 	function upserv_get_package_whitelist_info( $package_slug, $json_encode = true ) {
-		return UPServ_Package_Manager::get_instance()->get_package_whitelist_info(
+		return Package_Manager::get_instance()->get_package_whitelist_info(
 			$package_slug,
 			$json_encode
 		);
@@ -152,19 +152,19 @@ if ( ! function_exists( 'upserv_get_package_whitelist_info' ) ) {
 
 if ( ! function_exists( 'upserv_force_cleanup_cache' ) ) {
 	function upserv_force_cleanup_cache() {
-		return UPServ_Data_Manager::maybe_cleanup( 'cache', true );
+		return Data_Manager::maybe_cleanup( 'cache', true );
 	}
 }
 
 if ( ! function_exists( 'upserv_force_cleanup_logs' ) ) {
 	function upserv_force_cleanup_logs() {
-		return UPServ_Data_Manager::maybe_cleanup( 'logs', true );
+		return Data_Manager::maybe_cleanup( 'logs', true );
 	}
 }
 
 if ( ! function_exists( 'upserv_force_cleanup_tmp' ) ) {
 	function upserv_force_cleanup_tmp() {
-		return UPServ_Data_Manager::maybe_cleanup( 'tmp', true );
+		return Data_Manager::maybe_cleanup( 'tmp', true );
 	}
 }
 
@@ -182,7 +182,7 @@ if ( ! function_exists( 'upserv_check_remote_theme_update' ) ) {
 
 if ( ! function_exists( 'upserv_check_remote_package_update' ) ) {
 	function upserv_check_remote_package_update( $slug, $type ) {
-		$api = UPServ_Update_API::get_instance();
+		$api = Update_API::get_instance();
 
 		return $api->check_remote_update( $slug, $type );
 	}
@@ -201,8 +201,8 @@ if ( ! function_exists( 'upserv_download_remote_theme' ) ) {
 }
 
 if ( ! function_exists( 'upserv_download_remote_package' ) ) {
-	function upserv_download_remote_package( $slug, $type ) {
-		$api = UPServ_Update_API::get_instance();
+	function upserv_download_remote_package( $slug, $type = 'generic' ) {
+		$api = Update_API::get_instance();
 
 		return $api->download_remote_package( $slug, $type, true );
 	}
@@ -210,7 +210,7 @@ if ( ! function_exists( 'upserv_download_remote_package' ) ) {
 
 if ( ! function_exists( 'upserv_delete_package' ) ) {
 	function upserv_delete_package( $slug ) {
-		$package_manager = UPServ_Package_Manager::get_instance();
+		$package_manager = Package_Manager::get_instance();
 
 		return (bool) $package_manager->delete_packages_bulk( array( $slug ) );
 	}
@@ -219,7 +219,7 @@ if ( ! function_exists( 'upserv_delete_package' ) ) {
 if ( ! function_exists( 'upserv_get_package_info' ) ) {
 	function upserv_get_package_info( $package_slug, $json_encode = true ) {
 		$result          = $json_encode ? '{}' : array();
-		$package_manager = UPServ_Package_Manager::get_instance();
+		$package_manager = Package_Manager::get_instance();
 		$package_info    = $package_manager->get_package_info( $package_slug );
 
 		if ( $package_info ) {
@@ -232,7 +232,7 @@ if ( ! function_exists( 'upserv_get_package_info' ) ) {
 
 if ( ! function_exists( 'upserv_is_package_require_license' ) ) {
 	function upserv_is_package_require_license( $package_slug ) {
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->is_package_require_license( $package_slug );
 	}
@@ -241,7 +241,7 @@ if ( ! function_exists( 'upserv_is_package_require_license' ) ) {
 if ( ! function_exists( 'upserv_get_batch_package_info' ) ) {
 	function upserv_get_batch_package_info( $search, $json_encode = true ) {
 		$result          = $json_encode ? '{}' : array();
-		$package_manager = UPServ_Package_Manager::get_instance();
+		$package_manager = Package_Manager::get_instance();
 		$package_info    = $package_manager->get_batch_package_info( $search );
 
 		if ( $package_info ) {
@@ -254,7 +254,7 @@ if ( ! function_exists( 'upserv_get_batch_package_info' ) ) {
 
 if ( ! function_exists( 'upserv_download_local_package' ) ) {
 	function upserv_download_local_package( $package_slug, $package_path = null, $exit_or_die = true ) {
-		$package_manager = UPServ_Package_Manager::get_instance();
+		$package_manager = Package_Manager::get_instance();
 
 		if ( null === $package_path ) {
 			$package_path = upserv_get_local_package_path( $package_slug );
@@ -274,7 +274,7 @@ if ( ! function_exists( 'upserv_get_local_package_path' ) ) {
 			wp_die( __FUNCTION__ . ' - WP_Filesystem not available.' );
 		}
 
-		$package_path = trailingslashit( UPServ_Data_Manager::get_data_dir( 'packages' ) ) . $package_slug . '.zip';
+		$package_path = trailingslashit( Data_Manager::get_data_dir( 'packages' ) ) . $package_slug . '.zip';
 
 		if ( $wp_filesystem->is_file( $package_path ) ) {
 			return $package_path;
@@ -286,7 +286,7 @@ if ( ! function_exists( 'upserv_get_local_package_path' ) ) {
 
 if ( ! function_exists( 'upserv_browse_licenses' ) ) {
 	function upserv_browse_licenses( $license_query ) {
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->browse( $license_query );
 	}
@@ -294,7 +294,7 @@ if ( ! function_exists( 'upserv_browse_licenses' ) ) {
 
 if ( ! function_exists( 'upserv_read_license' ) ) {
 	function upserv_read_license( $license_data ) {
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->read( $license_data );
 	}
@@ -310,7 +310,7 @@ if ( ! function_exists( 'upserv_add_license' ) ) {
 		$license_data['data']['operation_timestamp'] = time();
 		$license_data['data']['operation']           = 'add';
 		$license_data['data']['operation_id']        = bin2hex( random_bytes( 16 ) );
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->add( $license_data );
 	}
@@ -326,7 +326,7 @@ if ( ! function_exists( 'upserv_edit_license' ) ) {
 		$license_data['data']['operation_timestamp'] = time();
 		$license_data['data']['operation']           = 'edit';
 		$license_data['data']['operation_id']        = bin2hex( random_bytes( 16 ) );
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->edit( $license_data );
 	}
@@ -342,7 +342,7 @@ if ( ! function_exists( 'upserv_delete_license' ) ) {
 		$license_data['data']['operation_timestamp'] = time();
 		$license_data['data']['operation']           = 'delete';
 		$license_data['data']['operation_id']        = bin2hex( random_bytes( 16 ) );
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->delete( $license_data );
 	}
@@ -350,7 +350,7 @@ if ( ! function_exists( 'upserv_delete_license' ) ) {
 
 if ( ! function_exists( 'upserv_check_license' ) ) {
 	function upserv_check_license( $license_data ) {
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->check( $license_data );
 	}
@@ -358,7 +358,7 @@ if ( ! function_exists( 'upserv_check_license' ) ) {
 
 if ( ! function_exists( 'upserv_activate_license' ) ) {
 	function upserv_activate_license( $license_data ) {
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->activate( $license_data );
 	}
@@ -366,7 +366,7 @@ if ( ! function_exists( 'upserv_activate_license' ) ) {
 
 if ( ! function_exists( 'upserv_deactivate_license' ) ) {
 	function upserv_deactivate_license( $license_data ) {
-		$api = UPServ_License_API::get_instance();
+		$api = License_API::get_instance();
 
 		return $api->deactivate( $license_data );
 	}
@@ -410,49 +410,49 @@ if ( ! function_exists( 'upserv_get_admin_template' ) ) {
 
 if ( ! function_exists( 'upserv_init_nonce_auth' ) ) {
 	function upserv_init_nonce_auth( $private_auth_key ) {
-		UPServ_Nonce::init_auth( $private_auth_key );
+		Nonce::init_auth( $private_auth_key );
 	}
 }
 
 if ( ! function_exists( 'upserv_create_nonce' ) ) {
 	function upserv_create_nonce(
 		$true_nonce = true,
-		$expiry_length = UPServ_Nonce::DEFAULT_EXPIRY_LENGTH,
+		$expiry_length = Nonce::DEFAULT_EXPIRY_LENGTH,
 		$data = array(),
-		$return_type = UPServ_Nonce::NONCE_ONLY,
+		$return_type = Nonce::NONCE_ONLY,
 		$store = true
 	) {
-		return UPServ_Nonce::create_nonce( $true_nonce, $expiry_length, $data, $return_type, $store );
+		return Nonce::create_nonce( $true_nonce, $expiry_length, $data, $return_type, $store );
 	}
 }
 
 if ( ! function_exists( 'upserv_get_nonce_expiry' ) ) {
 	function upserv_get_nonce_expiry( $nonce ) {
-		return UPServ_Nonce::get_nonce_expiry( $nonce );
+		return Nonce::get_nonce_expiry( $nonce );
 	}
 }
 
 if ( ! function_exists( 'upserv_get_nonce_data' ) ) {
 	function upserv_get_nonce_data( $nonce ) {
-		return UPServ_Nonce::get_nonce_data( $nonce );
+		return Nonce::get_nonce_data( $nonce );
 	}
 }
 
 if ( ! function_exists( 'upserv_validate_nonce' ) ) {
 	function upserv_validate_nonce( $value ) {
-		return UPServ_Nonce::validate_nonce( $value );
+		return Nonce::validate_nonce( $value );
 	}
 }
 
 if ( ! function_exists( 'upserv_delete_nonce' ) ) {
 	function upserv_delete_nonce( $value ) {
-		return UPServ_Nonce::delete_nonce( $value );
+		return Nonce::delete_nonce( $value );
 	}
 }
 
 if ( ! function_exists( 'upserv_clear_nonces' ) ) {
 	function upserv_clear_nonces() {
-		return UPServ_Nonce::upserv_nonce_cleanup();
+		return Nonce::upserv_nonce_cleanup();
 	}
 }
 
@@ -493,7 +493,7 @@ if ( ! function_exists( 'upserv_schedule_webhook' ) ) {
 	function upserv_schedule_webhook( $payload, $event_type, $instant = false ) {
 
 		if ( isset( $payload['event'], $payload['content'] ) ) {
-			$api = UPServ_Webhook_API::get_instance();
+			$api = Webhook_API::get_instance();
 
 			return $api->schedule_webhook( $payload, $event_type, $instant );
 		}
@@ -512,7 +512,7 @@ if ( ! function_exists( 'upserv_fire_webhook' ) ) {
 			filter_var( $url, FILTER_VALIDATE_URL ) &&
 			null !== json_decode( $body )
 		) {
-			$api = UPServ_Webhook_API::get_instance();
+			$api = Webhook_API::get_instance();
 
 			return $api->fire_webhook( $url, $secret, $body, $action );
 		}

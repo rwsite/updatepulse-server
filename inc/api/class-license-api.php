@@ -1,12 +1,14 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\API;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-class UPServ_License_API {
+use Anyape\UpdatePulse\Server\Server\License_Server;
+
+class License_API {
 
 	protected $license_server;
 	protected $http_response_code = null;
@@ -523,7 +525,7 @@ class UPServ_License_API {
 				'license_key',
 				'license_signature',
 			),
-			array_keys( UPServ_License_Server::$license_definition )
+			array_keys( License_Server::$license_definition )
 		);
 
 		return $query_vars;
@@ -1002,6 +1004,6 @@ class UPServ_License_API {
 	}
 
 	protected function init_server() {
-		$this->license_server = apply_filters( 'upserv_license_server', new UPServ_License_Server() );
+		$this->license_server = apply_filters( 'upserv_license_server', new License_Server() );
 	}
 }

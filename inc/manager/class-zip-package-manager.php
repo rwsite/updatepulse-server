@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -11,7 +11,7 @@ use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use FilesystemIterator;
 
-class UPServ_Zip_Package_Manager {
+class Zip_Package_Manager {
 
 	protected $package_slug;
 	protected $received_package_path;

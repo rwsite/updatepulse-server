@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Server;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
@@ -14,8 +14,10 @@ use DateTime;
 use DateTimeZone;
 use WP_Error;
 use Exception;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
 
-class UPServ_Update_Server extends Wpup_UpdateServer {
+class Update_Server extends Wpup_UpdateServer {
 
 	const LOCK_REMOTE_UPDATE_SEC = 10;
 
@@ -152,11 +154,11 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 
 						do_action( 'upserv_downloaded_remote_package', $package, $info['type'], $safe_slug );
 
-						$package_manager = new UPServ_Zip_Package_Manager(
+						$package_manager = new Zip_Package_Manager(
 							$safe_slug,
 							$package,
-							UPServ_Data_Manager::get_data_dir( 'tmp' ),
-							UPServ_Data_Manager::get_data_dir( 'packages' )
+							Data_Manager::get_data_dir( 'tmp' ),
+							Data_Manager::get_data_dir( 'packages' )
 						);
 						$local_ready     = $package_manager->clean_package();
 
@@ -286,7 +288,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		if ( $result && $cache_key ) {
 
 			if ( ! $this->cache ) {
-				$this->cache = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+				$this->cache = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
 			}
 
 			$this->cache->clear( $cache_key );
@@ -423,7 +425,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 		global $wp_filesystem;
 
 		if ( ! $this->cache ) {
-			$this->cache = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+			$this->cache = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
 		}
 
 		$safe_slug = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
@@ -829,7 +831,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 	}
 
 	protected function verify_license_exists( $slug, $type, $license_key ) {
-		$license_server = new UPServ_License_Server();
+		$license_server = new License_Server();
 		$payload        = array( 'license_key' => $license_key );
 		$result         = $license_server->read_license( $payload );
 
@@ -869,7 +871,7 @@ class UPServ_Update_Server extends Wpup_UpdateServer {
 			if ( apply_filters( 'upserv_license_bypass_signature', false, $license ) ) {
 				$valid = $this->license_key === $license->license_key;
 			} else {
-				$license_server = new UPServ_License_Server();
+				$license_server = new License_Server();
 				$valid          = $this->license_key === $license->license_key &&
 					$license_server->is_signature_valid( $license->license_key, $license_signature );
 			}

@@ -1,16 +1,18 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\API;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+
 use DateTimeZone;
 use DateTime;
 use WP_Error;
 
-class UPServ_Webhook_API {
+class Webhook_API {
 	protected static $doing_update_api_request = null;
 	protected static $instance;
 	protected static $config;
@@ -332,7 +334,7 @@ class UPServ_Webhook_API {
 				trim( rawurldecode( $wp->query_vars['type'] ) ) :
 				null;
 			$delay             = $config['repository_check_delay'];
-			$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+			$package_directory = Data_Manager::get_data_dir( 'packages' );
 			$package_exists    = null;
 			$payload           = $wp_filesystem->get_contents( 'php://input' );
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -14,8 +14,12 @@ use RecursiveDirectoryIterator;
 use Wpup_FileCache;
 use Wpup_Package_Extended;
 use Exception;
+use Anyape\UpdatePulse\Server\Server\Update_Server;
+use Anyape\UpdatePulse\Server\API\Package_API;
+use Anyape\UpdatePulse\Server\API\Update_API;
+use Anyape\UpdatePulse\Server\Table\Packages_Table;
 
-class UPServ_Package_Manager {
+class Package_Manager {
 
 	const DEFAULT_LOGS_MAX_SIZE    = 10;
 	const DEFAULT_CACHE_MAX_SIZE   = 100;
@@ -59,7 +63,7 @@ class UPServ_Package_Manager {
 	public function admin_init() {
 
 		if ( is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->packages_table = new UPServ_Packages_Table( $this );
+			$this->packages_table = new Packages_Table( $this );
 
 			if (
 				(
@@ -149,7 +153,7 @@ class UPServ_Package_Manager {
 			$type = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( in_array( $type, self::$filesystem_clean_types, true ) ) {
-				$result = UPServ_Data_Manager::maybe_cleanup( $type, true );
+				$result = Data_Manager::maybe_cleanup( $type, true );
 			}
 		}
 
@@ -178,7 +182,7 @@ class UPServ_Package_Manager {
 			$slug = filter_input( INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( $slug ) {
-				$api    = UPServ_Update_API::get_instance();
+				$api    = Update_API::get_instance();
 				$result = $api->download_remote_package( $slug, null, true );
 			} else {
 				$error = new WP_Error(
@@ -194,7 +198,7 @@ class UPServ_Package_Manager {
 		}
 
 		if ( wp_cache_get( 'upserv_download_remote_package_aborted', 'updatepulse-server' ) ) {
-			$api_config = UPServ_Update_API::get_instance()->get_config();
+			$api_config = Update_API::get_instance()->get_config();
 			$error      = $api_config['repository_filter_packages'] ?
 				new WP_Error(
 					__METHOD__,
@@ -313,7 +317,7 @@ class UPServ_Package_Manager {
 				$filename    = $package_info['name'];
 				$slug        = str_replace( '.zip', '', $filename );
 				$type        = ucfirst( $parsed_info['type'] );
-				$destination = UPServ_Data_Manager::get_data_dir( 'packages' ) . $filename;
+				$destination = Data_Manager::get_data_dir( 'packages' ) . $filename;
 				$result      = $wp_filesystem->move( $source, $destination, true );
 			} else {
 				$result = false;
@@ -391,14 +395,14 @@ class UPServ_Package_Manager {
 				'cache_size'           => self::get_dir_size_mb( 'cache' ),
 				'logs_size'            => self::get_dir_size_mb( 'logs' ),
 				'package_rows'         => $package_rows,
-				'packages_dir'         => UPServ_Data_Manager::get_data_dir( 'packages' ),
+				'packages_dir'         => Data_Manager::get_data_dir( 'packages' ),
 			)
 		);
 	}
 
 	public function delete_packages_bulk( $package_slugs = array() ) {
 		$package_slugs         = is_array( $package_slugs ) ? $package_slugs : array( $package_slugs );
-		$package_directory     = UPServ_Data_Manager::get_data_dir( 'packages' );
+		$package_directory     = Data_Manager::get_data_dir( 'packages' );
 		$package_paths         = glob( trailingslashit( $package_directory ) . '*.zip' );
 		$package_names         = array();
 		$deleted_package_slugs = array();
@@ -429,10 +433,10 @@ class UPServ_Package_Manager {
 
 		$config = array(
 			'use_remote_repository' => false,
-			'server_directory'      => UPServ_Data_Manager::get_data_dir(),
+			'server_directory'      => Data_Manager::get_data_dir(),
 		);
 
-		$update_server = new UPServ_Update_Server(
+		$update_server = new Update_Server(
 			$config['use_remote_repository'],
 			home_url( '/updatepulse-server-update-api/' ),
 			$config['server_directory']
@@ -478,7 +482,7 @@ class UPServ_Package_Manager {
 			return null;
 		}
 
-		$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$total_size        = 0;
 		$max_archive_size  = get_option( 'upserv_archive_max_size', self::DEFAULT_ARCHIVE_MAX_SIZE );
 		$package_slugs     = is_array( $package_slugs ) ? $package_slugs : array( $package_slugs );
@@ -504,7 +508,7 @@ class UPServ_Package_Manager {
 			return;
 		}
 
-		$temp_directory = UPServ_Data_Manager::get_data_dir( 'tmp' );
+		$temp_directory = Data_Manager::get_data_dir( 'tmp' );
 		$archive_name   = 'archive-' . time();
 		$archive_path   = trailingslashit( $temp_directory ) . $archive_name . '.zip';
 
@@ -654,7 +658,7 @@ class UPServ_Package_Manager {
 					return;
 				}
 
-				$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+				$package_directory = Data_Manager::get_data_dir( 'packages' );
 
 				if ( $wp_filesystem->exists( $package_directory . $slug . '.zip' ) ) {
 					$package = $this->get_package(
@@ -709,12 +713,12 @@ class UPServ_Package_Manager {
 					return;
 				}
 
-				$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$packages          = array();
 
 				if ( $wp_filesystem->is_dir( $package_directory ) ) {
 
-					if ( ! UPServ_Package_API::is_doing_api_request() ) {
+					if ( ! Package_API::is_doing_api_request() ) {
 						$search = isset( $_REQUEST['s'] ) ? // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 							wp_unslash( trim( $_REQUEST['s'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 							$search;
@@ -883,11 +887,11 @@ class UPServ_Package_Manager {
 	protected static function get_dir_size_mb( $type ) {
 		$result = 'N/A';
 
-		if ( ! UPServ_Data_Manager::is_valid_data_dir( $type ) ) {
+		if ( ! Data_Manager::is_valid_data_dir( $type ) ) {
 			return $result;
 		}
 
-		$directory  = UPServ_Data_Manager::get_data_dir( $type );
+		$directory  = Data_Manager::get_data_dir( $type );
 		$total_size = 0;
 
 		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $directory ) ) as $file ) {
@@ -988,7 +992,7 @@ class UPServ_Package_Manager {
 		global $wp_filesystem;
 
 		$package      = false;
-		$cache        = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+		$cache        = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
 		$cached_value = null;
 
 		try {

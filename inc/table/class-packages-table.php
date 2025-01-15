@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Table;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use WP_List_Table;
 
-class UPServ_Packages_Table extends WP_List_Table {
+class Packages_Table extends WP_List_Table {
 
 	public $bulk_action_error;
 	public $nonce_action;

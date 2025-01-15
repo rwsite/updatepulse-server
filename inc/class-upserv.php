@@ -7,6 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Exception;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Manager\Remote_Sources_Manager;
 
 class UPServ {
 	protected static $instance;
@@ -85,13 +87,13 @@ class UPServ {
 
 		set_transient( 'upserv_flush', 1, 60 );
 
-		$result = UPServ_Data_Manager::maybe_setup_directories();
+		$result = Data_Manager::maybe_setup_directories();
 
 		if ( ! $result ) {
 			$error_message = sprintf(
 				// translators: %1$s is the path to the plugin's data directory
 				__( 'Permission errors creating %1$s - could not setup the data directory. Please check the parent directory is writable.', 'updatepulse-server' ),
-				'<code>' . UPServ_Data_Manager::get_data_dir() . '</code>'
+				'<code>' . Data_Manager::get_data_dir() . '</code>'
 			);
 
 			die( $error_message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -105,15 +107,15 @@ class UPServ {
 			setcookie( 'upserv_activated_mu_failure', '1', 60, '/', COOKIE_DOMAIN );
 		}
 
-		UPServ_Remote_Sources_Manager::register_schedules();
-		UPServ_Data_Manager::register_schedules();
+		Remote_Sources_Manager::register_schedules();
+		Data_Manager::register_schedules();
 	}
 
 	public static function deactivate() {
 		flush_rewrite_rules();
 
-		UPServ_Remote_Sources_Manager::clear_schedules();
-		UPServ_Data_Manager::clear_schedules();
+		Remote_Sources_Manager::clear_schedules();
+		Data_Manager::clear_schedules();
 	}
 
 	public static function uninstall() {
@@ -403,7 +405,7 @@ class UPServ {
 		upserv_get_admin_template(
 			'plugin-help-page.php',
 			array(
-				'packages_dir' => UPServ_Data_Manager::get_data_dir( 'packages' ),
+				'packages_dir' => Data_Manager::get_data_dir( 'packages' ),
 			)
 		);
 	}

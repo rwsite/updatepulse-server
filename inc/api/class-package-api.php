@@ -1,12 +1,12 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\API;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-class UPServ_Package_API {
+class Package_API {
 	protected $http_response_code = 200;
 	protected $api_key_id;
 	protected $api_access;

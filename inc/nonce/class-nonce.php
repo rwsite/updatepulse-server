@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Nonce;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -10,7 +10,7 @@ use DateTime;
 use DateTimeZone;
 use PasswordHash;
 
-class UPServ_Nonce {
+class Nonce {
 	const DEFAULT_EXPIRY_LENGTH = MINUTE_IN_SECONDS / 2;
 	const NONCE_ONLY            = 1;
 	const NONCE_INFO_ARRAY      = 2;

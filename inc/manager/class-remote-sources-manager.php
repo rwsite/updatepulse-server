@@ -1,14 +1,16 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
 use WP_Error;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\API\Update_API;
 
-class UPServ_Remote_Sources_Manager {
+class Remote_Sources_Manager {
 
 	public function __construct( $init_hooks = false ) {
 
@@ -37,11 +39,11 @@ class UPServ_Remote_Sources_Manager {
 	public function register_remote_check_scheduled_hooks() {
 		$result = false;
 
-		if ( ! UPServ_Update_API::is_doing_api_request() ) {
+		if ( ! Update_API::is_doing_api_request() ) {
 			$slugs = $this->get_package_slugs();
 
 			if ( ! empty( $slugs ) ) {
-				$api         = UPServ_Update_API::get_instance();
+				$api         = Update_API::get_instance();
 				$action_hook = array( $api, 'download_remote_package' );
 
 				foreach ( $slugs as $slug ) {
@@ -292,7 +294,7 @@ class UPServ_Remote_Sources_Manager {
 
 	public function reschedule_remote_check_recurring_events( $frequency ) {
 
-		if ( UPServ_Update_API::is_doing_api_request() ) {
+		if ( Update_API::is_doing_api_request() ) {
 			return false;
 		}
 
@@ -360,7 +362,7 @@ class UPServ_Remote_Sources_Manager {
 					'upserv_use_recurring_schedule',
 					true
 				),
-				'packages_dir'         => UPServ_Data_Manager::get_data_dir( 'packages' ),
+				'packages_dir'         => Data_Manager::get_data_dir( 'packages' ),
 			)
 		);
 	}
@@ -555,7 +557,7 @@ class UPServ_Remote_Sources_Manager {
 			$slugs = array();
 
 			if ( $wp_filesystem ) {
-				$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+				$package_directory = Data_Manager::get_data_dir( 'packages' );
 
 				if ( $wp_filesystem->is_dir( $package_directory ) ) {
 					$package_paths = glob( trailingslashit( $package_directory ) . '*.zip' );

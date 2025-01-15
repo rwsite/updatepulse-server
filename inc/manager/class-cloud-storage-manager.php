@@ -1,10 +1,12 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
+
+use Anyape\UpdatePulse\Server\API\Package_API;
 
 use PhpS3\PhpS3;
 use PhpS3\PhpS3Exception;
@@ -16,7 +18,7 @@ use Wpup_Package_Extended;
 use Wpup_ZipMetadataParser;
 use Wpup_InvalidPackageException;
 
-class UPServ_Cloud_Storage_Manager {
+class Cloud_Storage_Manager {
 	protected static $instance;
 	protected static $config;
 	protected static $cloud_storage;
@@ -319,9 +321,9 @@ class UPServ_Cloud_Storage_Manager {
 			}
 
 			if ( $info ) {
-				$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$filename          = $package_directory . $slug . '.zip';
-				$cache             = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+				$cache             = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
 				$cache_key         = 'metadata-b64-' . $slug . '-'
 						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
 				$cache->clear( $cache_key );
@@ -511,7 +513,7 @@ class UPServ_Cloud_Storage_Manager {
 		global $wp_filesystem;
 
 		$config            = self::get_config();
-		$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$filename          = trailingslashit( $package_directory ) . $slug . '.zip';
 
 		try {
@@ -561,7 +563,7 @@ class UPServ_Cloud_Storage_Manager {
 		global $wp_filesystem;
 
 		$config            = self::get_config();
-		$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$filename          = trailingslashit( $package_directory ) . $slug . '.zip';
 
 		try {
@@ -649,7 +651,7 @@ class UPServ_Cloud_Storage_Manager {
 			global $wp_filesystem;
 
 			foreach ( $package_slugs as $slug ) {
-				$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$filename          = trailingslashit( $package_directory ) . $slug . '.zip';
 
 				if ( $wp_filesystem->is_file( $filename ) ) {
@@ -665,7 +667,7 @@ class UPServ_Cloud_Storage_Manager {
 			$config = self::get_config();
 
 			foreach ( $package_slugs as $slug ) {
-				$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$filename          = trailingslashit( $package_directory ) . $slug . '.zip';
 
 				try {
@@ -717,7 +719,7 @@ class UPServ_Cloud_Storage_Manager {
 			}
 
 			if ( ! $info ) {
-				$api = UPServ_Package_API::get_instance();
+				$api = Package_API::get_instance();
 
 				if ( ! $api->add( $package_id, $type ) ) {
 					wp_send_json( array( 'message' => __( 'Package not found', 'updatepulse-server' ) ), 404 );
@@ -828,9 +830,9 @@ class UPServ_Cloud_Storage_Manager {
 
 		global $wp_filesystem;
 
-		$cache             = new Wpup_FileCache( UPServ_Data_Manager::get_data_dir( 'cache' ) );
+		$cache             = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
 		$config            = self::get_config();
-		$package_directory = UPServ_Data_Manager::get_data_dir( 'packages' );
+		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$filename          = $package_directory . $slug . '.zip';
 		$cleanup           = ! $wp_filesystem->is_file( $filename );
 
@@ -959,7 +961,7 @@ class UPServ_Cloud_Storage_Manager {
 				unset( $contents[ self::$virtual_dir . '/' ] );
 
 				if ( ! empty( $contents ) ) {
-					$package_manager = UPServ_Package_Manager::get_instance();
+					$package_manager = Package_Manager::get_instance();
 
 					foreach ( $contents as $item ) {
 						$slug = str_replace( array( self::$virtual_dir . '/', '.zip' ), array( '', '' ), $item['name'] );

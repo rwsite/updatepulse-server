@@ -113,4 +113,7 @@ function upserv_muplugins_loaded() {
 		$doing_api ? $hooks : false
 	);
 }
-add_action( 'muplugins_loaded', 'upserv_muplugins_loaded', 0 );
+
+if ( ! defined( 'WP_CLI' ) ) {
+	add_action( 'muplugins_loaded', 'upserv_muplugins_loaded', 0 );
+}

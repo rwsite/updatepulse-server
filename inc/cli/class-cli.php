@@ -1,16 +1,18 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\CLI;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use Anyape\UpdatePulse\Server\Nonce\Nonce;
+
 use WP_CLI_Command;
 use WP_CLI;
 use WP_Error;
 
-class UPServ_CLI extends WP_CLI_Command {
+class CLI extends WP_CLI_Command {
 	protected const RESOURCE_NOT_FOUND = 3;
 	protected const DEFAULT_ERROR      = 1;
 	protected const LOG_METHODS        = array(
@@ -211,21 +213,21 @@ class UPServ_CLI extends WP_CLI_Command {
 			$assoc_args,
 			array(
 				'true_nonce'    => true,
-				'expiry_length' => UPServ_Nonce::DEFAULT_EXPIRY_LENGTH,
+				'expiry_length' => Nonce::DEFAULT_EXPIRY_LENGTH,
 				'data'          => array(),
-				'return_type'   => UPServ_Nonce::NONCE_ONLY,
+				'return_type'   => Nonce::NONCE_ONLY,
 				'store'         => true,
 			)
 		);
 
 		if ( 'nonce_info_array' === $assoc_args['return_type'] ) {
-			$assoc_args['return_type'] = UPServ_Nonce::NONCE_INFO_ARRAY;
+			$assoc_args['return_type'] = Nonce::NONCE_INFO_ARRAY;
 		} else {
-			$assoc_args['return_type'] = UPServ_Nonce::NONCE_ONLY;
+			$assoc_args['return_type'] = Nonce::NONCE_ONLY;
 		}
 
 		if ( ! is_numeric( $assoc_args['expiry_length'] ) ) {
-			$assoc_args['expiry_length'] = UPServ_Nonce::DEFAULT_EXPIRY_LENGTH;
+			$assoc_args['expiry_length'] = Nonce::DEFAULT_EXPIRY_LENGTH;
 		}
 
 		if ( ! is_bool( $assoc_args['true_nonce'] ) ) {

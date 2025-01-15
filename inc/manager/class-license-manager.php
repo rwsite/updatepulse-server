@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -8,8 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use DateTime;
 use DateTimeZone;
+use Anyape\UpdatePulse\Server\Server\License_Server;
+use Anyape\UpdatePulse\Server\Table\Licenses_Table;
 
-class UPServ_License_Manager {
+class License_Manager {
 
 	protected $licenses_table;
 	protected $message = '';
@@ -22,7 +24,7 @@ class UPServ_License_Manager {
 			$use_licenses = get_option( 'upserv_use_licenses' );
 
 			if ( $use_licenses ) {
-				$this->license_server = new UPServ_License_Server();
+				$this->license_server = new License_Server();
 
 				add_action( 'action_scheduler_init', array( $this, 'action_scheduler_init' ), 10, 0 );
 				add_action( 'upserv_packages_table_cell', array( $this, 'upserv_packages_table_cell' ), 10, 4 );
@@ -92,7 +94,7 @@ class UPServ_License_Manager {
 	public function admin_init() {
 
 		if ( is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->licenses_table = new UPServ_Licenses_Table();
+			$this->licenses_table = new Licenses_Table();
 
 			if (
 				(
@@ -122,7 +124,7 @@ class UPServ_License_Manager {
 
 				if ( 'upserv-page-licenses' === $page ) {
 
-					if ( $license_data && in_array( $action, UPServ_License_Server::$license_statuses, true ) ) {
+					if ( $license_data && in_array( $action, License_Server::$license_statuses, true ) ) {
 						$this->change_license_statuses_bulk( $action, $license_data );
 					}
 
@@ -413,7 +415,7 @@ class UPServ_License_Manager {
 			$license_info = json_decode( wp_unslash( $data ) );
 			$include      = false;
 
-			if ( in_array( $status, UPServ_License_Server::$license_statuses, true ) ) {
+			if ( in_array( $status, License_Server::$license_statuses, true ) ) {
 
 				if ( 'blocked' === $status || 'expired' === $status ) {
 					$include = true;
@@ -437,7 +439,7 @@ class UPServ_License_Manager {
 			$license_ids[] = $license_info->id;
 		}
 
-		if ( ! in_array( $status, UPServ_License_Server::$license_statuses, true ) ) {
+		if ( ! in_array( $status, License_Server::$license_statuses, true ) ) {
 			$this->errors[] = __( 'Operation failed: an unexpected error occured (invalid license status).', 'updatepulse-server' );
 
 			return;

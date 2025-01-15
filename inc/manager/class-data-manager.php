@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\Manager;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class UPServ_Data_Manager {
+class Data_Manager {
 	public static $transient_data_dirs = array(
 		'cache',
 		'logs',
@@ -159,7 +159,7 @@ class UPServ_Data_Manager {
 		}
 
 		$directory              = self::get_data_dir( $type );
-		$max_size_constant_name = __NAMESPACE__ . '\\UPServ_Package_Manager::DEFAULT_'
+		$max_size_constant_name = __NAMESPACE__ . '\\Package_Manager::DEFAULT_'
 			. strtoupper( $type )
 			. '_MAX_SIZE';
 		$default_max_size       = defined( $max_size_constant_name ) ? constant( $max_size_constant_name ) : 0;
@@ -282,7 +282,7 @@ class UPServ_Data_Manager {
 				$params[] = true;
 			}
 
-			$hook = array( __NAMESPACE__ . '\\UPServ_Data_Manager', 'maybe_cleanup' );
+			$hook = array( __NAMESPACE__ . '\\Data_Manager', 'maybe_cleanup' );
 
 			add_action( 'upserv_cleanup', $hook, 10, 2 );
 			do_action( 'upserv_registered_cleanup_schedule', $type, $params );

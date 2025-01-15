@@ -1,12 +1,14 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server;
+namespace Anyape\UpdatePulse\Server\API;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-class UPServ_Update_API {
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+
+class Update_API {
 	protected static $doing_update_api_request = null;
 	protected static $instance;
 	protected static $config;
@@ -137,7 +139,7 @@ class UPServ_Update_API {
 		if ( ! self::$config ) {
 			$config = array(
 				'use_remote_repository'          => (bool) get_option( 'upserv_use_remote_repository' ),
-				'server_directory'               => UPServ_Data_Manager::get_data_dir(),
+				'server_directory'               => Data_Manager::get_data_dir(),
 				'repository_service_url'         => get_option( 'upserv_remote_repository_url' ),
 				'repository_branch'              => get_option( 'upserv_remote_repository_branch', 'master' ),
 				'repository_credentials'         => explode( '|', get_option( 'upserv_remote_repository_credentials' ) ),
@@ -285,7 +287,7 @@ class UPServ_Update_API {
 		$config            = self::get_config();
 		$server_class_name = apply_filters(
 			'upserv_server_class_name',
-			__NAMESPACE__ . '\\UPServ_Update_Server',
+			str_replace( 'API', 'Server', __NAMESPACE__ ) . '\\Update_Server',
 			$package_id,
 			$config
 		);
