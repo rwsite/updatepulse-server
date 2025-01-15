@@ -3,31 +3,33 @@
 namespace Anyape\UpdatePulse\Server;
 
 function autoload( $class_name ) {
-	static $class_map = array(
-		'Anyape\\UpdatePulse\\Server\\UPServ' => UPSERV_PLUGIN_PATH . 'inc/class-upserv.php',
-		'Anyape\\Crypto\\Crypto'              => UPSERV_PLUGIN_PATH . 'lib/Crypto/crypto.php',
-		'PhpS3\\PhpS3'                        => UPSERV_PLUGIN_PATH . 'lib/PhpS3/PhpS3.php',
-	);
+	static $f_root    = UPSERV_PLUGIN_PATH;
+	static $ns_root   = __NAMESPACE__;
+	static $class_map = array();
 
-	$path = false;
+	$path      = false;
+	$class_map = empty( $class_map ) ? array(
+		$ns_root                 => $f_root . 'inc/class-upserv.php',
+		'Anyape\\Crypto\\Crypto' => $f_root . 'lib/Crypto/crypto.php',
+		'PhpS3\\PhpS3'           => $f_root . 'lib/PhpS3/PhpS3.php',
+	) : $class_map;
 
 	if ( isset( $class_map[ $class_name ] ) ) {
 		$path = $class_map[ $class_name ];
 	}
 
-	if ( ! $path && 0 === strpos( $class_name, 'Anyape\\UpdatePulse\\Server\\' ) ) {
-		$namespace_frags = explode( '\\', $class_name );
-		$class_frag      = str_replace( '_', '-', strtolower( array_pop( $namespace_frags ) ) );
-		$folder_frag     = str_replace( '_', '-', strtolower( array_pop( $namespace_frags ) ) );
-
-		if ( false !== strpos( $class_frag, 'server' ) ) {
-			$folder_frag = 'server/' . $class_frag;
-		}
-
-		$path = UPSERV_PLUGIN_PATH . 'inc/' . $folder_frag . '/class-' . $class_frag . '.php';
+	if ( ! $path && 0 === strpos( $class_name, $ns_root ) ) {
+		$ns_frags   = explode( '\\', str_replace( $ns_root, '', $class_name ) );
+		$class_frag = str_replace( '_', '-', strtolower( array_pop( $ns_frags ) ) );
+		$path_frags = str_replace(
+			'_',
+			'-',
+			strtolower( implode( '/', $ns_frags ) )
+		);
+		$path       = $f_root . 'inc/' . $path_frags . '/class-' . $class_frag . '.php';
 	}
 
-	if ( $path && file_exists( $path ) ) {
+	if ( $path && file_exists( $path ) && is_readable( $path ) ) {
 		include $path;
 	}
 }
