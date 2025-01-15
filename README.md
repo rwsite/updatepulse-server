@@ -23,16 +23,17 @@
 		* [Update API](#update-api)
 		* [Public License API](#public-license-api)
 	* [Help](#help)
+		* [Registering packages with a Remote Repository Service](#registering-packages-with-a-remote-repository-service)
 		* [Provide updates with UpdatePulse Server - packages requirements](#provide-updates-with-updatepulse-server---packages-requirements)
 		* [UpdatePulse Server Endpoint Optimizer - requests optimisation](#updatepulse-server-endpoint-optimizer---requests-optimisation)
 		* [More help...](#more-help)
 
 
 Developer documentation:
-- [Packages](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/packages.md)
-- [Licenses](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/licenses.md)
-- [Miscellaneous](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/misc.md)
-- [Generic Updates Integration](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/generic.md)
+- [Packages](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md)
+- [Licenses](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/licenses.md)
+- [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md)
+- [Generic Updates Integration](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md)
 
 ## Introduction
 
@@ -49,7 +50,7 @@ This plugin adds the following major features to WordPress:
 * **Packages Overview:** manage package updates with a table showing Package Name, Version, Type, File Name, Size, Last Modified and License Status ; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages. Upload updates from your local machine to UpdatePulse Server, or let the system to automatically download them to UpdatePulse Server from a Remote Repository. Store packages either locally, or in the Cloud with an S3 compatible service. Packages can also be managed through their own API.
 * **Remote Sources:** configure the Remote Repository Service of your choice (Bitbucket, Github, Gitlab, or a self-hosted installation of Gitlab) with secure credentials and a branch name where the updates are hosted ; choose to check for updates recurringly, or when receiveing a webhook notification. UpdatePulse Server acts as a middleman between your Remote Repository, your udpates storage (local or Cloud), and your clients.
 * **Licenses:** manage licenses with a table showing ID, License Key, Registered Email, Status, Package Type, Package Slug, Creation Date, and Expiry Date ; add and edit them with a form, or use the API for more control. Licenses prevent packages installed on client machines from being updated without a valid license. Licenses are generated automatically by default and the values are unguessable (it is recommended to keep the default). When checking the validity of licenses an extra license signature is also checked to prevent the use of a license on more than the configured allowed domains.
-* **Not limited to WordPress:** with a platform-agnostic API, updates can be served for any type of package, not just WordPress plugins & themes. Basic examples of integration with Node.js, PHP, bash, and Python are provided in the [documentation](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/generic.md).
+* **Not limited to WordPress:** with a platform-agnostic API, updates can be served for any type of package, not just WordPress plugins & themes. Basic examples of integration with Node.js, PHP, bash, and Python are provided in the [documentation](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md).
 * **API & Webhooks:** Use the Package API to administer packages (browse, read, edit, add, delete), and request for expirable signed URLs of packages to allow secure downloads. Use the License API to administer licenses (browse, read, edit, add, delete) and check, activate or deactivate licenses. Fire Webhooks to notify any URL of your choice of key events affecting packages and licenses. 
 
 To connect their packages and UpdatePulse Server, developers can find integration examples in `updatepulse-server/integration`:
@@ -109,7 +110,7 @@ Note: the screenshots are updated regularly, but the actual interface may vary s
 
 ## User Interface
 
-Aside from a help page, UpdatePulse Server provides a user interface to manage packages, manage licenses, manage Remote Repository connection, and to configure API & Webhooks.
+UpdatePulse Server provides a user interface to manage packages, manage licenses, manage Remote Repository connection, and to configure API & Webhooks.
 
 ### Packages Overview
 
@@ -150,7 +151,7 @@ Use Remote Repository Service         | checkbox  | Enables this server to downl
 Remote Repository Service URL         | text      | The URL of the Remote Repository Service where packages are hosted.<br/>Must follow the following pattern: `https://repository-service.tld/username` where `https://repository-service.tld` may be a self-hosted instance of Gitlab.<br/>Each package repository URL must follow the following pattern: `https://repository-service.tld/username/package-slug/` ; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern `package-slug.php`.
 Self-hosted Remote Repository Service | checkbox  | Check this only if the Remote Repository Service is a self-hosted instance of Gitlab.
 Packages branch name                  | text      | The branch to download when getting remote packages from the Remote Repository Service.
-Remote Repository Service credentials | text      | Credentials for non-publicly accessible repositories.<br/>In the case of Github and Gitlab, an access token (`token`).<br/>In the case of Bitbucket, the Consumer key and secret separated by a pipe (`consumer_key\|consumer_secret`). IMPORTANT: when creating the consumer, "This is a private consumer" must be checked.	
+Remote Repository Service credentials | text      | Credentials for non-publicly accessible repositories.<br/>In the case of Github and Gitlab, an access token (`token`).<br/>In the case of Bitbucket, the Consumer key and secret separated by a pipe (`consumer_key\|consumer_secret`).<br>IMPORTANT: when creating the BitBucket Consumer, "This is a private consumer" must be checked.	
 Use Webhooks                          | checkbox  | Check so that each repository of the Remote Repository Service calls a Webhook when updates are pushed.<br>When checked, UpdatePulse Server will not regularly poll repositories for package version changes, but relies on events sent by the repositories to schedule a package download.<br>Webhook URL: `https://domain.tld/updatepulse-server-webhook/package-type/package-slug` - where `package-type` is the package type (`plugin`, `theme`, or `generic`) and `package-slug` is the slug of the package that needs updates.<br>Note that UpdatePulse Server does not rely on the content of the payload to schedule a package download, so any type of event can be used to trigger the Webhook.
 Remote Download Delay                 | number    | Delay in minutes after which UpdatePulse Server will poll the Remote Repository for package updates when the Webhook has been called.<br>Leave at `0` to schedule a package update during the cron run happening immediately after the Webhook notification was received.
 Remote Repository Webhook Secret      | text      | Ideally a random string, the secret string included in the request by the repository service when calling the Webhook.<br>**WARNING: Changing this value will invalidate all the existing Webhooks set up on all package repositories.**<br>After changing this setting, make sure to update the Webhooks secrets in the repository service.
@@ -324,7 +325,17 @@ Number of included/required scripts by the plugin: 11
 
 The following can also be found under the "Help" tab of the UpdatePulse Server admin page.  
 
-### Provide updates with UpdatePulse Server - packages requirements 
+### Registering packages with a Remote Repository Service
+
+Register a package using a Remote Repository', 'updatepulse-server' ) . '</strong>',
+- using the "Register a package using a Remote Repository" feature in the "Packages Overview" tab of UpdatePulse Server
+- calling the `add` method of the [package API](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md)
+- calling `wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>` in the [command line](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md#wp-cli)
+- calling the [upserv_download_remote_package](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md#upserv_download_remote_package) method in your own code
+- triggering a webhook from a Remote Repository.  
+Webhook URL: `https://domain.tld/updatepulse-server-webhook/package-type/package-slug` - where `package-type` is the package type (`plugin`, `theme`, or `generic`) and `package-slug` is the slug of the package to register.
+
+### Provide updates with UpdatePulse Server - packages requirements
 
 To link your packages to UpdatePulse Server, and optionally to prevent webmasters from getting updates of your ppackages without a license, your packages need to include some extra code.  
 
@@ -356,14 +367,14 @@ The "Licensed With" header is used to link packages together (for example, in th
 - Connect UpdatePulse Server with your repository and prime your package, or manually upload your package to UpdatePulse Server.
 
 For generic packages, the steps involved entirely depend on the language used to write the package and the update process of the target platform.  
-You may refer to the documentation found [here](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/generic.md).
+You may refer to the documentation found [here](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md).
 ___
 
 See `wp-content/plugins/updatepulse-server/integration/dummy-plugin` for an example of plugin, and  `wp-content/plugins/updatepulse-server/integration/dummy-theme` for an example of theme. They are fully functionnal and can be used to test all the features of the server with a test client installation of WordPress.  
 
 See `wp-content/plugins/updatepulse-server/integration/dummy-generic` for examples of a generic package written in Bash, NodeJS, PHP with Curl, and Python. The API calls made by generic packages to the license API and Update API are the same as the WordPress packages. Unlike the upgrade library provided with plugins & themes, the code found in `updatepulse-api.[sh|php|js|py]` files is **NOT ready for production environment and MUST be adapted**.
 
-Unless "Use Remote Repository Service" is checked in "Remote Sources", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
+Unless "Use Remote Repository Service" is checked in "Remote Sources", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
 
 ### UpdatePulse Server Endpoint Optimizer - requests optimisation
 
@@ -373,7 +384,7 @@ To address this, the file `wp-content/plugins/updatepulse-server/optimisation/up
 
 The resulting Must Use Plugin runs before everything else, preventing themes and other plugins from executing when UpdatePulse Server receives an API request.
 
-To alter the behaviour of the optimiser, see the `upserv_mu_optimizer_*` filters in [Miscellaneous](https://github.com/froger-me/updatepulse-server/blob/main/integration/docs/misc.md).
+To alter the behaviour of the optimiser, see the `upserv_mu_optimizer_*` filters in [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md).
 
 ### More help...
 

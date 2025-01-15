@@ -3,8 +3,73 @@
 } ?>
 <div class="wrap upserv-wrap">
 	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
+	<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
 	<div class="help-content">
-		<h2><?php esc_html_e( 'Provide updates with UpdatePulse Server - packages requirements', 'updatepulse-server' ); ?></h2>
+		<h2><?php esc_html_e( 'Registering packages with a Remote Repository Service', 'updatepulse-server' ); ?></h2>
+		<p>
+			<?php esc_html_e( 'It is necessary to initialize packages linked to a Remote Repository for them to be available in UpdatePulse Server with one of the following methods:', 'updatepulse-server' ); ?>
+		</p>
+		<ul class="description">
+			<li>
+				<?php
+					printf(
+						// translators: %1$s is <strong>Register a package using a Remote Repository</strong>, %2$s is <a href="admin.php?page=upserv-page">Packages Overview</a>
+						esc_html__( 'using the %1$s feature in %2$s', 'updatepulse-server' ),
+						'<strong>' . esc_html__( 'Register a package using a Remote Repository', 'updatepulse-server' ) . '</strong>',
+						'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page' ) ) . '">' . esc_html__( 'Packages Overview' ) . '</a>'
+					);
+				?>
+			</li>
+			<li>
+				<?php
+					printf(
+						// translators: %s is <code>add</code>
+						esc_html__( 'calling the %s method of the package API', 'updatepulse-server' ),
+						'<code>add</code>'
+					);
+				?>
+			</li>
+			<li>
+				<?php
+					printf(
+						// translators: %s is <code>wp updatepulse download_remote_package my-package plugin</code>
+						esc_html__( 'calling %s in the command line', 'updatepulse-server' ),
+						'<code>' . esc_html( 'wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>' ) . '</code>'
+					);
+				?>
+			</li>
+			<li>
+				<?php
+					printf(
+						// translators: %s is <code>upserv_download_remote_package( string $package_slug, string $type );</code>
+						esc_html__( 'calling the %s method in your own code', 'updatepulse-server' ),
+						'<code>upserv_download_remote_package( string $package_slug, string $type );</code>'
+					);
+				?>
+			</li>
+			<li>
+				<?php
+					esc_html_e( 'triggering a webhook from a Remote Repository' );
+				?>
+				<br>
+				<?php
+				printf(
+					// translators: %1$s is the webhook URL, %2$s is <code>package-type</code>, %3$s is <code>plugin</code>, %4$s is <code>theme</code>, %5$s is <code>generic</code>, %6$s is <code>package-slug</code>
+					esc_html__( 'Webhook URL: %1$s - where %2$s is the package type ( %3$s or %4$s or %5$s ) and %6$s is the slug of the package to register.', 'updatepulse-server' ),
+					'<code>' . esc_url( home_url( '/updatepulse-server-webhook/package-type/package-slug' ) ) . '</code>',
+					'<code>package-type</code>',
+					'<code>plugin</code>',
+					'<code>theme</code>',
+					'<code>generic</code>',
+					'<code>package-slug</code>'
+				);
+				?>
+			</li>
+		</ul>
+	</div>
+	<?php endif; ?>
+	<div class="help-content">
+		<h2><?php esc_html_e( 'Providing updates - packages requirements', 'updatepulse-server' ); ?></h2>
 		<p>
 			<?php esc_html_e( 'To link your packages to UpdatePulse Server, and optionally to prevent users from getting updates of your packages without a license, your packages need to include some extra code.', 'updatepulse-server' ); ?><br><br>
 			<?php esc_html_e( 'For plugins, and themes, it is fairly straightforward:', 'updatepulse-server' ); ?>
@@ -109,7 +174,7 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 			<?php
 			printf(
 				// translators: %1$s is <code>integration/dummy-plugin</code>, %2$s is <code>integration/dummy-theme</code>
-				esc_html__( 'See %1$s for an example of plugin, and %2$ss for an example of theme. They are fully functionnal and can be used to test all the features of the server with a test client installation of WordPress.', 'updatepulse-server' ),
+				esc_html__( 'See %1$s for an example of plugin, and %2$s for an example of theme. They are fully functionnal and can be used to test all the features of the server with a test client installation of WordPress.', 'updatepulse-server' ),
 				'<code>' . esc_html( UPSERV_PLUGIN_PATH ) . 'integration/dummy-theme</code>',
 				'<code>' . esc_html( UPSERV_PLUGIN_PATH ) . 'integration/dummy-plugin</code>',
 			);
@@ -129,7 +194,7 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 			<?php
 			printf(
 				// translators: %1$s is <code>packages_dir</code>, %2$s is <code>package-slug.zip</code>, %3$s is <code>package-slug.php</code>
-				esc_html__( 'Unless "Use Remote Repository Service" is checked in "Remote Sources", you need to manually upload the packages zip archives (and subsequent updates) in %1$s. A package needs to a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in %2$s would be %3$s.', 'updatepulse-server' ),
+				esc_html__( 'Unless "Use Remote Repository Service" is checked in "Remote Sources", you need to manually upload the packages zip archives (and subsequent updates) in %1$s. A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in %2$s would be %3$s.', 'updatepulse-server' ),
 				'<code>' . esc_html( $packages_dir ) . '</code>',
 				'<code>package-slug.zip</code>',
 				'<code>package-slug.php</code>',

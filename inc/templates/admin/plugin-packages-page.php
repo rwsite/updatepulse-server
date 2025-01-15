@@ -10,41 +10,16 @@
 		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
 		<ul class="description">
 			<li>
-				<?php esc_html_e( 'It is necessary to initialize packages linked to a Remote Repository for them to appear in this list, with one of the following methods:', 'updatepulse-server' ); ?>
-				<ul>
-					<li>
-						<?php esc_html_e( 'using the "Prime a package using a Remote Repository" below', 'updatepulse-server' ); ?>
-					</li>
-					<li>
-						<?php
-							printf(
-								// translators: %s is <code>add</code>
-								esc_html__( 'calling the %s method of the package API', 'updatepulse-server' ),
-								'<code>add</code>'
-							);
-						?>
-					</li>
-					<li>
-						<?php
-							printf(
-								// translators: %s is <code>wp updatepulse download_remote_package my-package plugin</code>
-								esc_html__( 'calling %s in the command line', 'updatepulse-server' ),
-								'<code>' . esc_html( 'wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>' ) . '</code>'
-							);
-						?>
-					</li>
-					<li>
-						<?php
-							printf(
-								// translators: %s is <code>upserv_download_remote_package( string $package_slug, string $type );</code>
-								esc_html__( 'calling the %s method in your own code', 'updatepulse-server' ),
-								'<code>upserv_download_remote_package( string $package_slug, string $type );</code>'
-							);
-						?>
-				</ul>
+				<?php
+				printf(
+					// translators: %s <a href="admin.php?page=upserv-page-help">initialize packages</a>
+					esc_html__( 'It is necessary to %s linked to a Remote Repository for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
+					'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page-help' ) ) . '">' . esc_html__( 'register packages', 'updatepulse-server' ) . '</a>'
+				);
+				?>
 			</li>
 			<li>
-				<?php esc_html_e( 'If packages linked to a Remote Repository are deleted using this interface, they need to be re-initialized to appear in this list.', 'updatepulse-server' ); ?>
+				<?php esc_html_e( 'If packages linked to a Remote Repository are deleted using this interface, they need to be registered again to become available in UpdatePulse Server.', 'updatepulse-server' ); ?>
 			</li>
 		</ul>
 		<?php endif; ?>
@@ -57,7 +32,7 @@
 		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
 		<tr>
 			<th>
-				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Prime a package using a Remote Repository (recommended)', 'updatepulse-server' ); ?></label>
+				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository (recommended)', 'updatepulse-server' ); ?></label>
 			</th>
 			<td>
 				<input class="regular-text" type="text" id="upserv_prime_package_slug" placeholder="<?php esc_attr_e( 'package-slug' ); ?>" name="upserv_prime_package_slug" value=""> <input type="button" id="upserv_prime_package_trigger" value="<?php print esc_attr_e( 'Get remote package', 'updatepulse-server' ); ?>" class="button button-primary" disabled /><div class="spinner"></div>
