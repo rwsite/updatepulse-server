@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-use Anyape\UpdatePulse\Server\Server\License_Server;
+use Anyape\UpdatePulse\Server\Server\License\License_Server;
 
 class License_API {
 

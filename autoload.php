@@ -16,14 +16,15 @@ function autoload( $class_name ) {
 	}
 
 	if ( ! $path && 0 === strpos( $class_name, 'Anyape\\UpdatePulse\\Server\\' ) ) {
-		$namespace_parts = explode( '\\', $class_name );
-		$class_name      = array_pop( $namespace_parts );
-		$folder_name     = strtolower( array_pop( $namespace_parts ) );
-		$path            = UPSERV_PLUGIN_PATH . 'inc/'
-			. $folder_name
-			. '/class-'
-			. str_replace( '_', '-', strtolower( $class_name ) )
-			. '.php';
+		$namespace_frags = explode( '\\', $class_name );
+		$class_frag      = str_replace( '_', '-', strtolower( array_pop( $namespace_frags ) ) );
+		$folder_frag     = str_replace( '_', '-', strtolower( array_pop( $namespace_frags ) ) );
+
+		if ( false !== strpos( 'server', $class_frag ) ) {
+			$folder_frag = $class_frag . '/' . $folder_frag;
+		}
+
+		$path = UPSERV_PLUGIN_PATH . 'inc/' . $folder_frag . '/class-' . $class_frag . '.php';
 	}
 
 	if ( $path && file_exists( $path ) ) {

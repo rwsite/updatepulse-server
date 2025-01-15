@@ -8,8 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use DateTime;
 use DateTimeZone;
-use Anyape\UpdatePulse\Server\Server\License_Server;
 use Anyape\UpdatePulse\Server\Table\Licenses_Table;
+use Anyape\UpdatePulse\Server\Server\License\License_Server;
 
 class License_Manager {
 

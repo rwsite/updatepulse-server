@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\UpdatePulse\Server\Server;
+namespace Anyape\UpdatePulse\Server\Server\Update;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
@@ -16,6 +16,7 @@ use WP_Error;
 use Exception;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
+use Anyape\UpdatePulse\Server\Server\License\License_Server;
 
 class Update_Server extends Wpup_UpdateServer {
 
