@@ -10,7 +10,7 @@ function autoload( $class_name ) {
 
 	$path = false;
 
-	if ( 0 === \strpos( $class_name, __NAMESPACE__ . '\\' ) ) {
+	if ( 0 === \strpos( $class_name, __NAMESPACE__ . '\\UPServ' ) ) {
 		$path = UPSERV_PLUGIN_PATH
 			. 'inc/class-'
 			. \strtolower(
