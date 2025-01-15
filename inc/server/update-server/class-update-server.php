@@ -4,12 +4,13 @@ namespace Anyape\UpdatePulse\Server\Server\Update;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
-use Wpup_UpdateServer;
 use Wpup_Package;
 use WshWordPressPackageParser_Extended;
 use Wpup_FileCache;
 use Wpup_Package_Extended;
 use Wpup_Request;
+use Wpup_Headers;
+use Wpup_InvalidPackageException;
 use DateTime;
 use DateTimeZone;
 use WP_Error;
@@ -18,10 +19,15 @@ use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
 
-class Update_Server extends Wpup_UpdateServer {
-
+class Update_Server {
 	const LOCK_REMOTE_UPDATE_SEC = 10;
 
+	protected $package_directory;
+	protected $log_directory;
+	protected $cache;
+	protected $server_url;
+	protected $package_file_loader = array( 'Wpup_Package', 'fromArchive' );
+	protected $timezone;
 	protected $server_directory;
 	protected $use_remote_repository;
 	protected $repository_service_url;
@@ -39,12 +45,26 @@ class Update_Server extends Wpup_UpdateServer {
 		$server_url,
 		$server_directory = null,
 		$repository_service_url = null,
-		$repository_branch = 'master',
+		$repository_branch = 'main',
 		$repository_credentials = null,
 		$repository_service_self_hosted = false
 	) {
-		parent::__construct( $server_url, untrailingslashit( $server_directory ) );
 
+		if ( null === $server_directory ) {
+			$server_directory = realpath( __DIR__ . '/../..' );
+		}
+
+		$this->server_directory = $this->normalize_file_path( untrailingslashit( $server_directory ) );
+
+		if ( null === $server_url ) {
+			$server_url = self::guess_server_url();
+		}
+
+		$this->server_url                     = $server_url;
+		$this->package_directory              = $server_directory . '/packages';
+		$this->log_directory                  = $server_directory . '/logs';
+		$this->cache                          = new Wpup_FileCache( $server_directory . '/cache' );
+		$this->timezone                       = new DateTimeZone( wp_timezone_string() );
 		$this->use_remote_repository          = $use_remote_repository;
 		$this->server_directory               = $server_directory;
 		$this->repository_service_self_hosted = $repository_service_self_hosted;
@@ -56,6 +76,51 @@ class Update_Server extends Wpup_UpdateServer {
 	/*******************************************************************
 	 * Public methods
 	 *******************************************************************/
+
+	/**
+	 * Guess the Server Url based on the current request.
+	 *
+	 * Defaults to the current URL minus the query and "index.php".
+	 *
+	 * @static
+	 *
+	 * @return string Url
+	 */
+	public static function guess_server_url() {
+		$server_url  = is_ssl() ? 'https' : 'http';
+		$server_url .= '://' . $_SERVER['HTTP_HOST'];
+		$path        = $_SERVER['SCRIPT_NAME'];
+
+		if ( basename( $path ) === 'index.php' ) {
+			$path = dirname( $path );
+
+			if ( DIRECTORY_SEPARATOR === '/' ) {
+				$path = str_replace( '\\', '/', $path );
+			}
+		}
+
+		$server_url .= trailingslashit( $path );
+
+		return $server_url;
+	}
+
+	/**
+	 * Process an update API request.
+	 *
+	 * @param array|null $query Query parameters. Defaults to the current GET request parameters.
+	 * @param array|null $headers HTTP headers. Defaults to the headers received for the current request.
+	 */
+	public function handle_request( $query = null, $headers = null ) {
+		$request = $this->init_request( $query, $headers );
+
+		$this->log_request( $request );
+		$this->load_package_for( $request );
+		$this->validate_request( $request );
+		$this->check_authorization( $request );
+		$this->dispatch( $request );
+
+		exit;
+	}
 
 	// Misc. -------------------------------------------------------
 
@@ -81,7 +146,7 @@ class Update_Server extends Wpup_UpdateServer {
 				isset( $file_contents['server'] )
 			) {
 				$url              = filter_var( $file_contents['server'], FILTER_VALIDATE_URL );
-				$server_url_parts = explode( '/', untrailingslashit( $this->serverUrl ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$server_url_parts = explode( '/', untrailingslashit( $this->server_url ) );
 
 				array_pop( $server_url_parts );
 
@@ -195,7 +260,7 @@ class Update_Server extends Wpup_UpdateServer {
 		do_action( 'upserv_check_remote_update', $slug );
 
 		$needs_update  = true;
-		$local_package = $this->findPackage( $slug );
+		$local_package = $this->find_package( $slug );
 
 		if ( $local_package instanceof Wpup_Package ) {
 			$package_path = $local_package->getFileName();
@@ -266,7 +331,7 @@ class Update_Server extends Wpup_UpdateServer {
 
 		self::lock_update_from_remote( $slug );
 
-		$package_path = trailingslashit( $this->packageDirectory ) . $slug . '.zip'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$package_path = trailingslashit( $this->package_directory ) . $slug . '.zip';
 		$result       = false;
 		$type         = false;
 		$cache_key    = false;
@@ -305,13 +370,70 @@ class Update_Server extends Wpup_UpdateServer {
 	 * Protected methods
 	 *******************************************************************/
 
-	// Overrides ---------------------------------------------------
+	/**
+	 * Add one or more query arguments to a URL.
+	 * Setting an argument to `null` removes it.
+	 *
+	 * @param array $args An associative array of query arguments.
+	 * @param string $url The old URL. Optional, defaults to the request url without query arguments.
+	 * @return string New URL.
+	 */
+	protected static function add_query_arg( $args, $url = null ) {
 
-	protected function initRequest( $query = null, $headers = null ) {
-		$request = parent::initRequest( $query, $headers );
+		if ( ! isset( $url ) ) {
+			$url = self::guess_server_url();
+		}
+
+		if ( strpos( $url, '?' ) !== false ) {
+			$parts = explode( '?', $url, 2 );
+			$base  = $parts[0] . '?';
+
+			parse_str( $parts[1], $query );
+		} else {
+			$base  = $url . '?';
+			$query = array();
+		}
+
+		$query = array_merge( $query, $args );
+
+		//Remove null/false arguments.
+		$query = array_filter(
+			$query,
+			function ( $value ) {
+				return ( null !== $value ) && ( false !== $value );
+			}
+		);
+
+		return $base . http_build_query( $query, '', '&' );
+	}
+
+	protected function dispatch( $request ) {
+
+		if ( 'get_metadata' === $request->action ) {
+			$this->action_get_metadata( $request );
+		} elseif ( 'download' === $request->action ) {
+			$this->action_download( $request );
+		} else {
+			$this->exit_with_error( sprintf( 'Invalid action "%s".', htmlentities( $request->action ) ), 400 );
+		}
+	}
+
+	protected function init_request( $query = null, $headers = null ) {
+
+		if ( null === $query ) {
+			$query = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		}
+
+		if ( null === $headers ) {
+			$headers = Wpup_Headers::parseCurrent();
+		}
+
+		$client_ip   = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+		$http_method = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+		$request     = new Wpup_Request( $query, $headers, $client_ip, $http_method );
 
 		if ( ! upserv_is_package_whitelisted( $request->slug ) ) {
-			$this->exitWithError( 'Invalid package.', 404 );
+			$this->exit_with_error( 'Invalid package.', 404 );
 		}
 
 		if ( $request->param( 'type' ) ) {
@@ -321,47 +443,10 @@ class Update_Server extends Wpup_UpdateServer {
 
 		$request->token = $request->param( 'token' );
 
-		if ( $request->param( 'license_key' ) ) {
-			$result = false;
-
-			if ( $request->param( 'licensed_with' ) ) {
-				$info = upserv_get_package_info( $request->slug, false );
-
-				if (
-					$info &&
-					isset( $info['licensed_with'] ) &&
-					$request->param( 'licensed_with' ) === $info['licensed_with']
-				) {
-					$main_package_info = upserv_get_package_info( $info['licensed_with'], false );
-					$result            = $this->verify_license_exists(
-						$info['licensed_with'],
-						$main_package_info['type'],
-						$request->param( 'license_key' )
-					);
-				}
-			}
-
-			if ( ! $result ) {
-				$result = $this->verify_license_exists(
-					$request->slug,
-					$request->type,
-					$request->param( 'license_key' )
-				);
-			}
-
-			$request->license_key       = $request->param( 'license_key' );
-			$request->license_signature = $request->param( 'license_signature' );
-			$request->license           = $result;
-
-			$this->license_key       = $request->license_key;
-			$this->license_signature = $request->license_signature;
-		}
-
-		return $request;
+		return $this->init_license_request( $request );
 	}
 
-	protected function checkAuthorization( $request ) {
-		parent::checkAuthorization( $request );
+	protected function check_authorization( $request ) {
 
 		if (
 			'download' === $request->action &&
@@ -369,58 +454,98 @@ class Update_Server extends Wpup_UpdateServer {
 		) {
 			$message = __( 'The download URL token has expired.', 'updatepulse-server' );
 
-			$this->exitWithError( $message, 403 );
+			$this->exit_with_error( $message, 403 );
 		}
 
-		if ( ! upserv_is_package_require_license( $request->slug ) ) {
-			return;
-		}
-
-		$license           = $request->license;
-		$license_signature = $request->license_signature;
-		$valid             = $this->is_license_valid( $license, $license_signature );
-
-		if (
-			'download' === $request->action &&
-			! apply_filters( 'upserv_license_valid', $valid, $license, $license_signature )
-		) {
-			$this->exitWithError( 'Invalid license key or signature.', 403 );
-		}
+		$this->check_license_authorization( $request );
 	}
 
-	protected function generateDownloadUrl( Wpup_Package $package ) {
+	protected function generate_download_url( Wpup_Package $package ) {
 		$metadata = $package->getMetadata();
 
 		$this->set_type( $metadata['type'] );
 
-		$query = array(
-			'action'      => 'download',
-			'package_id'  => $package->slug,
-			'update_type' => $this->type,
+		$query          = $this->filter_license_download_query(
+			array(
+				'action'      => 'download',
+				'package_id'  => $package->slug,
+				'update_type' => $this->type,
+			)
 		);
+		$query['token'] = isset( $query['token'] ) ? $query['token'] : upserv_create_nonce();
 
-		if ( upserv_is_package_require_license( $package->slug ) ) {
-			$query['token']             = upserv_create_nonce( true, DAY_IN_SECONDS / 2 );
-			$query['license_key']       = $this->license_key;
-			$query['license_signature'] = $this->license_signature;
-		} else {
-			$query['token'] = upserv_create_nonce();
-		}
-
-		return self::addQueryArg( $query, $this->serverUrl ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		return self::add_query_arg( $query, $this->server_url );
 	}
 
-	protected function actionDownload( Wpup_Request $request ) {
+	protected function action_download( Wpup_Request $request ) {
 		do_action( 'upserv_update_server_action_download', $request );
 
-		$handled = apply_filters( 'upserv_update_server_action_download_handled', false, $request );
+		if ( apply_filters( 'upserv_update_server_action_download_handled', false, $request ) ) {
+			return;
+		}
 
-		if ( ! $handled ) {
-			parent::actionDownload( $request );
+		//Required for IE, otherwise Content-Disposition may be ignored.
+		if ( ini_get( 'zlib.output_compression' ) ) {
+			@ini_set( 'zlib.output_compression', 'Off' ); // phpcs:ignore WordPress.PHP.IniSet.Risky, WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		$package = $request->package;
+
+		header( 'Content-Type: application/zip' );
+		header( 'Content-Disposition: attachment; file_name="' . $package->slug . '.zip"' );
+		header( 'Content-Transfer-Encoding: binary' );
+		header( 'Content-Length: ' . $package->getFileSize() );
+
+		readfile( $package->getFilename() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
+	}
+
+	/**
+	 * Basic request validation. Every request must specify an action and a valid package slug.
+	 *
+	 * @param Wpup_Request $request
+	 */
+	protected function validate_request( $request ) {
+
+		if ( ! $request->action ) {
+			$this->exit_with_error( 'You must specify an action.', 400 );
+		}
+
+		if ( ! $request->slug ) {
+			$this->exit_with_error( 'You must specify a package slug.', 400 );
+		}
+
+		if ( ! $request->package ) {
+			$this->exit_with_error( 'Package not found', 404 );
 		}
 	}
 
-	protected function findPackage( $slug, $check_remote = true ) {
+	/**
+	 * Load the requested package into the request instance.
+	 *
+	 * @param Wpup_Request $request
+	 */
+	protected function load_package_for( $request ) {
+
+		if ( empty( $request->slug ) ) {
+			return;
+		}
+
+		try {
+			$request->package = $this->find_package( $request->slug );
+		} catch ( Wpup_InvalidPackageException $ex ) {
+			$this->exit_with_error(
+				sprintf(
+					'Package "%s" exists, but it is not a valid plugin or theme. ' .
+					'Make sure it has the right format ( Zip ) and directory structure.',
+					htmlentities( $request->slug )
+				)
+			);
+
+			exit;
+		}
+	}
+
+	protected function find_package( $slug, $check_remote = true ) {
 		WP_Filesystem();
 
 		global $wp_filesystem;
@@ -438,7 +563,7 @@ class Update_Server extends Wpup_UpdateServer {
 		}
 
 		$is_package_ready = false;
-		$filename         = trailingslashit( $this->packageDirectory ) . $safe_slug . '.zip'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$filename         = trailingslashit( $this->package_directory ) . $safe_slug . '.zip';
 		$save_to_local    = apply_filters(
 			'upserv_save_remote_to_local',
 			! $wp_filesystem->is_file( $filename ) || ! $wp_filesystem->is_readable( $filename ),
@@ -457,7 +582,7 @@ class Update_Server extends Wpup_UpdateServer {
 			}
 
 			if ( true === $is_package_ready ) {
-				return $this->findPackage( $slug, false );
+				return $this->find_package( $slug, false );
 			}
 		}
 
@@ -471,7 +596,7 @@ class Update_Server extends Wpup_UpdateServer {
 
 				$date = new DateTime(
 					'now + ' . $expiry_lentgh . ' seconds',
-					new DateTimeZone( wp_timezone_string() )
+					$this->timezone
 				);
 
 				php_log(
@@ -514,63 +639,233 @@ class Update_Server extends Wpup_UpdateServer {
 		return $package;
 	}
 
-	protected function actionGetMetadata( Wpup_Request $request ) {
+	protected function action_get_metadata( Wpup_Request $request ) {
 		$meta = array();
 
 		if ( $request->package ) {
 			$meta                 = $request->package->getMetadata();
-			$meta['download_url'] = $this->generateDownloadUrl( $request->package );
+			$meta['download_url'] = $this->generate_download_url( $request->package );
 		} else {
 			$meta['error']   = 'invalid_package';
 			$meta['message'] = __( 'Invalid package.', 'updatepulse-server' );
 		}
 
-		$meta                 = $this->filterMetadata( $meta, $request );
+		$meta                 = $this->filter_metadata( $meta, $request );
 		$meta['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 
-		$this->outputAsJson( $meta );
+		$this->output_as_json( $meta );
 
 		exit;
 	}
 
-	protected function filterMetadata( $meta, $request ) {
-		$meta = parent::filterMetadata( $meta, $request );
+	protected function filter_metadata( $meta, $request ) {
+		$meta = array_filter(
+			$meta,
+			function ( $value ) {
+				return null !== $value;
+			}
+		);
 
-		if (
-			! isset( $meta['slug'] ) ||
-			! upserv_is_package_require_license( $meta['slug'] )
-		) {
+		if ( ! isset( $meta['slug'] ) ) {
 			return $meta;
 		}
 
-		$license           = $request->license;
-		$license_signature = $request->license_signature;
+		return $this->filter_license_metadata( $meta, $request );
+	}
 
-		if ( is_object( $license ) || is_array( $license ) ) {
-			$meta['license'] = $this->prepare_license_for_output( $license );
+	/**
+	 * Convert all directory separators to forward slashes.
+	 *
+	 * @param string $path
+	 * @return string
+	 */
+	protected function normalize_file_path( $path ) {
+
+		if ( ! is_string( $path ) ) {
+			return $path;
 		}
 
-		if (
-			apply_filters(
-				'upserv_license_valid',
-				$this->is_license_valid( $license, $license_signature ),
-				$license,
-				$license_signature
-			)
-		) {
-			$args                 = array(
-				'license_key'       => $request->license_key,
-				'license_signature' => $request->license_signature,
+		return str_replace( array( DIRECTORY_SEPARATOR, '\\' ), '/', $path );
+	}
+
+	/**
+	 * Log an API request.
+	 *
+	 * @param Wpup_Request $request
+	 */
+	protected function log_request( $request ) {
+		$log_file = $this->get_log_file_name();
+		$handle   = fopen( $log_file, 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+
+		if ( $handle && flock( $handle, LOCK_EX ) ) {
+			$logged_ip = $request->client_ip;
+			$columns   = array(
+				'ip'                => $logged_ip,
+				'http_method'       => $request->http_method,
+				'action'            => $request->param( 'action', '-' ),
+				'slug'              => $request->param( 'slug', '-' ),
+				'installed_version' => $request->param( 'installed_version', '-' ),
+				'wp_version'        => isset( $request->wp_version ) ? $request->wp_version : '-',
+				'site_url'          => isset( $request->wp_site_url ) ? $request->wp_site_url : '-',
+				'query'             => http_build_query( $request->query, '', '&' ),
 			);
-			$meta['download_url'] = self::addQueryArg( $args, $meta['download_url'] );
-		} else {
-			unset( $meta['download_url'] );
-			unset( $meta['license'] );
+			$columns   = $this->escape_log_info( $columns );
 
-			$meta['license_error'] = $this->get_license_error( $license );
+			if ( isset( $columns['ip'] ) ) {
+				$columns['ip'] = str_pad( $columns['ip'], 15, ' ' );
+			}
+
+			if ( isset( $columns['http_method'] ) ) {
+				$columns['http_method'] = str_pad( $columns['http_method'], 4, ' ' );
+			}
+
+			$date = new DateTime( 'now', $this->timezone );
+			$line = $date->format( '[Y-m-d H:i:s O]' ) . ' ' . implode( "\t", $columns ) . "\n";
+
+			fwrite( $handle, $line ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+			flock( $handle, LOCK_UN );
 		}
 
-		return $meta;
+		if ( $handle ) {
+			fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+		}
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function get_log_file_name() {
+		$path  = $this->log_directory . '/request';
+		$date  = new DateTime( 'now', $this->timezone );
+		$path .= '-' . $date->format( 'Y-m-d' );
+
+		return $path . '.log';
+	}
+
+	/**
+	 * Escapes passed log data so it can be safely written into a plain text file.
+	 *
+	 * @param string[] $columns List of columns in the log entry.
+	 * @return string[] Escaped $columns.
+	 */
+	protected function escape_log_info( $columns ) {
+		return array_map( array( $this, 'escape_log_value' ), $columns );
+	}
+
+	/**
+	 * Escapes passed value to be safely written into a plain text file.
+	 *
+	 * @param string|null $value Value to escape.
+	 * @return string|null Escaped value.
+	 */
+	protected function escape_log_value( $value ) {
+
+		if ( ! isset( $value ) ) {
+			return null;
+		}
+
+		$value = (string) $value;
+		$regex = '/[[:^graph:]]/';
+
+		//preg_replace_callback will return NULL if the input contains invalid Unicode sequences,
+		//so only enable the Unicode flag if the input encoding looks valid.
+		/** @noinspection PhpComposerExtensionStubsInspection */
+		if ( function_exists( 'mb_check_encoding' ) && mb_check_encoding( $value, 'UTF-8' ) ) {
+			$regex = $regex . 'u';
+		}
+
+		$value = str_replace( '\\', '\\\\', $value );
+		$value = preg_replace_callback(
+			$regex,
+			function ( array $matches ) {
+				$length  = strlen( $matches[0] );
+				$escaped = '';
+
+				for ( $i = 0; $i < $length; $i++ ) {
+					//Convert the character to a hexadecimal escape sequence.
+					$hex_code = dechex( ord( $matches[0][ $i ] ) );
+					$escaped .= '\x' . strtoupper( str_pad( $hex_code, 2, '0', STR_PAD_LEFT ) );
+				}
+
+				return $escaped;
+			},
+			$value
+		);
+
+		return $value;
+	}
+
+	protected function exit_with_error( $message = '', $http_status = 500 ) {
+		$status_messages = array(
+			// This is not a full list of HTTP status messages. We only need the errors.
+			// [Client Error 4xx]
+			400 => '400 Bad Request',
+			401 => '401 Unauthorized',
+			402 => '402 Payment Required',
+			403 => '403 Forbidden',
+			404 => '404 Not Found',
+			405 => '405 Method Not Allowed',
+			406 => '406 Not Acceptable',
+			407 => '407 Proxy Authentication Required',
+			408 => '408 Request Timeout',
+			409 => '409 Conflict',
+			410 => '410 Gone',
+			411 => '411 Length Required',
+			412 => '412 Precondition Failed',
+			413 => '413 Request Entity Too Large',
+			414 => '414 Request-URI Too Long',
+			415 => '415 Unsupported Media Type',
+			416 => '416 Requested Range Not Satisfiable',
+			417 => '417 Expectation Failed',
+			// [Server Error 5xx]
+			500 => '500 Internal Server Error',
+			501 => '501 Not Implemented',
+			502 => '502 Bad Gateway',
+			503 => '503 Service Unavailable',
+			504 => '504 Gateway Timeout',
+			505 => '505 HTTP Version Not Supported',
+		);
+
+		if ( ! isset( $_SERVER['SERVER_PROTOCOL'] ) || '' === $_SERVER['SERVER_PROTOCOL'] ) {
+			$protocol = 'HTTP/1.1';
+		} else {
+			$protocol = $_SERVER['SERVER_PROTOCOL'];
+		}
+
+		//Output a HTTP status header.
+		if ( isset( $status_messages[ $http_status ] ) ) {
+			header( $protocol . ' ' . $status_messages[ $http_status ] );
+			$title = $status_messages[ $http_status ];
+		} else {
+			header( 'X-Ws-Update-Server-Error: ' . $http_status, true, $http_status );
+			$title = 'HTTP ' . $http_status;
+		}
+
+		if ( '' === $message ) {
+			$message = $title;
+		}
+
+		//And a basic HTML error message.
+		printf(
+			'<html>
+				<head> <title>%1$s</title> </head>
+				<body> <h1>%1$s</h1> <p>%2$s</p> </body>
+			 </html>',
+			esc_html( $title ),
+			esc_html( $message )
+		);
+		exit;
+	}
+
+	/**
+	 * Output data as JSON.
+	 *
+	 * @param mixed $response
+	 */
+	protected function output_as_json( $response ) {
+		header( 'Content-Type: application/json; charset=utf-8' );
+
+		echo wp_json_encode( $response, JSON_PRETTY_PRINT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	// Misc. -------------------------------------------------------
@@ -704,7 +999,7 @@ class Update_Server extends Wpup_UpdateServer {
 			$slug,
 			$package_file_name,
 			$this->type,
-			$this->packageDirectory, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$this->package_directory,
 			$this->repository_service_self_hosted
 		);
 
@@ -784,6 +1079,116 @@ class Update_Server extends Wpup_UpdateServer {
 		}
 
 		return $local_filename;
+	}
+
+	// Licenses -------------------------------------------------------
+
+	protected function init_license_request( $request ) {
+
+		if ( ! $request->param( 'license_key' ) ) {
+			return $request;
+		}
+
+		$result = false;
+
+		if ( $request->param( 'licensed_with' ) ) {
+			$info = upserv_get_package_info( $request->slug, false );
+
+			if (
+				$info &&
+				isset( $info['licensed_with'] ) &&
+				$request->param( 'licensed_with' ) === $info['licensed_with']
+			) {
+				$main_package_info = upserv_get_package_info( $info['licensed_with'], false );
+				$result            = $this->verify_license_exists(
+					$info['licensed_with'],
+					$main_package_info['type'],
+					$request->param( 'license_key' )
+				);
+			}
+		}
+
+		if ( ! $result ) {
+			$result = $this->verify_license_exists(
+				$request->slug,
+				$request->type,
+				$request->param( 'license_key' )
+			);
+		}
+
+		$request->license_key       = $request->param( 'license_key' );
+		$request->license_signature = $request->param( 'license_signature' );
+		$request->license           = $result;
+
+		$this->license_key       = $request->license_key;
+		$this->license_signature = $request->license_signature;
+
+		return $request;
+	}
+
+	protected function filter_license_metadata( $meta, $request ) {
+
+		if ( ! upserv_is_package_require_license( $meta['slug'] ) ) {
+			return $meta;
+		}
+
+		$license           = $request->license;
+		$license_signature = $request->license_signature;
+
+		if ( is_object( $license ) || is_array( $license ) ) {
+			$meta['license'] = $this->prepare_license_for_output( $license );
+		}
+
+		if (
+			apply_filters(
+				'upserv_license_valid',
+				$this->is_license_valid( $license, $license_signature ),
+				$license,
+				$license_signature
+			)
+		) {
+			$args                 = array(
+				'license_key'       => $request->license_key,
+				'license_signature' => $request->license_signature,
+			);
+			$meta['download_url'] = self::add_query_arg( $args, $meta['download_url'] );
+		} else {
+			unset( $meta['download_url'] );
+			unset( $meta['license'] );
+
+			$meta['license_error'] = $this->get_license_error( $license );
+		}
+
+		return $meta;
+	}
+
+	protected function filter_license_download_query( $query ) {
+
+		if ( upserv_is_package_require_license( $query['package_id'] ) ) {
+			$query['token']             = upserv_create_nonce( true, DAY_IN_SECONDS / 2 );
+			$query['license_key']       = $this->license_key;
+			$query['license_signature'] = $this->license_signature;
+		}
+
+		return $query;
+	}
+
+	protected function check_license_authorization( $request ) {
+
+		if ( ! upserv_is_package_require_license( $request->slug ) ) {
+			return;
+		}
+
+		$license           = $request->license;
+		$license_signature = $request->license_signature;
+		$valid             = $this->is_license_valid( $license, $license_signature );
+
+		if (
+			'download' === $request->action &&
+			! apply_filters( 'upserv_license_valid', $valid, $license, $license_signature )
+		) {
+			$this->exit_with_error( 'Invalid license key or signature.', 403 );
+		}
 	}
 
 	protected function get_license_error( $license ) {
