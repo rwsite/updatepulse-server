@@ -44,6 +44,16 @@
     padding-inline-start: 40px;
 }
 
+.upserv-wrap ul.description,
+.upserv-wrap ul.description ul {
+    list-style: disc;
+    padding: revert;
+}
+
+.upserv-wrap ul.description ul {
+    list-style: circle;
+}
+
 .upserv-wrap .help-content pre {
     background: rgba(0,0,0,.07);
     direction: ltr;

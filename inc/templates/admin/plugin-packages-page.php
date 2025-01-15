@@ -7,17 +7,46 @@
 		<h3><?php esc_html_e( 'Packages', 'updatepulse-server' ); ?></h3>
 		<?php $packages_table->search_box( 'Search', 'updatepulse-server' ); ?>
 		<?php $packages_table->display(); ?>
-		<?php if ( get_option( 'upserv_use_remote_repository' ) || get_option( 'upserv_use_licenses' ) ) : ?>
-		<br/>
-		<p class="description">
-			<?php esc_html_e( 'Notes:', 'updatepulse-server' ); ?>
-			<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
-			<br/>
-				<?php esc_html_e( '- It is not necessary to prime or upload packages linked to a Remote Repository for them to appear in this list: they will be automatically added whenever a client checks for updates.', 'updatepulse-server' ); ?>
-			<br/>
-				<?php esc_html_e( '- If packages linked to a Remote Repository are deleted using this interface, they will be added again to the list automatically whenever a client checks for updates.', 'updatepulse-server' ); ?>
-			<?php endif; ?>
-		</p>
+		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
+		<ul class="description">
+			<li>
+				<?php esc_html_e( 'It is necessary to initialize packages linked to a Remote Repository for them to appear in this list, with one of the following methods:', 'updatepulse-server' ); ?>
+				<ul>
+					<li>
+						<?php esc_html_e( 'using the "Prime a package using a Remote Repository" below', 'updatepulse-server' ); ?>
+					</li>
+					<li>
+						<?php
+							printf(
+								// translators: %s is <code>add</code>
+								esc_html__( 'calling the %s method of the package API', 'updatepulse-server' ),
+								'<code>add</code>'
+							);
+						?>
+					</li>
+					<li>
+						<?php
+							printf(
+								// translators: %s is <code>wp updatepulse download_remote_package my-package plugin</code>
+								esc_html__( 'calling %s in the command line', 'updatepulse-server' ),
+								'<code>' . esc_html( 'wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>' ) . '</code>'
+							);
+						?>
+					</li>
+					<li>
+						<?php
+							printf(
+								// translators: %s is <code>upserv_download_remote_package( string $package_slug, string $type );</code>
+								esc_html__( 'calling the %s method in your own code', 'updatepulse-server' ),
+								'<code>upserv_download_remote_package( string $package_slug, string $type );</code>'
+							);
+						?>
+				</ul>
+			</li>
+			<li>
+				<?php esc_html_e( 'If packages linked to a Remote Repository are deleted using this interface, they need to be re-initialized to appear in this list.', 'updatepulse-server' ); ?>
+			</li>
+		</ul>
 		<?php endif; ?>
 	</form>
 	<br>
