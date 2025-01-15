@@ -129,7 +129,22 @@ class UPServ_License_API {
 	}
 
 	public function read( $license_data ) {
-		$result = $this->license_server->read_license( $license_data );
+		$result = wp_cache_get(
+			'upserv_license_' . md5( wp_json_encode( $license_data ) ),
+			'updatepulse-server',
+			false,
+			$found
+		);
+
+		if ( ! $found ) {
+			$result = $this->license_server->read_license( $license_data );
+
+			wp_cache_set(
+				'upserv_license_' . md5( wp_json_encode( $license_data ) ),
+				$result,
+				'updatepulse-server'
+			);
+		}
 
 		if ( ! is_object( $result ) ) {
 
