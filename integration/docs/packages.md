@@ -331,7 +331,7 @@ $params = array(
     'browse_query' => wp_json_encode(   
         array( 'search' => 'keyword' )
     ),                                 // the JSON representation of an array with a single key 'search' with the value being the keyword used to search in package's slug and package's name (optional - case insensitive)
-    'api_auth_key' => 'secret',        // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'api_auth_key' => 'secret',        // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -372,7 +372,7 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 ```php
 $params = array(
     'action'       => 'read',   // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -513,8 +513,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-    'action'              => 'edit',   // Action to perform when calling the Package API (required)
-    'api_auth_key'        => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'       => 'edit',   // Action to perform when calling the Package API (required)
+    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -655,8 +655,8 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-    'action'              => 'add',    // Action to perform when calling the Package API (required)
-    'api_auth_key'        => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'       => 'add',    // Action to perform when calling the Package API (required)
+    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -803,7 +803,7 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 ```php
 $params = array(
     'action'       => 'delete', // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -828,7 +828,7 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 ```php
 $params = array(
     'action'       => 'signed_url', // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret',     // The Private API Authentication Key (optional - must provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'api_auth_key' => 'secret',     // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
 );
 ```
 
@@ -991,18 +991,18 @@ ___
 ### upserv_download_remote_package
 
 ```php
-upserv_download_remote_package( $slug, $type );
+upserv_download_remote_package( string $package_slug, string $type );
 ```
 
 **Description**  
-Download a package from the Remote Repository down to the package directory on the file system.
+Download a package from the Remote Repository to the package directory on the file system.
 
 **Parameters**  
 `$package_slug`
 > (string) slug of the package to download  
 
 `$type`
-> (string) type of the package  
+> (string) type of the package ; default to `'generic'`  
 
 **Return value**
 > (bool) `true` if the plugin package was successfully downloaded, `false` otherwise
@@ -1015,7 +1015,7 @@ upserv_download_remote_plugin( string $package_slug );
 ```
 
 **Description**  
-Download a plugin package from the Remote Repository down to the package directory on the file system.
+Download a plugin package from the Remote Repository to the package directory on the file system.
 
 **Parameters**  
 `$package_slug`
@@ -1032,7 +1032,7 @@ upserv_download_remote_theme( string $package_slug );
 ```
 
 **Description**  
-Download a theme package from the Remote Repository down to the package directory on the file system.
+Download a theme package from the Remote Repository to the package directory on the file system.
 
 **Parameters**  
 `$package_slug`
@@ -1101,7 +1101,7 @@ ___
 ### upserv_download_local_package
 
 ```php
-upserv_download_local_package( string $package_slug, string $package_path = null );
+upserv_download_local_package( string $package_slug, string $package_path );
 ```
 
 **Description**  
@@ -1112,13 +1112,13 @@ Start a download of a package from the file system and exits.
 > (string) slug of the package  
 
 `$package_path`
-> (string) path of the package on the **local** file system - if `null`, will attempt to find it using `upserv_get_local_package_path( $package_slug )`   
+> (string) path of the package on the **local** file system - if `null`, will attempt to find it using `upserv_get_local_package_path( $package_slug )` ; default `null`  
 
 ___
 ### upserv_delete_package
 
 ```php
-upserv_delete_package( $slug );
+upserv_delete_package( string $package_slug );
 ```
 
 **Description**  
@@ -1134,7 +1134,7 @@ ___
 ### upserv_get_package_info
 
 ```php
-upserv_get_package_info( $package_slug, $json_encode = true );
+upserv_get_package_info( string $package_slug, bool $json_encode );
 ```
 
 **Description**  
@@ -1145,7 +1145,7 @@ Get information about a package on the file system
 > (string) slug of the package  
 
 `$json_encode`
-> (bool) whether to return a JSON object (default) or a PHP associative array  
+> (bool) whether to return a JSON object if `true`, or a PHP associative array otherwise ; default to `true`  
 
 **Return value**
 > (array|string) the package information as a PHP associative array or a JSON object  
@@ -1303,7 +1303,7 @@ ___
 ### upserv_primed_package_from_remote
 
 ```php
-do_action( 'upserv_primed_package_from_remote', bool $result, string $slug );
+do_action( 'upserv_primed_package_from_remote', bool $result, string $package_slug );
 ```
 
 **Description**  
@@ -1313,14 +1313,14 @@ Fired after an attempt to prime a package from a Remote Repository has been perf
 `$result`
 > (bool) `true` the operation was successful, `false` otherwise  
 
-`$slug`
-> (slug) slug of the package  
+`$package_slug`
+> (string) slug of the package  
 
 ___
 ### upserv_did_manual_upload_package
 
 ```php
-do_action( 'upserv_did_manual_upload_package', bool $result, string $type, string $slug );
+do_action( 'upserv_did_manual_upload_package', bool $result, string $type, string $package_slug );
 ```
 
 **Description**  
@@ -1333,8 +1333,8 @@ Fired after an attempt to upload a package manually has been performed.
 `$type`
 > (string) type of package - `"Plugin"`, `"Theme"`, or `"Generic"`  
 
-`$slug`
-> (slug) slug of the package  
+`$package_slug`
+> (string) slug of the package  
 
 ___
 ### upserv_before_packages_download
@@ -1378,7 +1378,7 @@ ___
 ### upserv_scheduled_check_remote_event
 
 ```php
-do_action( 'upserv_scheduled_check_remote_event', bool $result, string $slug, int $timestamp, string $frequency, string $hook, array $params );
+do_action( 'upserv_scheduled_check_remote_event', bool $result, string $package_slug, int $timestamp, string $frequency, string $hook, array $params );
 ```
 
 **Description**  
@@ -1389,7 +1389,7 @@ Fired during client update API request.
 `$result`
 > (bool) `true` if the event was scheduled, `false` otherwise  
 
-`$slug`
+`$package_slug`
 > (string) slug of the package for which the event was scheduled  
 
 `$timestamp`
@@ -1408,7 +1408,7 @@ ___
 ### upserv_registered_check_remote_schedule
 
 ```php
-do_action( 'upserv_registered_check_remote_schedule', string $slug, string $scheduled_hook, string $action_hook );
+do_action( 'upserv_registered_check_remote_schedule', string $package_slug, string $scheduled_hook, string $action_hook );
 ```
 
 **Description**  
@@ -1416,7 +1416,7 @@ Fired after a remote check action has been registered for a package.
 Fired during client update API request.  
 
 **Parameters**  
-`$slug`
+`$package_slug`
 > (string) the slug of the package for which an action has been registered  
 
 `$scheduled_hook`
@@ -1429,7 +1429,7 @@ ___
 ### upserv_cleared_check_remote_schedule
 
 ```php
-do_action( 'upserv_cleared_check_remote_schedule', string $slug, string $scheduled_hook );
+do_action( 'upserv_cleared_check_remote_schedule', string $package_slug, string $scheduled_hook );
 ```
 
 **Description**  
@@ -1437,7 +1437,7 @@ Fired after a remote check schedule event has been unscheduled for a package.
 Fired during client update API request.  
 
 **Parameters**  
-`$slug`
+`$package_slug`
 > (string) the slug of the package for which a remote check event has been unscheduled  
 
 `$scheduled_hook`
@@ -1500,7 +1500,7 @@ do_action( 'upserv_cleared_cleanup_schedule', string $type, array $params );
 Fired after a cleanup schedule event has been unscheduled for a type of plugin data.  
 
 **Parameters**  
-`$slug`
+`$type`
 > (string) plugin data type for which a cleanup event has been unscheduled (`cache`, `logs`,or `tmp`)  
 
 `$params`
@@ -1578,7 +1578,7 @@ ___
 ### upserv_download_remote_package_aborted
 
 ```php
-do_action( 'upserv_download_remote_package_aborted', string $slug, string $type, array $info );
+do_action( 'upserv_download_remote_package_aborted', string $package_slug, string $type, array $info );
 ```
 
 **Description**
@@ -1586,7 +1586,7 @@ Fired after an attempt to download a package from the Remote Repository Service 
 Fired during client update API request.  
 
 **Parameters**
-`$slug`
+`$package_slug`
 > (string) the slug of the package
 
 `$type`
@@ -1599,11 +1599,11 @@ ___
 ### upserv_downloaded_remote_package
 
 ```php
-do_action( 'upserv_downloaded_remote_package', mixed $package, string $type, string $slug );
+do_action( 'upserv_downloaded_remote_package', mixed $package, string $type, string $package_slug );
 ```
 
 **Description**  
-Fired after an attempt to download a package from the Remote Repository Service down to the file system has been performed.  
+Fired after an attempt to download a package from the Remote Repository Service to the file system has been performed.  
 Fired during client update API request.  
 
 **Parameters**  
@@ -1613,14 +1613,14 @@ Fired during client update API request.
 `$type`
 > (string) type of the downloaded package - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
-`$slug`
+`$package_slug`
 > (string) slug of the downloaded package  
 
 ___
 ### upserv_saved_remote_package_to_local
 
 ```php
-do_action( 'upserv_saved_remote_package_to_local', bool $result, string $type, string $slug );
+do_action( 'upserv_saved_remote_package_to_local', bool $result, string $type, string $package_slug );
 ```
 
 **Description**  
@@ -1634,14 +1634,14 @@ Fired during client update API request.
 `$type`
 > (string) type of the saved package - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
-`$slug`
+`$package_slug`
 > (string) slug of the saved package  
 
 ___
 ### upserv_checked_remote_package_update
 
 ```php
-do_action( 'upserv_checked_remote_package_update', bool $has_update, string $type, string $slug );
+do_action( 'upserv_checked_remote_package_update', bool $has_update, string $type, string $package_slug );
 ```
 
 **Description**  
@@ -1655,14 +1655,14 @@ Fired during client update API request.
 `$type`
 > (string) type of the package checked - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
-`$slug`
+`$package_slug`
 > (string) slug of the package checked  
 
 ___
 ### upserv_removed_package
 
 ```php
-do_action( 'upserv_removed_package', bool $result, string $type, string $slug );
+do_action( 'upserv_removed_package', bool $result, string $type, string $package_slug );
 ```
 
 **Description**  
@@ -1676,7 +1676,7 @@ Fired during client update API request.
 `$type`
 > (string) type of the removed package - `"Plugin"`, `"Theme"`, or `"Generic"`   
 
-`$slug`
+`$package_slug`
 > (string) slug of the removed package  
 
 ___
@@ -2234,7 +2234,7 @@ ___
 ### upserv_check_remote_frequency
 
 ```php
-apply_filters( 'upserv_check_remote_frequency', string $frequency, string $slug );
+apply_filters( 'upserv_check_remote_frequency', string $frequency, string $package_slug );
 ```
 
 **Description**  
@@ -2245,7 +2245,7 @@ Fired during client update API request.
 `$frequency`
 > (string) the frequency set in the configuration  
 
-`$slug`
+`$package_slug`
 > (string) the slug of the package to check for updates  
 
 ___
@@ -2282,7 +2282,7 @@ ___
 ### upserv_update_server
 
 ```php
-apply_filters( 'upserv_update_server', mixed $update_server, array $config, string $slug );
+apply_filters( 'upserv_update_server', mixed $update_server, array $config, string $package_slug );
 ```
 
 **Description**  
@@ -2296,14 +2296,14 @@ Fired during client update API request.
 `$config`
 > (array) the configuration values passed to the UPServ_Update_Server object  
 
-`$slug`
+`$package_slug`
 > (string) the slug of the package using the UPServ_Update_Server object  
 
 ___
 ### upserv_update_checker
 
 ```php
-apply_filters( 'upserv_update_checker', mixed $update_checker, string $slug, string $type, string $package_file_name, string $repository_service_url, string $repository_branch, mixed $repository_credentials, bool $repository_service_self_hosted );
+apply_filters( 'upserv_update_checker', mixed $update_checker, string $package_slug, string $type, string $package_file_name, string $repository_service_url, string $repository_branch, mixed $repository_credentials, bool $repository_service_self_hosted );
 ```
 
 **Description**  
@@ -2314,7 +2314,7 @@ Fired during client update API request.
 `$update_checker`
 > (mixed) the checker object  
 
-`$slug`
+`$package_slug`
 > (string) the slug of the package using the checker object  
 
 `$type`

@@ -8,20 +8,18 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 	* [WP CLI](#wp-cli)
 	* [Consuming Webhooks](#consuming-webhooks)
 	* [Functions](#functions)
-		* [php\_log](#php_log)
-		* [cidr\_match](#cidr_match)
 		* [upserv\_is\_doing\_api\_request](#upserv_is_doing_api_request)
-			* [upserv\_is\_doing\_webhook\_api\_request](#upserv_is_doing_webhook_api_request)
-			* [upserv\_init\_nonce\_auth](#upserv_init_nonce_auth)
-			* [upserv\_create\_nonce](#upserv_create_nonce)
-			* [upserv\_get\_nonce\_expiry](#upserv_get_nonce_expiry)
-			* [upserv\_get\_nonce\_data](#upserv_get_nonce_data)
-			* [upserv\_validate\_nonce](#upserv_validate_nonce)
-			* [upserv\_delete\_nonce](#upserv_delete_nonce)
-			* [upserv\_clear\_nonce](#upserv_clear_nonce)
-			* [upserv\_build\_nonce\_api\_signature](#upserv_build_nonce_api_signature)
-			* [upserv\_schedule\_webhook](#upserv_schedule_webhook)
-			* [upserv\_fire\_webhook](#upserv_fire_webhook)
+		* [upserv\_is\_doing\_webhook\_api\_request](#upserv_is_doing_webhook_api_request)
+		* [upserv\_init\_nonce\_auth](#upserv_init_nonce_auth)
+		* [upserv\_create\_nonce](#upserv_create_nonce)
+		* [upserv\_get\_nonce\_expiry](#upserv_get_nonce_expiry)
+		* [upserv\_get\_nonce\_data](#upserv_get_nonce_data)
+		* [upserv\_validate\_nonce](#upserv_validate_nonce)
+		* [upserv\_delete\_nonce](#upserv_delete_nonce)
+		* [upserv\_clear\_nonce](#upserv_clear_nonce)
+		* [upserv\_build\_nonce\_api\_signature](#upserv_build_nonce_api_signature)
+		* [upserv\_schedule\_webhook](#upserv_schedule_webhook)
+		* [upserv\_fire\_webhook](#upserv_fire_webhook)
 	* [Actions](#actions)
 		* [upserv\_mu\_optimizer\_ready](#upserv_mu_optimizer_ready)
 		* [upserv\_no\_api\_includes](#upserv_no_api_includes)
@@ -353,44 +351,6 @@ ___
 
 The functions listed below are made publicly available by the plugin for theme and plugin developers. They can be used after the action `plugins_loaded` has been fired, or in a `plugins_loaded` action (just make sure the priority is above `-99`).  
 Although the main classes can theoretically be instantiated without side effect if the `$hook_init` parameter is set to `false`, it is recommended to use only the following functions as there is no guarantee future updates won't introduce changes of behaviors.
-
-___
-### php_log
-
-```php
-php_log( mixed $message = '', string $prefix = '' );
-```
-
-**Description**  
-Convenience function to log a message to `error_log`.
-
-**Parameters**  
-`$message`
-> (mixed) the message to log ; can be any variable  
-
-`$prefix`
-> (string) a prefix to add before the variable ; useful to add context  
-
-___
-### cidr_match
-
-```php
-cidr_match( $ip, $range );
-```
-
-**Description**  
-Check whether an IP address is a match for the provided CIDR range.
-
-**Parameters**  
-`$ip`
-> (string) the IP address to check  
-
-`$range`
-> (string) a CIDR range  
-
-**Return value**
-> (bool) whether an IP address is a match for the provided CIDR range
-
 ___
 ### upserv_is_doing_api_request
 
@@ -405,7 +365,7 @@ Determine whether the current request is made by a remote client interacting wit
 > (bool) `true` if the current request is made by a remote client interacting with any of the APIs, `false` otherwise
 
 ___
-#### upserv_is_doing_webhook_api_request
+### upserv_is_doing_webhook_api_request
 
 ```php
 upserv_is_doing_webhook_api_request();
@@ -418,7 +378,7 @@ Determine whether the current request is made by a Webhook.
 > (bool) `true` if the current request is made by a Webhook, `false` otherwise
 
 ___
-#### upserv_init_nonce_auth
+### upserv_init_nonce_auth
 
 ```php
 upserv_init_nonce_auth( array $private_keys );
@@ -444,7 +404,7 @@ $private_keys = array(
 ```
 
 ___
-#### upserv_create_nonce
+### upserv_create_nonce
 
 ```php
 upserv_create_nonce( bool $true_nonce = true, int $expiry_length = UPServ_Nonce::DEFAULT_EXPIRY_LENGTH, array $data = array(), int $return_type = UPServ_Nonce::NONCE_ONLY, bool $store = true, bool|callable );
@@ -481,7 +441,7 @@ array(
 ```
 
 ___
-#### upserv_get_nonce_expiry
+### upserv_get_nonce_expiry
 
 ```php
 upserv_get_nonce_expiry( string $nonce );
@@ -498,7 +458,7 @@ Get the expiry timestamp of a nonce.
 > (int) the expiry timestamp  
 
 ___
-#### upserv_get_nonce_data
+### upserv_get_nonce_data
 
 ```php
 upserv_get_nonce_data( string $nonce );
@@ -515,7 +475,7 @@ Get the data stored along a nonce.
 > (int) the expiry timestamp  
 
 ___
-#### upserv_validate_nonce
+### upserv_validate_nonce
 
 ```php
 upserv_validate_nonce( string $value );
@@ -533,7 +493,7 @@ Note: if the nonce is a true nonce, it will be invalidated and further calls to 
 > (bool) whether the value is a valid nonce  
 
 ___
-#### upserv_delete_nonce
+### upserv_delete_nonce
 
 ```php
 upserv_delete_nonce( string $value );
@@ -550,7 +510,7 @@ Delete a nonce from the system if the corresponding value exists.
 > (bool) whether the nonce was deleted  
 
 ___
-#### upserv_clear_nonce
+### upserv_clear_nonce
 
 ```php
 upserv_clear_nonces();
@@ -563,7 +523,7 @@ Clear expired nonces from the system.
 > (bool) whether some nonces were cleared  
 
 ___
-#### upserv_build_nonce_api_signature
+### upserv_build_nonce_api_signature
 
 ```php
 upserv_build_nonce_api_signature( string $api_key_id, string $api_key, int $timestamp, array $payload );
@@ -589,7 +549,7 @@ Build credentials and signature for UpdatePulse Server Nonce API
 > (array) an array with keys `credentials` and `signature`  
 
 ___
-#### upserv_schedule_webhook
+### upserv_schedule_webhook
 
 ```php
 upserv_schedule_webhook( array $payload, string $event_type, bool $instant );
@@ -619,7 +579,7 @@ $payload = array(
 > (null|WP_error) `null` in case of success, a `WP_Error` otherwise  
 
 ___
-#### upserv_fire_webhook
+### upserv_fire_webhook
 
 ```php
 upserv_fire_webhook( string $url, string $secret, string $body, string $action );

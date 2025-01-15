@@ -206,6 +206,8 @@ class UPServ_Update_API {
 			return $result;
 		}
 
+		$type = ucfirst( strtolower( $type ) );
+
 		$this->init_server( $slug );
 		$this->update_server->set_type( $type );
 

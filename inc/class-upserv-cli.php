@@ -134,7 +134,7 @@ class UPServ_CLI extends WP_CLI_Command {
 			$this->process_result( false, '', 'Invalid package type', self::DEFAULT_ERROR, 'error' );
 		}
 
-		$result          = upserv_download_remote_package( $slug, $type, true );
+		$result          = upserv_download_remote_package( $slug, $type );
 		$success_message = 'Package downloaded';
 		$error_message   = 'Unable to download package';
 
