@@ -146,7 +146,7 @@ class UPServ_License_API {
 			);
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function edit( $license_data ) {
