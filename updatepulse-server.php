@@ -14,6 +14,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
+	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before, $upserv_timer;
+
+	$upserv_mem_before     = memory_get_peak_usage();
+	$upserv_scripts_before = get_included_files();
+	$upserv_queries_before = $wpdb->queries;
+}
+
 use Anyape\UpdatePulse\Updater\V2_0\UpdatePulse_Updater;
 use Anyape\UpdatePulse\Server\Nonce\Nonce;
 use Anyape\UpdatePulse\Server\API\License_API;
@@ -28,14 +36,6 @@ use Anyape\UpdatePulse\Server\Manager\Package_Manager;
 use Anyape\UpdatePulse\Server\Manager\License_Manager;
 use Anyape\UpdatePulse\Server\Manager\API_Manager;
 use Anyape\UpdatePulse\Server\UPServ;
-
-if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
-	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before;
-
-	$upserv_mem_before     = memory_get_peak_usage();
-	$upserv_scripts_before = get_included_files();
-	$upserv_queries_before = $wpdb->queries;
-}
 
 if ( ! defined( 'UPSERV_PLUGIN_PATH' ) ) {
 	define( 'UPSERV_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );

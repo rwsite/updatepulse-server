@@ -280,14 +280,14 @@ class Update_API {
 
 		$this->init_server( $package_id );
 		do_action( 'upserv_before_handle_update_request', $request_params );
-		$this->update_server->handleRequest( $request_params );
+		$this->update_server->handle_request( $request_params );
 	}
 
 	protected function init_server( $package_id ) {
 		$config            = self::get_config();
 		$server_class_name = apply_filters(
 			'upserv_server_class_name',
-			str_replace( 'API', 'Server', __NAMESPACE__ ) . '\\Update_Server',
+			str_replace( 'API', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
 			$package_id,
 			$config
 		);

@@ -20,8 +20,8 @@ function autoload( $class_name ) {
 		$class_frag      = str_replace( '_', '-', strtolower( array_pop( $namespace_frags ) ) );
 		$folder_frag     = str_replace( '_', '-', strtolower( array_pop( $namespace_frags ) ) );
 
-		if ( false !== strpos( 'server', $class_frag ) ) {
-			$folder_frag = $class_frag . '/' . $folder_frag;
+		if ( false !== strpos( $class_frag, 'server' ) ) {
+			$folder_frag = 'server/' . $class_frag;
 		}
 
 		$path = UPSERV_PLUGIN_PATH . 'inc/' . $folder_frag . '/class-' . $class_frag . '.php';
