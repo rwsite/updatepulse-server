@@ -77,11 +77,6 @@ if ( class_exists( 'Anyape\UpdatePulse\Server\Nonce' ) ) {
 	);
 }
 
-if ( ! License_API::is_doing_api_request() ) {
-	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server/loader.php';
-	require_once UPSERV_PLUGIN_PATH . 'lib/wp-update-server-extended/loader.php';
-}
-
 if (
 	! Update_API::is_doing_api_request() &&
 	! License_API::is_doing_api_request()
