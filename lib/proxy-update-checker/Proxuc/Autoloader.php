@@ -2,33 +2,32 @@
 
 namespace Anyape\ProxyUpdateChecker;
 
-if ( ! class_exists(Proxuc_Autoloader::class, false) ):
+if ( ! class_exists( Autoloader::class, false ) ) {
 
-	class Proxuc_Autoloader {
-		private $prefix = '';
-		private $rootDir = '';
+	class Autoloader {
+		private $prefix   = '';
+		private $root_dir = '';
 
 		public function __construct() {
-			$this->rootDir = dirname(__FILE__) . '/';
-			$this->prefix = __NAMESPACE__ . '\\';
+			$this->root_dir = __DIR__ . '/';
+			$this->prefix   = __NAMESPACE__ . '\\';
 
-			spl_autoload_register(array($this, 'autoload'));
+			spl_autoload_register( array( $this, 'autoload' ) );
 		}
 
-		public function autoload($className) {
-			$path = substr($className, strlen($this->prefix));
-			$path = str_replace(array('_', '\\'), '/', $path);
+		public function autoload( $class_name ) {
+			$path = substr( $class_name, strlen( $this->prefix ) );
+			$path = str_replace( array( '_', '\\' ), '/', $path );
 
-			if ( strpos($className, $this->prefix) === 0 ) {
-				$path = substr($className, strlen($this->prefix));
-				$path = str_replace(array('_', '\\'), '/', $path);
-				$path = $this->rootDir . $path . '.php';
+			if ( 0 === strpos( $class_name, $this->prefix ) ) {
+				$path = substr( $class_name, strlen( $this->prefix ) );
+				$path = str_replace( array( '_', '\\' ), '/', $path );
+				$path = $this->root_dir . $path . '.php';
 
-				if ( file_exists($path) ) {
+				if ( file_exists( $path ) ) {
 					include $path;
 				}
 			}
 		}
 	}
-
-endif;
+}

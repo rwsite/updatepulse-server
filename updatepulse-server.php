@@ -227,12 +227,12 @@ if (
 		);
 	}
 
-	require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
+	// require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
 
-	$upserv_plugin_updater = new UpdatePulse_Updater(
-		wp_normalize_path( __FILE__ ),
-		0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
-	);
+	// $upserv_plugin_updater = new UpdatePulse_Updater(
+	// 	wp_normalize_path( __FILE__ ),
+	// 	0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
+	// );
 }
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {

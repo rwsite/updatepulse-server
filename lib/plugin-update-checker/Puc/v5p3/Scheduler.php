@@ -29,6 +29,7 @@ if ( !class_exists(Scheduler::class, false) ):
 		 * @param array $hourlyHooks
 		 */
 		public function __construct($updateChecker, $checkPeriod, $hourlyHooks = array('load-plugins.php')) {
+			error_log( __METHOD__ . '::' . __LINE__ );
 			$this->updateChecker = $updateChecker;
 			$this->checkPeriod = $checkPeriod;
 

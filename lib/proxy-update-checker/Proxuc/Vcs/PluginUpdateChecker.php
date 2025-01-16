@@ -4,12 +4,15 @@ namespace Anyape\ProxyUpdateChecker\Vcs;
 
 use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
 use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\Package;
-use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\UpdateChecker;
+use YahnisElsts\PluginUpdateChecker\v5p3\UpdateChecker as BaseUpdateChecker;
 use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\PluginInfo;
 
 if ( ! class_exists(PluginUpdateChecker::class, false) ):
 
-	class PluginUpdateChecker extends UpdateChecker implements BaseChecker {
+	class PluginUpdateChecker extends BaseUpdateChecker implements BaseChecker {
+		public $pluginAbsolutePath = ''; //Full path of the main plugin file.
+		public $pluginFile = '';  //Plugin filename relative to the plugins directory. Many WP APIs use this to identify plugins.
+
 		protected $branch = 'main';
 		protected $api = null;
 		protected $package = null;
@@ -259,16 +262,6 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 
 		public function getVcsApi() {
 			return $this->api;
-		}
-
-		public function getUpdate() {
-			$update = parent::getUpdate();
-
-			if ( isset($update) && !empty($update->download_url) ) {
-				$update->download_url = $this->api->signDownloadUrl($update->download_url);
-			}
-
-			return $update;
 		}
 	}
 
