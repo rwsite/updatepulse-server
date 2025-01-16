@@ -7,13 +7,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use WP_Error;
-use WshWordPressPackageParser_Extended;
 use ZipArchive;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
-use Wpup_FileCache;
-use Wpup_Package_Extended;
 use Exception;
+use Anyape\UpdatePulse\Package_Parser\Parser;
+use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
+use Anyape\UpdatePulse\Server\Server\Update\Package;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Server\Update\Update_Server;
 use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\API\Update_API;
@@ -304,7 +305,7 @@ class Package_Manager {
 			}
 
 			if ( $valid ) {
-				$parsed_info = WshWordPressPackageParser_Extended::parsePackage( $package_info['tmp_name'], true );
+				$parsed_info = Parser::parse_package( $package_info['tmp_name'], true );
 			}
 
 			if ( $valid && ! $parsed_info ) {
@@ -667,7 +668,7 @@ class Package_Manager {
 					);
 
 					if ( $package ) {
-						$package_info = $package->getMetadata();
+						$package_info = $package->get_metadata();
 
 						if ( ! isset( $package_info['type'] ) ) {
 							$package_info['type'] = 'unknown';
@@ -675,8 +676,8 @@ class Package_Manager {
 
 						$package_info['file_name']          = $package_info['slug'] . '.zip';
 						$package_info['file_path']          = $package_directory . $slug . '.zip';
-						$package_info['file_size']          = $package->getFileSize();
-						$package_info['file_last_modified'] = $package->getLastModified();
+						$package_info['file_size']          = $package->get_file_size();
+						$package_info['file_last_modified'] = $package->get_last_modified();
 						$package_info['etag']               = hash_file( 'md5', $package_info['file_path'] );
 						$package_info['digests']            = array(
 							'sha1'   => hash_file( 'sha1', $package_info['file_path'] ),
@@ -739,7 +740,7 @@ class Package_Manager {
 							);
 
 							if ( $package ) {
-								$meta    = $package->getMetadata();
+								$meta    = $package->get_metadata();
 								$include = true;
 
 								if ( $search ) {
@@ -769,8 +770,8 @@ class Package_Manager {
 									$idx                                    = $meta['slug'];
 									$packages[ $idx ]                       = $meta;
 									$packages[ $idx ]['file_name']          = $meta['slug'] . '.zip';
-									$packages[ $idx ]['file_size']          = $package->getFileSize();
-									$packages[ $idx ]['file_last_modified'] = $package->getLastModified();
+									$packages[ $idx ]['file_size']          = $package->get_file_size();
+									$packages[ $idx ]['file_last_modified'] = $package->get_last_modified();
 								}
 							}
 						}
@@ -992,7 +993,7 @@ class Package_Manager {
 		global $wp_filesystem;
 
 		$package      = false;
-		$cache        = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
+		$cache        = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
 		$cached_value = null;
 
 		try {
@@ -1007,7 +1008,7 @@ class Package_Manager {
 				do_action( 'upserv_find_package_no_cache', $slug, $filename, $cache );
 			}
 
-			$package = Wpup_Package_Extended::fromArchive( $filename, $slug, $cache );
+			$package = Package::from_archive( $filename, $slug, $cache );
 		} catch ( Exception $e ) {
 			php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
 

@@ -44,7 +44,7 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 		foreach ( $environment as $key => $value ) {
 			$key = strtoupper( $key );
 
-			if ( self::isHeaderName( $key ) ) {
+			if ( self::is_header_name( $key ) ) {
 				//Remove the "HTTP_" prefix that PHP adds to headers stored in $_SERVER.
 				$key             = preg_replace( '/^HTTP[_-]/', '', $key );
 				$results[ $key ] = $value;
@@ -158,7 +158,7 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 
 	#[\ReturnTypeWillChange]
 	public function offsetUnset( $offset ): void {
-		$name = $this->normalizeName( $offset );
+		$name = $this->normalize_name( $offset );
 		unset( $this->headers[ $name ] );
 	}
 

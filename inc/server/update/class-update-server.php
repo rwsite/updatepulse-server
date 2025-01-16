@@ -25,7 +25,6 @@ class Update_Server {
 	protected $log_directory;
 	protected $cache;
 	protected $server_url;
-	protected $package_file_loader = array( 'Wpup_Package', 'fromArchive' );
 	protected $timezone;
 	protected $server_directory;
 	protected $use_remote_repository;
