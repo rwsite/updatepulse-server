@@ -7,16 +7,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Anyape\UpdatePulse\Server\API\Package_API;
-
+use Anyape\UpdatePulse\Server\Server\Update\Zip_Metadata_Parser;
+use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
+use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
+use Anyape\UpdatePulse\Server\Server\Update\Package;
+use Anyape\UpdatePulse\Package_Parser\Parser;
 use PhpS3\PhpS3;
 use PhpS3\PhpS3Exception;
 use Exception;
 use WP_Error;
-use Wpup_FileCache;
-use WshWordPressPackageParser_Extended;
-use Wpup_Package_Extended;
-use Wpup_ZipMetadataParser;
-use Wpup_InvalidPackageException;
 
 class Cloud_Storage_Manager {
 	protected static $instance;
@@ -323,7 +322,7 @@ class Cloud_Storage_Manager {
 			if ( $info ) {
 				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$filename          = $package_directory . $slug . '.zip';
-				$cache             = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
+				$cache             = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
 				$cache_key         = 'metadata-b64-' . $slug . '-'
 						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
 				$cache->clear( $cache_key );
@@ -485,7 +484,7 @@ class Cloud_Storage_Manager {
 					$wp_filesystem->is_file( $filename ) &&
 					$wp_filesystem->is_readable( $filename )
 				) {
-					$local_meta = WshWordPressPackageParser_Extended::parsePackage( $filename, true );
+					$local_meta = Parser::parse_package( $filename, true );
 				}
 			} catch ( PhpS3Exception $e ) {
 				php_log(
@@ -780,10 +779,10 @@ class Cloud_Storage_Manager {
 					);
 
 					if ( $result ) {
-						$package     = Wpup_Package_Extended::fromArchive( $filename, $slug, $cache );
-						$cache_value = $package->getMetadata();
+						$package     = Package::from_archive( $filename, $slug, $cache );
+						$cache_value = $package->get_metadata();
 
-						$cache->set( $cache_key, $cache_value, Wpup_ZipMetadataParser::$cacheTime ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						$cache->set( $cache_key, $cache_value, Zip_Metadata_Parser::$cache_time ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					}
 				}
 			}
@@ -830,7 +829,7 @@ class Cloud_Storage_Manager {
 
 		global $wp_filesystem;
 
-		$cache             = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
+		$cache             = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
 		$config            = self::get_config();
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$filename          = $package_directory . $slug . '.zip';
@@ -863,8 +862,8 @@ class Cloud_Storage_Manager {
 						$package = false;
 
 						try {
-							$package = Wpup_Package_Extended::fromArchive( $filename, $slug, $cache );
-						} catch ( Wpup_InvalidPackageException $e ) {
+							$package = Package::from_archive( $filename, $slug, $cache );
+						} catch ( Invalid_Package_Exception $e ) {
 							php_log(
 								array(
 									'error'    => $e->getMessage(),
@@ -879,12 +878,12 @@ class Cloud_Storage_Manager {
 						}
 
 						if ( $package ) {
-							$package_info = $package->getMetadata();
+							$package_info = $package->get_metadata();
 
 							$cache->set(
 								$cache_key,
 								$package_info,
-								Wpup_ZipMetadataParser::$cacheTime // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+								Zip_Metadata_Parser::$cache_time // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 							);
 						}
 					}

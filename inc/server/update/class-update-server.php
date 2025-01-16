@@ -4,20 +4,19 @@ namespace Anyape\UpdatePulse\Server\Server\Update;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly
 
-use Wpup_Package;
-use WshWordPressPackageParser_Extended;
-use Wpup_FileCache;
-use Wpup_Package_Extended;
-use Wpup_Request;
-use Wpup_Headers;
-use Wpup_InvalidPackageException;
+use Anyape\UpdatePulse\Package_Parser\Parser;
+use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
+use Anyape\UpdatePulse\Server\Server\Update\Package;
+use Anyape\UpdatePulse\Server\Server\Update\Request;
+use Anyape\UpdatePulse\Server\Server\Update\Headers;
+use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
+use Anyape\UpdatePulse\Server\Server\License\License_Server;
 use DateTime;
 use DateTimeZone;
 use WP_Error;
 use Exception;
-use Anyape\UpdatePulse\Server\Manager\Data_Manager;
-use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
-use Anyape\UpdatePulse\Server\Server\License\License_Server;
 
 class Update_Server {
 	const LOCK_REMOTE_UPDATE_SEC = 10;
@@ -61,9 +60,9 @@ class Update_Server {
 		}
 
 		$this->server_url                     = $server_url;
-		$this->package_directory              = $server_directory . '/packages';
-		$this->log_directory                  = $server_directory . '/logs';
-		$this->cache                          = new Wpup_FileCache( $server_directory . '/cache' );
+		$this->package_directory              = $server_directory . 'packages';
+		$this->log_directory                  = $server_directory . 'logs';
+		$this->cache                          = new File_Cache( $server_directory . 'cache' );
 		$this->timezone                       = new DateTimeZone( wp_timezone_string() );
 		$this->use_remote_repository          = $use_remote_repository;
 		$this->server_directory               = $server_directory;
@@ -262,17 +261,16 @@ class Update_Server {
 		$needs_update  = true;
 		$local_package = $this->find_package( $slug );
 
-		if ( $local_package instanceof Wpup_Package ) {
-			$package_path = $local_package->getFileName();
-			$local_meta   = WshWordPressPackageParser_Extended::parsePackage( $package_path, true );
-			$local_meta   = apply_filters(
+		if ( $local_package instanceof Package ) {
+			$package_path = $local_package->get_filename();
+			$meta         = apply_filters(
 				'upserv_check_remote_package_update_local_meta',
-				$local_meta,
+				Parser::parse_package( $package_path, true ),
 				$local_package,
 				$slug
 			);
 
-			if ( ! $local_meta ) {
+			if ( ! $meta ) {
 				$needs_update = apply_filters(
 					'upserv_check_remote_package_update_no_local_meta_needs_update',
 					$needs_update,
@@ -283,14 +281,7 @@ class Update_Server {
 				return $needs_update;
 			}
 
-			$local_info = array(
-				'type'         => $local_meta['type'],
-				'version'      => $local_meta['header']['Version'],
-				'main_file'    => $local_meta['pluginFile'],
-				'download_url' => '',
-			);
-
-			$this->set_type( $local_info['type'] );
+			$this->set_type( $meta['type'] );
 
 			if ( 'Plugin' === $this->type || 'Theme' === $this->type || 'Generic' === $this->type ) {
 				$this->init_update_checker( $slug );
@@ -298,7 +289,7 @@ class Update_Server {
 				$remote_info = $this->update_checker->requestInfo();
 
 				if ( $remote_info && ! is_wp_error( $remote_info ) ) {
-					$needs_update = version_compare( $remote_info['version'], $local_info['version'], '>' );
+					$needs_update = version_compare( $remote_info['version'], $meta['header']['Version'], '>' );
 				} else {
 					php_log(
 						$remote_info,
@@ -344,7 +335,7 @@ class Update_Server {
 					. filemtime( $package_path )
 				);
 
-			$parsed_info = WshWordPressPackageParser_Extended::parsePackage( $package_path, true );
+			$parsed_info = Parser::parse_package( $package_path, true );
 			$type        = ucfirst( $parsed_info['type'] );
 			$result      = $wp_filesystem->delete( $package_path );
 		}
@@ -354,7 +345,7 @@ class Update_Server {
 		if ( $result && $cache_key ) {
 
 			if ( ! $this->cache ) {
-				$this->cache = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
+				$this->cache = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
 			}
 
 			$this->cache->clear( $cache_key );
@@ -425,12 +416,12 @@ class Update_Server {
 		}
 
 		if ( null === $headers ) {
-			$headers = Wpup_Headers::parseCurrent();
+			$headers = Headers::parse_current();
 		}
 
 		$client_ip   = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
 		$http_method = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : 'GET';
-		$request     = new Wpup_Request( $query, $headers, $client_ip, $http_method );
+		$request     = new Request( $query, $headers, $client_ip, $http_method );
 
 		if ( ! upserv_is_package_whitelisted( $request->slug ) ) {
 			$this->exit_with_error( 'Invalid package.', 404 );
@@ -460,8 +451,8 @@ class Update_Server {
 		$this->check_license_authorization( $request );
 	}
 
-	protected function generate_download_url( Wpup_Package $package ) {
-		$metadata = $package->getMetadata();
+	protected function generate_download_url( Package $package ) {
+		$metadata = $package->get_metadata();
 
 		$this->set_type( $metadata['type'] );
 
@@ -477,7 +468,7 @@ class Update_Server {
 		return self::add_query_arg( $query, $this->server_url );
 	}
 
-	protected function action_download( Wpup_Request $request ) {
+	protected function action_download( Request $request ) {
 		do_action( 'upserv_update_server_action_download', $request );
 
 		if ( apply_filters( 'upserv_update_server_action_download_handled', false, $request ) ) {
@@ -494,9 +485,9 @@ class Update_Server {
 		header( 'Content-Type: application/zip' );
 		header( 'Content-Disposition: attachment; file_name="' . $package->slug . '.zip"' );
 		header( 'Content-Transfer-Encoding: binary' );
-		header( 'Content-Length: ' . $package->getFileSize() );
+		header( 'Content-Length: ' . $package->get_file_size() );
 
-		readfile( $package->getFilename() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
+		readfile( $package->get_filename() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 	}
 
 	/**
@@ -532,7 +523,7 @@ class Update_Server {
 
 		try {
 			$request->package = $this->find_package( $request->slug );
-		} catch ( Wpup_InvalidPackageException $ex ) {
+		} catch ( Invalid_Package_Exception $e ) {
 			$this->exit_with_error(
 				sprintf(
 					'Package "%s" exists, but it is not a valid plugin or theme. ' .
@@ -551,17 +542,11 @@ class Update_Server {
 		global $wp_filesystem;
 
 		if ( ! $this->cache ) {
-			$this->cache = new Wpup_FileCache( Data_Manager::get_data_dir( 'cache' ) );
+			$this->cache = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
 		}
 
-		$safe_slug = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
-		$cache_key = 'metadata-b64-' . $safe_slug . '-nocheck';
-		$package   = false;
-
-		if ( $this->cache->get( $cache_key ) ) {
-			return $package;
-		}
-
+		$safe_slug        = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
+		$package          = false;
 		$is_package_ready = false;
 		$filename         = trailingslashit( $this->package_directory ) . $safe_slug . '.zip';
 		$save_to_local    = apply_filters(
@@ -586,33 +571,6 @@ class Update_Server {
 			}
 		}
 
-		if ( ! is_bool( $is_package_ready ) ) {
-			$request_info = $is_package_ready;
-
-			if ( ! $this->cache->get( $cache_key ) ) {
-				$expiry_lentgh = constant( 'WP_DEBUG' ) ? 30 : MONTH_IN_SECONDS;
-
-				$this->cache->set( $cache_key, true, $expiry_lentgh );
-
-				$date = new DateTime(
-					'now + ' . $expiry_lentgh . ' seconds',
-					$this->timezone
-				);
-
-				php_log(
-					'Package '
-					. $safe_slug
-					. ' has been marked as ignored.' . "\n"
-					. 'The remote server will not be checked again for this package until: '
-					. $date->format( 'Y-m-d H:i:s' ) . ' (' . wp_timezone_string() . ')'
-					. "\n"
-					. 'Result for `requestInfo`:' . "\n" . print_r( $request_info, true ) // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				);
-			}
-
-			return $package;
-		}
-
 		try {
 			$cached_value = null;
 
@@ -626,7 +584,7 @@ class Update_Server {
 				do_action( 'upserv_find_package_no_cache', $safe_slug, $filename, $this->cache );
 			}
 
-			$package = Wpup_Package_Extended::fromArchive( $filename, $safe_slug, $this->cache );
+			$package = Package::from_archive( $filename, $safe_slug, $this->cache );
 		} catch ( Exception $e ) {
 			php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
 
@@ -639,11 +597,11 @@ class Update_Server {
 		return $package;
 	}
 
-	protected function action_get_metadata( Wpup_Request $request ) {
+	protected function action_get_metadata( Request $request ) {
 		$meta = array();
 
 		if ( $request->package ) {
-			$meta                 = $request->package->getMetadata();
+			$meta                 = $request->package->get_metadata();
 			$meta['download_url'] = $this->generate_download_url( $request->package );
 		} else {
 			$meta['error']   = 'invalid_package';

@@ -14,7 +14,7 @@ use RecursiveDirectoryIterator;
 use Wpup_FileCache;
 use Wpup_Package_Extended;
 use Exception;
-use Anyape\UpdatePulse\Server\Server\Update_Server;
+use Anyape\UpdatePulse\Server\Server\Update\Update_Server;
 use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\API\Update_API;
 use Anyape\UpdatePulse\Server\Table\Packages_Table;

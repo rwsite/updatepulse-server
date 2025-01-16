@@ -7,7 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Anyape\UpdatePulse\Server\Nonce\Nonce;
-
 use WP_CLI_Command;
 use WP_CLI;
 use WP_Error;
