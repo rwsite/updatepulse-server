@@ -68,7 +68,7 @@ class Cloud_Storage_Manager {
 
 				add_filter( 'upserv_save_remote_to_local', array( $this, 'upserv_save_remote_to_local' ), 10, 4 );
 				add_filter( 'upserv_check_remote_package_update_local_meta', array( $this, 'upserv_check_remote_package_update_local_meta' ), 10, 3 );
-				add_filter( 'wpup_zip_metadata_parser_extended_cache_key', array( $this, 'wpup_zip_metadata_parser_extended_cache_key' ), 10, 3 );
+				add_filter( 'upserv_zip_metadata_parser_cache_key', array( $this, 'upserv_zip_metadata_parser_cache_key' ), 10, 3 );
 				add_filter( 'upserv_package_manager_get_batch_package_info', array( $this, 'upserv_package_manager_get_batch_package_info' ), 10, 2 );
 				add_filter( 'upserv_package_manager_get_package_info', array( $this, 'upserv_package_manager_get_package_info' ), 10, 2 );
 				add_filter( 'upserv_update_server_action_download_handled', array( $this, 'upserv_update_server_action_download_handled' ), 10 );
@@ -803,7 +803,7 @@ class Cloud_Storage_Manager {
 		}
 	}
 
-	public function wpup_zip_metadata_parser_extended_cache_key( $cache_key, $slug, $filename ) {
+	public function upserv_zip_metadata_parser_cache_key( $cache_key, $slug, $filename ) {
 		$config = self::get_config();
 		$info   = wp_cache_get( $slug . '-getObjectInfo', 'updatepulse-server' );
 
