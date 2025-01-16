@@ -782,7 +782,7 @@ class Cloud_Storage_Manager {
 						$package     = Package::from_archive( $filename, $slug, $cache );
 						$cache_value = $package->get_metadata();
 
-						$cache->set( $cache_key, $cache_value, Zip_Metadata_Parser::$cache_time ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						$cache->set( $cache_key, $cache_value, Zip_Metadata_Parser::$cache_time );
 					}
 				}
 			}
