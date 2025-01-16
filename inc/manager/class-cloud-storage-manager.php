@@ -13,7 +13,7 @@ use PhpS3\PhpS3Exception;
 use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\Server\Update\Zip_Metadata_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
-use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
+use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Package_Parser\Parser;
 
@@ -323,7 +323,7 @@ class Cloud_Storage_Manager {
 			if ( $info ) {
 				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$filename          = $package_directory . $slug . '.zip';
-				$cache             = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
+				$cache             = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 				$cache_key         = 'metadata-b64-' . $slug . '-'
 						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
 				$cache->clear( $cache_key );
@@ -465,9 +465,6 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_check_remote_package_update_local_meta( $local_meta, $local_package, $slug ) {
-		WP_Filesystem();
-
-		global $wp_filesystem;
 
 		if ( ! $local_meta ) {
 			$config = self::get_config();
@@ -482,8 +479,8 @@ class Cloud_Storage_Manager {
 
 				if (
 					$result &&
-					$wp_filesystem->is_file( $filename ) &&
-					$wp_filesystem->is_readable( $filename )
+					is_file( $filename ) &&
+					is_readable( $filename )
 				) {
 					$local_meta = Parser::parse_package( $filename, true );
 				}
@@ -500,7 +497,7 @@ class Cloud_Storage_Manager {
 			}
 		}
 
-		if ( $wp_filesystem->is_file( $local_package->getFileName() ) ) {
+		if ( is_file( $local_package->getFileName() ) ) {
 			wp_delete_file( $local_package->getFileName() );
 		}
 
@@ -508,10 +505,6 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_saved_remote_package_to_local( $local_ready, $type, $slug ) {
-		WP_Filesystem();
-
-		global $wp_filesystem;
-
 		$config            = self::get_config();
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$filename          = trailingslashit( $package_directory ) . $slug . '.zip';
@@ -547,7 +540,7 @@ class Cloud_Storage_Manager {
 			);
 		}
 
-		if ( $wp_filesystem->is_file( $filename ) ) {
+		if ( is_file( $filename ) ) {
 			wp_delete_file( $filename );
 		}
 	}
@@ -557,10 +550,6 @@ class Cloud_Storage_Manager {
 		if ( ! $result ) {
 			return;
 		}
-
-		WP_Filesystem();
-
-		global $wp_filesystem;
 
 		$config            = self::get_config();
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
@@ -584,7 +573,7 @@ class Cloud_Storage_Manager {
 			);
 		}
 
-		if ( $wp_filesystem->is_file( $filename ) ) {
+		if ( is_file( $filename ) ) {
 			wp_delete_file( $filename );
 		}
 	}
@@ -646,15 +635,12 @@ class Cloud_Storage_Manager {
 				);
 			}
 		} elseif ( ! empty( $package_slugs ) ) {
-			WP_Filesystem();
-
-			global $wp_filesystem;
 
 			foreach ( $package_slugs as $slug ) {
 				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$filename          = trailingslashit( $package_directory ) . $slug . '.zip';
 
-				if ( $wp_filesystem->is_file( $filename ) ) {
+				if ( is_file( $filename ) ) {
 					wp_delete_file( $filename );
 				}
 			}
@@ -692,11 +678,8 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_after_packages_download( $archive_name, $archive_path ) {
-		WP_Filesystem();
 
-		global $wp_filesystem;
-
-		if ( $wp_filesystem->is_file( $archive_path ) ) {
+		if ( is_file( $archive_path ) ) {
 			wp_delete_file( $archive_path );
 		}
 	}
@@ -746,11 +729,8 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_find_package_no_cache( $slug, $filename, $cache ) {
-		WP_Filesystem();
 
-		global $wp_filesystem;
-
-		if ( $wp_filesystem->is_file( $filename ) ) {
+		if ( is_file( $filename ) ) {
 			return;
 		}
 
@@ -799,7 +779,7 @@ class Cloud_Storage_Manager {
 			);
 		}
 
-		if ( $wp_filesystem->is_file( $filename ) ) {
+		if ( is_file( $filename ) ) {
 			wp_delete_file( $filename );
 		}
 	}
@@ -826,15 +806,11 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_package_manager_get_package_info( $package_info, $slug ) {
-		WP_Filesystem();
-
-		global $wp_filesystem;
-
-		$cache             = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
+		$cache             = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 		$config            = self::get_config();
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$filename          = $package_directory . $slug . '.zip';
-		$cleanup           = ! $wp_filesystem->is_file( $filename );
+		$cleanup           = ! is_file( $filename );
 
 		try {
 			$info = wp_cache_get( $slug . '-getObjectInfo', 'updatepulse-server' );
@@ -942,7 +918,7 @@ class Cloud_Storage_Manager {
 			}
 		}
 
-		if ( $cleanup && $wp_filesystem->is_file( $filename ) ) {
+		if ( $cleanup && is_file( $filename ) ) {
 			wp_delete_file( $filename );
 		}
 

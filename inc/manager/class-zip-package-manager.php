@@ -48,7 +48,7 @@ class Zip_Package_Manager {
 
 		$source = str_replace( '\\', '/', realpath( $source ) );
 
-		if ( $wp_filesystem->is_dir( $source ) ) {
+		if ( is_dir( $source ) ) {
 			$it = new RecursiveIteratorIterator(
 				new RecursiveDirectoryIterator(
 					$source,
@@ -65,26 +65,22 @@ class Zip_Package_Manager {
 					$file      = str_replace( '\\', '/', $it->key() );
 					$file_name = $inner_it->getSubPathName();
 
-					if ( true === $wp_filesystem->is_dir( $file ) ) {
+					if ( true === is_dir( $file ) ) {
 						$dir_name = $container_dir . trailingslashit( $file_name );
 
 						$zip->addEmptyDir( $dir_name );
-					} elseif ( true === $wp_filesystem->is_file( $file ) ) {
-						$zip->addFromString( $container_dir . $file_name, $wp_filesystem->get_contents( $file ) );
+					} elseif ( true === is_file( $file ) ) {
+						$zip->addFromString( $container_dir . $file_name, @file_get_contents( $file ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 					}
 				}
 
 				$it->next();
 			}
-		} elseif (
-			$wp_filesystem->is_file( $source ) &&
-			'.' !== $source &&
-			'..' !== $source
-		) {
+		} elseif ( is_file( $source ) && '.' !== $source && '..' !== $source ) {
 			$file_name = str_replace( ' ', '', basename( $source ) );
 
 			if ( ! empty( $file_name ) ) {
-				$zip->addFromString( $file_name, $wp_filesystem->get_contents( $source ) );
+				$zip->addFromString( $file_name, @file_get_contents( $source ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 			}
 		}
 

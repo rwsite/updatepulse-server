@@ -11,7 +11,7 @@ use DateTimeZone;
 use WP_Error;
 use Exception;
 use Anyape\UpdatePulse\Package_Parser\Parser;
-use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
+use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Server\Update\Request;
 use Anyape\UpdatePulse\Server\Server\Update\Headers;
@@ -64,7 +64,7 @@ class Update_Server {
 		$this->server_url                     = $server_url;
 		$this->package_directory              = $server_directory . 'packages';
 		$this->log_directory                  = $server_directory . 'logs';
-		$this->cache                          = new File_Cache( $server_directory . 'cache' );
+		$this->cache                          = new Cache( $server_directory . 'cache' );
 		$this->timezone                       = new DateTimeZone( wp_timezone_string() );
 		$this->use_remote_repository          = $use_remote_repository;
 		$this->server_directory               = $server_directory;
@@ -329,7 +329,7 @@ class Update_Server {
 		$type         = false;
 		$cache_key    = false;
 
-		if ( $wp_filesystem->is_file( $package_path ) ) {
+		if ( is_file( $package_path ) ) {
 			$cache_key = 'metadata-b64-' . $slug . '-'
 				. md5(
 					$package_path . '|'
@@ -347,7 +347,7 @@ class Update_Server {
 		if ( $result && $cache_key ) {
 
 			if ( ! $this->cache ) {
-				$this->cache = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
+				$this->cache = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 			}
 
 			$this->cache->clear( $cache_key );
@@ -539,12 +539,9 @@ class Update_Server {
 	}
 
 	protected function find_package( $slug, $check_remote = true ) {
-		WP_Filesystem();
-
-		global $wp_filesystem;
 
 		if ( ! $this->cache ) {
-			$this->cache = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
+			$this->cache = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 		}
 
 		$safe_slug        = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
@@ -553,7 +550,7 @@ class Update_Server {
 		$filename         = trailingslashit( $this->package_directory ) . $safe_slug . '.zip';
 		$save_to_local    = apply_filters(
 			'upserv_save_remote_to_local',
-			! $wp_filesystem->is_file( $filename ) || ! $wp_filesystem->is_readable( $filename ),
+			! is_file( $filename ) || ! is_readable( $filename ),
 			$safe_slug,
 			$filename,
 			$check_remote
@@ -576,7 +573,7 @@ class Update_Server {
 		try {
 			$cached_value = null;
 
-			if ( $wp_filesystem->is_file( $filename ) && $wp_filesystem->is_readable( $filename ) ) {
+			if ( is_file( $filename ) && is_readable( $filename ) ) {
 				$cache_key    = 'metadata-b64-' . $safe_slug . '-'
 					. md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
 				$cached_value = $this->cache->get( $cache_key );

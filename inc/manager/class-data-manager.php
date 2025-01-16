@@ -62,9 +62,7 @@ class Data_Manager {
 		$root_dir = self::get_data_dir();
 		$result   = true;
 
-		global $wp_filesystem;
-
-		if ( ! $wp_filesystem->is_dir( $root_dir ) ) {
+		if ( ! is_dir( $root_dir ) ) {
 			$result = self::create_data_dir( 'updatepulse-server', false, true );
 		}
 
@@ -72,7 +70,7 @@ class Data_Manager {
 
 			foreach ( array_merge( self::$transient_data_dirs, self::$persistent_data_dirs ) as $directory ) {
 
-				if ( ! $wp_filesystem->is_dir( $root_dir . $directory ) ) {
+				if ( ! is_dir( $root_dir . $directory ) ) {
 					$result = $result && self::create_data_dir( $directory );
 				}
 			}
@@ -165,7 +163,7 @@ class Data_Manager {
 			. '_MAX_SIZE';
 		$default_max_size       = defined( $max_size_constant_name ) ? constant( $max_size_constant_name ) : 0;
 		$cleanup                = false;
-		$is_dir                 = $wp_filesystem->is_dir( $directory );
+		$is_dir                 = is_dir( $directory );
 		$total_size             = 0;
 
 		if ( $default_max_size && $is_dir && false === $force ) {
@@ -186,7 +184,7 @@ class Data_Manager {
 
 		if ( $is_dir && ( $cleanup || $force ) ) {
 			$result = true;
-			$result = $result && $wp_filesystem->rmdir( $directory, true );
+			$result = $result && $wp_filesystem->delete( $directory, true );
 			$result = $result && $wp_filesystem->mkdir( $directory );
 
 			if ( self::is_valid_data_dir( $type ) ) {

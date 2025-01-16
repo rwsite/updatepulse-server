@@ -550,24 +550,17 @@ class Remote_Sources_Manager {
 		$slugs = wp_cache_get( 'package_slugs', 'updatepulse-server' );
 
 		if ( false === $slugs ) {
-			WP_Filesystem();
+			$slugs             = array();
+			$package_directory = Data_Manager::get_data_dir( 'packages' );
 
-			global $wp_filesystem;
+			if ( is_dir( $package_directory ) ) {
+				$package_paths = glob( trailingslashit( $package_directory ) . '*.zip' );
 
-			$slugs = array();
+				if ( ! empty( $package_paths ) ) {
 
-			if ( $wp_filesystem ) {
-				$package_directory = Data_Manager::get_data_dir( 'packages' );
-
-				if ( $wp_filesystem->is_dir( $package_directory ) ) {
-					$package_paths = glob( trailingslashit( $package_directory ) . '*.zip' );
-
-					if ( ! empty( $package_paths ) ) {
-
-						foreach ( $package_paths as $package_path ) {
-							$package_path_parts = explode( '/', $package_path );
-							$slugs[]            = str_replace( '.zip', '', end( $package_path_parts ) );
-						}
+					foreach ( $package_paths as $package_path ) {
+						$package_path_parts = explode( '/', $package_path );
+						$slugs[]            = str_replace( '.zip', '', end( $package_path_parts ) );
 					}
 				}
 			}

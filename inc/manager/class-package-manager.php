@@ -12,7 +12,7 @@ use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Exception;
 use Anyape\UpdatePulse\Package_Parser\Parser;
-use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
+use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Server\Update\Update_Server;
@@ -242,7 +242,6 @@ class Package_Manager {
 			global $wp_filesystem;
 
 			if ( ! $wp_filesystem ) {
-
 				return;
 			}
 
@@ -534,8 +533,8 @@ class Package_Manager {
 		foreach ( $package_slugs as $package_slug ) {
 			$file = trailingslashit( $package_directory ) . $package_slug . '.zip';
 
-			if ( $wp_filesystem->is_file( $file ) ) {
-				$zip->addFromString( $package_slug . '.zip', $wp_filesystem->get_contents( $file ) );
+			if ( is_file( $file ) ) {
+				$zip->addFromString( $package_slug . '.zip', @file_get_contents( $file ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 			}
 		}
 
@@ -546,9 +545,6 @@ class Package_Manager {
 	}
 
 	public function trigger_packages_download( $archive_name, $archive_path, $exit_or_die = true ) {
-		WP_Filesystem();
-
-		global $wp_filesystem;
 
 		if ( ! empty( $archive_path ) && is_file( $archive_path ) && ! empty( $archive_name ) ) {
 
@@ -632,7 +628,7 @@ class Package_Manager {
 
 			do_action( 'upserv_triggered_packages_download', $archive_name, $archive_path );
 
-			echo $wp_filesystem->get_contents( $archive_path ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo @file_get_contents( $archive_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		do_action( 'upserv_after_packages_download', $archive_name, $archive_path );
@@ -651,17 +647,9 @@ class Package_Manager {
 			if ( has_filter( 'upserv_package_manager_get_package_info' ) ) {
 				$package_info = apply_filters( 'upserv_package_manager_get_package_info', $package_info, $slug );
 			} else {
-				WP_Filesystem();
-
-				global $wp_filesystem;
-
-				if ( ! $wp_filesystem ) {
-					return;
-				}
-
 				$package_directory = Data_Manager::get_data_dir( 'packages' );
 
-				if ( $wp_filesystem->exists( $package_directory . $slug . '.zip' ) ) {
+				if ( file_exists( $package_directory . $slug . '.zip' ) ) {
 					$package = $this->get_package(
 						$package_directory . $slug . '.zip',
 						$slug
@@ -706,18 +694,10 @@ class Package_Manager {
 			if ( has_filter( 'upserv_package_manager_get_batch_package_info' ) ) {
 				$packages = apply_filters( 'upserv_package_manager_get_batch_package_info', $packages, $search );
 			} else {
-				WP_Filesystem();
-
-				global $wp_filesystem;
-
-				if ( ! $wp_filesystem ) {
-					return;
-				}
-
 				$package_directory = Data_Manager::get_data_dir( 'packages' );
 				$packages          = array();
 
-				if ( $wp_filesystem->is_dir( $package_directory ) ) {
+				if ( is_dir( $package_directory ) ) {
 
 					if ( ! Package_API::is_doing_api_request() ) {
 						$search = isset( $_REQUEST['s'] ) ? // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -792,16 +772,12 @@ class Package_Manager {
 	}
 
 	public function is_package_whitelisted( $package_slug ) {
-		$whitelist = upserv_get_whitelist_data_dir();
-		$filename  = sanitize_file_name( $package_slug . '.json' );
-
-		WP_Filesystem();
-
-		global $wp_filesystem;
-
 		return apply_filters(
 			'upserv_is_package_whitelisted',
-			$wp_filesystem->is_file( trailingslashit( $whitelist ) . $filename ),
+			is_file(
+				trailingslashit( upserv_get_whitelist_data_dir() )
+				. sanitize_file_name( $package_slug . '.json' )
+			),
 			$package_slug
 		);
 	}
@@ -818,11 +794,7 @@ class Package_Manager {
 			$package_slug
 		);
 
-		WP_Filesystem();
-
-		global $wp_filesystem;
-
-		$result = (bool) $wp_filesystem->put_contents(
+		$result = (bool) file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			trailingslashit( $whitelist ) . $filename,
 			wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ),
 			FS_CHMOD_FILE
@@ -862,12 +834,8 @@ class Package_Manager {
 		$filename  = sanitize_file_name( $package_slug . '.json' );
 		$data      = $json_encode ? '{}' : array();
 
-		WP_Filesystem();
-
-		global $wp_filesystem;
-
-		if ( $wp_filesystem->is_file( trailingslashit( $whitelist ) . $filename ) ) {
-			$data = $wp_filesystem->get_contents( trailingslashit( $whitelist ) . $filename );
+		if ( is_file( trailingslashit( $whitelist ) . $filename ) ) {
+			$data = @file_get_contents( trailingslashit( $whitelist ) . $filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 
 			if ( ! $json_encode ) {
 				$data = json_decode( $data, true );
@@ -988,17 +956,13 @@ class Package_Manager {
 	}
 
 	protected function get_package( $filename, $slug ) {
-		WP_Filesystem();
-
-		global $wp_filesystem;
-
 		$package      = false;
-		$cache        = new File_Cache( Data_Manager::get_data_dir( 'cache' ) );
+		$cache        = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 		$cached_value = null;
 
 		try {
 
-			if ( $wp_filesystem->is_file( $filename ) && $wp_filesystem->is_readable( $filename ) ) {
+			if ( is_file( $filename ) && is_readable( $filename ) ) {
 				$cache_key    = 'metadata-b64-' . $slug . '-'
 					. md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
 				$cached_value = $cache->get( $cache_key );

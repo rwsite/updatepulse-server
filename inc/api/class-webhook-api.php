@@ -313,9 +313,7 @@ class Webhook_API {
 	}
 
 	protected function handle_api_request() {
-		WP_Filesystem();
-
-		global $wp, $wp_filesystem;
+		global $wp;
 
 		if ( isset( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ) {
 			$this->handle_remote_test();
@@ -336,7 +334,7 @@ class Webhook_API {
 			$delay             = $config['repository_check_delay'];
 			$package_directory = Data_Manager::get_data_dir( 'packages' );
 			$package_exists    = null;
-			$payload           = $wp_filesystem->get_contents( 'php://input' );
+			$payload           = @file_get_contents( 'php://input' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 
 			if ( ! json_decode( $payload, true ) ) {
 				parse_str( $payload, $payload );
@@ -359,9 +357,9 @@ class Webhook_API {
 				$config
 			);
 
-			if ( null === $package_exists && $wp_filesystem->is_dir( $package_directory ) ) {
+			if ( null === $package_exists && is_dir( $package_directory ) ) {
 				$package_path   = trailingslashit( $package_directory ) . $package_id . '.zip';
-				$package_exists = $wp_filesystem->exists( $package_path );
+				$package_exists = file_exists( $package_path );
 			}
 
 			$process = apply_filters(
@@ -491,7 +489,6 @@ class Webhook_API {
 		if ( isset( $_SERVER['HTTP_X_GITLAB_TOKEN'] ) ) {
 			$valid = $_SERVER['HTTP_X_GITLAB_TOKEN'] === $secret;
 		} else {
-			global $wp_filesystem;
 
 			if ( isset( $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ) ) {
 				$sign = $_SERVER['HTTP_X_HUB_SIGNATURE_256'];
@@ -505,7 +502,7 @@ class Webhook_API {
 				$sign_parts = explode( '=', $sign );
 				$sign       = 2 === count( $sign_parts ) ? end( $sign_parts ) : false;
 				$algo       = ( $sign ) ? reset( $sign_parts ) : false;
-				$payload    = ( $sign ) ? $wp_filesystem->get_contents( 'php://input' ) : false;
+				$payload    = ( $sign ) ? @file_get_contents( 'php://input' ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 				$valid      = $sign && hash_equals( hash_hmac( $algo, $payload, $secret ), $sign );
 			}
 		}
