@@ -6,13 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-use Anyape\UpdatePulse\Server\Manager\Data_Manager;
-
 use DateTimeZone;
 use DateTime;
 use WP_Error;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 
 class Webhook_API {
+
 	protected static $doing_update_api_request = null;
 	protected static $instance;
 	protected static $config;

@@ -6,18 +6,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use Exception;
+use WP_Error;
+use PhpS3\PhpS3;
+use PhpS3\PhpS3Exception;
 use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\Server\Update\Zip_Metadata_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
 use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Package_Parser\Parser;
-use PhpS3\PhpS3;
-use PhpS3\PhpS3Exception;
-use Exception;
-use WP_Error;
 
 class Cloud_Storage_Manager {
+
 	protected static $instance;
 	protected static $config;
 	protected static $cloud_storage;

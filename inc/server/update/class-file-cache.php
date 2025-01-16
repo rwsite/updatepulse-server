@@ -2,6 +2,10 @@
 
 namespace Anyape\UpdatePulse\Server\Server\Update;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * A simple file-based cache.
  *
@@ -14,6 +18,7 @@ namespace Anyape\UpdatePulse\Server\Server\Update;
  * @see https://github.com/YahnisElsts/wp-update-server/pull/11
  */
 class File_Cache implements Cache {
+
 	protected $cache_directory;
 
 	public function __construct( $cache_directory ) {

@@ -11,6 +11,7 @@ use DateTimeZone;
 use PasswordHash;
 
 class Nonce {
+
 	const DEFAULT_EXPIRY_LENGTH = MINUTE_IN_SECONDS / 2;
 	const NONCE_ONLY            = 1;
 	const NONCE_INFO_ARRAY      = 2;

@@ -2,6 +2,10 @@
 
 namespace Anyape\UpdatePulse\Server\Server\Update;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 use RuntimeException;
 
 /**

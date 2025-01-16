@@ -2,8 +2,14 @@
 
 namespace Anyape\UpdatePulse\Server\Server\Update;
 
-defined( 'ABSPATH' ) || exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
 
+use DateTime;
+use DateTimeZone;
+use WP_Error;
+use Exception;
 use Anyape\UpdatePulse\Package_Parser\Parser;
 use Anyape\UpdatePulse\Server\Server\Update\File_Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
@@ -13,12 +19,9 @@ use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
-use DateTime;
-use DateTimeZone;
-use WP_Error;
-use Exception;
 
 class Update_Server {
+
 	const LOCK_REMOTE_UPDATE_SEC = 10;
 
 	protected $package_directory;

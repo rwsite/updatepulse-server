@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 
 class Update_API {
+
 	protected static $doing_update_api_request = null;
 	protected static $instance;
 	protected static $config;

@@ -10,6 +10,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
 class Data_Manager {
+
 	public static $transient_data_dirs = array(
 		'cache',
 		'logs',

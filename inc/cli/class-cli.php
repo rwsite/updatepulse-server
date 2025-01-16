@@ -6,12 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-use Anyape\UpdatePulse\Server\Nonce\Nonce;
 use WP_CLI_Command;
 use WP_CLI;
 use WP_Error;
+use Anyape\UpdatePulse\Server\Nonce\Nonce;
 
 class CLI extends WP_CLI_Command {
+
 	protected const RESOURCE_NOT_FOUND = 3;
 	protected const DEFAULT_ERROR      = 1;
 	protected const LOG_METHODS        = array(

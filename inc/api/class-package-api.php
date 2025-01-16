@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Package_API {
+
 	protected $http_response_code = 200;
 	protected $api_key_id;
 	protected $api_access;

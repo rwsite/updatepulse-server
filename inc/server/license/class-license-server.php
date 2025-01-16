@@ -6,10 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-use Anyape\Crypto\Crypto;
 use Exception;
 use DateTime;
 use DateTimeZone;
+use Anyape\Crypto\Crypto;
 
 class License_Server {
 

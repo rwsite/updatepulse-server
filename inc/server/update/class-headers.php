@@ -2,6 +2,10 @@
 
 namespace Anyape\UpdatePulse\Server\Server\Update;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 use ArrayAccess;
 use IteratorAggregate;
 use Countable;
@@ -9,7 +13,6 @@ use ArrayIterator;
 use Traversable;
 
 class Headers implements ArrayAccess, IteratorAggregate, Countable {
-	protected $headers = array();
 
 	/**
 	 * HTTP headers stored in the $_SERVER array are usually prefixed with "HTTP_" or "X_".
@@ -25,6 +28,8 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 		'PHP_AUTH_DIGEST',
 		'AUTH_TYPE',
 	);
+
+	protected $headers = array();
 
 	public function __construct( $headers = array() ) {
 		foreach ( $headers as $name => $value ) {
@@ -93,7 +98,6 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	 */
 	protected function normalize_name( $name ) {
 		$name = strtolower( $name );
-
 		$name = str_replace( array( '_', '-' ), ' ', $name );
 		$name = ucwords( $name );
 		$name = str_replace( ' ', '-', $name );

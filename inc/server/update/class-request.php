@@ -2,10 +2,15 @@
 
 namespace Anyape\UpdatePulse\Server\Server\Update;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * Simple request class for the update server.
  */
 class Request {
+
 	/** @var array Query parameters. */
 	public $query = array();
 	/** @var string Client's IP address. */

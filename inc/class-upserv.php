@@ -6,11 +6,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use Exception;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Remote_Sources_Manager;
-use Exception;
 
 class UPServ {
+
 	protected static $instance;
 
 	public function __construct( $init_hooks = false ) {

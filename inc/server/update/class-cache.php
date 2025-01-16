@@ -2,10 +2,15 @@
 
 namespace Anyape\UpdatePulse\Server\Server\Update;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * A very basic cache interface.
  */
 interface Cache {
+
 	/**
 	 * Get cached value.
 	 *

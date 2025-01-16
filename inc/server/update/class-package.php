@@ -2,6 +2,10 @@
 
 namespace Anyape\UpdatePulse\Server\Server\Update;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly
+}
+
 /**
  * This class represents the collection of files and metadata that make up
  * a WordPress plugin or theme.
