@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
-	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before, $upserv_timer;
+	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before;
 
 	$upserv_mem_before     = memory_get_peak_usage();
 	$upserv_scripts_before = get_included_files();
