@@ -19,7 +19,10 @@
 				?>
 			</li>
 			<li>
-				<?php esc_html_e( 'If packages linked to a Remote Repository are deleted using this interface, they need to be registered again to become available in UpdatePulse Server.', 'updatepulse-server' ); ?>
+				<?php esc_html_e( 'If a package linked to a Remote Repository is deleted using this interface, it needs to be registered again to become available in UpdatePulse Server.', 'updatepulse-server' ); ?>
+			</li>
+			<li>
+				<?php esc_html_e( 'Switching between Local and Cloud Storage will not restore access to a package previously deleted, even if it is present on the active file system.', 'updatepulse-server' ); ?>
 			</li>
 		</ul>
 		<?php endif; ?>
@@ -32,7 +35,7 @@
 		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
 		<tr>
 			<th>
-				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository (recommended)', 'updatepulse-server' ); ?></label>
+				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository', 'updatepulse-server' ); ?></label>
 			</th>
 			<td>
 				<input class="regular-text" type="text" id="upserv_prime_package_slug" placeholder="<?php esc_attr_e( 'package-slug' ); ?>" name="upserv_prime_package_slug" value=""> <input type="button" id="upserv_prime_package_trigger" value="<?php print esc_attr_e( 'Get remote package', 'updatepulse-server' ); ?>" class="button button-primary" disabled /><div class="spinner"></div>

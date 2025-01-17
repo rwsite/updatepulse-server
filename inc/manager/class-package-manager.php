@@ -53,6 +53,7 @@ class Package_Manager {
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 10, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 10, 2 );
 			add_filter( 'set-screen-option', array( $this, 'set_page_options' ), 10, 3 );
+			add_filter( 'upserv_batch_package_info_include', array( $this, 'batch_package_info_include' ), 10, 3 );
 		}
 	}
 
@@ -360,6 +361,10 @@ class Package_Manager {
 
 			upserv_schedule_webhook( $payload, 'package' );
 		}
+	}
+
+	public function batch_package_info_include( $_include, $info, $type ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		return upserv_is_package_whitelisted( $info['slug'] );
 	}
 
 	// Misc. -------------------------------------------------------
