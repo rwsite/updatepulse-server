@@ -320,12 +320,13 @@ class Cloud_Storage_Manager {
 				wp_cache_set( $slug . '-getObjectInfo', $info, 'updatepulse-server' );
 			}
 
-			if ( $info ) {
-				$package_directory = Data_Manager::get_data_dir( 'packages' );
-				$filename          = $package_directory . $slug . '.zip';
-				$cache             = new Cache( Data_Manager::get_data_dir( 'cache' ) );
-				$cache_key         = 'metadata-b64-' . $slug . '-'
-						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
+			$package_directory = Data_Manager::get_data_dir( 'packages' );
+			$filename          = $package_directory . $slug . '.zip';
+			$cache_key         = self::build_cache_key( $slug, $filename );
+
+			if ( $cache_key ) {
+				$cache = new Cache( Data_Manager::get_data_dir( 'cache' ) );
+
 				$cache->clear( $cache_key );
 			}
 
@@ -748,23 +749,20 @@ class Cloud_Storage_Manager {
 				wp_cache_set( $slug . '-getObjectInfo', $info, 'updatepulse-server' );
 			}
 
-			if ( $info ) {
-				$cache_key = 'metadata-b64-' . $slug . '-'
-						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
+			$cache_key = self::build_cache_key( $slug, $filename );
 
-				if ( ! $cache->get( $cache_key ) ) {
-					$result = self::$cloud_storage->getObject(
-						$config['storage_unit'],
-						self::$virtual_dir . '/' . $slug . '.zip',
-						$filename
-					);
+			if ( $cache_key && ! $cache->get( $cache_key ) ) {
+				$result = self::$cloud_storage->getObject(
+					$config['storage_unit'],
+					self::$virtual_dir . '/' . $slug . '.zip',
+					$filename
+				);
 
-					if ( $result ) {
-						$package     = Package::from_archive( $filename, $slug, $cache );
-						$cache_value = $package->get_metadata();
+				if ( $result ) {
+					$package     = Package::from_archive( $filename, $slug, $cache );
+					$cache_value = $package->get_metadata();
 
-						$cache->set( $cache_key, $cache_value, Zip_Metadata_Parser::$cache_time );
-					}
+					$cache->set( $cache_key, $cache_value, Zip_Metadata_Parser::$cache_time );
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
@@ -785,24 +783,9 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_zip_metadata_parser_cache_key( $cache_key, $slug, $filename ) {
-		$config = self::get_config();
-		$info   = wp_cache_get( $slug . '-getObjectInfo', 'updatepulse-server' );
+		$cloud_cache_key = self::build_cache_key( $slug, $filename );
 
-		if ( false === $info ) {
-			$info = self::$cloud_storage->getObjectInfo(
-				$config['storage_unit'],
-				self::$virtual_dir . '/' . $slug . '.zip',
-			);
-
-			wp_cache_set( $slug . '-getObjectInfo', $info, 'updatepulse-server' );
-		}
-
-		if ( $info ) {
-			$cache_key = 'metadata-b64-' . $slug . '-'
-						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
-		}
-
-		return $cache_key;
+		return $cloud_cache_key ? $cloud_cache_key : $cache_key;
 	}
 
 	public function upserv_package_manager_get_package_info( $package_info, $slug ) {
@@ -824,76 +807,80 @@ class Cloud_Storage_Manager {
 				wp_cache_set( $slug . '-getObjectInfo', $info, 'updatepulse-server' );
 			}
 
-			if ( $info ) {
-				$cache_key = 'metadata-b64-' . $slug . '-'
-						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
+			$cache_key = self::build_cache_key( $slug, $filename );
 
-				if ( ! $cache->get( $cache_key ) ) {
-					$result = self::$cloud_storage->getObject(
-						$config['storage_unit'],
-						self::$virtual_dir . '/' . $slug . '.zip',
-						$filename
-					);
+			if ( ! $cache_key ) {
+				return $package_info;
+			}
 
-					if ( $result ) {
-						$package = false;
+			$package_info = $cache->get( $cache_key );
 
-						try {
-							$package = Package::from_archive( $filename, $slug, $cache );
-						} catch ( Invalid_Package_Exception $e ) {
-							php_log(
-								array(
-									'error'    => $e->getMessage(),
-									'file'     => $e->getFile(),
-									'line'     => $e->getLine(),
-									'caller'   => $e->getTrace()[1],
-									'filename' => $filename,
-								)
-							);
+			if ( ! $package_info ) {
+				$result = self::$cloud_storage->getObject(
+					$config['storage_unit'],
+					self::$virtual_dir . '/' . $slug . '.zip',
+					$filename
+				);
 
-							$cleanup = true;
-						}
+				if ( $result ) {
 
-						if ( $package ) {
-							$package_info = $package->get_metadata();
+					try {
+						$package      = Package::from_archive( $filename, $slug, $cache );
+						$package_info = $package->get_metadata();
 
-							$cache->set(
-								$cache_key,
-								$package_info,
-								Zip_Metadata_Parser::$cache_time // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-							);
-						}
+						$cache->set(
+							$cache_key,
+							$package_info,
+							Zip_Metadata_Parser::$cache_time // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						);
+					} catch ( Invalid_Package_Exception $e ) {
+						php_log(
+							array(
+								'error'    => $e->getMessage(),
+								'file'     => $e->getFile(),
+								'line'     => $e->getLine(),
+								'caller'   => $e->getTrace()[1],
+								'filename' => $filename,
+							)
+						);
+
+						$cleanup = true;
 					}
-				} else {
-					$package_info = $cache->get( $cache_key );
+				}
+			}
+
+			if ( ! $package_info ) {
+
+				if ( $cleanup && is_file( $filename ) ) {
+					wp_delete_file( $filename );
 				}
 
-				if ( $package_info ) {
-					$digest_keys = array(
-						'crc32',
-						'crc32c',
-						'sha1',
-						'sha256',
-						'sha512',
-					);
+				return $package_info;
+			}
 
-					if ( ! isset( $package_info['type'] ) ) {
-						$package_info['type'] = 'unknown';
-					}
+			$digest_keys = array(
+				'crc32',
+				'crc32c',
+				'sha1',
+				'sha256',
+				'sha512',
+			);
 
-					$package_info['file_name']          = $package_info['slug'] . '.zip';
-					$package_info['file_path']          = 'cloudStorage://' . self::$virtual_dir . '/' . $slug . '.zip';
-					$package_info['file_size']          = $info['size'];
-					$package_info['file_last_modified'] = $info['time'];
-					$package_info['etag']               = $info['hash'];
-					$package_info['digests']            = array();
+			if ( ! isset( $package_info['type'] ) ) {
+				$package_info['type'] = 'unknown';
+			}
 
-					foreach ( $digest_keys as $key ) {
+			$package_info['file_name']          = $package_info['slug'] . '.zip';
+			$package_info['file_path']          = 'cloudStorage://' . self::$virtual_dir . '/' . $slug . '.zip';
+			$package_info['file_size']          = $info['size'];
+			$package_info['file_last_modified'] = $info['time'];
+			$package_info['etag']               = $info['hash'];
+			$package_info['digests']            = array();
 
-						if ( isset( $info[ 'x-amz-meta-updatepulse-digests-' . $key ] ) ) {
-							$package_info['digests'][ $key ] = $info[ 'x-amz-meta-updatepulse-digests-' . $key ];
-						}
-					}
+			foreach ( $digest_keys as $key ) {
+
+				if ( isset( $info[ 'x-amz-meta-updatepulse-digests-' . $key ] ) ) {
+					$package_info['digests'][ $key ] = $info[ 'x-amz-meta-updatepulse-digests-' . $key ];
 				}
 			}
 		} catch ( Exception $e ) {
@@ -994,6 +981,28 @@ class Cloud_Storage_Manager {
 
 	public function upserv_update_server_action_download_handled() {
 		return $this->doing_redirect;
+	}
+
+	protected static function build_cache_key( $slug, $filename ) {
+		$config    = self::get_config();
+		$info      = wp_cache_get( $slug . '-getObjectInfo', 'updatepulse-server' );
+		$cache_key = false;
+
+		if ( false === $info ) {
+			$info = self::$cloud_storage->getObjectInfo(
+				$config['storage_unit'],
+				self::$virtual_dir . '/' . $slug . '.zip',
+			);
+
+			wp_cache_set( $slug . '-getObjectInfo', $info, 'updatepulse-server' );
+		}
+
+		if ( $info ) {
+			$cache_key = 'metadata-b64-' . $slug . '-'
+						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
+		}
+
+		return $cache_key;
 	}
 
 	protected function virtual_folder_exists( $name ) {

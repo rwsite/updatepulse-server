@@ -88,6 +88,24 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
+	* Build the cache key (cache filename) for a file
+	*/
+	public static function build_cache_key( $slug, $filename ) {
+		$cache_key = 'metadata-b64-' . $slug . '-';
+
+		if ( file_exists( $filename ) ) {
+			$cache_key .= md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
+		}
+
+		return apply_filters(
+			'upserv_zip_metadata_parser_cache_key',
+			$cache_key,
+			$slug,
+			$filename
+		);
+	}
+
+	/**
 	* Get metadata.
 	*
 	* @return array
@@ -99,11 +117,11 @@ class Zip_Metadata_Parser {
 	/**
 	* Load metadata information from a cache or create it.
 	*
-	* We'll try to load processed metadata from the cache first ( if available ), and if that
+	* We'll try to load processed metadata from the cache first (if available), and if that
 	* fails we'll extract plugin/theme details from the specified Zip file.
 	*/
 	protected function set_metadata() {
-		$cache_key = $this->generate_cache_key();
+		$cache_key = self::build_cache_key( $this->slug, $this->filename );
 
 		//Try the cache first.
 		if ( isset( $this->cache ) ) {
@@ -310,23 +328,5 @@ class Zip_Metadata_Parser {
 				$this->metadata['licensed_with'] = $extra_meta['licensed_with'];
 			}
 		}
-	}
-
-	/**
-	* Generate the cache key ( cache filename ) for a file
-	*/
-	protected function generate_cache_key() {
-		$cache_key = 'metadata-b64-' . $this->slug . '-';
-
-		if ( file_exists( $this->filename ) ) {
-			$cache_key .= md5( $this->filename . '|' . filesize( $this->filename ) . '|' . filemtime( $this->filename ) );
-		}
-
-		return apply_filters(
-			'upserv_zip_metadata_parser_cache_key',
-			$cache_key,
-			$this->slug,
-			$this->filename
-		);
 	}
 }

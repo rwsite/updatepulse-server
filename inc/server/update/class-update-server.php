@@ -10,7 +10,7 @@ use DateTime;
 use DateTimeZone;
 use WP_Error;
 use Exception;
-use Anyape\UpdatePulse\Package_Parser\Parser;
+use Anyape\UpdatePulse\Package_Parser\Parser as Package_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Server\Update\Request;
@@ -267,7 +267,7 @@ class Update_Server {
 			$package_path = $local_package->get_filename();
 			$meta         = apply_filters(
 				'upserv_check_remote_package_update_local_meta',
-				Parser::parse_package( $package_path, true ),
+				Package_Parser::parse_package( $package_path, true ),
 				$local_package,
 				$slug
 			);
@@ -330,14 +330,8 @@ class Update_Server {
 		$cache_key    = false;
 
 		if ( is_file( $package_path ) ) {
-			$cache_key = 'metadata-b64-' . $slug . '-'
-				. md5(
-					$package_path . '|'
-					. filesize( $package_path ) . '|'
-					. filemtime( $package_path )
-				);
-
-			$parsed_info = Parser::parse_package( $package_path, true );
+			$cache_key   = Zip_Metadata_Parser::build_cache_key( $slug, $package_path );
+			$parsed_info = Package_Parser::parse_package( $package_path, true );
 			$type        = ucfirst( $parsed_info['type'] );
 			$result      = $wp_filesystem->delete( $package_path );
 		}
@@ -574,8 +568,7 @@ class Update_Server {
 			$cached_value = null;
 
 			if ( is_file( $filename ) && is_readable( $filename ) ) {
-				$cache_key    = 'metadata-b64-' . $safe_slug . '-'
-					. md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
+				$cache_key    = Zip_Metadata_Parser::build_cache_key( $safe_slug, $filename );
 				$cached_value = $this->cache->get( $cache_key );
 			}
 

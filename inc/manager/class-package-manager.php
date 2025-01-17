@@ -11,7 +11,8 @@ use ZipArchive;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Exception;
-use Anyape\UpdatePulse\Package_Parser\Parser;
+use Anyape\UpdatePulse\Package_Parser\Parser as Package_Parser;
+use Anyape\UpdatePulse\Server\Server\Update\Zip_Metadata_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
@@ -304,7 +305,7 @@ class Package_Manager {
 			}
 
 			if ( $valid ) {
-				$parsed_info = Parser::parse_package( $package_info['tmp_name'], true );
+				$parsed_info = Package_Parser::parse_package( $package_info['tmp_name'], true );
 			}
 
 			if ( $valid && ! $parsed_info ) {
@@ -963,8 +964,7 @@ class Package_Manager {
 		try {
 
 			if ( is_file( $filename ) && is_readable( $filename ) ) {
-				$cache_key    = 'metadata-b64-' . $slug . '-'
-					. md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
+				$cache_key    = Zip_Metadata_Parser::build_cache_key( $slug, $filename );
 				$cached_value = $cache->get( $cache_key );
 			}
 
