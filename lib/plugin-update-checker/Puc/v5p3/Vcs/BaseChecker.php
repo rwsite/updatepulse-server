@@ -1,5 +1,5 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
+namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
 
 if ( !interface_exists(BaseChecker::class, false) ):
 

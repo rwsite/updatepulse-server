@@ -1,9 +1,8 @@
 <?php
 
-namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
+namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\OAuthSignature;
-use YahnisElsts\PluginUpdateChecker\v5p3\Utils;
+use Anyape\PluginUpdateChecker\v5p3\OAuthSignature;
 
 if ( !class_exists(BitBucketApi::class, false) ):
 
@@ -194,7 +193,7 @@ if ( !class_exists(BitBucketApi::class, false) ):
 		 */
 		public function api($url, $version = '2.0') {
 			$url = ltrim($url, '/');
-			$isSrcResource = Utils::startsWith($url, 'src/');
+			$isSrcResource = 0 === strpos($url, 'src/');
 
 			$url = implode('/', array(
 				'https://api.bitbucket.org',

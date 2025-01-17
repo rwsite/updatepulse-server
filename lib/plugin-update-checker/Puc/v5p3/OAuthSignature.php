@@ -1,5 +1,5 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3;
+namespace Anyape\PluginUpdateChecker\v5p3;
 
 if ( !class_exists(OAuthSignature::class, false) ):
 

@@ -1,5 +1,5 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3;
+namespace Anyape\PluginUpdateChecker\v5p3;
 
 use LogicException;
 use stdClass;
@@ -98,13 +98,6 @@ if ( !class_exists(Metadata::class, false) ):
 			$this->copyFields($this, $object);
 			return $object;
 		}
-
-		/**
-		 * Transform the metadata into the format used by WordPress core.
-		 *
-		 * @return object
-		 */
-		abstract public function toWpFormat();
 
 		/**
 		 * Copy known fields from one object to another.

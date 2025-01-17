@@ -1,8 +1,8 @@
 <?php
 
-namespace YahnisElsts\PluginUpdateChecker\v5p3\Theme;
+namespace Anyape\PluginUpdateChecker\v5p3\Theme;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Update as BaseUpdate;
+use Anyape\PluginUpdateChecker\v5p3\Update as BaseUpdate;
 
 if ( !class_exists(Update::class, false) ):
 
@@ -10,26 +10,6 @@ if ( !class_exists(Update::class, false) ):
 		public $details_url = '';
 
 		protected static $extraFields = array('details_url');
-
-		/**
-		 * Transform the metadata into the format used by WordPress core.
-		 * Note the inconsistency: WP stores plugin updates as objects and theme updates as arrays.
-		 *
-		 * @return array
-		 */
-		public function toWpFormat() {
-			$update = array(
-				'theme' => $this->slug,
-				'new_version' => $this->version,
-				'url' => $this->details_url,
-			);
-
-			if ( !empty($this->download_url) ) {
-				$update['package'] = $this->download_url;
-			}
-
-			return $update;
-		}
 
 		/**
 		 * Create a new instance of Theme_Update from its JSON-encoded representation.
@@ -68,7 +48,7 @@ if ( !class_exists(Update::class, false) ):
 			foreach($required as $key) {
 				if ( !isset($apiResponse->$key) || empty($apiResponse->$key) ) {
 					return new \WP_Error(
-						'tuc-invalid-metadata',
+						'puc-invalid-metadata',
 						sprintf('The theme metadata is missing the required "%s" key.', $key)
 					);
 				}

@@ -2,19 +2,20 @@
 
 namespace Anyape\ProxyUpdateChecker\Vcs;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Utils;
-use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
-use Anyape\ProxyUpdateChecker\Generic\Package;
-use Anyape\ProxyUpdateChecker\Generic\UpdateChecker;
-use Anyape\ProxyUpdateChecker\Generic\Update;
+use Anyape\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
+use Anyape\PluginUpdateChecker\v5p3\UpdateChecker;
+use Anyape\PluginUpdateChecker\v5p3\Generic\Package;
+use Anyape\PluginUpdateChecker\v5p3\Generic\Update;
 
 if ( ! class_exists(GenericUpdateChecker::class, false) ):
 
 	class GenericUpdateChecker extends UpdateChecker implements BaseChecker {
 		public $genericAbsolutePath = '';
+		public $genericFile = '';
 
 		protected $branch = 'main';
 		protected $api = null;
+		protected $package = null;
 
 		public function __construct($api, $slug, $file_name, $container) {
 			$this->api = $api;
@@ -25,19 +26,14 @@ if ( ! class_exists(GenericUpdateChecker::class, false) ):
 			$this->metadataUrl = $api->getRepositoryUrl();
 			$this->directoryName = basename(dirname($this->genericAbsolutePath));
 			$this->slug = !empty($slug) ? $slug : $this->directoryName;
-			$this->optionName = 'external_updates-' . $this->slug;
 			$this->package = new Package($this->genericAbsolutePath, $this);
 			$this->api->setSlug($this->slug);
-		}
-
-		public function Vcs_getAbsoluteDirectoryPath() {
-			return trailingslashit($this->genericAbsolutePath);
 		}
 
 		public function requestInfo() {
 			$api = $this->api;
 
-			$api->setLocalDirectory($this->Vcs_getAbsoluteDirectoryPath());
+			$api->setLocalDirectory(trailingslashit($this->genericAbsolutePath));
 
 			$update = new Update();
 			$update->slug = $this->slug;
@@ -78,18 +74,13 @@ if ( ! class_exists(GenericUpdateChecker::class, false) ):
 
 				if (isset($fileContents['packageData']) && !empty($fileContents['packageData'])) {
 					$remoteHeader = $fileContents['packageData'];
-					$update->version = Utils::findNotEmpty(array(
-						$remoteHeader['Version'],
-						Utils::get($updateSource, 'version'),
-					));
+					$update->version = empty( $remoteHeader['Version'] ) ? $updateSource->version : $remoteHeader['Version'];
 				}
 			}
 
 			if (empty($update->version)) {
 				$update = null;
 			}
-
-			$update = $this->filterUpdateResult($update);
 
 			if ($update && 'source_not_found' !== $update) {
 

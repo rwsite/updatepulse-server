@@ -2,40 +2,35 @@
 
 namespace Anyape\ProxyUpdateChecker\Vcs;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Utils;
-use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
-use YahnisElsts\PluginUpdateChecker\v5p3\Theme\Package;
-use YahnisElsts\PluginUpdateChecker\v5p3\Theme\Update;
-use YahnisElsts\PluginUpdateChecker\v5p3\Theme\UpdateChecker;
+use Anyape\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
+use Anyape\PluginUpdateChecker\v5p3\Theme\Package;
+use Anyape\PluginUpdateChecker\v5p3\Theme\Update;
+use Anyape\PluginUpdateChecker\v5p3\UpdateChecker;
 
 if (! class_exists(ThemeUpdateChecker::class, false)):
 
 	class ThemeUpdateChecker extends UpdateChecker implements BaseChecker {
 		public $themeAbsolutePath = '';
+		protected $stylesheet;
 		protected $branch = 'main';
 		protected $api = null;
+		protected $package = null;
 
 		public function __construct($api, $slug, $container) {
 			$this->api = $api;
-			$this->api->setHttpFilterName('puc_theme_request_update_options');
 			$this->stylesheet = $slug;
 			$this->themeAbsolutePath = trailingslashit($container) . $slug;
 			$this->debugMode = (bool)(constant('WP_DEBUG'));
 			$this->metadataUrl = $api->getRepositoryUrl();
 			$this->directoryName = basename(dirname($this->themeAbsolutePath));
 			$this->slug = !empty($slug) ? $slug : $this->directoryName;
-			$this->optionName = 'external_updates-' . $this->slug;
 			$this->package = new Package($this->themeAbsolutePath, $this);
 			$this->api->setSlug($this->slug);
 		}
 
-		public function Vcs_getAbsoluteDirectoryPath() {
-			return trailingslashit($this->themeAbsolutePath);
-		}
-
 		public function requestInfo($unused = null) {
 			$api = $this->api;
-			$api->setLocalDirectory($this->Vcs_getAbsoluteDirectoryPath());
+			$api->setLocalDirectory(trailingslashit($this->themeAbsolutePath));
 
 			$update = new Update();
 			$update->slug = $this->slug;
@@ -77,18 +72,13 @@ if (! class_exists(ThemeUpdateChecker::class, false)):
 
 			if (!empty($file)) {
 				$remoteHeader = $this->package->getFileHeader($file);
-				$update->version = Utils::findNotEmpty(array(
-					$remoteHeader['Version'],
-					Utils::get($updateSource, 'version'),
-				));
+				$update->version = empty( $remoteHeader['Version'] ) ? $updateSource->version : $remoteHeader['Version'];
 			}
 
 			if (empty($update->version)) {
 				//It looks like we didn't find a valid update after all.
 				$update = null;
 			}
-
-			$update = $this->filterUpdateResult($update);
 
 			if ($update && 'source_not_found' !== $update) {
 
@@ -149,16 +139,6 @@ if (! class_exists(ThemeUpdateChecker::class, false)):
 
 		public function getVcsApi() {
 			return $this->api;
-		}
-
-		public function getUpdate() {
-			$update = parent::getUpdate();
-
-			if (isset($update) && !empty($update->download_url)) {
-				$update->download_url = $this->api->signDownloadUrl($update->download_url);
-			}
-
-			return $update;
 		}
 	}
 

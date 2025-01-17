@@ -460,13 +460,19 @@ class Parser {
 				if ( ! empty( $package_data[ $name ] ) ) {
 
 					if ( 0 === strpos( $name, 'Banner' ) ) {
-						$generic_extra['banners']         = is_array( $generic_extra['banners'] ) ?
+						$generic_extra['banners']         = (
+								isset( $generic_extra['banners'] ) &&
+								is_array( $generic_extra['banners'] )
+							) ?
 							$generic_extra['banners'] :
 							array();
 						$idx                              = strtolower( str_replace( 'Banner', '', $name ) );
 						$generic_extra['banners'][ $idx ] = $package_data[ $name ];
 					} elseif ( 0 === strpos( $name, 'Icon' ) ) {
-						$generic_extra['icons']         = is_array( $generic_extra['icons'] ) ?
+						$generic_extra['icons']         = (
+								isset( $generic_extra['icons'] ) &&
+								is_array( $generic_extra['icons'] )
+							) ?
 							$generic_extra['icons'] :
 							array();
 						$idx                            = str_replace( 'Icon', '', $name );

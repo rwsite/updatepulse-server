@@ -1,6 +1,6 @@
 <?php
 
-namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
+namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
 
 use Parsedown;
 use PucReadmeParser;

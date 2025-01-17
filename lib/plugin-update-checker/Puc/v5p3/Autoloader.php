@@ -1,6 +1,6 @@
 <?php
 
-namespace YahnisElsts\PluginUpdateChecker\v5p3;
+namespace Anyape\PluginUpdateChecker\v5p3;
 
 if ( !class_exists(Autoloader::class, false) ):
 
@@ -37,19 +37,6 @@ if ( !class_exists(Autoloader::class, false) ):
 				$libraryPrefix . 'PucReadmeParser' => 'vendor/PucReadmeParser.php',
 				$libraryPrefix . 'Parsedown'       => 'vendor/Parsedown.php',
 			);
-
-			//Add the generic, major-version-only factory class to the static map.
-			$versionSeparatorPos = strrpos(__NAMESPACE__, '\\v');
-			if ( $versionSeparatorPos !== false ) {
-				$versionSegment = substr(__NAMESPACE__, $versionSeparatorPos + 1);
-				$pointPos = strpos($versionSegment, 'p');
-				if ( ($pointPos !== false) && ($pointPos > 1) ) {
-					$majorVersionSegment = substr($versionSegment, 0, $pointPos);
-					$majorVersionNs = __NAMESPACE__ . '\\' . $majorVersionSegment;
-					$this->staticMap[$majorVersionNs . '\\PucFactory'] =
-						'Puc/' . $majorVersionSegment . '/Factory.php';
-				}
-			}
 
 			spl_autoload_register(array($this, 'autoload'));
 		}

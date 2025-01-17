@@ -1,7 +1,7 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3\Plugin;
+namespace Anyape\PluginUpdateChecker\v5p3\Plugin;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Update as BaseUpdate;
+use Anyape\PluginUpdateChecker\v5p3\Update as BaseUpdate;
 
 if ( !class_exists(Update::class, false) ):
 
@@ -71,45 +71,6 @@ if ( !class_exists(Update::class, false) ):
 		 */
 		protected function getFieldNames() {
 			return array_merge(parent::getFieldNames(), self::$extraFields);
-		}
-
-		/**
-		 * Transform the update into the format used by WordPress native plugin API.
-		 *
-		 * @return object
-		 */
-		public function toWpFormat() {
-			$update = parent::toWpFormat();
-
-			$update->id = $this->id;
-			$update->url = $this->homepage;
-			$update->tested = $this->tested;
-			$update->requires_php = $this->requires_php;
-			$update->plugin = $this->filename;
-
-			if ( !empty($this->upgrade_notice) ) {
-				$update->upgrade_notice = $this->upgrade_notice;
-			}
-
-			if ( !empty($this->icons) && is_array($this->icons) ) {
-				//This should be an array with up to 4 keys: 'svg', '1x', '2x' and 'default'.
-				//Docs: https://developer.wordpress.org/plugins/wordpress-org/plugin-assets/#plugin-icons
-				$icons = array_intersect_key(
-					$this->icons,
-					array('svg' => true, '1x' => true, '2x' => true, 'default' => true)
-				);
-				if ( !empty($icons) ) {
-					$update->icons = $icons;
-
-					//It appears that the 'default' icon isn't used anywhere in WordPress 4.9,
-					//but lets set it just in case a future release needs it.
-					if ( !isset($update->icons['default']) ) {
-						$update->icons['default'] = current($update->icons);
-					}
-				}
-			}
-
-			return $update;
 		}
 	}
 

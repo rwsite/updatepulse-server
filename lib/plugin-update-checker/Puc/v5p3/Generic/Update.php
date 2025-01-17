@@ -1,8 +1,8 @@
 <?php
 
-namespace Anyape\ProxyUpdateChecker\Generic;
+namespace Anyape\PluginUpdateChecker\v5p3\Generic;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Update as BaseUpdate;
+use Anyape\PluginUpdateChecker\v5p3\Update as BaseUpdate;
 
 if (!class_exists(Update::class, false)):
 
@@ -32,7 +32,7 @@ if (!class_exists(Update::class, false)):
 
 				if (!isset($apiResponse->$key) || empty($apiResponse->$key)) {
 					return new \WP_Error(
-						'tuc-invalid-metadata',
+						'puc-invalid-metadata',
 						sprintf('The generic metadata is missing the required "%s" key.', $key)
 					);
 				}

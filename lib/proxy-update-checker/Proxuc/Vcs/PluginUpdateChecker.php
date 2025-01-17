@@ -2,14 +2,14 @@
 
 namespace Anyape\ProxyUpdateChecker\Vcs;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
-use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\Package;
-use YahnisElsts\PluginUpdateChecker\v5p3\UpdateChecker as BaseUpdateChecker;
-use YahnisElsts\PluginUpdateChecker\v5p3\Plugin\PluginInfo;
+use Anyape\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
+use Anyape\PluginUpdateChecker\v5p3\Plugin\Package;
+use Anyape\PluginUpdateChecker\v5p3\UpdateChecker;
+use Anyape\PluginUpdateChecker\v5p3\Plugin\PluginInfo;
 
 if ( ! class_exists(PluginUpdateChecker::class, false) ):
 
-	class PluginUpdateChecker extends BaseUpdateChecker implements BaseChecker {
+	class PluginUpdateChecker extends UpdateChecker implements BaseChecker {
 		public $pluginAbsolutePath = ''; //Full path of the main plugin file.
 		public $pluginFile = '';  //Plugin filename relative to the plugins directory. Many WP APIs use this to identify plugins.
 
@@ -19,7 +19,6 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 
 		public function __construct($api, $slug, $file_name, $container) {
 			$this->api = $api;
-			$this->api->setHttpFilterName('puc_plugin_request_info_options');
 			$this->pluginAbsolutePath = trailingslashit($container) . $slug;
 			$this->pluginFile = $slug . '/' . $file_name . '.php';
 			$this->debugMode = (bool)(constant('WP_DEBUG'));
@@ -27,12 +26,7 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 			$this->directoryName = basename(dirname($this->pluginAbsolutePath));
 			$this->slug = $slug;
 			$this->package = new Package($this->pluginAbsolutePath, $this);
-			$this->optionName = 'external_updates-' . $this->slug;
 			$this->api->setSlug($this->slug);
-		}
-
-		public function Vcs_getAbsoluteDirectoryPath() {
-			return trailingslashit($this->pluginAbsolutePath);
 		}
 
 		public function requestInfo($unused = null) {
@@ -43,7 +37,7 @@ if ( ! class_exists(PluginUpdateChecker::class, false) ):
 			}
 
 			$api = $this->api;
-			$api->setLocalDirectory($this->Vcs_getAbsoluteDirectoryPath());
+			$api->setLocalDirectory(trailingslashit($this->pluginAbsolutePath));
 
 			$updateSource = $api->chooseReference($this->branch);
 

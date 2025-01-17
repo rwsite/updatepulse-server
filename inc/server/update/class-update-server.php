@@ -905,7 +905,7 @@ class Update_Server {
 			);
 		}
 
-		$api_class = 'YahnisElsts\PluginUpdateChecker\v5p3\Vcs\\' . $api_class;
+		$api_class = 'Anyape\PluginUpdateChecker\v5p3\Vcs\\' . $api_class;
 		$params    = array();
 
 		if ( $file_name ) {

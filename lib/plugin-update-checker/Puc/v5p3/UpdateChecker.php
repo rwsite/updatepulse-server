@@ -1,25 +1,17 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3;
+namespace Anyape\PluginUpdateChecker\v5p3;
 
-use stdClass;
 use WP_Error;
 
 if ( !class_exists(UpdateChecker::class, false) ):
 
 	abstract class UpdateChecker {
-		protected $filterSuffix = '';
-
 		/**
 		 * Set to TRUE to enable error reporting. Errors are raised using trigger_error()
 		 * and should be logged to the standard PHP error log.
 		 * @var bool
 		 */
 		public $debugMode = null;
-
-		/**
-		 * @var string Where to store the update info.
-		 */
-		public $optionName = '';
 
 		/**
 		 * @var string The URL of the metadata file.
@@ -38,24 +30,12 @@ if ( !class_exists(UpdateChecker::class, false) ):
 		public $slug = '';
 
 
-		public function __construct($metadataUrl, $directoryName, $slug = null, $checkPeriod = 12, $optionName = '') {
+		public function __construct($metadataUrl, $directoryName, $slug = null) {
 			// error_log( __METHOD__ . '::' . __LINE__ );
 			$this->debugMode = (bool)(constant('WP_DEBUG'));
 			$this->metadataUrl = $metadataUrl;
 			$this->directoryName = $directoryName;
 			$this->slug = !empty($slug) ? $slug : $this->directoryName;
-
-			$this->optionName = $optionName;
-			if ( empty($this->optionName) ) {
-				//BC: Initially the library only supported plugin updates and didn't use type prefixes
-				//in the option name. Lets use the same prefix-less name when possible.
-				if ( $this->filterSuffix === '' ) {
-					$this->optionName = 'external_updates-' . $this->slug;
-				} else {
-					$this->optionName = $this->getUniqueName('external_updates');
-				}
-			}
-
 		}
 
 		/**
@@ -93,36 +73,10 @@ if ( !class_exists(UpdateChecker::class, false) ):
 		 * @return string
 		 */
 		public function getUniqueName($baseTag) {
-			// error_log( __METHOD__ . '::' . __LINE__ );
 			$name = 'puc_' . $baseTag;
-			if ( $this->filterSuffix !== '' ) {
-				$name .= '_' . $this->filterSuffix;
-			}
+
 			return $name . '-' . $this->slug;
 		}
-
-		/* -------------------------------------------------------------------
-		 * PUC filters and filter utilities
-		 * -------------------------------------------------------------------
-		 */
-
-		/**
-		 * Register a callback for one of the update checker filters.
-		 *
-		 * Identical to add_filter(), except it automatically adds the "puc_" prefix
-		 * and the "-$slug" suffix to the filter name. For example, "request_info_result"
-		 * becomes "puc_request_info_result-your_plugin_slug".
-		 *
-		 * @param string $tag
-		 * @param callable $callback
-		 * @param int $priority
-		 * @param int $acceptedArgs
-		 */
-		public function addFilter($tag, $callback, $priority = 10, $acceptedArgs = 1) {
-			// error_log( __METHOD__ . '::' . __LINE__ );
-			add_filter($this->getUniqueName($tag), $callback, $priority, $acceptedArgs);
-		}
-
 
 		/* -------------------------------------------------------------------
 		 * JSON-based update API
@@ -166,8 +120,6 @@ if ( !class_exists(UpdateChecker::class, false) ):
 			}
 
 			$result = wp_remote_get($url, $options);
-
-			$result = apply_filters($this->getUniqueName('request_metadata_http_result'), $result, $url, $options);
 
 			//Try to parse the response
 			$status = $this->validateApiResponse($result);

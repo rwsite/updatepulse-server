@@ -1,7 +1,7 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3\Theme;
+namespace Anyape\PluginUpdateChecker\v5p3\Theme;
 
-use YahnisElsts\PluginUpdateChecker\v5p3\InstalledPackage;
+use Anyape\PluginUpdateChecker\v5p3\InstalledPackage;
 
 if ( !class_exists(Package::class, false) ):
 
@@ -11,27 +11,11 @@ if ( !class_exists(Package::class, false) ):
 		 */
 		protected $stylesheet;
 
-		/**
-		 * @var \WP_Theme Theme object.
-		 */
-		protected $theme;
 
 		public function __construct($stylesheet, $updateChecker) {
 			$this->stylesheet = $stylesheet;
-			$this->theme = wp_get_theme($this->stylesheet);
 
 			parent::__construct($updateChecker);
-		}
-
-		public function getInstalledVersion() {
-			return $this->theme->get('Version');
-		}
-
-		public function getAbsoluteDirectoryPath() {
-			if ( method_exists($this->theme, 'get_stylesheet_directory') ) {
-				return $this->theme->get_stylesheet_directory(); //Available since WP 3.4.
-			}
-			return get_theme_root($this->stylesheet) . '/' . $this->stylesheet;
 		}
 
 		/**

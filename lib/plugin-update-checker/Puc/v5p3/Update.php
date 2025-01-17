@@ -1,7 +1,5 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3;
-
-use stdClass;
+namespace Anyape\PluginUpdateChecker\v5p3;
 
 if ( !class_exists(Update::class, false) ):
 
@@ -21,17 +19,8 @@ if ( !class_exists(Update::class, false) ):
 		 * @return string[]
 		 */
 		protected function getFieldNames() {
+			error_log( __METHOD__ . '::' . __LINE__ );
 			return array('slug', 'version', 'download_url', 'translations');
-		}
-
-		public function toWpFormat() {
-			$update = new stdClass();
-
-			$update->slug = $this->slug;
-			$update->new_version = $this->version;
-			$update->package = $this->download_url;
-
-			return $update;
 		}
 	}
 

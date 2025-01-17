@@ -1,5 +1,5 @@
 <?php
-namespace YahnisElsts\PluginUpdateChecker\v5p3;
+namespace Anyape\PluginUpdateChecker\v5p3;
 
 if ( !class_exists(InstalledPackage::class, false) ):
 
@@ -17,34 +17,6 @@ if ( !class_exists(InstalledPackage::class, false) ):
 
 		public function __construct($updateChecker) {
 			$this->updateChecker = $updateChecker;
-		}
-
-		/**
-		 * Get the currently installed version of the plugin or theme.
-		 *
-		 * @return string|null Version number.
-		 */
-		abstract public function getInstalledVersion();
-
-		/**
-		 * Get the full path of the plugin or theme directory (without a trailing slash).
-		 *
-		 * @return string
-		 */
-		abstract public function getAbsoluteDirectoryPath();
-
-		/**
-		 * Check whether a regular file exists in the package's directory.
-		 *
-		 * @param string $relativeFileName File name relative to the package directory.
-		 * @return bool
-		 */
-		public function fileExists($relativeFileName) {
-			return is_file(
-				$this->getAbsoluteDirectoryPath()
-				. DIRECTORY_SEPARATOR
-				. ltrim($relativeFileName, '/\\')
-			);
 		}
 
 		/* -------------------------------------------------------------------
