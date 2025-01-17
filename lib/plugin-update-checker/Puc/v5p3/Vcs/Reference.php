@@ -9,7 +9,7 @@ if ( !class_exists(Reference::class, false) ):
 	 *
 	 * @property string $name
 	 * @property string|null version
-	 * @property string $downloadUrl
+	 * @property string $download_url
 	 * @property string $updated
 	 *
 	 * @property string|null $changelog

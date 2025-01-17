@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
 
 namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
 
@@ -39,20 +39,20 @@ if ( !class_exists(GitLabApi::class, false) ):
 		 */
 		protected $releasePackageEnabled = false;
 
-		public function __construct($repositoryUrl, $accessToken = null, $subgroup = null) {
+		public function __construct($repository_url, $accessToken = null, $subgroup = null) {
 			//Parse the repository host to support custom hosts.
-			$port = wp_parse_url($repositoryUrl, PHP_URL_PORT);
+			$port = wp_parse_url($repository_url, PHP_URL_PORT);
 			if ( !empty($port) ) {
 				$port = ':' . $port;
 			}
-			$this->repositoryHost = wp_parse_url($repositoryUrl, PHP_URL_HOST) . $port;
+			$this->repositoryHost = wp_parse_url($repository_url, PHP_URL_HOST) . $port;
 
 			if ( $this->repositoryHost !== 'gitlab.com' ) {
-				$this->repositoryProtocol = wp_parse_url($repositoryUrl, PHP_URL_SCHEME);
+				$this->repositoryProtocol = wp_parse_url($repository_url, PHP_URL_SCHEME);
 			}
 
 			//Find the repository information
-			$path = wp_parse_url($repositoryUrl, PHP_URL_PATH);
+			$path = wp_parse_url($repository_url, PHP_URL_PATH);
 			if ( preg_match('@^/?(?P<username>[^/]+?)/(?P<repository>[^/#?&]+?)/?$@', $path, $matches) ) {
 				$this->userName = $matches['username'];
 				$this->repositoryName = $matches['repository'];
@@ -60,7 +60,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 				//This is probably a repository in a subgroup, e.g. "/organization/category/repo".
 				$parts = explode('/', trim($path, '/'));
 				if ( count($parts) < 3 ) {
-					throw new \InvalidArgumentException('Invalid GitLab.com repository URL: "' . $repositoryUrl . '"');
+					throw new \InvalidArgumentException('Invalid GitLab.com repository URL: "' . $repository_url . '"');
 				}
 				$lastPart = array_pop($parts);
 				$this->userName = implode('/', $parts);
@@ -77,7 +77,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 
 				//We need at least /user-name/repository-name/
 				if ( count($segments) < 2 ) {
-					throw new \InvalidArgumentException('Invalid GitLab repository URL: "' . $repositoryUrl . '"');
+					throw new \InvalidArgumentException('Invalid GitLab repository URL: "' . $repository_url . '"');
 				}
 
 				//Get the username and repository name.
@@ -96,7 +96,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 				}
 			}
 
-			parent::__construct($repositoryUrl, $accessToken);
+			parent::__construct($repository_url, $accessToken);
 		}
 
 		/**
@@ -131,20 +131,20 @@ if ( !class_exists(GitLabApi::class, false) ):
 					continue;
 				}
 
-				$downloadUrl = $this->findReleaseDownloadUrl($release);
-				if ( empty($downloadUrl) ) {
+				$download_url = $this->find_release_download_url($release);
+				if ( empty($download_url) ) {
 					//The latest release doesn't have valid download URL.
 					return null;
 				}
 
 				if ( !empty($this->accessToken) ) {
-					$downloadUrl = add_query_arg('private_token', $this->accessToken, $downloadUrl);
+					$download_url = add_query_arg('private_token', $this->accessToken, $download_url);
 				}
 
 				return new Reference(array(
 					'name'        => $release->tag_name,
 					'version'     => $versionNumber,
-					'downloadUrl' => $downloadUrl,
+					'download_url' => $download_url,
 					'updated'     => $release->released_at,
 					'apiResponse' => $release,
 				));
@@ -157,7 +157,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 		 * @param object $release
 		 * @return string|null
 		 */
-		protected function findReleaseDownloadUrl($release) {
+		protected function find_release_download_url($release) {
 			if ( $this->releaseAssetsEnabled ) {
 				if ( isset($release->assets, $release->assets->links) ) {
 					//Use the first asset link where the URL matches the filter.
@@ -189,13 +189,13 @@ if ( !class_exists(GitLabApi::class, false) ):
 		 *
 		 * @return Reference|null
 		 */
-		public function getLatestTag() {
+		public function get_latest_tag() {
 			$tags = $this->api('/:id/repository/tags');
 			if ( is_wp_error($tags) || empty($tags) || !is_array($tags) ) {
 				return null;
 			}
 
-			$versionTags = $this->sortTagsByVersion($tags);
+			$versionTags = $this->sort_tags_by_version($tags);
 			if ( empty($versionTags) ) {
 				return null;
 			}
@@ -204,7 +204,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 			return new Reference(array(
 				'name'        => $tag->name,
 				'version'     => ltrim($tag->name, 'v'),
-				'downloadUrl' => $this->buildArchiveDownloadUrl($tag->name),
+				'download_url' => $this->build_archive_download_url($tag->name),
 				'apiResponse' => $tag,
 			));
 		}
@@ -212,18 +212,18 @@ if ( !class_exists(GitLabApi::class, false) ):
 		/**
 		 * Get a branch by name.
 		 *
-		 * @param string $branchName
+		 * @param string $branch_name
 		 * @return null|Reference
 		 */
-		public function getBranch($branchName) {
-			$branch = $this->api('/:id/repository/branches/' . $branchName);
+		public function get_branch($branch_name) {
+			$branch = $this->api('/:id/repository/branches/' . $branch_name);
 			if ( is_wp_error($branch) || empty($branch) ) {
 				return null;
 			}
 
 			$reference = new Reference(array(
 				'name'        => $branch->name,
-				'downloadUrl' => $this->buildArchiveDownloadUrl($branch->name),
+				'download_url' => $this->build_archive_download_url($branch->name),
 				'apiResponse' => $branch,
 			));
 
@@ -240,7 +240,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 		 * @param string $ref Reference name (e.g. branch or tag).
 		 * @return string|null
 		 */
-		public function getLatestCommitTime($ref) {
+		public function get_latest_commit_time($ref) {
 			$commits = $this->api('/:id/repository/commits/', array('ref_name' => $ref));
 			if ( is_wp_error($commits) || !is_array($commits) || !isset($commits[0]) ) {
 				return null;
@@ -260,11 +260,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 			$baseUrl = $url;
 			$url = $this->buildApiUrl($url, $queryParams);
 
-			$options = array('timeout' => wp_doing_cron() ? 10 : 3);
-			if ( !empty($this->httpFilterName) ) {
-				$options = apply_filters($this->httpFilterName, $options);
-			}
-
+			$options  = array('timeout' => wp_doing_cron() ? 10 : 3);
 			$response = wp_remote_get($url, $options);
 			if ( is_wp_error($response) ) {
 				do_action('puc_api_error', $response, null, $url, $this->slug);
@@ -325,7 +321,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 		 * @param string $ref
 		 * @return null|string Either the contents of the file, or null if the file doesn't exist or there's an error.
 		 */
-		public function getRemoteFile($path, $ref = 'master') {
+		public function get_remote_file($path, $ref = 'master') {
 			$response = $this->api('/:id/repository/files/' . $path, array('ref' => $ref));
 			if ( is_wp_error($response) || !isset($response->content) || $response->encoding !== 'base64' ) {
 				return null;
@@ -340,7 +336,7 @@ if ( !class_exists(GitLabApi::class, false) ):
 		 * @param string $ref
 		 * @return string
 		 */
-		public function buildArchiveDownloadUrl($ref = 'master') {
+		public function build_archive_download_url($ref = 'master') {
 			$url = sprintf(
 				'%1$s://%2$s/api/v4/projects/%3$s/repository/archive.zip',
 				$this->repositoryProtocol,
@@ -359,30 +355,30 @@ if ( !class_exists(GitLabApi::class, false) ):
 		/**
 		 * Get a specific tag.
 		 *
-		 * @param string $tagName
+		 * @param string $tag_name
 		 * @return void
 		 */
-		public function getTag($tagName) {
+		public function get_tag($tag_name) {
 			throw new \LogicException('The ' . __METHOD__ . ' method is not implemented and should not be used.');
 		}
 
-		protected function getUpdateDetectionStrategies($configBranch) {
+		protected function get_update_detection_strategies($config_branch) {
 			$strategies = array();
 
-			if ( ($configBranch === 'main') || ($configBranch === 'master') ) {
+			if ( ($config_branch === 'main') || ($config_branch === 'master') ) {
 				$strategies[self::STRATEGY_LATEST_RELEASE] = array($this, 'getLatestRelease');
-				$strategies[self::STRATEGY_LATEST_TAG] = array($this, 'getLatestTag');
+				$strategies[self::STRATEGY_LATEST_TAG] = array($this, 'get_latest_tag');
 			}
 
-			$strategies[self::STRATEGY_BRANCH] = function () use ($configBranch) {
-				return $this->getBranch($configBranch);
+			$strategies[self::STRATEGY_BRANCH] = function () use ($config_branch) {
+				return $this->get_branch($config_branch);
 			};
 
 			return $strategies;
 		}
 
-		public function setAuthentication($credentials) {
-			parent::setAuthentication($credentials);
+		public function set_authentication($credentials) {
+			parent::set_authentication($credentials);
 			$this->accessToken = is_string($credentials) ? $credentials : null;
 		}
 

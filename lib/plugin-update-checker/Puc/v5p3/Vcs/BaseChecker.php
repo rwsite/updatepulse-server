@@ -1,7 +1,8 @@
 <?php
+
 namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
 
-if ( !interface_exists(BaseChecker::class, false) ):
+if ( ! interface_exists( BaseChecker::class, false ) ) :
 
 	interface BaseChecker {
 		/**
@@ -10,7 +11,7 @@ if ( !interface_exists(BaseChecker::class, false) ):
 		 * @param string $branch
 		 * @return $this
 		 */
-		public function setBranch($branch);
+		public function set_branch( $branch );
 
 		/**
 		 * Set authentication credentials.
@@ -18,12 +19,12 @@ if ( !interface_exists(BaseChecker::class, false) ):
 		 * @param array|string $credentials
 		 * @return $this
 		 */
-		public function setAuthentication($credentials);
+		public function set_authentication( $credentials );
 
 		/**
 		 * @return Api
 		 */
-		public function getVcsApi();
+		public function get_vcs_api();
 	}
 
 endif;

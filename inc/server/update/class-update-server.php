@@ -132,7 +132,7 @@ class Update_Server {
 	public function pre_filter_package_info( $info, $api, $ref ) {
 		$abort        = true;
 		$_file        = apply_filters( 'upserv_filter_packages_filename', 'updatepulse.json' );
-		$file_content = $api->getRemoteFile( $_file, $ref );
+		$file_content = $api->get_remote_file( $_file, $ref );
 
 		$this->filter_packages_file_content = $file_content;
 
@@ -196,7 +196,7 @@ class Update_Server {
 			if ( $this->update_checker ) {
 
 				try {
-					$info = $this->update_checker->requestInfo();
+					$info = $this->update_checker->request_info();
 
 					if (
 						! apply_filters(
@@ -288,7 +288,7 @@ class Update_Server {
 			if ( 'Plugin' === $this->type || 'Theme' === $this->type || 'Generic' === $this->type ) {
 				$this->init_update_checker( $slug );
 
-				$remote_info = $this->update_checker->requestInfo();
+				$remote_info = $this->update_checker->request_info();
 
 				if ( $remote_info && ! is_wp_error( $remote_info ) ) {
 					$needs_update = version_compare( $remote_info['version'], $meta['header']['Version'], '>' );

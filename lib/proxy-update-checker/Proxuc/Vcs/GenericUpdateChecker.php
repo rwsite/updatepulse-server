@@ -1,50 +1,42 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
 
 namespace Anyape\ProxyUpdateChecker\Vcs;
 
 use Anyape\PluginUpdateChecker\v5p3\Vcs\BaseChecker;
 use Anyape\PluginUpdateChecker\v5p3\UpdateChecker;
-use Anyape\PluginUpdateChecker\v5p3\Generic\Package;
-use Anyape\PluginUpdateChecker\v5p3\Generic\Update;
 
-if ( ! class_exists(GenericUpdateChecker::class, false) ):
+if ( ! class_exists( GenericUpdateChecker::class, false ) ) :
 
 	class GenericUpdateChecker extends UpdateChecker implements BaseChecker {
-		public $genericAbsolutePath = '';
-		public $genericFile = '';
+		public $generic_absolute_path = '';
+		public $generic_file          = '';
 
-		protected $branch = 'main';
-		protected $api = null;
-		protected $package = null;
+		public function __construct( $api, $slug, $file_name, $container ) {
+			$this->api                   = $api;
+			$this->generic_absolute_path = trailingslashit( $container ) . $slug;
+			$this->generic_file          = $slug . '/' . $file_name . '.json';
+			$this->debug_mode            = (bool) ( constant( 'WP_DEBUG' ) );
+			$this->directory_name        = basename( dirname( $this->generic_absolute_path ) );
+			$this->slug                  = ! empty( $slug ) ? $slug : $this->directory_name;
 
-		public function __construct($api, $slug, $file_name, $container) {
-			$this->api = $api;
-			$this->api->setHttpFilterName('puc_generic_request_update_options');
-			$this->genericAbsolutePath = trailingslashit($container) . $slug;
-			$this->genericFile = $slug . '/' . $file_name . '.json';
-			$this->debugMode = (bool)(constant('WP_DEBUG'));
-			$this->metadataUrl = $api->getRepositoryUrl();
-			$this->directoryName = basename(dirname($this->genericAbsolutePath));
-			$this->slug = !empty($slug) ? $slug : $this->directoryName;
-			$this->package = new Package($this->genericAbsolutePath, $this);
-			$this->api->setSlug($this->slug);
+			$this->api->set_slug( $this->slug );
 		}
 
 		public function requestInfo() {
-			$api = $this->api;
+			$this->api->set_local_directory( trailingslashit( $this->generic_absolute_path ) );
 
-			$api->setLocalDirectory(trailingslashit($this->genericAbsolutePath));
+			$update_source = $this->api->choose_reference( $this->branch );
 
-			$update = new Update();
-			$update->slug = $this->slug;
-			$update->version = null;
-			$updateSource = $api->chooseReference($this->branch);
-
-			if ($updateSource) {
-				$ref = $updateSource->name;
-				$update->download_url = $updateSource->downloadUrl;
+			if ( $update_source ) {
+				$ref = $update_source->name;
 			} else {
-				return 'source_not_found';
+				return new \WP_Error(
+					'puc-no-update-source',
+					'Could not retrieve version information from the repository for '
+					. $this->slug . '.'
+					. 'This usually means that the update checker either can\'t connect '
+					. 'to the repository or it\'s configured incorrectly.'
+				);
 			}
 
 			/**
@@ -67,46 +59,19 @@ if ( ! class_exists(GenericUpdateChecker::class, false) ):
 				return $info;
 			}
 
-			$file = $api->getRemoteFile(basename($this->genericFile), $ref);
+			$file = $this->api->get_remote_file( basename( $this->generic_file ), $ref );
 
-			if (!empty($file)) {
-				$fileContents = json_decode($file, true);
+			if ( ! empty( $file ) ) {
+				$file_contents = json_decode( $file, true );
 
-				if (isset($fileContents['packageData']) && !empty($fileContents['packageData'])) {
-					$remoteHeader = $fileContents['packageData'];
-					$update->version = empty( $remoteHeader['Version'] ) ? $updateSource->version : $remoteHeader['Version'];
+				if ( isset( $file_contents['packageData'] ) && ! empty( $file_contents['packageData'] ) ) {
+					$remote_header   = $file_contents['packageData'];
+					$info['version'] = empty( $remote_header['Version'] ) ? $update_source->version : $remote_header['Version'];
 				}
 			}
 
-			if (empty($update->version)) {
-				$update = null;
-			}
-
-			if ($update && 'source_not_found' !== $update) {
-
-				if (!empty($update->download_url)) {
-					$update->download_url = $this->api->signDownloadUrl($update->download_url);
-				}
-
-				$info = is_array( $info ) ? $info : array();
-				$info = array_merge(
-					$info,
-					array(
-						'type'         => 'Generic',
-						'version'      => $update->version,
-						'main_file'    => $this->genericFile,
-						'download_url' => $update->download_url,
-					)
-				);
-			} elseif ( 'source_not_found' === $update ) {
-				return new \WP_Error(
-					'puc-no-update-source',
-					'Could not retrieve version information from the repository for '
-					. $this->slug . '.'
-					. 'This usually means that the update checker either can\'t connect '
-					. 'to the repository or it\'s configured incorrectly.'
-				);
-			}
+			$info['download_url'] = $this->api->sign_download_url( $update_source->download_url );
+			$info['type']         = 'Generic';
 
 			/**
 			 * Filter the info that will be returned by the update checker.
@@ -127,19 +92,23 @@ if ( ! class_exists(GenericUpdateChecker::class, false) ):
 			return $info;
 		}
 
-		public function setBranch($branch) {
+		protected function get_header_names() {
+			return array();
+		}
+
+		public function set_branch( $branch ) {
 			$this->branch = $branch;
 
 			return $this;
 		}
 
-		public function setAuthentication($credentials) {
-			$this->api->setAuthentication($credentials);
+		public function set_authentication( $credentials ) {
+			$this->api->set_authentication( $credentials );
 
 			return $this;
 		}
 
-		public function getVcsApi() {
+		public function get_vcs_api() {
 			return $this->api;
 		}
 	}

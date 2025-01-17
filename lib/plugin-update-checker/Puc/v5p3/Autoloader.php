@@ -1,69 +1,55 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
 
 namespace Anyape\PluginUpdateChecker\v5p3;
 
-if ( !class_exists(Autoloader::class, false) ):
+if ( ! class_exists( Autoloader::class, false ) ) :
 
 	class Autoloader {
-		const DEFAULT_NS_PREFIX = 'YahnisElsts\\PluginUpdateChecker\\';
+		const DEFAULT_NS_PREFIX = 'Anyape\\PluginUpdateChecker\\';
 
 		private $prefix;
-		private $rootDir;
-		private $libraryDir;
+		private $root_dir;
+		private $library_dir;
 
-		private $staticMap;
+		private $static_map;
 
 		public function __construct() {
-			$this->rootDir = dirname(__FILE__) . '/';
+			$this->root_dir = __DIR__ . '/';
 
-			$namespaceWithSlash = __NAMESPACE__ . '\\';
-			$this->prefix = $namespaceWithSlash;
-
-			$this->libraryDir = $this->rootDir . '../..';
-			if ( !self::isPhar() ) {
-				$this->libraryDir = realpath($this->libraryDir);
-			}
-			$this->libraryDir = $this->libraryDir . '/';
+			$namespace_with_slash = __NAMESPACE__ . '\\';
+			$this->prefix         = $namespace_with_slash;
+			$this->library_dir    = realpath( $this->root_dir . '../..' ) . '/';
 
 			//Usually, dependencies like Parsedown are in the global namespace,
 			//but if someone adds a custom namespace to the entire library, they
 			//will be in the same namespace as this class.
-			$isCustomNamespace = (
-				substr($namespaceWithSlash, 0, strlen(self::DEFAULT_NS_PREFIX)) !== self::DEFAULT_NS_PREFIX
+			$is_custom_namespace = (
+				substr( $namespace_with_slash, 0, strlen( self::DEFAULT_NS_PREFIX ) ) !== self::DEFAULT_NS_PREFIX
 			);
-			$libraryPrefix = $isCustomNamespace ? $namespaceWithSlash : '';
+			$library_prefix      = $is_custom_namespace ? $namespace_with_slash : '';
 
-			$this->staticMap = array(
-				$libraryPrefix . 'PucReadmeParser' => 'vendor/PucReadmeParser.php',
-				$libraryPrefix . 'Parsedown'       => 'vendor/Parsedown.php',
+			$this->static_map = array(
+				$library_prefix . 'PucReadmeParser' => 'vendor/PucReadmeParser.php',
+				$library_prefix . 'Parsedown'       => 'vendor/Parsedown.php',
 			);
 
-			spl_autoload_register(array($this, 'autoload'));
+			spl_autoload_register( array( $this, 'autoload' ) );
 		}
 
-		/**
-		 * Determine if this file is running as part of a Phar archive.
-		 *
-		 * @return bool
-		 */
-		private static function isPhar() {
-			//Check if the current file path starts with "phar://".
-			static $pharProtocol = 'phar://';
-			return (substr(__FILE__, 0, strlen($pharProtocol)) === $pharProtocol);
-		}
+		public function autoload( $class_name ) {
 
-		public function autoload($className) {
-			if ( isset($this->staticMap[$className]) && file_exists($this->libraryDir . $this->staticMap[$className]) ) {
-				include($this->libraryDir . $this->staticMap[$className]);
+			if ( isset( $this->static_map[ $class_name ] ) && file_exists( $this->library_dir . $this->static_map[ $class_name ] ) ) {
+				include $this->library_dir . $this->static_map[ $class_name ];
+
 				return;
 			}
 
-			if ( strpos($className, $this->prefix) === 0 ) {
-				$path = substr($className, strlen($this->prefix));
-				$path = str_replace(array('_', '\\'), '/', $path);
-				$path = $this->rootDir . $path . '.php';
+			if ( 0 === strpos( $class_name, $this->prefix ) ) {
+				$path = substr( $class_name, strlen( $this->prefix ) );
+				$path = str_replace( array( '_', '\\' ), '/', $path );
+				$path = $this->root_dir . $path . '.php';
 
-				if ( file_exists($path) ) {
+				if ( file_exists( $path ) ) {
 					include $path;
 				}
 			}
