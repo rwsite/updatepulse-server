@@ -1,17 +1,17 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
+<?php
 
-namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
+namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
 
 use Parsedown;
 use PucReadmeParser;
 
-if ( ! class_exists( Api::class, false ) ) :
+if ( !class_exists(Api::class, false) ):
 
 	abstract class Api {
 		const STRATEGY_LATEST_RELEASE = 'latest_release';
-		const STRATEGY_LATEST_TAG     = 'latest_tag';
-		const STRATEGY_STABLE_TAG     = 'stable_tag';
-		const STRATEGY_BRANCH         = 'branch';
+		const STRATEGY_LATEST_TAG = 'latest_tag';
+		const STRATEGY_STABLE_TAG = 'stable_tag';
+		const STRATEGY_BRANCH = 'branch';
 
 		/**
 		 * Consider all releases regardless of their version number or prerelease/upcoming
@@ -38,17 +38,13 @@ if ( ! class_exists( Api::class, false ) ) :
 		 */
 		const REQUIRE_RELEASE_ASSETS = 2;
 
-		protected $tag_name_property = 'name';
-
-		/**
-		 * @var string
-		 */
+		protected $tagNameProperty = 'name';
 		protected $slug = '';
 
 		/**
 		 * @var string
 		 */
-		protected $repository_url = '';
+		protected $repositoryUrl = '';
 
 		/**
 		 * @var mixed Authentication details for private repositories. Format depends on service.
@@ -56,46 +52,63 @@ if ( ! class_exists( Api::class, false ) ) :
 		protected $credentials = null;
 
 		/**
+		 * @var string The filter tag that's used to filter options passed to wp_remote_get.
+		 * For example, "puc_request_info_options-slug" or "puc_request_update_options_theme-slug".
+		 */
+		protected $httpFilterName = '';
+
+		/**
+		 * @var string The filter applied to the list of update detection strategies that
+		 * are used to find the latest version.
+		 */
+		protected $strategyFilterName = '';
+
+		/**
 		 * @var string|null
 		 */
-		protected $local_directory = null;
+		protected $localDirectory = null;
 
 		/**
 		 * Api constructor.
 		 *
-		 * @param string $repository_url
+		 * @param string $repositoryUrl
 		 * @param array|string|null $credentials
 		 */
-		public function __construct( $repository_url, $credentials = null ) {
-			$this->repository_url = $repository_url;
-
-			$this->set_authentication( $credentials );
+		public function __construct($repositoryUrl, $credentials = null) {
+			$this->repositoryUrl = $repositoryUrl;
+			$this->setAuthentication($credentials);
 		}
 
 		/**
 		 * @return string
 		 */
-		public function get_repository_url() {
-			return $this->repository_url;
+		public function getRepositoryUrl() {
+			return $this->repositoryUrl;
 		}
 
 		/**
-		 * Figure out which reference ( i.e. tag or branch ) contains the latest version.
+		 * Figure out which reference (i.e. tag or branch) contains the latest version.
 		 *
-		 * @param string $config_branch Start looking in this branch.
+		 * @param string $configBranch Start looking in this branch.
 		 * @return null|Reference
 		 */
-		public function choose_reference( $config_branch ) {
-			$strategies = $this->get_update_detection_strategies( $config_branch );
+		public function chooseReference($configBranch) {
+			$strategies = $this->getUpdateDetectionStrategies($configBranch);
 
-			foreach ( $strategies as $strategy ) {
-				$reference = call_user_func( $strategy );
+			if ( !empty($this->strategyFilterName) ) {
+				$strategies = apply_filters(
+					$this->strategyFilterName,
+					$strategies,
+					$this->slug
+				);
+			}
 
-				if ( ! empty( $reference ) ) {
+			foreach ($strategies as $strategy) {
+				$reference = call_user_func($strategy);
+				if ( !empty($reference) ) {
 					return $reference;
 				}
 			}
-
 			return null;
 		}
 
@@ -105,10 +118,10 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * The update checker will try each strategy in order until one of them
 		 * returns a valid reference.
 		 *
-		 * @param string $config_branch
+		 * @param string $configBranch
 		 * @return array<callable> Array of callables that return Vcs_Reference objects.
 		 */
-		abstract protected function get_update_detection_strategies( $config_branch );
+		abstract protected function getUpdateDetectionStrategies($configBranch);
 
 		/**
 		 * Get the readme.txt file from the remote repository and parse it
@@ -117,16 +130,14 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param string $ref Tag or branch name.
 		 * @return array Parsed readme.
 		 */
-		public function get_remote_readme( $ref = 'main' ) {
-			$file_contents = $this->get_remote_file( $this->get_local_readme_name(), $ref );
-
-			if ( empty( $file_contents ) ) {
+		public function getRemoteReadme($ref = 'master') {
+			$fileContents = $this->getRemoteFile($this->getLocalReadmeName(), $ref);
+			if ( empty($fileContents) ) {
 				return array();
 			}
 
 			$parser = new PucReadmeParser();
-
-			return $parser->parse_readme_contents( $file_contents );
+			return $parser->parse_readme_contents($fileContents);
 		}
 
 		/**
@@ -136,58 +147,54 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * "README.TXT", or even "Readme.txt". Most VCS are case-sensitive so we need to know the correct
 		 * capitalization.
 		 *
-		 * Defaults to "readme.txt" ( all lowercase ).
+		 * Defaults to "readme.txt" (all lowercase).
 		 *
 		 * @return string
 		 */
-		public function get_local_readme_name() {
-			static $file_name = null;
-
-			if ( null !== $file_name ) {
-				return $file_name;
+		public function getLocalReadmeName() {
+			static $fileName = null;
+			if ( $fileName !== null ) {
+				return $fileName;
 			}
 
-			$file_name = 'readme.txt';
-
-			if ( isset( $this->local_directory ) ) {
-				$files = scandir( $this->local_directory );
-
-				if ( ! empty( $files ) ) {
-					foreach ( $files as $possible_file_name ) {
-						if ( strcasecmp( $possible_file_name, 'readme.txt' ) === 0 ) {
-							$file_name = $possible_file_name;
+			$fileName = 'readme.txt';
+			if ( isset($this->localDirectory) ) {
+				$files = scandir($this->localDirectory);
+				if ( !empty($files) ) {
+					foreach ($files as $possibleFileName) {
+						if ( strcasecmp($possibleFileName, 'readme.txt') === 0 ) {
+							$fileName = $possibleFileName;
 							break;
 						}
 					}
 				}
 			}
-
-			return $file_name;
+			return $fileName;
 		}
 
 		/**
 		 * Get a branch.
 		 *
-		 * @param string $branch_name
+		 * @param string $branchName
 		 * @return Reference|null
 		 */
-		abstract public function get_branch( $branch_name );
+		abstract public function getBranch($branchName);
 
 		/**
 		 * Get a specific tag.
 		 *
-		 * @param string $tag_name
+		 * @param string $tagName
 		 * @return Reference|null
 		 */
-		abstract public function get_tag( $tag_name );
+		abstract public function getTag($tagName);
 
 		/**
 		 * Get the tag that looks like the highest version number.
-		 * ( Implementations should skip pre-release versions if possible. )
+		 * (Implementations should skip pre-release versions if possible.)
 		 *
 		 * @return Reference|null
 		 */
-		abstract public function get_latest_tag();
+		abstract public function getLatestTag();
 
 		/**
 		 * Check if a tag name string looks like a version number.
@@ -195,17 +202,17 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param string $name
 		 * @return bool
 		 */
-		protected function looks_like_version( $name ) {
+		protected function looksLikeVersion($name) {
 			//Tag names may be prefixed with "v", e.g. "v1.2.3".
-			$name = ltrim( $name, 'v' );
+			$name = ltrim($name, 'v');
 
 			//The version string must start with a number.
-			if ( ! is_numeric( substr( $name, 0, 1 ) ) ) {
+			if ( !is_numeric(substr($name, 0, 1)) ) {
 				return false;
 			}
 
 			//The goal is to accept any SemVer-compatible or "PHP-standardized" version number.
-			return ( preg_match( '@^( \d{1,5}? )( \.\d{1,10}? ){0,4}?( $|[abrdp+_\-]|\s )@i', $name ) === 1 );
+			return (preg_match('@^(\d{1,5}?)(\.\d{1,10}?){0,4}?($|[abrdp+_\-]|\s)@i', $name) === 1);
 		}
 
 		/**
@@ -214,10 +221,9 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param \stdClass $tag
 		 * @return bool
 		 */
-		protected function is_version_tag( $tag ) {
-			$property = $this->tag_name_property;
-
-			return isset( $tag->$property ) && $this->looks_like_version( $tag->$property );
+		protected function isVersionTag($tag) {
+			$property = $this->tagNameProperty;
+			return isset($tag->$property) && $this->looksLikeVersion($tag->$property);
 		}
 
 		/**
@@ -227,14 +233,13 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param \stdClass[] $tags Array of tag objects.
 		 * @return \stdClass[] Filtered array of tags sorted in descending order.
 		 */
-		protected function sort_tags_by_version( $tags ) {
+		protected function sortTagsByVersion($tags) {
 			//Keep only those tags that look like version numbers.
-			$version_tags = array_filter( $tags, array( $this, 'is_version_tag' ) );
-
+			$versionTags = array_filter($tags, array($this, 'isVersionTag'));
 			//Sort them in descending order.
-			usort( $version_tags, array( $this, 'compare_tag_names' ) );
+			usort($versionTags, array($this, 'compareTagNames'));
 
-			return $version_tags;
+			return $versionTags;
 		}
 
 		/**
@@ -244,18 +249,15 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param \stdClass $tag2 Another tag object.
 		 * @return int
 		 */
-		protected function compare_tag_names( $tag1, $tag2 ) {
-			$property = $this->tag_name_property;
-
-			if ( ! isset( $tag1->$property ) ) {
+		protected function compareTagNames($tag1, $tag2) {
+			$property = $this->tagNameProperty;
+			if ( !isset($tag1->$property) ) {
 				return 1;
 			}
-
-			if ( ! isset( $tag2->$property ) ) {
+			if ( !isset($tag2->$property) ) {
 				return -1;
 			}
-
-			return -version_compare( ltrim( $tag1->$property, 'v' ), ltrim( $tag2->$property, 'v' ) );
+			return -version_compare(ltrim($tag1->$property, 'v'), ltrim($tag2->$property, 'v'));
 		}
 
 		/**
@@ -265,37 +267,35 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param string $ref
 		 * @return null|string Either the contents of the file, or null if the file doesn't exist or there's an error.
 		 */
-		abstract public function get_remote_file( $path, $ref = 'master' );
+		abstract public function getRemoteFile($path, $ref = 'master');
 
 		/**
 		 * Get the timestamp of the latest commit that changed the specified branch or tag.
 		 *
-		 * @param string $ref Reference name ( e.g. branch or tag ).
+		 * @param string $ref Reference name (e.g. branch or tag).
 		 * @return string|null
 		 */
-		abstract public function get_latest_commit_time( $ref );
+		abstract public function getLatestCommitTime($ref);
 
 		/**
 		 * Get the contents of the changelog file from the repository.
 		 *
 		 * @param string $ref
-		 * @param string $local_directory Full path to the local plugin or theme directory.
+		 * @param string $localDirectory Full path to the local plugin or theme directory.
 		 * @return null|string The HTML contents of the changelog.
 		 */
-		public function get_remote_changelog( $ref, $local_directory ) {
-			$filename = $this->find_changelog_name( $local_directory );
-
-			if ( empty( $filename ) ) {
+		public function getRemoteChangelog($ref, $localDirectory) {
+			$filename = $this->findChangelogName($localDirectory);
+			if ( empty($filename) ) {
 				return null;
 			}
 
-			$changelog = $this->get_remote_file( $filename, $ref );
-
-			if ( null === $changelog ) {
+			$changelog = $this->getRemoteFile($filename, $ref);
+			if ( $changelog === null ) {
 				return null;
 			}
 
-			return Parsedown::instance()->text( $changelog );
+			return Parsedown::instance()->text($changelog);
 		}
 
 		/**
@@ -304,24 +304,21 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param string $directory
 		 * @return string|null
 		 */
-		protected function find_changelog_name( $directory = null ) {
-
-			if ( ! isset( $directory ) ) {
-				$directory = $this->local_directory;
+		protected function findChangelogName($directory = null) {
+			if ( !isset($directory) ) {
+				$directory = $this->localDirectory;
 			}
-
-			if ( empty( $directory ) || ! is_dir( $directory ) || ( '.' === $directory ) ) {
+			if ( empty($directory) || !is_dir($directory) || ($directory === '.') ) {
 				return null;
 			}
 
-			$possible_names = array( 'CHANGES.md', 'CHANGELOG.md', 'changes.md', 'changelog.md' );
-			$files          = scandir( $directory );
-			$found_names    = array_intersect( $possible_names, $files );
+			$possibleNames = array('CHANGES.md', 'CHANGELOG.md', 'changes.md', 'changelog.md');
+			$files = scandir($directory);
+			$foundNames = array_intersect($possibleNames, $files);
 
-			if ( ! empty( $found_names ) ) {
-				return reset( $found_names );
+			if ( !empty($foundNames) ) {
+				return reset($foundNames);
 			}
-
 			return null;
 		}
 
@@ -330,38 +327,51 @@ if ( ! class_exists( Api::class, false ) ) :
 		 *
 		 * @param $credentials
 		 */
-		public function set_authentication( $credentials ) {
+		public function setAuthentication($credentials) {
 			$this->credentials = $credentials;
 		}
 
-		public function is_authentication_enabled() {
-			return ! empty( $this->credentials );
+		public function isAuthenticationEnabled() {
+			return !empty($this->credentials);
 		}
 
 		/**
 		 * @param string $url
 		 * @return string
 		 */
-		public function sign_download_url( $url ) {
+		public function signDownloadUrl($url) {
 			return $url;
+		}
+
+		/**
+		 * @param string $filterName
+		 */
+		public function setHttpFilterName($filterName) {
+			$this->httpFilterName = $filterName;
+		}
+
+		/**
+		 * @param string $filterName
+		 */
+		public function setStrategyFilterName($filterName) {
+			$this->strategyFilterName = $filterName;
 		}
 
 		/**
 		 * @param string $directory
 		 */
-		public function set_local_directory( $directory ) {
-
-			if ( empty( $directory ) || ! is_dir( $directory ) || ( '.' === $directory ) ) {
-				$this->local_directory = null;
+		public function setLocalDirectory($directory) {
+			if ( empty($directory) || !is_dir($directory) || ($directory === '.') ) {
+				$this->localDirectory = null;
 			} else {
-				$this->local_directory = $directory;
+				$this->localDirectory = $directory;
 			}
 		}
 
 		/**
 		 * @param string $slug
 		 */
-		public function set_slug( $slug ) {
+		public function setSlug($slug) {
 			$this->slug = $slug;
 		}
 	}

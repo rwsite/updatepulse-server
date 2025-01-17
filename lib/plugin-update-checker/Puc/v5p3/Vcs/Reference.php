@@ -1,5 +1,5 @@
 <?php
-namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
+namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
 
 if ( !class_exists(Reference::class, false) ):
 
@@ -9,7 +9,7 @@ if ( !class_exists(Reference::class, false) ):
 	 *
 	 * @property string $name
 	 * @property string|null version
-	 * @property string $download_url
+	 * @property string $downloadUrl
 	 * @property string $updated
 	 *
 	 * @property string|null $changelog

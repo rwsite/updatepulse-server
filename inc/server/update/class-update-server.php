@@ -893,7 +893,7 @@ class Update_Server {
 		}
 
 		if ( $service ) {
-			$checker_class = 'Anyape\ProxyUpdateChecker\Vcs\\' . $type . 'UpdateChecker';
+			$checker_class = 'Anyape\PackageUpdateChecker\\' . $type . 'UpdateChecker';
 			$api_class     = $service . 'Api';
 		} else {
 			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
@@ -905,7 +905,7 @@ class Update_Server {
 			);
 		}
 
-		$api_class = 'Anyape\PluginUpdateChecker\v5p3\Vcs\\' . $api_class;
+		$api_class = 'Anyape\PackageUpdateChecker\Vcs\\' . $api_class;
 		$params    = array();
 
 		if ( $file_name ) {
@@ -934,7 +934,7 @@ class Update_Server {
 			return;
 		}
 
-		require_once UPSERV_PLUGIN_PATH . 'lib/proxy-update-checker/proxy-update-checker.php';
+		require_once UPSERV_PLUGIN_PATH . 'lib/package-update-checker/package-update-checker.php';
 
 		$package_file_name = null;
 
@@ -956,11 +956,11 @@ class Update_Server {
 		if ( $this->update_checker ) {
 
 			if ( $this->repository_credentials ) {
-				$this->update_checker->setAuthentication( $this->repository_credentials );
+				$this->update_checker->set_authentication( $this->repository_credentials );
 			}
 
 			if ( $this->repository_branch ) {
-				$this->update_checker->setBranch( $this->repository_branch );
+				$this->update_checker->set_branch( $this->repository_branch );
 			}
 		}
 

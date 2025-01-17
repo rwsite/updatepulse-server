@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
+namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
 
 if ( !trait_exists(ReleaseFilteringFeature::class, false) ) :
 

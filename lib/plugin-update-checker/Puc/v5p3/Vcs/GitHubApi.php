@@ -1,6 +1,6 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
+<?php
 
-namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
+namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
 
 use Parsedown;
 
@@ -22,7 +22,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 		/**
 		 * @var string Either a fully qualified repository URL, or just "user/repo-name".
 		 */
-		protected $repository_url;
+		protected $repositoryUrl;
 
 		/**
 		 * @var string GitHub authentication token. Optional.
@@ -34,16 +34,16 @@ if ( !class_exists(GitHubApi::class, false) ):
 		 */
 		private $downloadFilterAdded = false;
 
-		public function __construct($repository_url, $accessToken = null) {
-			$path = wp_parse_url($repository_url, PHP_URL_PATH);
+		public function __construct($repositoryUrl, $accessToken = null) {
+			$path = wp_parse_url($repositoryUrl, PHP_URL_PATH);
 			if ( preg_match('@^/?(?P<username>[^/]+?)/(?P<repository>[^/#?&]+?)/?$@', $path, $matches) ) {
 				$this->userName = $matches['username'];
 				$this->repositoryName = $matches['repository'];
 			} else {
-				throw new \InvalidArgumentException('Invalid GitHub repository URL: "' . $repository_url . '"');
+				throw new \InvalidArgumentException('Invalid GitHub repository URL: "' . $repositoryUrl . '"');
 			}
 
-			parent::__construct($repository_url, $accessToken);
+			parent::__construct($repositoryUrl, $accessToken);
 		}
 
 		/**
@@ -102,7 +102,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 				$reference = new Reference(array(
 					'name'        => $release->tag_name,
 					'version'     => $versionNumber,
-					'download_url' => $release->zipball_url,
+					'downloadUrl' => $release->zipball_url,
 					'updated'     => $release->created_at,
 					'apiResponse' => $release,
 				));
@@ -120,17 +120,17 @@ if ( !class_exists(GitHubApi::class, false) ):
 					}
 
 					if ( !empty($matchingAssets) ) {
-						if ( $this->is_authentication_enabled() ) {
+						if ( $this->isAuthenticationEnabled() ) {
 							/**
 							 * Keep in mind that we'll need to add an "Accept" header to download this asset.
 							 *
 							 * @see setUpdateDownloadHeaders()
 							 */
-							$reference->download_url = $matchingAssets[0]->url;
+							$reference->downloadUrl = $matchingAssets[0]->url;
 						} else {
 							//It seems that browser_download_url only works for public repositories.
 							//Using an access_token doesn't help. Maybe OAuth would work?
-							$reference->download_url = $matchingAssets[0]->browser_download_url;
+							$reference->downloadUrl = $matchingAssets[0]->browser_download_url;
 						}
 
 						$reference->downloadCount = $matchingAssets[0]->download_count;
@@ -156,14 +156,14 @@ if ( !class_exists(GitHubApi::class, false) ):
 		 *
 		 * @return Reference|null
 		 */
-		public function get_latest_tag() {
+		public function getLatestTag() {
 			$tags = $this->api('/repos/:user/:repo/tags');
 
 			if ( is_wp_error($tags) || !is_array($tags) ) {
 				return null;
 			}
 
-			$versionTags = $this->sort_tags_by_version($tags);
+			$versionTags = $this->sortTagsByVersion($tags);
 			if ( empty($versionTags) ) {
 				return null;
 			}
@@ -172,7 +172,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 			return new Reference(array(
 				'name'        => $tag->name,
 				'version'     => ltrim($tag->name, 'v'),
-				'download_url' => $tag->zipball_url,
+				'downloadUrl' => $tag->zipball_url,
 				'apiResponse' => $tag,
 			));
 		}
@@ -180,18 +180,18 @@ if ( !class_exists(GitHubApi::class, false) ):
 		/**
 		 * Get a branch by name.
 		 *
-		 * @param string $branch_name
+		 * @param string $branchName
 		 * @return null|Reference
 		 */
-		public function get_branch($branch_name) {
-			$branch = $this->api('/repos/:user/:repo/branches/' . $branch_name);
+		public function getBranch($branchName) {
+			$branch = $this->api('/repos/:user/:repo/branches/' . $branchName);
 			if ( is_wp_error($branch) || empty($branch) ) {
 				return null;
 			}
 
 			$reference = new Reference(array(
 				'name'        => $branch->name,
-				'download_url' => $this->build_archive_download_url($branch->name),
+				'downloadUrl' => $this->buildArchiveDownloadUrl($branch->name),
 				'apiResponse' => $branch,
 			));
 
@@ -229,7 +229,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 		 * @param string $ref Reference name (e.g. branch or tag).
 		 * @return string|null
 		 */
-		public function get_latest_commit_time($ref) {
+		public function getLatestCommitTime($ref) {
 			$commits = $this->api('/repos/:user/:repo/commits', array('sha' => $ref));
 			if ( !is_wp_error($commits) && isset($commits[0]) ) {
 				return $commits[0]->commit->author->date;
@@ -249,11 +249,13 @@ if ( !class_exists(GitHubApi::class, false) ):
 			$url = $this->buildApiUrl($url, $queryParams);
 
 			$options = array('timeout' => wp_doing_cron() ? 10 : 3);
-
-			if ( $this->is_authentication_enabled() ) {
+			if ( $this->isAuthenticationEnabled() ) {
 				$options['headers'] = array('Authorization' => $this->getAuthorizationHeader());
 			}
 
+			if ( !empty($this->httpFilterName) ) {
+				$options = apply_filters($this->httpFilterName, $options);
+			}
 			$response = wp_remote_get($url, $options);
 			if ( is_wp_error($response) ) {
 				do_action('puc_api_error', $response, null, $url, $this->slug);
@@ -307,7 +309,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 		 * @param string $ref
 		 * @return null|string Either the contents of the file, or null if the file doesn't exist or there's an error.
 		 */
-		public function get_remote_file($path, $ref = 'master') {
+		public function getRemoteFile($path, $ref = 'master') {
 			$apiUrl = '/repos/:user/:repo/contents/' . $path;
 			$response = $this->api($apiUrl, array('ref' => $ref));
 
@@ -323,7 +325,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 		 * @param string $ref
 		 * @return string
 		 */
-		public function build_archive_download_url($ref = 'master') {
+		public function buildArchiveDownloadUrl($ref = 'master') {
 			$url = sprintf(
 				'https://api.github.com/repos/%1$s/%2$s/zipball/%3$s',
 				urlencode($this->userName),
@@ -336,16 +338,16 @@ if ( !class_exists(GitHubApi::class, false) ):
 		/**
 		 * Get a specific tag.
 		 *
-		 * @param string $tag_name
+		 * @param string $tagName
 		 * @return void
 		 */
-		public function get_tag($tag_name) {
-			//The current GitHub update checker doesn't use get_tag, so I didn't bother to implement it.
+		public function getTag($tagName) {
+			//The current GitHub update checker doesn't use getTag, so I didn't bother to implement it.
 			throw new \LogicException('The ' . __METHOD__ . ' method is not implemented and should not be used.');
 		}
 
-		public function set_authentication($credentials) {
-			parent::set_authentication($credentials);
+		public function setAuthentication($credentials) {
+			parent::setAuthentication($credentials);
 			$this->accessToken = is_string($credentials) ? $credentials : null;
 
 			//Optimization: Instead of filtering all HTTP requests, let's do it only when
@@ -353,19 +355,19 @@ if ( !class_exists(GitHubApi::class, false) ):
 			add_filter('upgrader_pre_download', array($this, 'addHttpRequestFilter'), 10, 1); //WP 3.7+
 		}
 
-		protected function get_update_detection_strategies($config_branch) {
+		protected function getUpdateDetectionStrategies($configBranch) {
 			$strategies = array();
 
-			if ( $config_branch === 'master' || $config_branch === 'main') {
+			if ( $configBranch === 'master' || $configBranch === 'main') {
 				//Use the latest release.
 				$strategies[self::STRATEGY_LATEST_RELEASE] = array($this, 'getLatestRelease');
 				//Failing that, use the tag with the highest version number.
-				$strategies[self::STRATEGY_LATEST_TAG] = array($this, 'get_latest_tag');
+				$strategies[self::STRATEGY_LATEST_TAG] = array($this, 'getLatestTag');
 			}
 
 			//Alternatively, just use the branch itself.
-			$strategies[self::STRATEGY_BRANCH] = function () use ($config_branch) {
-				return $this->get_branch($config_branch);
+			$strategies[self::STRATEGY_BRANCH] = function () use ($configBranch) {
+				return $this->getBranch($configBranch);
 			};
 
 			return $strategies;
@@ -397,7 +399,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 		 * @internal
 		 */
 		public function addHttpRequestFilter($result) {
-			if ( !$this->downloadFilterAdded && $this->is_authentication_enabled() ) {
+			if ( !$this->downloadFilterAdded && $this->isAuthenticationEnabled() ) {
 				//phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args -- The callback doesn't change the timeout.
 				add_filter('http_request_args', array($this, 'setUpdateDownloadHeaders'), 10, 2);
 				add_action('requests-requests.before_redirect', array($this, 'removeAuthHeaderFromRedirects'), 10, 4);
@@ -426,7 +428,7 @@ if ( !class_exists(GitHubApi::class, false) ):
 			}
 			//Use Basic authentication, but only if the download is from our repository.
 			$repoApiBaseUrl = $this->buildApiUrl('/repos/:user/:repo/', array());
-			if ( $this->is_authentication_enabled() && (strpos($url, $repoApiBaseUrl)) === 0 ) {
+			if ( $this->isAuthenticationEnabled() && (strpos($url, $repoApiBaseUrl)) === 0 ) {
 				$requestArgs['headers']['Authorization'] = $this->getAuthorizationHeader();
 			}
 			return $requestArgs;

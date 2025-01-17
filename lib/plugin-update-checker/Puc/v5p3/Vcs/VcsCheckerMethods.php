@@ -1,6 +1,6 @@
 <?php
 
-namespace Anyape\PluginUpdateChecker\v5p3\Vcs;
+namespace YahnisElsts\PluginUpdateChecker\v5p3\Vcs;
 
 if ( !trait_exists(VcsCheckerMethods::class, false) ) :
 
@@ -26,8 +26,8 @@ if ( !trait_exists(VcsCheckerMethods::class, false) ) :
 		 * @param array|string $credentials
 		 * @return $this
 		 */
-		public function set_authentication($credentials) {
-			$this->api->set_authentication($credentials);
+		public function setAuthentication($credentials) {
+			$this->api->setAuthentication($credentials);
 			return $this;
 		}
 
@@ -38,10 +38,20 @@ if ( !trait_exists(VcsCheckerMethods::class, false) ) :
 			return $this->api;
 		}
 
+		public function getUpdate() {
+			$update = parent::getUpdate();
+
+			if ( isset($update) && !empty($update->download_url) ) {
+				$update->download_url = $this->api->signDownloadUrl($update->download_url);
+			}
+
+			return $update;
+		}
+
 		public function onDisplayConfiguration($panel) {
 			parent::onDisplayConfiguration($panel);
 			$panel->row('Branch', $this->branch);
-			$panel->row('Authentication enabled', $this->api->is_authentication_enabled() ? 'Yes' : 'No');
+			$panel->row('Authentication enabled', $this->api->isAuthenticationEnabled() ? 'Yes' : 'No');
 			$panel->row('API client', get_class($this->api));
 		}
 	}

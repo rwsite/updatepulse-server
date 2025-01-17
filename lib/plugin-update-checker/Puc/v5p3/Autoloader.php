@@ -1,55 +1,82 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase, WordPress.Files.FileName.InvalidClassFileName
+<?php
 
-namespace Anyape\PluginUpdateChecker\v5p3;
+namespace YahnisElsts\PluginUpdateChecker\v5p3;
 
-if ( ! class_exists( Autoloader::class, false ) ) :
+if ( !class_exists(Autoloader::class, false) ):
 
 	class Autoloader {
-		const DEFAULT_NS_PREFIX = 'Anyape\\PluginUpdateChecker\\';
+		const DEFAULT_NS_PREFIX = 'YahnisElsts\\PluginUpdateChecker\\';
 
 		private $prefix;
-		private $root_dir;
-		private $library_dir;
+		private $rootDir;
+		private $libraryDir;
 
-		private $static_map;
+		private $staticMap;
 
 		public function __construct() {
-			$this->root_dir = __DIR__ . '/';
+			$this->rootDir = dirname(__FILE__) . '/';
 
-			$namespace_with_slash = __NAMESPACE__ . '\\';
-			$this->prefix         = $namespace_with_slash;
-			$this->library_dir    = realpath( $this->root_dir . '../..' ) . '/';
+			$namespaceWithSlash = __NAMESPACE__ . '\\';
+			$this->prefix = $namespaceWithSlash;
+
+			$this->libraryDir = $this->rootDir . '../..';
+			if ( !self::isPhar() ) {
+				$this->libraryDir = realpath($this->libraryDir);
+			}
+			$this->libraryDir = $this->libraryDir . '/';
 
 			//Usually, dependencies like Parsedown are in the global namespace,
 			//but if someone adds a custom namespace to the entire library, they
 			//will be in the same namespace as this class.
-			$is_custom_namespace = (
-				substr( $namespace_with_slash, 0, strlen( self::DEFAULT_NS_PREFIX ) ) !== self::DEFAULT_NS_PREFIX
+			$isCustomNamespace = (
+				substr($namespaceWithSlash, 0, strlen(self::DEFAULT_NS_PREFIX)) !== self::DEFAULT_NS_PREFIX
 			);
-			$library_prefix      = $is_custom_namespace ? $namespace_with_slash : '';
+			$libraryPrefix = $isCustomNamespace ? $namespaceWithSlash : '';
 
-			$this->static_map = array(
-				$library_prefix . 'PucReadmeParser' => 'vendor/PucReadmeParser.php',
-				$library_prefix . 'Parsedown'       => 'vendor/Parsedown.php',
+			$this->staticMap = array(
+				$libraryPrefix . 'PucReadmeParser' => 'vendor/PucReadmeParser.php',
+				$libraryPrefix . 'Parsedown'       => 'vendor/Parsedown.php',
 			);
 
-			spl_autoload_register( array( $this, 'autoload' ) );
+			//Add the generic, major-version-only factory class to the static map.
+			$versionSeparatorPos = strrpos(__NAMESPACE__, '\\v');
+			if ( $versionSeparatorPos !== false ) {
+				$versionSegment = substr(__NAMESPACE__, $versionSeparatorPos + 1);
+				$pointPos = strpos($versionSegment, 'p');
+				if ( ($pointPos !== false) && ($pointPos > 1) ) {
+					$majorVersionSegment = substr($versionSegment, 0, $pointPos);
+					$majorVersionNs = __NAMESPACE__ . '\\' . $majorVersionSegment;
+					$this->staticMap[$majorVersionNs . '\\PucFactory'] =
+						'Puc/' . $majorVersionSegment . '/Factory.php';
+				}
+			}
+
+			spl_autoload_register(array($this, 'autoload'));
 		}
 
-		public function autoload( $class_name ) {
+		/**
+		 * Determine if this file is running as part of a Phar archive.
+		 *
+		 * @return bool
+		 */
+		private static function isPhar() {
+			//Check if the current file path starts with "phar://".
+			static $pharProtocol = 'phar://';
+			return (substr(__FILE__, 0, strlen($pharProtocol)) === $pharProtocol);
+		}
 
-			if ( isset( $this->static_map[ $class_name ] ) && file_exists( $this->library_dir . $this->static_map[ $class_name ] ) ) {
-				include $this->library_dir . $this->static_map[ $class_name ];
-
+		public function autoload($className) {
+			if ( isset($this->staticMap[$className]) && file_exists($this->libraryDir . $this->staticMap[$className]) ) {
+				include($this->libraryDir . $this->staticMap[$className]);
 				return;
 			}
 
-			if ( 0 === strpos( $class_name, $this->prefix ) ) {
-				$path = substr( $class_name, strlen( $this->prefix ) );
-				$path = str_replace( array( '_', '\\' ), '/', $path );
-				$path = $this->root_dir . $path . '.php';
+			if ( strpos($className, $this->prefix) === 0 ) {
+				$path = substr($className, strlen($this->prefix));
+				$path = str_replace(array('_', '\\'), '/', $path);
+				$path = $this->rootDir . $path . '.php';
 
-				if ( file_exists( $path ) ) {
+				if ( file_exists($path) ) {
 					include $path;
 				}
 			}
