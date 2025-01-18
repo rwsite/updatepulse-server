@@ -136,7 +136,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 							/**
 							 * Keep in mind that we'll need to add an "Accept" header to download this asset.
 							 *
-							 * @see setUpdateDownloadHeaders()
+							 * @see set_update_download_headers()
 							 */
 							$reference->download_url = $matching_assets[0]->url;
 						} else {
@@ -430,7 +430,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 
 			if ( ! $this->download_filter_added && $this->is_authentication_enabled() ) {
 				//phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_args -- The callback doesn't change the timeout.
-				add_filter( 'http_request_args', array( $this, 'setUpdateDownloadHeaders' ), 10, 2 );
+				add_filter( 'http_request_args', array( $this, 'set_update_download_headers' ), 10, 2 );
 				add_action( 'requests-requests.before_redirect', array( $this, 'remove_auth_header_from_redirects' ), 10, 4 );
 
 				$this->download_filter_added = true;
