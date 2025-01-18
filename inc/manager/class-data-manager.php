@@ -19,7 +19,7 @@ class Data_Manager {
 
 	public static $persistent_data_dirs = array(
 		'packages',
-		'whitelist',
+		'metadata',
 	);
 
 	public static $transient_data_db = array(

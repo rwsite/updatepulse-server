@@ -216,6 +216,11 @@ class Update_API {
 
 		if ( ! upserv_is_package_whitelisted( $slug ) ) {
 			upserv_whitelist_package( $slug );
+
+			$meta        = upserv_get_package_metadata( $slug );
+			$meta['vcs'] = $this->update_server->get_repository_service_url();
+
+			upserv_set_package_metadata( $slug, $meta );
 		}
 
 		if ( $force || $this->update_server->check_remote_package_update( $slug ) ) {

@@ -21,9 +21,6 @@
 			<li>
 				<?php esc_html_e( 'If a package linked to a Remote Repository is deleted using this interface, it needs to be registered again to become available in UpdatePulse Server.', 'updatepulse-server' ); ?>
 			</li>
-			<li>
-				<?php esc_html_e( 'Switching between Local and Cloud Storage will not restore access to a package previously deleted, even if it is present on the active file system.', 'updatepulse-server' ); ?>
-			</li>
 		</ul>
 		<?php endif; ?>
 	</form>

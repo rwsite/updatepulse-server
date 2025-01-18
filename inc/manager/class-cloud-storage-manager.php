@@ -78,6 +78,8 @@ class Cloud_Storage_Manager {
 				add_filter( 'upserv_delete_packages_bulk_paths', array( $this, 'upserv_delete_packages_bulk_paths' ), 10, 1 );
 				add_filter( 'upserv_webhook_package_exists', array( $this, 'upserv_webhook_package_exists' ), 10, 3 );
 				add_filter( 'upserv_get_admin_template_args', array( $this, 'upserv_get_admin_template_args' ), 10, 2 );
+				add_filter( 'upserv_is_package_whitelisted', array( $this, 'upserv_is_package_whitelisted' ), 10, 2 );
+				add_filter( 'upserv_whitelist_package_data', array( $this, 'upserv_whitelist_package_data' ), 10, 2 );
 			}
 		}
 	}
@@ -981,6 +983,23 @@ class Cloud_Storage_Manager {
 
 	public function upserv_update_server_action_download_handled() {
 		return $this->doing_redirect;
+	}
+
+	public function upserv_is_package_whitelisted( $whitelisted, $package_slug ) {
+		$data = upserv_get_package_metadata( $package_slug, false );
+
+		if ( isset( $data['whitelisted'] ) && isset( $data['whitelisted']['cloud'] ) ) {
+			return (bool) $data['whitelisted']['cloud'][0];
+		}
+	}
+
+	public function upserv_whitelist_package_data( $data, $slug ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		$data['whitelisted']['cloud'] = array(
+			true,
+			time(),
+		);
+
+		return $data;
 	}
 
 	protected static function build_cache_key( $slug, $filename ) {

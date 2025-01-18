@@ -15,6 +15,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
             * [delete](#delete)
             * [signed\_url](#signed_url)
     * [Functions](#functions)
+        * [upserv\_get\_data\_dir](#upserv_get_data_dir)
         * [upserv\_get\_root\_data\_dir](#upserv_get_root_data_dir)
         * [upserv\_get\_packages\_data\_dir](#upserv_get_packages_data_dir)
         * [upserv\_get\_logs\_data\_dir](#upserv_get_logs_data_dir)
@@ -36,11 +37,12 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_get\_package\_info](#upserv_get_package_info)
         * [upserv\_get\_batch\_package\_info](#upserv_get_batch_package_info)
         * [upserv\_is\_package\_require\_license](#upserv_is_package_require_license)
-        * [upserv\_get\_whitelist\_data\_dir](#upserv_get_whitelist_data_dir)
         * [upserv\_is\_package\_whitelisted](#upserv_is_package_whitelisted)
         * [upserv\_whitelist\_package](#upserv_whitelist_package)
         * [upserv\_unwhitelist\_package](#upserv_unwhitelist_package)
-        * [upserv\_get\_package\_whitelist\_info](#upserv_get_package_whitelist_info)
+        * [upserv\_get\_package\_metadata\_data\_dir](#upserv_get_package_metadata_data_dir)
+        * [upserv\_get\_package\_metadata](#upserv_get_package_metadata)
+        * [upserv\_set\_package\_metadata](#upserv_set_package_metadata)
     * [Actions](#actions)
         * [upserv\_primed\_package\_from\_remote](#upserv_primed_package_from_remote)
         * [upserv\_did\_manual\_upload\_package](#upserv_did_manual_upload_package)
@@ -93,6 +95,8 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_packages\_table\_cell](#upserv_packages_table_cell)
         * [upserv\_whitelist\_package](#upserv_whitelist_package-1)
         * [upserv\_unwhitelist\_package](#upserv_unwhitelist_package-1)
+        * [upserv\_set\_package\_metadata](#upserv_set_package_metadata-1)
+        * [upserv\_delete\_package\_metadata](#upserv_delete_package_metadata)
     * [Filters](#filters)
         * [upserv\_submitted\_package\_config](#upserv_submitted_package_config)
         * [upserv\_submitted\_remote\_sources\_config](#upserv_submitted_remote_sources_config)
@@ -147,9 +151,11 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_remote\_source\_option\_update](#upserv_remote_source_option_update)
         * [upserv\_api\_package\_actions](#upserv_api_package_actions)
         * [upserv\_is\_package\_whitelisted](#upserv_is_package_whitelisted-1)
-        * [upserv\_did\_whitelist\_package](#upserv_did_whitelist_package)
-        * [upserv\_did\_unwhitelist\_package](#upserv_did_unwhitelist_package)
-        * [upserv\_get\_package\_whitelist\_info](#upserv_get_package_whitelist_info-1)
+        * [upserv\_whitelist\_package\_data](#upserv_whitelist_package_data)
+        * [upserv\_set\_package\_metadata\_data](#upserv_set_package_metadata_data)
+        * [upserv\_did\_set\_package\_metadata](#upserv_did_set_package_metadata)
+        * [upserv\_get\_package\_metadata](#upserv_get_package_metadata-1)
+        * [upserv\_did\_delete\_package\_metadata](#upserv_did_delete_package_metadata)
 
 ## API
 
@@ -867,6 +873,23 @@ The functions listed below are made publicly available by the plugin for theme a
 Although the main classes can theoretically be instantiated without side effect if the `$hook_init` parameter is set to `false`, it is recommended to use only the following functions as there is no guarantee future updates won't introduce changes of behaviors.
 
 ___
+### upserv_get_data_dir
+
+```php
+upserv_get_data_dir( $dir );
+```
+
+**Description**
+Get the path to a specific directory within the plugin's content directory.
+
+**Parameters**
+`$dir`
+> (string) the directory to get the path for
+
+**Return value**
+> (string) the path to the specified directory within the plugin's content directory
+
+__
 ### upserv_get_root_data_dir
 
 ```php
@@ -1145,7 +1168,7 @@ ___
 ### upserv_get_package_info
 
 ```php
-upserv_get_package_info( string $package_slug, bool $json_encode );
+upserv_get_package_info( string $package_slug, bool $json_encode = true );
 ```
 
 **Description**  
@@ -1306,19 +1329,6 @@ Determine whether a package requires a license key.
 > (bool) `true` if the package requires a license key, `false` otherwise
 
 ___
-### upserv_get_whitelist_data_dir
-
-```php
-upserv_get_whitelist_data_dir();
-```
-
-**Description**
-Get the path to the plugin's whitelist directory.
-
-**Return value**
-> (string) the path to the plugin's whitelist directory
-
-___
 ### upserv_is_package_whitelisted
 
 ```php
@@ -1370,14 +1380,28 @@ Unwhitelist a package.
 > (bool) `true` if the package was successfully unwhitelisted, `false` otherwise
 
 ___
-### upserv_get_package_whitelist_info
+### upserv_get_package_metadata_data_dir
 
 ```php
-upserv_get_package_whitelist_info( string $package_slug, bool $json_encode = true );
+upserv_get_package_metadata_data_dir();
 ```
 
 **Description**
-Get information about a whitelisted package.
+Get the path to the packages metadata directory.
+
+**Return value**
+> (string) the path to the packages metadata directory
+
+___
+### upserv_get_package_metadata
+
+```php
+upserv_get_package_metadata( string $package_slug, bool $json_encode = false );
+```
+
+**Description**
+Get metadata of a package.
+By default, contains the metadata UpdatePulse needs to keep track of the package in case it is deleted from the file system.
 
 **Parameters**
 `$package_slug`
@@ -1385,6 +1409,24 @@ Get information about a whitelisted package.
 
 `$json_encode`
 > (bool) whether to return a JSON object (default) or a PHP associative array
+
+### upserv_set_package_metadata
+
+```php
+upserv_set_package_metadata( string $package_slug, array $metadata );
+```
+
+**Description**
+Set metadata of a package.
+Setting metadata will overwrite the existing metadata.
+Setting metadata to an empty value will delete the metadata record.
+
+**Parameters**
+`$package_slug`
+> (string) slug of the package
+
+`$metadata`
+> (array) metadata to set
 
 ___
 ## Actions
@@ -2276,7 +2318,7 @@ ___
 ### upserv_whitelist_package
 
 ```php
-do_action( 'upserv_whitelist_package', string $package_slug, bool $result );
+do_action( 'upserv_whitelist_package', string $package_slug, array $data, bool $result );
 ```
 
 **Description**
@@ -2285,6 +2327,9 @@ Fired after a package has been whitelisted.
 **Parameters**
 `$package_slug`
 > (string) the slug of the package
+
+`$data`
+> (array) the data used to whitelist the package
 
 `$result`
 > (bool) `true` if the package was successfully whitelisted, `false` otherwise
@@ -2305,6 +2350,43 @@ Fired after a package has been unwhitelisted.
 
 `$result`
 > (bool) `true` if the package was successfully unwhitelisted, `false` otherwise
+
+___
+### upserv_set_package_metadata
+
+```php
+do_action( 'upserv_set_package_metadata', string $package_slug, array $metadata, bool $result );
+```
+
+**Description**
+Fired after metadata of a package has been set.
+
+**Parameters**
+`$package_slug`
+> (string) the slug of the package
+
+`$metadata`
+> (array) the metadata set
+
+`$result`
+> (bool) `true` if the metadata was successfully set, `false` otherwise
+
+___
+### upserv_delete_package_metadata
+
+```php
+do_action( 'upserv_delete_package_metadata', string $package_slug, bool $result );
+```
+
+**Description**
+Fired after metadata of a package has been deleted.
+
+**Parameters**
+`$package_slug`
+> (string) the slug of the package
+
+`$result`
+> (bool) `true` if the metadata was successfully deleted, `false` otherwise
 
 ___
 ## Filters
@@ -3300,57 +3382,97 @@ Filter whether the package is whitelisted.
 > (string) the slug of the package
 
 ___
-### upserv_did_whitelist_package
+### upserv_whitelist_package_data
 
 ```php
-apply_filters( 'upserv_did_whitelist_package', bool $handled, string $package_slug );
+apply_filters( 'upserv_whitelist_package_data', array $data, string $package_slug );
 ```
 
 **Description**
-Filter whether the package whitelist operation was handled. Used to alter default whitelisting behavior.
-
-**Parameters**
-`$handled`
-> (bool) whether the package whitelist operation was handled
-
-`$package_slug`
-> (string) the slug of the package
-
-___
-### upserv_did_unwhitelist_package
-
-```php
-apply_filters( 'upserv_did_unwhitelist_package', bool $handled, string $package_slug );
-```
-
-**Description**
-Filter whether the package unwhitelist operation was handled. Used to alter default unwhitelisting behavior.
-
-**Parameters**
-`$handled`
-> (bool) whether the package unwhitelist operation was handled
-
-`$package_slug`
-> (string) the slug of the package
-
-___
-### upserv_get_package_whitelist_info
-
-```php
-apply_filters( 'upserv_get_package_whitelist_info', array $data, string $package_slug, bool $json_encode );
-```
-
-**Description**
-Filter the package whitelist information.
+Filter the data used to whitelist the package.
 
 **Parameters**
 `$data`
-> (array) the package whitelist information
+> (array) the data used to whitelist the package
+
+`$package_slug`
+> (string) the slug of the package
+
+___
+### upserv_set_package_metadata_data
+
+```php
+apply_filters( 'upserv_set_package_metadata_data', array $data, string $package_slug );
+```
+
+**Description**
+Filter the data used to set the package metadata.
+
+**Parameters**
+`$data`
+> (array) the data used to set the package metadata
+
+`$package_slug`
+> (string) the slug of the package
+
+___
+### upserv_did_set_package_metadata
+
+```php
+apply_filters( 'upserv_did_set_package_metadata', bool $handled, string $package_slug, array $data );
+```
+
+**Description**
+Filter whether the package metadata was set.
+The default metadata setting behavior is not executed when this filter is added.
+
+**Parameters**
+`$handled`
+> (bool) whether the package metadata was set
+
+`$package_slug`
+> (string) the slug of the package
+
+`$data`
+> (array) the data used to set the metadata
+
+___
+### upserv_get_package_metadata
+
+```php
+apply_filters( 'upserv_get_package_metadata', array $metadata, string $package_slug, bool $json_encode );
+```
+
+**Description**
+Filter the package metadata.
+The default metadata retrieval is not executed when this filter is added.
+
+**Parameters**
+`$metadata`
+> (array) the package metadata
 
 `$package_slug`
 > (string) the slug of the package
 
 `$json_encode`
 > (bool) whether to JSON encode the data
+
+___
+### upserv_did_delete_package_metadata
+
+```php
+apply_filters( 'upserv_did_delete_package_metadata', bool $handled, string $package_slug );
+```
+
+**Description**
+Filter whether the package metadata was deleted.
+The default metadata deletion behavior is not executed when this filter is added.
+
+**Parameters**
+`$handled`
+> (bool) whether the package metadata was deleted
+
+`$package_slug`
+> (string) the slug of the package
 
 ___
