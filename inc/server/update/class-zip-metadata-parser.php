@@ -91,7 +91,7 @@ class Zip_Metadata_Parser {
 	* Build the cache key (cache filename) for a file
 	*/
 	public static function build_cache_key( $slug, $filename ) {
-		$cache_key = 'metadata-b64-' . $slug . '-';
+		$cache_key = $slug . '-b64-';
 
 		if ( file_exists( $filename ) ) {
 			$cache_key .= md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );

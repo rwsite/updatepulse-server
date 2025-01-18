@@ -7,15 +7,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * A simple file-based cache.
+ * Cache class.
  *
+ * Cache data to the filesystem.
  */
 class Cache {
 
 	protected $cache_directory;
+	protected $extension;
 
-	public function __construct( $cache_directory ) {
+	public function __construct( $cache_directory, $extension = 'dat' ) {
 		$this->cache_directory = $cache_directory;
+		$this->extension       = $extension;
 	}
 
 	/**
@@ -52,7 +55,7 @@ class Cache {
 	 *
 	 * @param string $key Cache key.
 	 * @param mixed $value The value to store in the cache.
-	 * @param int $expiration Time until expiration, in seconds. Optional.
+	 * @param int $expiration Time until expiration, in seconds. Optional. Default `0`.
 	 * @return void
 	 */
 	public function set( $key, $value, $expiration = 0 ) {
@@ -70,18 +73,9 @@ class Cache {
 	}
 
 	/**
-	 * @param string $key
-	 * @return string
-	 */
-	protected function get_cache_filename( $key ) {
-		return $this->cache_directory . '/' . $key . '.txt';
-	}
-
-	/**
-	 * Clear a cache.
+	 * Clear the cache by key.
 	 *
 	 * @param string $key Cache key.
-	 * @param bool $already_locked Whether the file is already locked. Optional. Default `false`.
 	 * @return void
 	 */
 	public function clear( $key ) {
@@ -90,5 +84,13 @@ class Cache {
 		if ( is_file( $file ) ) {
 			unlink( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		}
+	}
+
+	/**
+	 * @param string $key
+	 * @return string
+	 */
+	protected function get_cache_filename( $key ) {
+		return $this->cache_directory . '/' . $key . '.' . $this->extension;
 	}
 }

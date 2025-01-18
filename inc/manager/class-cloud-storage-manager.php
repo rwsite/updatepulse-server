@@ -1017,7 +1017,7 @@ class Cloud_Storage_Manager {
 		}
 
 		if ( $info ) {
-			$cache_key = 'metadata-b64-' . $slug . '-'
+			$cache_key = $slug . '-b64-'
 						. md5( $filename . '|' . $info['size'] . '|' . $info['time'] );
 		}
 
