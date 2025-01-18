@@ -268,42 +268,46 @@ class Update_API {
 	protected function handle_api_request() {
 		global $wp;
 
-		$vars           = $wp->query_vars;
-		$package_id     = isset( $vars['package_id'] ) ? trim( rawurldecode( $vars['package_id'] ) ) : null;
-		$request_params = array(
+		$vars   = $wp->query_vars;
+		$slug   = isset( $vars['package_id'] ) ? trim( rawurldecode( $vars['package_id'] ) ) : null;
+		$params = array(
 			'action' => isset( $vars['action'] ) ? trim( $vars['action'] ) : null,
 			'token'  => isset( $vars['token'] ) ? trim( $vars['token'] ) : null,
-			'slug'   => $package_id,
+			'slug'   => $slug,
 			'type'   => isset( $vars['update_type'] ) ? trim( $vars['update_type'] ) : null,
 		);
-		$request_params = apply_filters(
+		$params = apply_filters(
 			'upserv_handle_update_request_params',
 			array_merge(
 				$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$request_params
+				$params
 			)
 		);
 
-		$this->init_server( $package_id );
-		do_action( 'upserv_before_handle_update_request', $request_params );
-		$this->update_server->handle_request( $request_params );
+		$this->init_server( $slug );
+		do_action( 'upserv_before_handle_update_request', $params );
+		$this->update_server->handle_request( $params );
 	}
 
-	protected function init_server( $package_id ) {
-		$config            = self::get_config();
-		$server_class_name = apply_filters(
+	protected function init_server( $slug ) {
+		$config      = self::get_config();
+		$meta        = upserv_get_package_metadata( $slug );
+		$url         = isset( $meta['repository_service_url'] ) ?
+			$meta['repository_service_url'] :
+			$config['repository_service_url'];
+		$_class_name = apply_filters(
 			'upserv_server_class_name',
 			str_replace( 'API', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
-			$package_id,
+			$slug,
 			$config
 		);
 
-		if ( ! isset( $this->update_server ) || ! is_a( $this->update_server, $server_class_name ) ) {
-			$this->update_server = new $server_class_name(
+		if ( ! isset( $this->update_server ) || ! is_a( $this->update_server, $_class_name ) ) {
+			$this->update_server = new $_class_name(
 				$config['use_remote_repository'],
 				home_url( '/updatepulse-server-update-api/' ),
 				$config['server_directory'],
-				$config['repository_service_url'],
+				$url,
 				$config['repository_branch'],
 				$config['repository_credentials'],
 				$config['repository_service_self_hosted'],
@@ -314,7 +318,7 @@ class Update_API {
 			'upserv_update_server',
 			$this->update_server,
 			$config,
-			$package_id
+			$slug
 		);
 	}
 }

@@ -185,8 +185,7 @@ class Package_Manager {
 			$slug = filter_input( INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( $slug ) {
-				$api    = Update_API::get_instance();
-				$result = $api->download_remote_package( $slug, null, true );
+				$result = upserv_download_remote_package( $slug, null, true );
 			} else {
 				$error = new WP_Error(
 					__METHOD__,
