@@ -479,7 +479,7 @@ class Update_Server {
 		$package = $request->package;
 
 		header( 'Content-Type: application/zip' );
-		header( 'Content-Disposition: attachment; file_name="' . $package->slug . '.zip"' );
+		header( 'Content-Disposition: attachment; filename=' . $package->slug . '.zip' );
 		header( 'Content-Transfer-Encoding: binary' );
 		header( 'Content-Length: ' . $package->get_file_size() );
 
