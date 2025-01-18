@@ -778,86 +778,137 @@ class Package_Manager {
 	}
 
 	public function is_package_whitelisted( $package_slug ) {
-		return apply_filters(
-			'upserv_is_package_whitelisted',
-			is_file(
-				trailingslashit( upserv_get_whitelist_data_dir() )
-				. sanitize_file_name( $package_slug . '.json' )
-			),
-			$package_slug
-		);
+
+		if ( has_filter( 'upserv_is_package_whitelisted' ) ) {
+			return apply_filters( 'upserv_is_package_whitelisted', false, $package_slug );
+		}
+
+		$data = $this->get_package_metadata( $package_slug, false );
+
+		if ( isset( $data['whitelisted'] ) && isset( $data['whitelisted']['local'] ) ) {
+			return (bool) $data['whitelisted']['local'][0];
+		}
+
+		return false;
 	}
 
 	public function whitelist_package( $package_slug ) {
-		$whitelist = upserv_get_whitelist_data_dir();
-		$filename  = sanitize_file_name( $package_slug . '.json' );
-		$result    = false;
+		$data = $this->get_package_metadata( $package_slug, false );
 
-		if ( ! has_filter( 'upserv_did_whitelist_package' ) ) {
-			$result = (bool) file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-				trailingslashit( $whitelist ) . $filename,
-				wp_json_encode( array( 'timestamp' => time() ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ),
-				FS_CHMOD_FILE
-			);
-		} else {
-			$result = apply_filters( 'upserv_did_whitelist_package', false, $package_slug );
+		if ( ! isset( $data['whitelisted'] ) ) {
+			$data['whitelisted'] = array();
 		}
 
-		do_action(
-			'upserv_whitelist_package',
-			$package_slug,
-			$result
-		);
+		if ( has_filter( 'upserv_whitelist_package_data' ) ) {
+			$data = apply_filters( 'upserv_whitelist_package_data', $data, $package_slug );
+		} else {
+			$data['whitelisted']['local'] = array(
+				true,
+				time(),
+			);
+		}
+
+		$result = $this->set_package_metadata( $package_slug, $data );
+
+		do_action( 'upserv_whitelist_package', $package_slug, $data, $result );
 
 		return $result;
 	}
 
 	public function unwhitelist_package( $package_slug ) {
-		$whitelist = upserv_get_whitelist_data_dir();
-		$filename  = sanitize_file_name( $package_slug . '.json' );
-		$result    = false;
+		$data = $this->get_package_metadata( $package_slug, false );
 
-		if (
-			! has_filter( 'upserv_did_unwhitelist_package' ) &&
-			is_file( trailingslashit( $whitelist ) . $filename )
-		) {
-			WP_Filesystem();
-
-			global $wp_filesystem;
-
-			$result = (bool) $wp_filesystem->delete( trailingslashit( $whitelist ) . $filename );
-		} else {
-			$result = apply_filters( 'upserv_did_unwhitelist_package', false, $package_slug );
+		if ( ! isset( $data['whitelisted'] ) ) {
+			$data['whitelisted'] = array();
 		}
 
-		do_action(
-			'upserv_unwhitelist_package',
-			$package_slug,
-			$result
-		);
+		if ( has_filter( 'upserv_unwhitelist_package_data' ) ) {
+			$data = apply_filters( 'upserv_unwhitelist_package_data', $data, $package_slug );
+		} else {
+			$data['whitelisted']['local'] = array(
+				false,
+				time(),
+			);
+		}
+
+		$result = $this->set_package_metadata( $package_slug, $data );
+
+		do_action( 'upserv_unwhitelist_package', $package_slug, $result );
 
 		return $result;
 	}
 
-	public function get_package_whitelist_info( $package_slug, $json_encode = true ) {
-		$whitelist = upserv_get_whitelist_data_dir();
-		$filename  = sanitize_file_name( $package_slug . '.json' );
-		$data      = $json_encode ? '{}' : array();
+	public function get_package_metadata( $package_slug, $json_encode = false ) {
+		$data = wp_cache_get( 'package_metadata_' . $package_slug, 'updatepulse-server' );
 
-		if (
-			! has_filter( 'upserv_get_package_whitelist_info' ) &&
-			is_file( trailingslashit( $whitelist ) . $filename )
-		) {
-			$data = @file_get_contents( trailingslashit( $whitelist ) . $filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( $data ) {
 
 			if ( ! $json_encode ) {
 				$data = json_decode( $data, true );
 			}
-		} else {
-			$data = apply_filters( 'upserv_get_package_whitelist_info', $data, $package_slug, $json_encode );
+
+			return $data;
+		}
+
+		$dir       = upserv_get_data_dir( 'metadata' );
+		$filename  = sanitize_file_name( $package_slug . '.json' );
+		$file_path = trailingslashit( $dir ) . $filename;
+		$data      = '{}';
+
+		if ( ! has_filter( 'upserv_get_package_metadata' ) && is_file( $file_path ) ) {
+			$data = @file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		} elseif ( has_filter( 'upserv_get_package_metadata' ) ) {
+			$data = apply_filters( 'upserv_get_package_metadata', $data, $package_slug, $json_encode );
+		}
+
+		wp_cache_set( 'package_metadata_' . $package_slug, $data, 'updatepulse-server' );
+
+		if ( ! $json_encode ) {
+			$data = json_decode( $data, true );
 		}
 
 		return $data;
+	}
+
+	public function set_package_metadata( $package_slug, $metadata ) {
+		$dir       = upserv_get_data_dir( 'metadata' );
+		$filename  = sanitize_file_name( $package_slug . '.json' );
+		$file_path = trailingslashit( $dir ) . $filename;
+		$result    = false;
+		$data      = apply_filters( 'set_package_metadata_data', $metadata, $package_slug );
+
+		wp_cache_delete( 'package_metadata_' . $package_slug, 'updatepulse-server' );
+
+		if ( empty( $metadata ) ) {
+
+			if ( ! has_filter( 'upserv_did_delete_package_metadata' ) && is_file( $file_path ) ) {
+				WP_Filesystem();
+
+				global $wp_filesystem;
+
+				$result = (bool) $wp_filesystem->delete( $file_path );
+			} else {
+				$result = apply_filters( 'upserv_did_delete_package_metadata', false, $package_slug );
+			}
+
+			do_action( 'upserv_delete_package_metadata', $package_slug, $result );
+
+			return $result;
+		}
+
+		if ( ! has_filter( 'upserv_did_set_package_metadata' ) ) {
+			$result = (bool) file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				$file_path,
+				wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ),
+				FS_CHMOD_FILE
+			);
+		} else {
+			$result = apply_filters( 'upserv_did_set_package_metadata', false, $package_slug, $data );
+		}
+
+		do_action( 'upserv_set_package_metadata', $package_slug, $data, $result );
+
+		return $result;
 	}
 
 	/*******************************************************************
