@@ -127,11 +127,8 @@ if ( ! function_exists( 'upserv_is_package_whitelisted' ) ) {
 }
 
 if ( ! function_exists( 'upserv_whitelist_package' ) ) {
-	function upserv_whitelist_package( $package_slug, $repository_service_url ) {
-		return Package_Manager::get_instance()->whitelist_package(
-			$package_slug,
-			$repository_service_url
-		);
+	function upserv_whitelist_package( $package_slug ) {
+		return Package_Manager::get_instance()->whitelist_package( $package_slug );
 	}
 }
 

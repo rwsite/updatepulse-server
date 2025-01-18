@@ -36,6 +36,11 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_get\_package\_info](#upserv_get_package_info)
         * [upserv\_get\_batch\_package\_info](#upserv_get_batch_package_info)
         * [upserv\_is\_package\_require\_license](#upserv_is_package_require_license)
+        * [upserv\_get\_whitelist\_data\_dir](#upserv_get_whitelist_data_dir)
+        * [upserv\_is\_package\_whitelisted](#upserv_is_package_whitelisted)
+        * [upserv\_whitelist\_package](#upserv_whitelist_package)
+        * [upserv\_unwhitelist\_package](#upserv_unwhitelist_package)
+        * [upserv\_get\_package\_whitelist\_info](#upserv_get_package_whitelist_info)
     * [Actions](#actions)
         * [upserv\_primed\_package\_from\_remote](#upserv_primed_package_from_remote)
         * [upserv\_did\_manual\_upload\_package](#upserv_did_manual_upload_package)
@@ -86,6 +91,8 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_webhook\_after\_handling\_request](#upserv_webhook_after_handling_request)
         * [upserv\_webhook\_invalid\_request](#upserv_webhook_invalid_request)
         * [upserv\_packages\_table\_cell](#upserv_packages_table_cell)
+        * [upserv\_whitelist\_package](#upserv_whitelist_package-1)
+        * [upserv\_unwhitelist\_package](#upserv_unwhitelist_package-1)
     * [Filters](#filters)
         * [upserv\_submitted\_package\_config](#upserv_submitted_package_config)
         * [upserv\_submitted\_remote\_sources\_config](#upserv_submitted_remote_sources_config)
@@ -139,6 +146,10 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_package\_option\_update](#upserv_package_option_update)
         * [upserv\_remote\_source\_option\_update](#upserv_remote_source_option_update)
         * [upserv\_api\_package\_actions](#upserv_api_package_actions)
+        * [upserv\_is\_package\_whitelisted](#upserv_is_package_whitelisted-1)
+        * [upserv\_did\_whitelist\_package](#upserv_did_whitelist_package)
+        * [upserv\_did\_unwhitelist\_package](#upserv_did_unwhitelist_package)
+        * [upserv\_get\_package\_whitelist\_info](#upserv_get_package_whitelist_info-1)
 
 ## API
 
@@ -1245,7 +1256,7 @@ ___
 ### upserv_get_batch_package_info
 
 ```php
-upserv_get_batch_package_info( $search, $json_encode = true );
+upserv_get_batch_package_info( string $search, bool $json_encode = true );
 ```
 
 **Description**  
@@ -1281,7 +1292,7 @@ ___
 ### upserv_is_package_require_license
 
 ```php
-upserv_is_package_require_license( $package_slug );
+upserv_is_package_require_license( string $package_slug );
 ```
 
 **Description**  
@@ -1293,6 +1304,88 @@ Determine whether a package requires a license key.
 
 **Return value**
 > (bool) `true` if the package requires a license key, `false` otherwise
+
+___
+### upserv_get_whitelist_data_dir
+
+```php
+upserv_get_whitelist_data_dir();
+```
+
+**Description**
+Get the path to the plugin's whitelist directory.
+
+**Return value**
+> (string) the path to the plugin's whitelist directory
+
+___
+### upserv_is_package_whitelisted
+
+```php
+upserv_is_package_whitelisted( string $package_slug );
+```
+
+**Description**
+Determine whether a package is whitelisted.
+
+**Parameters**
+`$package_slug`
+> (string) slug of the package
+
+**Return value**
+> (bool) `true` if the package is whitelisted, `false` otherwise
+
+___
+### upserv_whitelist_package
+
+```php
+upserv_whitelist_package( string $package_slug );
+```
+
+**Description**
+Whitelist a package.
+
+**Parameters**
+`$package_slug`
+> (string) slug of the package
+
+**Return value**
+> (bool) `true` if the package was successfully whitelisted, `false` otherwise
+
+___
+### upserv_unwhitelist_package
+
+```php
+upserv_unwhitelist_package( string $package_slug );
+```
+
+**Description**
+Unwhitelist a package.
+
+**Parameters**
+`$package_slug`
+> (string) slug of the package
+
+**Return value**
+> (bool) `true` if the package was successfully unwhitelisted, `false` otherwise
+
+___
+### upserv_get_package_whitelist_info
+
+```php
+upserv_get_package_whitelist_info( string $package_slug, bool $json_encode = true );
+```
+
+**Description**
+Get information about a whitelisted package.
+
+**Parameters**
+`$package_slug`
+> (string) slug of the package
+
+`$json_encode`
+> (bool) whether to return a JSON object (default) or a PHP associative array
+
 ___
 ## Actions
 
@@ -2178,6 +2271,40 @@ Fired when outputing a table cell in the admin interface where `$column_name` is
 
 `$record_key`
 > (string) the record key  
+
+___
+### upserv_whitelist_package
+
+```php
+do_action( 'upserv_whitelist_package', string $package_slug, bool $result );
+```
+
+**Description**
+Fired after a package has been whitelisted.
+
+**Parameters**
+`$package_slug`
+> (string) the slug of the package
+
+`$result`
+> (bool) `true` if the package was successfully whitelisted, `false` otherwise
+
+___
+### upserv_unwhitelist_package
+
+```php
+do_action( 'upserv_unwhitelist_package', string $package_slug, bool $result );
+```
+
+**Description**
+Fired after a package has been unwhitelisted.
+
+**Parameters**
+`$package_slug`
+> (string) the slug of the package
+
+`$result`
+> (bool) `true` if the package was successfully unwhitelisted, `false` otherwise
 
 ___
 ## Filters
@@ -3155,6 +3282,75 @@ Filter the Package API actions available for API access control.
 **Parameters**  
 `$actions`
 > (array) the API actions  
+___
+### upserv_is_package_whitelisted
+
+```php
+apply_filters( 'upserv_is_package_whitelisted', bool $whitelisted, string $package_slug );
+```
+
+**Description**
+Filter whether the package is whitelisted.
+
+**Parameters**
+`$whitelisted`
+> (bool) whether the package is whitelisted
+
+`$package_slug`
+> (string) the slug of the package
 
 ___
+### upserv_did_whitelist_package
 
+```php
+apply_filters( 'upserv_did_whitelist_package', bool $handled, string $package_slug );
+```
+
+**Description**
+Filter whether the package whitelist operation was handled. Used to alter default whitelisting behavior.
+
+**Parameters**
+`$handled`
+> (bool) whether the package whitelist operation was handled
+
+`$package_slug`
+> (string) the slug of the package
+
+___
+### upserv_did_unwhitelist_package
+
+```php
+apply_filters( 'upserv_did_unwhitelist_package', bool $handled, string $package_slug );
+```
+
+**Description**
+Filter whether the package unwhitelist operation was handled. Used to alter default unwhitelisting behavior.
+
+**Parameters**
+`$handled`
+> (bool) whether the package unwhitelist operation was handled
+
+`$package_slug`
+> (string) the slug of the package
+
+___
+### upserv_get_package_whitelist_info
+
+```php
+apply_filters( 'upserv_get_package_whitelist_info', array $data, string $package_slug, bool $json_encode );
+```
+
+**Description**
+Filter the package whitelist information.
+
+**Parameters**
+`$data`
+> (array) the package whitelist information
+
+`$package_slug`
+> (string) the slug of the package
+
+`$json_encode`
+> (bool) whether to JSON encode the data
+
+___

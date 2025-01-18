@@ -788,28 +788,24 @@ class Package_Manager {
 		);
 	}
 
-	public function whitelist_package( $package_slug, $repository_service_url ) {
+	public function whitelist_package( $package_slug ) {
 		$whitelist = upserv_get_whitelist_data_dir();
 		$filename  = sanitize_file_name( $package_slug . '.json' );
-		$data      = apply_filters(
-			'upserv_whitelist_package_data',
-			array(
-				'repository_service_url' => $repository_service_url,
-				'timestamp'              => time(),
-			),
-			$package_slug
-		);
+		$result    = false;
 
-		$result = (bool) file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-			trailingslashit( $whitelist ) . $filename,
-			wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ),
-			FS_CHMOD_FILE
-		);
+		if ( ! has_filter( 'upserv_did_whitelist_package' ) ) {
+			$result = (bool) file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				trailingslashit( $whitelist ) . $filename,
+				wp_json_encode( array( 'timestamp' => time() ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ),
+				FS_CHMOD_FILE
+			);
+		} else {
+			$result = apply_filters( 'upserv_did_whitelist_package', false, $package_slug );
+		}
 
 		do_action(
 			'upserv_whitelist_package',
 			$package_slug,
-			$repository_service_url,
 			$result
 		);
 
@@ -819,12 +815,20 @@ class Package_Manager {
 	public function unwhitelist_package( $package_slug ) {
 		$whitelist = upserv_get_whitelist_data_dir();
 		$filename  = sanitize_file_name( $package_slug . '.json' );
+		$result    = false;
 
-		WP_Filesystem();
+		if (
+			! has_filter( 'upserv_did_unwhitelist_package' ) &&
+			is_file( trailingslashit( $whitelist ) . $filename )
+		) {
+			WP_Filesystem();
 
-		global $wp_filesystem;
+			global $wp_filesystem;
 
-		$result = (bool) $wp_filesystem->delete( trailingslashit( $whitelist ) . $filename );
+			$result = (bool) $wp_filesystem->delete( trailingslashit( $whitelist ) . $filename );
+		} else {
+			$result = apply_filters( 'upserv_did_unwhitelist_package', false, $package_slug );
+		}
 
 		do_action(
 			'upserv_unwhitelist_package',
@@ -840,19 +844,20 @@ class Package_Manager {
 		$filename  = sanitize_file_name( $package_slug . '.json' );
 		$data      = $json_encode ? '{}' : array();
 
-		if ( is_file( trailingslashit( $whitelist ) . $filename ) ) {
+		if (
+			! has_filter( 'upserv_get_package_whitelist_info' ) &&
+			is_file( trailingslashit( $whitelist ) . $filename )
+		) {
 			$data = @file_get_contents( trailingslashit( $whitelist ) . $filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 
 			if ( ! $json_encode ) {
 				$data = json_decode( $data, true );
 			}
+		} else {
+			$data = apply_filters( 'upserv_get_package_whitelist_info', $data, $package_slug, $json_encode );
 		}
 
-		return apply_filters(
-			'upserv_get_package_whitelist_info',
-			$data,
-			$package_slug
-		);
+		return $data;
 	}
 
 	/*******************************************************************
