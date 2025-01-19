@@ -142,7 +142,7 @@ class Update_API {
 				'use_remote_repository'          => (bool) get_option( 'upserv_use_remote_repository' ),
 				'server_directory'               => Data_Manager::get_data_dir(),
 				'repository_service_url'         => get_option( 'upserv_remote_repository_url' ),
-				'repository_branch'              => get_option( 'upserv_remote_repository_branch', 'master' ),
+				'repository_branch'              => get_option( 'upserv_remote_repository_branch', 'main' ),
 				'repository_credentials'         => explode( '|', get_option( 'upserv_remote_repository_credentials' ) ),
 				'repository_service_self_hosted' => (bool) get_option( 'upserv_remote_repository_self_hosted' ),
 				'repository_filter_packages'     => (bool) get_option( 'upserv_remote_repository_filter_packages' ),

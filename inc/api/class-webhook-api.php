@@ -143,7 +143,7 @@ class Webhook_API {
 		if ( ! self::$config ) {
 			$config = array(
 				'use_webhooks'           => (bool) get_option( 'upserv_remote_repository_use_webhooks' ),
-				'repository_branch'      => get_option( 'upserv_remote_repository_branch', 'master' ),
+				'repository_branch'      => get_option( 'upserv_remote_repository_branch', 'main' ),
 				'repository_check_delay' => intval( get_option( 'upserv_remote_repository_check_delay', 0 ) ),
 				'webhook_secret'         => get_option( 'upserv_remote_repository_webhook_secret' ),
 			);
