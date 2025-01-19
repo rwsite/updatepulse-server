@@ -276,7 +276,7 @@ class License_Manager {
 		$licenses_table = $this->licenses_table;
 		$notices        = $this->plugin_options_handler();
 		$options        = array(
-			'use_licenses' => get_option( 'upserv_use_licenses', 0 ),
+			'use_licenses' => upserv_get_option( 'use_licenses', 0 ),
 		);
 
 		$licenses_table->prepare_items();
@@ -354,8 +354,9 @@ class License_Manager {
 	}
 
 	protected function plugin_options_handler() {
-		$errors = array();
-		$result = false;
+		$errors  = array();
+		$result  = false;
+		$to_save = array();
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -376,7 +377,7 @@ class License_Manager {
 				}
 
 				if ( $condition ) {
-					update_option( $option_name, $option_info['value'] );
+					$to_save[ $option_info['path'] ] = $option_info['value'];
 				} else {
 					$errors[ $option_name ] = sprintf(
 						// translators: %1$s is the option display name, %2$s is the condition for update
@@ -385,6 +386,16 @@ class License_Manager {
 						$option_info['failure_display_message']
 					);
 				}
+			}
+
+			if ( ! empty( $to_save ) ) {
+				$to_update = array();
+
+				foreach ( $to_save as $path => $value ) {
+					$to_update = upserv_set_option( $path, $value );
+				}
+
+				upserv_update_options( $to_update );
 			}
 		} elseif (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -409,6 +420,7 @@ class License_Manager {
 					'value'        => filter_input( INPUT_POST, 'upserv_use_licenses', FILTER_VALIDATE_BOOLEAN ),
 					'display_name' => __( 'Enable Package Licenses', 'updatepulse-server' ),
 					'condition'    => 'boolean',
+					'path'         => 'use_licenses',
 				),
 			)
 		);
