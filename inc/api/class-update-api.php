@@ -139,14 +139,14 @@ class Update_API {
 
 		if ( ! self::$config ) {
 			$config = array(
-				'use_remote_repository'          => (bool) get_option( 'upserv_use_remote_repository' ),
-				'server_directory'               => Data_Manager::get_data_dir(),
-				'repository_service_url'         => get_option( 'upserv_remote_repository_url' ),
-				'repository_branch'              => get_option( 'upserv_remote_repository_branch', 'main' ),
-				'repository_credentials'         => explode( '|', get_option( 'upserv_remote_repository_credentials' ) ),
-				'repository_service_self_hosted' => (bool) get_option( 'upserv_remote_repository_self_hosted' ),
-				'repository_filter_packages'     => (bool) get_option( 'upserv_remote_repository_filter_packages' ),
-				'repository_check_frequency'     => get_option( 'upserv_remote_repository_check_frequency', 'daily' ),
+				'use_remote_repository' => (bool) get_option( 'upserv_use_remote_repository' ),
+				'server_directory'      => Data_Manager::get_data_dir(),
+				'url'                   => get_option( 'upserv_remote_repository_url' ),
+				'branch'                => get_option( 'upserv_remote_repository_branch', 'main' ),
+				'credentials'           => explode( '|', get_option( 'upserv_remote_repository_credentials' ) ),
+				'self_hosted'           => (bool) get_option( 'upserv_remote_repository_self_hosted' ),
+				'filter_packages'       => (bool) get_option( 'upserv_remote_repository_filter_packages' ),
+				'check_frequency'       => get_option( 'upserv_remote_repository_check_frequency', 'daily' ),
 			);
 
 			$is_valid_schedule = in_array(
@@ -240,7 +240,7 @@ class Update_API {
 		if (
 			apply_filters( 'upserv_use_recurring_schedule', true ) &&
 			$config['use_remote_repository'] &&
-			$config['repository_service_url']
+			$config['url']
 		) {
 			$hook   = 'upserv_check_remote_' . $slug;
 			$params = array( $slug, null, false );
@@ -292,9 +292,9 @@ class Update_API {
 	protected function init_server( $slug ) {
 		$config      = self::get_config();
 		$meta        = upserv_get_package_metadata( $slug );
-		$url         = isset( $meta['repository_service_url'] ) ?
-			$meta['repository_service_url'] :
-			$config['repository_service_url'];
+		$url         = isset( $meta['url'] ) ?
+			$meta['url'] :
+			$config['url'];
 		$_class_name = apply_filters(
 			'upserv_server_class_name',
 			str_replace( 'API', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
@@ -310,7 +310,7 @@ class Update_API {
 				$url,
 				$config['repository_branch'],
 				$config['repository_credentials'],
-				$config['repository_service_self_hosted'],
+				$config['self_hosted'],
 			);
 		}
 

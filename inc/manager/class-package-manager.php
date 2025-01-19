@@ -201,7 +201,7 @@ class Package_Manager {
 
 		if ( wp_cache_get( 'upserv_download_remote_package_aborted', 'updatepulse-server' ) ) {
 			$api_config = Update_API::get_instance()->get_config();
-			$error      = $api_config['repository_filter_packages'] ?
+			$error      = $api_config['filter_packages'] ?
 				new WP_Error(
 					__METHOD__,
 					__( 'Error - could not get remote package. The package was filtered out because it is not linked to this server.', 'updatepulse-server' )
