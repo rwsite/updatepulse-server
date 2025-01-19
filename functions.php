@@ -13,6 +13,10 @@ use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Package_Manager;
 use Anyape\UpdatePulse\Server\UPServ;
 
+/*******************************************************************
+ * Utility functions
+ *******************************************************************/
+
 if ( ! function_exists( 'php_log' ) ) {
 	function php_log( $message = '', $prefix = '' ) {
 		$prefix   = $prefix ? ' ' . $prefix . ' => ' : ' => ';
@@ -49,6 +53,10 @@ if ( ! function_exists( 'upserv_assets_suffix' ) ) {
 		return (bool) ( constant( 'WP_DEBUG' ) ) ? '' : '.min';
 	}
 }
+
+/*******************************************************************
+ * Doing API functions
+ *******************************************************************/
 
 if ( ! function_exists( 'upserv_is_doing_license_api_request' ) ) {
 	function upserv_is_doing_license_api_request() {
@@ -90,6 +98,10 @@ if ( ! function_exists( 'upserv_is_doing_api_request' ) ) {
 	}
 }
 
+/*******************************************************************
+ * Data ditectories functions
+ *******************************************************************/
+
 if ( ! function_exists( 'upserv_get_data_dir' ) ) {
 	function upserv_get_data_dir( $dir ) {
 		return Data_Manager::get_data_dir( $dir );
@@ -120,6 +132,16 @@ if ( ! function_exists( 'upserv_get_cache_data_dir' ) ) {
 	}
 }
 
+if ( ! function_exists( 'upserv_get_package_metadata_data_dir' ) ) {
+	function upserv_get_package_metadata_data_dir() {
+		return Data_Manager::get_data_dir( 'metadata' );
+	}
+}
+
+/*******************************************************************
+ * Whitelisting functions
+ *******************************************************************/
+
 if ( ! function_exists( 'upserv_is_package_whitelisted' ) ) {
 	function upserv_is_package_whitelisted( $package_slug ) {
 		return Package_Manager::get_instance()->is_package_whitelisted( $package_slug );
@@ -138,11 +160,9 @@ if ( ! function_exists( 'upserv_unwhitelist_package' ) ) {
 	}
 }
 
-if ( ! function_exists( 'upserv_get_package_metadata_data_dir' ) ) {
-	function upserv_get_package_metadata_data_dir() {
-		return Data_Manager::get_data_dir( 'metadata' );
-	}
-}
+/*******************************************************************
+ * Package Metadata functions
+ *******************************************************************/
 
 if ( ! function_exists( 'upserv_get_package_metadata' ) ) {
 	function upserv_get_package_metadata( $package_slug, $json_encode = false ) {
@@ -162,6 +182,10 @@ if ( ! function_exists( 'upserv_set_package_metadata' ) ) {
 	}
 }
 
+/*******************************************************************
+ * Cleanup functions
+ *******************************************************************/
+
 if ( ! function_exists( 'upserv_force_cleanup_cache' ) ) {
 	function upserv_force_cleanup_cache() {
 		return Data_Manager::maybe_cleanup( 'cache', true );
@@ -179,6 +203,10 @@ if ( ! function_exists( 'upserv_force_cleanup_tmp' ) ) {
 		return Data_Manager::maybe_cleanup( 'tmp', true );
 	}
 }
+
+/*******************************************************************
+ * Remote Repository Packages functions
+ *******************************************************************/
 
 if ( ! function_exists( 'upserv_check_remote_plugin_update' ) ) {
 	function upserv_check_remote_plugin_update( $slug ) {
@@ -219,6 +247,10 @@ if ( ! function_exists( 'upserv_download_remote_package' ) ) {
 		return $api->download_remote_package( $slug, $type, true );
 	}
 }
+
+/*******************************************************************
+ * Package functions
+ *******************************************************************/
 
 if ( ! function_exists( 'upserv_delete_package' ) ) {
 	function upserv_delete_package( $slug ) {
@@ -295,6 +327,10 @@ if ( ! function_exists( 'upserv_get_local_package_path' ) ) {
 		return false;
 	}
 }
+
+/*******************************************************************
+ * Licenses functions
+ *******************************************************************/
 
 if ( ! function_exists( 'upserv_browse_licenses' ) ) {
 	function upserv_browse_licenses( $license_query ) {
@@ -384,6 +420,10 @@ if ( ! function_exists( 'upserv_deactivate_license' ) ) {
 	}
 }
 
+/*******************************************************************
+ * Template functions
+ *******************************************************************/
+
 if ( ! function_exists( 'upserv_get_template' ) ) {
 	function upserv_get_template( $template_name, $args = array(), $load = true, $require_file = false ) {
 		$template_name = apply_filters( 'upserv_get_template_name', $template_name, $args );
@@ -419,6 +459,10 @@ if ( ! function_exists( 'upserv_get_admin_template' ) ) {
 		return UPServ::locate_admin_template( $template_name, $load, $require_file );
 	}
 }
+
+/*******************************************************************
+ * Nonce functions
+ *******************************************************************/
 
 if ( ! function_exists( 'upserv_init_nonce_auth' ) ) {
 	function upserv_init_nonce_auth( $private_auth_key ) {
@@ -500,6 +544,10 @@ if ( ! function_exists( 'upserv_build_nonce_api_signature' ) ) {
 		);
 	}
 }
+
+/*******************************************************************
+ * Webhook functions
+ *******************************************************************/
 
 if ( ! function_exists( 'upserv_schedule_webhook' ) ) {
 	function upserv_schedule_webhook( $payload, $event_type, $instant = false ) {
