@@ -8,13 +8,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Exception;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Manager\Package_Manager;
 use Anyape\UpdatePulse\Server\Manager\Remote_Sources_Manager;
 
 class UPServ {
 
 	protected static $instance;
+	protected static $default_options;
+	protected static $options;
 
 	public function __construct( $init_hooks = false ) {
+		self::$default_options = array(
+			'use_remote_repositories' => 0,
+			'use_licenses'            => 0,
+			'use_cloud_storage'       => 0,
+			'remote_repositories'     => (object) array(),
+			'api'                     => array(
+				'webhooks' => (object) array(),
+				'licenses' => array(
+					'private_api_keys'         => (object) array(),
+					'private_api_ip_whitelist' => array(),
+				),
+				'packages' => array(
+					'private_api_keys'         => (object) array(),
+					'private_api_ip_whitelist' => array(),
+				),
+			),
+			'cloud_storage'           => array(
+				'access_key' => '',
+				'secret_key' => '',
+				'endpoint'   => '',
+				'unit'       => '',
+				'region'     => 'auto',
+			),
+			'limits'                  => array(
+				'archive_max_size' => Package_Manager::DEFAULT_ARCHIVE_MAX_SIZE,
+				'cache_max_size'   => Package_Manager::DEFAULT_CACHE_MAX_SIZE,
+				'logs_max_size'    => Package_Manager::DEFAULT_LOGS_MAX_SIZE,
+			),
+		);
+		self::$options         = $this->get_options();
 
 		if ( $init_hooks ) {
 
@@ -86,6 +119,12 @@ class UPServ {
 			update_option( 'upserv_plugin_version', $version );
 		}
 
+		if ( ! get_option( 'upserv_options' ) ) {
+			$instance = self::get_instance();
+
+			$instance->update_options( self::$default_options );
+		}
+
 		set_transient( 'upserv_flush', 1, 60 );
 
 		$result = Data_Manager::maybe_setup_directories();
@@ -121,6 +160,59 @@ class UPServ {
 
 	public static function uninstall() {
 		require_once UPSERV_PLUGIN_PATH . 'uninstall.php';
+	}
+
+	public function get_options() {
+		$options = get_option( 'upserv_options' );
+		$options = json_decode( $options, true );
+		$options = $options ? $options : array();
+		$options = array_merge( self::$default_options, $options );
+
+		return apply_filters( 'upserv_get_options', $options );
+	}
+
+	public function update_options( $options ) {
+		$options = array_merge( self::$options, $options );
+		$options = apply_filters( 'upserv_update_options', $options );
+		$result  = update_option(
+			'upserv_options',
+			wp_json_encode(
+				$options,
+				JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
+			),
+			true
+		);
+
+		if ( $result ) {
+			self::$options = $this->get_options();
+		}
+
+		return $result;
+	}
+
+	public function get_option( $path ) {
+		$options = $this->get_options();
+		$option  = access_nested_array( $options, $path );
+
+		return apply_filters( 'upserv_get_option', $option, $path );
+	}
+
+	public function set_option( $path, $value ) {
+		$options = self::$options;
+
+		access_nested_array( $options, $path, $value, true );
+
+		self::$options = $options;
+
+		return self::$options;
+	}
+
+	public function update_option( $path, $value ) {
+		$options = $this->get_options();
+
+		access_nested_array( $options, $path, $value, true );
+
+		return $this->update_options( $options );
 	}
 
 	public function init() {

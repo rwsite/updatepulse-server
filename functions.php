@@ -48,6 +48,67 @@ if ( ! function_exists( 'cidr_match' ) ) {
 	}
 }
 
+if ( ! function_exists( 'access_nested_array' ) ) {
+	function access_nested_array( &$_array, $path, $value = null, $update = false ) {
+		$keys    = explode( '/', $path );
+		$current = &$_array;
+
+		foreach ( $keys as $key ) {
+
+			if ( ! isset( $current[ $key ] ) ) {
+
+				if ( $update ) {
+					$current[ $key ] = array();
+				} else {
+					return null;
+				}
+			}
+
+			$current = &$current[ $key ];
+		}
+
+		if ( $update ) {
+			$current = $value;
+		}
+
+		return $current;
+	}
+}
+
+/*******************************************************************
+ * Options functions
+ *******************************************************************/
+
+if ( ! function_exists( 'upserv_get_options' ) ) {
+	function upserv_get_options() {
+		return UPServ::get_instance()->get_options();
+	}
+}
+
+if ( ! function_exists( 'upserv_update_options' ) ) {
+	function upserv_update_options( $options ) {
+		return UPServ::get_instance()->update_options( $options );
+	}
+}
+
+if ( ! function_exists( 'upserv_get_option' ) ) {
+	function upserv_get_option( $path ) {
+		return UPServ::get_instance()->get_option( $path );
+	}
+}
+
+if ( ! function_exists( 'upserv_set_option' ) ) {
+	function upserv_set_option( $path, $value ) {
+		return UPServ::get_instance()->set_option( $path, $value );
+	}
+}
+
+if ( ! function_exists( 'upserv_update_option' ) ) {
+	function upserv_update_option( $path, $value ) {
+		return UPServ::get_instance()->update_option( $path, $value );
+	}
+}
+
 if ( ! function_exists( 'upserv_assets_suffix' ) ) {
 	function upserv_assets_suffix() {
 		return (bool) ( constant( 'WP_DEBUG' ) ) ? '' : '.min';
