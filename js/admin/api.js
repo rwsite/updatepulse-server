@@ -45,7 +45,10 @@ jQuery(document).ready(function ($) {
                 }
             }
 
-            data[urlNew.val()] = {
+            var index = btoa(urlNew.val().trim()).replace(/\//g, '|');
+
+            data[index] = {
+                'url': urlNew.val(),
                 'secret': secretNew.val(),
                 'licenseAPIKey': 'UPDATEPULSE_L_' + licenseAPIKeyNew.val().replace(/^UPDATEPULSE_L_/, ''),
                 'events': []
@@ -73,7 +76,7 @@ jQuery(document).ready(function ($) {
                 checkbox = $(checkbox);
 
                 if ('all' !== checkbox.data('webhook-event') && checkbox.prop('checked')) {
-                    data[urlNew.val()].events.push(checkbox.data('webhook-event'));
+                    data[index].events.push(checkbox.data('webhook-event'));
                 }
             });
 
@@ -114,7 +117,7 @@ jQuery(document).ready(function ($) {
                 } else {
                     var messageParts = { package: '', license: '' };
 
-                    ['package', 'license'].forEach(function (val, index) {
+                    ['package', 'license'].forEach(function (val, indexType) {
                         var type = ('package' === val) ? UPServAdminMain_l10n.eventApiTypePackage : UPServAdminMain_l10n.eventApiTypeLicense;
 
                         if (events.includes(val)) {
@@ -136,8 +139,8 @@ jQuery(document).ready(function ($) {
                 }
 
                 itemContainer.className = 'item';
-                urlText.textContent = index;
-                urlText.title = index;
+                urlText.textContent = data[index].url;
+                urlText.title = data[index].url;
                 urlText.classList = 'url';
                 secretText.textContent = data[index].secret;
                 secretText.classList = 'secret';

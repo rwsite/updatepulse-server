@@ -148,27 +148,37 @@ class API_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
+
 		$options = array(
-			'package_private_api_keys'         => get_option(
-				'upserv_package_private_api_keys',
-				'{}'
+			'package_private_api_keys'         => wp_json_encode(
+				upserv_get_option(
+					'api/packages/private_api_keys',
+					(object) array()
+				)
 			),
-			'package_private_api_ip_whitelist' => get_option(
-				'upserv_package_private_api_ip_whitelist',
+			'package_private_api_ip_whitelist' => upserv_get_option(
+				'api/packages/private_api_ip_whitelist',
 				array()
 			),
-			'license_private_api_keys'         => get_option(
-				'upserv_license_private_api_keys',
-				'{}'
+			'license_private_api_keys'         => wp_json_encode(
+				upserv_get_option(
+					'api/licenses/private_api_keys',
+					(object) array()
+				)
 			),
-			'license_private_api_ip_whitelist' => get_option(
-				'upserv_license_private_api_ip_whitelist',
+			'license_private_api_ip_whitelist' => upserv_get_option(
+				'api/licenses/private_api_ip_whitelist',
 				array()
 			),
-			'webhooks'                         => get_option( 'upserv_webhooks', '{}' ),
+			'webhooks'                         => wp_json_encode(
+				upserv_get_option(
+					'api/webhooks',
+					(object) array(),
+				)
+			),
 		);
 
-		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 		upserv_get_admin_template(
 			'plugin-api-page.php',
 			array(
@@ -203,8 +213,9 @@ class API_Manager {
 	 *******************************************************************/
 
 	protected function plugin_options_handler() {
-		$errors = array();
-		$result = '';
+		$errors  = array();
+		$result  = '';
+		$to_save = array();
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -221,7 +232,9 @@ class API_Manager {
 					if ( 'ip-list' === $option_info['condition'] ) {
 						$condition = true;
 
-						if ( ! empty( $option_info['value'] ) ) {
+						if ( empty( $option_info['value'] ) ) {
+							$option_info['value'] = array();
+						} else {
 							$option_info['value'] = array_filter( array_map( 'trim', explode( "\n", $option_info['value'] ) ) );
 							$option_info['value'] = array_unique(
 								array_map(
@@ -231,8 +244,6 @@ class API_Manager {
 									$option_info['value']
 								)
 							);
-						} else {
-							$option_info['value'] = array();
 						}
 					} elseif ( 'api-keys' === $option_info['condition'] ) {
 						$inputs = json_decode( $option_info['value'], true );
@@ -245,7 +256,7 @@ class API_Manager {
 						}
 
 						if ( empty( $option_info['value'] ) || json_last_error() ) {
-							$option_info['value'] = '{}';
+							$option_info['value'] = (object) array();
 						} else {
 							$filtered = array();
 
@@ -281,10 +292,7 @@ class API_Manager {
 								);
 							}
 
-							$option_info['value'] = wp_json_encode(
-								$filtered,
-								JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-							);
+							$option_info['value'] = $filtered;
 						}
 					}
 				}
@@ -298,15 +306,13 @@ class API_Manager {
 				);
 
 				if ( $condition ) {
-					$option_info['value'] = apply_filters(
+					$to_save[ $option_info['path'] ] = apply_filters(
 						'upserv_api_option_save_value',
 						$option_info['value'],
 						$option_name,
 						$option_info,
 						$options
 					);
-
-					update_option( $option_name, $option_info['value'] );
 				} else {
 					$errors[ $option_name ] = sprintf(
 						// translators: %1$s is the option display name, %2$s is the condition for update
@@ -315,6 +321,16 @@ class API_Manager {
 						$option_info['failure_display_message']
 					);
 				}
+			}
+
+			if ( ! empty( $to_save ) ) {
+				$to_update = array();
+
+				foreach ( $to_save as $path => $value ) {
+					$to_update = upserv_set_option( $path, $value );
+				}
+
+				upserv_update_options( $to_update );
 			}
 		} elseif (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -341,20 +357,24 @@ class API_Manager {
 					'display_name'            => __( 'Package API Authentication Keys', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
 					'condition'               => 'api-keys',
+					'path'                    => 'api/packages/private_api_keys',
 				),
 				'upserv_package_private_api_ip_whitelist' => array(
 					'value'     => filter_input( INPUT_POST, 'upserv_package_private_api_ip_whitelist', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'condition' => 'ip-list',
+					'path'      => 'api/packages/private_api_ip_whitelist',
 				),
 				'upserv_license_private_api_keys'         => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_license_private_api_keys', FILTER_UNSAFE_RAW ),
 					'display_name'            => __( 'Private API Authentication Key', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'api-keys',
+					'path'                    => 'api/licenses/private_api_keys',
 				),
 				'upserv_license_private_api_ip_whitelist' => array(
 					'value'     => filter_input( INPUT_POST, 'upserv_license_private_api_ip_whitelist', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'condition' => 'ip-list',
+					'path'      => 'api/licenses/private_api_ip_whitelist',
 				),
 			)
 		);

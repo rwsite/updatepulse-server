@@ -22,6 +22,8 @@ class Webhook_Manager {
 			add_filter( 'upserv_page_upserv_scripts_l10n', array( $this, 'upserv_page_upserv_scripts_l10n' ), 10, 1 );
 			add_filter( 'upserv_use_recurring_schedule', array( $this, 'upserv_use_recurring_schedule' ), 10, 1 );
 			add_filter( 'upserv_need_reschedule_remote_check_recurring_events', array( $this, 'upserv_need_reschedule_remote_check_recurring_events' ), 10, 1 );
+			add_filter( 'upserv_api_option_update', array( $this, 'upserv_api_option_update' ), 10, 3 );
+			add_filter( 'upserv_api_option_save_value', array( $this, 'upserv_api_option_save_value' ), 10, 4 );
 		}
 	}
 
@@ -73,18 +75,21 @@ class Webhook_Manager {
 					'value'        => filter_input( INPUT_POST, 'upserv_remote_repository_use_webhooks', FILTER_VALIDATE_BOOLEAN ),
 					'display_name' => __( 'Use Webhooks', 'updatepulse-server' ),
 					'condition'    => 'boolean',
+					'path'         => 'use_webhooks',
 				),
 				'upserv_remote_repository_check_delay'    => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_check_delay', FILTER_UNSAFE_RAW ),
 					'display_name'            => __( 'Remote download delay', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid option', 'updatepulse-server' ),
 					'condition'               => 'positive number',
+					'path'                    => 'check_delay',
 				),
 				'upserv_remote_repository_webhook_secret' => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_webhook_secret', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Remote repository Webhook Secret', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'non-empty',
+					'path'                    => 'webhook_secret',
 				),
 			)
 		);
@@ -136,6 +141,7 @@ class Webhook_Manager {
 					'display_name'            => __( 'Webhooks', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
 					'condition'               => 'webhooks',
+					'path'                    => 'api/webhooks',
 				),
 			)
 		);
@@ -149,12 +155,16 @@ class Webhook_Manager {
 			$inputs = json_decode( $option_info['value'], true );
 
 			if ( empty( $option_info['value'] ) || json_last_error() ) {
-				$option_info['value'] = '{}';
+				$option_info['value'] = (object) array();
 			} else {
 				$filtered = array();
 
-				foreach ( $inputs as $url => $values ) {
-					$url             = filter_var( $url, FILTER_SANITIZE_URL );
+				foreach ( $inputs as $index => $values ) {
+					$check_url       = base64_decode( str_replace( '|', '/', $index ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+					$url             = filter_var(
+						isset( $values['url'] ) ? $values['url'] : false,
+						FILTER_SANITIZE_URL
+					);
 					$events          = filter_var(
 						isset( $values['events'] ) ? $values['events'] : array(),
 						FILTER_SANITIZE_FULL_SPECIAL_CHARS,
@@ -169,34 +179,48 @@ class Webhook_Manager {
 						FILTER_SANITIZE_FULL_SPECIAL_CHARS
 					);
 
-					if ( ! $url || empty( $events ) || ! $secret ) {
-						$filtered = new stdClass();
+					if ( ! $url || $check_url !== $url || empty( $events ) || ! $secret ) {
+						$filtered = (object) array();
 
 						break;
 					}
 
-					$filtered[ $url ] = array(
+					$filtered[ $check_url ] = array(
+						'url'           => $url,
 						'secret'        => $secret,
 						'events'        => $events,
 						'licenseAPIKey' => $license_api_key,
 					);
 				}
 
-				$option_info['value'] = wp_json_encode(
-					$filtered,
-					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-				);
+				$option_info['value'] = $filtered;
 			}
 		}
+
+		wp_cache_set( 'upserv_webhooks_option_before_save', $option_info['value'], 'updatepulse-server' );
 
 		return $condition;
 	}
 
+	public function upserv_api_option_save_value( $value, $option_name, $option_info, $old_value ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+
+		if ( 'webhooks' === $option_info['condition'] ) {
+			$value = wp_cache_get( 'upserv_webhooks_option_before_save', 'updatepulse-server' );
+
+			wp_cache_delete( 'upserv_webhooks_option_before_save', 'updatepulse-server' );
+		}
+
+		return $value;
+	}
+
 	public function upserv_template_remote_source_manager_option_before_recurring_check() {
-		$options = array(
-			'use_webhooks'   => get_option( 'upserv_remote_repository_use_webhooks' ),
-			'check_delay'    => get_option( 'upserv_remote_repository_check_delay', 0 ),
-			'webhook_secret' => get_option( 'upserv_remote_repository_webhook_secret', 'repository_webhook_secret' ),
+		$repo_config = upserv_get_option( 'remote_repositories', array() );
+		$idx         = array_key_first( $repo_config );
+		$repo_config = $repo_config[ $idx ];
+		$options     = array(
+			'use_webhooks'   => $repo_config['use_webhooks'],
+			'check_delay'    => $repo_config['check_delay'],
+			'webhook_secret' => $repo_config['webhook_secret'],
 		);
 
 		upserv_get_admin_template(
