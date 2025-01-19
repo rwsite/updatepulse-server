@@ -161,13 +161,13 @@ class Update_API {
 				update_option( 'upserv_remote_repository_check_frequency', 'daily' );
 			}
 
-			if ( 1 < count( $config['repository_credentials'] ) ) {
+			if ( 2 === count( $config['repository_credentials'] ) ) {
 				$config['repository_credentials'] = array(
-					'consumer_key'    => reset( $config['repository_credentials'] ),
-					'consumer_secret' => end( $config['repository_credentials'] ),
+					'consumer_key'    => $config['repository_credentials'][0],
+					'consumer_secret' => $config['repository_credentials'][1],
 				);
 			} else {
-				$config['repository_credentials'] = reset( $config['repository_credentials'] );
+				$config['repository_credentials'] = $config['repository_credentials'][0];
 			}
 
 			self::$config = $config;
