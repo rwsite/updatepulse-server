@@ -383,12 +383,13 @@ class Package_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
+
 		$package_rows = $this->get_batch_package_info();
 
 		$this->packages_table->set_rows( $package_rows );
 		$this->packages_table->prepare_items();
 
-		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 		upserv_get_admin_template(
 			'plugin-packages-page.php',
 			array(

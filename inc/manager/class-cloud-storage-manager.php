@@ -23,6 +23,7 @@ class Cloud_Storage_Manager {
 	protected static $config;
 	protected static $cloud_storage;
 	protected static $virtual_dir;
+	protected static $hooks = array();
 
 	protected $doing_redirect = false;
 
@@ -57,36 +58,85 @@ class Cloud_Storage_Manager {
 				add_filter( 'upserv_package_option_update', array( $this, 'upserv_package_option_update' ), 10, 4 );
 			}
 
-			if ( get_option( 'upserv_use_cloud_storage' ) ) {
-				add_action( 'upserv_saved_remote_package_to_local', array( $this, 'upserv_saved_remote_package_to_local' ), 10, 3 );
-				add_action( 'upserv_find_package_no_cache', array( $this, 'upserv_find_package_no_cache' ), 10, 3 );
-				add_action( 'upserv_update_server_action_download', array( $this, 'upserv_update_server_action_download' ), 10, 1 );
-				add_action( 'upserv_after_packages_download', array( $this, 'upserv_after_packages_download' ), 10, 2 );
-				add_action( 'upserv_before_packages_download_repack', array( $this, 'upserv_before_packages_download_repack' ), 10, 3 );
-				add_action( 'upserv_before_packages_download', array( $this, 'upserv_before_packages_download' ), 10, 3 );
-				add_action( 'upserv_did_manual_upload_package', array( $this, 'upserv_did_manual_upload_package' ), 10, 3 );
-				add_action( 'upserv_package_api_request', array( $this, 'upserv_package_api_request' ), 10, 2 );
-
-				add_filter( 'upserv_save_remote_to_local', array( $this, 'upserv_save_remote_to_local' ), 10, 4 );
-				add_filter( 'upserv_check_remote_package_update_local_meta', array( $this, 'upserv_check_remote_package_update_local_meta' ), 10, 3 );
-				add_filter( 'upserv_zip_metadata_parser_cache_key', array( $this, 'upserv_zip_metadata_parser_cache_key' ), 10, 3 );
-				add_filter( 'upserv_package_manager_get_batch_package_info', array( $this, 'upserv_package_manager_get_batch_package_info' ), 10, 2 );
-				add_filter( 'upserv_package_manager_get_package_info', array( $this, 'upserv_package_manager_get_package_info' ), 10, 2 );
-				add_filter( 'upserv_update_server_action_download_handled', array( $this, 'upserv_update_server_action_download_handled' ), 10 );
-				add_filter( 'upserv_remote_sources_manager_get_package_slugs', array( $this, 'upserv_remote_sources_manager_get_package_slugs' ), 10, 4 );
-				add_filter( 'upserv_remove_package_result', array( $this, 'upserv_remove_package_result' ), 10, 3 );
-				add_filter( 'upserv_delete_packages_bulk_paths', array( $this, 'upserv_delete_packages_bulk_paths' ), 10, 1 );
-				add_filter( 'upserv_webhook_package_exists', array( $this, 'upserv_webhook_package_exists' ), 10, 3 );
-				add_filter( 'upserv_get_admin_template_args', array( $this, 'upserv_get_admin_template_args' ), 10, 2 );
-				add_filter( 'upserv_is_package_whitelisted', array( $this, 'upserv_is_package_whitelisted' ), 10, 2 );
-				add_filter( 'upserv_whitelist_package_data', array( $this, 'upserv_whitelist_package_data' ), 10, 2 );
+			if ( $config['use_cloud_storage'] ) {
+				$this->add_hooks();
+			} else {
+				$this->remove_hooks();
 			}
 		}
 	}
 
-	public static function get_config() {
+	protected function add_hooks() {
 
-		if ( ! self::$config ) {
+		if ( ! empty( self::$hooks ) ) {
+			return;
+		}
+
+		self::$hooks = array(
+			'actions' => array(
+				array( 'upserv_saved_remote_package_to_local', 'upserv_saved_remote_package_to_local', 10, 3 ),
+				array( 'upserv_find_package_no_cache', 'upserv_find_package_no_cache', 10, 3 ),
+				array( 'upserv_update_server_action_download', 'upserv_update_server_action_download', 10, 1 ),
+				array( 'upserv_after_packages_download', 'upserv_after_packages_download', 10, 2 ),
+				array( 'upserv_before_packages_download_repack', 'upserv_before_packages_download_repack', 10, 3 ),
+				array( 'upserv_before_packages_download', 'upserv_before_packages_download', 10, 3 ),
+				array( 'upserv_did_manual_upload_package', 'upserv_did_manual_upload_package', 10, 3 ),
+				array( 'upserv_package_api_request', 'upserv_package_api_request', 10, 2 ),
+			),
+			'filters' => array(
+				array( 'upserv_save_remote_to_local', 'upserv_save_remote_to_local', 10, 4 ),
+				array( 'upserv_check_remote_package_update_local_meta', 'upserv_check_remote_package_update_local_meta', 10, 3 ),
+				array( 'upserv_zip_metadata_parser_cache_key', 'upserv_zip_metadata_parser_cache_key', 10, 3 ),
+				array( 'upserv_package_manager_get_batch_package_info', 'upserv_package_manager_get_batch_package_info', 10, 2 ),
+				array( 'upserv_package_manager_get_package_info', 'upserv_package_manager_get_package_info', 10, 2 ),
+				array( 'upserv_update_server_action_download_handled', 'upserv_update_server_action_download_handled', 10, 1 ),
+				array( 'upserv_remote_sources_manager_get_package_slugs', 'upserv_remote_sources_manager_get_package_slugs', 10, 4 ),
+				array( 'upserv_remove_package_result', 'upserv_remove_package_result', 10, 3 ),
+				array( 'upserv_delete_packages_bulk_paths', 'upserv_delete_packages_bulk_paths', 10, 1 ),
+				array( 'upserv_webhook_package_exists', 'upserv_webhook_package_exists', 10, 3 ),
+				array( 'upserv_get_admin_template_args', 'upserv_get_admin_template_args', 10, 2 ),
+				array( 'upserv_is_package_whitelisted', 'upserv_is_package_whitelisted', 10, 2 ),
+				array( 'upserv_whitelist_package_data', 'upserv_whitelist_package_data', 10, 2 ),
+			),
+		);
+
+		// Register actions.
+		foreach ( self::$hooks['actions'] as $hook ) {
+			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+			add_action( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
+		}
+
+		// Register filters.
+		foreach ( self::$hooks['filters'] as $hook ) {
+			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+			add_filter( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
+		}
+	}
+
+	protected function remove_hooks() {
+
+		if ( empty( self::$hooks ) ) {
+			return;
+		}
+
+		// Remove actions.
+		foreach ( self::$hooks['actions'] as $hook ) {
+			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+			remove_action( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
+		}
+
+		// Remove filters.
+		foreach ( self::$hooks['filters'] as $hook ) {
+			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+			remove_filter( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
+		}
+
+		self::$hooks = array();
+	}
+
+	public static function get_config( $force = false ) {
+
+		if ( $force || ! self::$config ) {
 			$config = array(
 				'use_cloud_storage' => get_option( 'upserv_use_cloud_storage' ),
 				'access_key'        => get_option( 'upserv_cloud_storage_access_key' ),
@@ -435,11 +485,15 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_package_options_updated() {
-		$config = self::get_config();
+		$config = self::get_config( true );
 
 		if ( ! $config['use_cloud_storage'] ) {
+			$this->remove_hooks();
+
 			return;
 		}
+
+		$this->add_hooks();
 
 		try {
 
