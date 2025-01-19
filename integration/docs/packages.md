@@ -107,7 +107,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_update\_server](#upserv_update_server)
         * [upserv\_update\_checker](#upserv_update_checker)
         * [upserv\_cloud\_storage\_virtual\_dir](#upserv_cloud_storage_virtual_dir)
-        * [upserv\_cloud\_storage\_api\_config](#upserv_cloud_storage_api_config)
+        * [upserv\_cloud\_storage\_config](#upserv_cloud_storage_config)
         * [upserv\_package\_api\_config](#upserv_package_api_config)
         * [upserv\_package\_browse](#upserv_package_browse)
         * [upserv\_package\_read](#upserv_package_read)

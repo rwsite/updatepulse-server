@@ -149,7 +149,7 @@ class Cloud_Storage_Manager {
 			self::$config = $config;
 		}
 
-		return apply_filters( 'upserv_cloud_storage_api_config', self::$config );
+		return apply_filters( 'upserv_cloud_storage_config', self::$config );
 	}
 
 	public static function get_instance() {
