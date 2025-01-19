@@ -11,6 +11,7 @@ use ZipArchive;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Exception;
+use Anyape\UpdatePulse\Server\UPServ;
 use Anyape\UpdatePulse\Package_Parser\Parser as Package_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Zip_Metadata_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Cache;
@@ -387,10 +388,19 @@ class Package_Manager {
 
 		$package_rows = $this->get_batch_package_info();
 		$options      = array(
-			'use_remote_repository' => get_option( 'upserv_use_remote_repository' ),
-			'archive_max_size'      => get_option( 'upserv_archive_max_size', self::DEFAULT_ARCHIVE_MAX_SIZE ),
-			'cache_max_size'        => get_option( 'upserv_cache_max_size', self::DEFAULT_CACHE_MAX_SIZE ),
-			'logs_max_size'         => get_option( 'upserv_logs_max_size', self::DEFAULT_LOGS_MAX_SIZE ),
+			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
+			'archive_max_size'        => upserv_get_option(
+				'limits/archive_max_size',
+				self::DEFAULT_ARCHIVE_MAX_SIZE
+			),
+			'cache_max_size'          => upserv_get_option(
+				'limits/cache_max_size',
+				self::DEFAULT_CACHE_MAX_SIZE
+			),
+			'logs_max_size'           => upserv_get_option(
+				'limits/logs_max_size',
+				self::DEFAULT_LOGS_MAX_SIZE
+			),
 		);
 
 		$this->packages_table->set_rows( $package_rows );
@@ -950,6 +960,7 @@ class Package_Manager {
 		if ( isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) && wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' ) ) {
 			$result  = __( 'UpdatePulse Server options successfully updated', 'updatepulse-server' );
 			$options = $this->get_submitted_options();
+			$to_save = array();
 
 			foreach ( $options as $option_name => $option_info ) {
 				$condition = $option_info['value'];
@@ -966,8 +977,8 @@ class Package_Manager {
 					$options
 				);
 
-				if ( $condition ) {
-					update_option( $option_name, $option_info['value'] );
+				if ( $condition && isset( $option_info['path'] ) ) {
+					$to_save[ $option_info['path'] ] = $option_info['value'];
 				} else {
 					$errors[ $option_name ] = sprintf(
 						// translators: %1$s is the option display name, %2$s is the condition for update
@@ -976,6 +987,16 @@ class Package_Manager {
 						$option_info['failure_display_message']
 					);
 				}
+			}
+
+			if ( ! empty( $to_save ) ) {
+				$to_update = array();
+
+				foreach ( $to_save as $path => $value ) {
+					$to_update = upserv_set_option( $path, $value );
+				}
+
+				upserv_update_options( $to_update );
 			}
 		} elseif (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -1003,18 +1024,21 @@ class Package_Manager {
 					'display_name'            => __( 'Cache max size (in MB)', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid number', 'updatepulse-server' ),
 					'condition'               => 'number',
+					'path'                    => 'limits/cache_max_size',
 				),
 				'upserv_logs_max_size'    => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_logs_max_size', FILTER_VALIDATE_INT ),
 					'display_name'            => __( 'Logs max size (in MB)', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid number', 'updatepulse-server' ),
 					'condition'               => 'number',
+					'path'                    => 'limits/logs_max_size',
 				),
 				'upserv_archive_max_size' => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_archive_max_size', FILTER_VALIDATE_INT ),
 					'display_name'            => __( 'Archive max size (in MB)', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid number', 'updatepulse-server' ),
 					'condition'               => 'number',
+					'path'                    => 'limits/archive_max_size',
 				),
 			)
 		);

@@ -7,7 +7,7 @@
 		<h3><?php esc_html_e( 'Packages', 'updatepulse-server' ); ?></h3>
 		<?php $packages_table->search_box( 'Search', 'updatepulse-server' ); ?>
 		<?php $packages_table->display(); ?>
-		<?php if ( $options['use_remote_repository'] ) : ?>
+		<?php if ( $options['use_remote_repositories'] ) : ?>
 		<ul class="description">
 			<li>
 				<?php
@@ -29,7 +29,7 @@
 	<?php do_action( 'upserv_template_package_manager_option_before_add_packages' ); ?>
 	<h3><?php esc_html_e( 'Add Packages', 'updatepulse-server' ); ?></h3>
 	<table class="form-table upserv-add-packages">
-		<?php if ( $options['use_remote_repository'] ) : ?>
+		<?php if ( $options['use_remote_repositories'] ) : ?>
 		<tr>
 			<th>
 				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository', 'updatepulse-server' ); ?></label>
@@ -71,7 +71,7 @@
 		<tr id="upserv_manual_package_upload_dropzone">
 			<th>
 				<label for="upserv_manual_package_upload"><?php esc_html_e( 'Upload a package', 'updatepulse-server' ); ?>
-				<?php if ( $options['use_remote_repository'] ) : ?>
+				<?php if ( $options['use_remote_repositories'] ) : ?>
 					<?php esc_html_e( ' (discouraged)', 'updatepulse-server' ); ?>
 				<?php endif; ?>
 				</label>
@@ -97,7 +97,7 @@
 					?>
 					<br>
 					<?php esc_html_e( 'Using this method adds the package to the list if not present or overwrites the existing package.', 'updatepulse-server' ); ?>
-					<?php if ( $options['use_remote_repository'] ) : ?>
+					<?php if ( $options['use_remote_repositories'] ) : ?>
 					<br>
 						<?php esc_html_e( 'Note: a manually uploaded package that does not have its counterpart in a Remote Repository will need to be uploaded manually for each new release to provide updates.', 'updatepulse-server' ); ?>
 					<?php endif; ?>
