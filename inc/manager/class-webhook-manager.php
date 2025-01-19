@@ -185,7 +185,7 @@ class Webhook_Manager {
 						break;
 					}
 
-					$filtered[ $check_url ] = array(
+					$filtered[ $index ] = array(
 						'url'           => $url,
 						'secret'        => $secret,
 						'events'        => $events,
