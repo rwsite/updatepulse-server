@@ -67,7 +67,7 @@
 					<?php
 					echo esc_html(
 						wp_date(
-							get_option( 'date_format' ) . ' - H:i:s',
+							$date_format,
 							$record[ $key ],
 							new DateTimeZone( wp_timezone_string() )
 						)

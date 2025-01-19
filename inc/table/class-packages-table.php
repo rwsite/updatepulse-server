@@ -116,17 +116,19 @@ class Packages_Table extends WP_List_Table {
 		list( $columns, $hidden ) = $this->get_column_info();
 
 		if ( ! empty( $records ) ) {
+			$date_format = get_option( 'date_format' ) . ' - H:i:s';
 
 			foreach ( $records as $record_key => $record ) {
 				upserv_get_admin_template(
 					'packages-table-row.php',
 					array(
-						'table'      => $table,
-						'columns'    => $columns,
-						'hidden'     => $hidden,
-						'records'    => $records,
-						'record_key' => $record_key,
-						'record'     => $record,
+						'table'       => $table,
+						'columns'     => $columns,
+						'hidden'      => $hidden,
+						'records'     => $records,
+						'record_key'  => $record_key,
+						'record'      => $record,
+						'date_format' => $date_format,
 					)
 				);
 			}

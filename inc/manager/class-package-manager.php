@@ -386,6 +386,12 @@ class Package_Manager {
 		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 
 		$package_rows = $this->get_batch_package_info();
+		$options      = array(
+			'use_remote_repository' => get_option( 'upserv_use_remote_repository' ),
+			'archive_max_size'      => get_option( 'upserv_archive_max_size', self::DEFAULT_ARCHIVE_MAX_SIZE ),
+			'cache_max_size'        => get_option( 'upserv_cache_max_size', self::DEFAULT_CACHE_MAX_SIZE ),
+			'logs_max_size'         => get_option( 'upserv_logs_max_size', self::DEFAULT_LOGS_MAX_SIZE ),
+		);
 
 		$this->packages_table->set_rows( $package_rows );
 		$this->packages_table->prepare_items();
@@ -393,15 +399,12 @@ class Package_Manager {
 		upserv_get_admin_template(
 			'plugin-packages-page.php',
 			array(
-				'action_error'         => '',
-				'default_cache_size'   => self::DEFAULT_LOGS_MAX_SIZE,
-				'default_logs_size'    => self::DEFAULT_CACHE_MAX_SIZE,
-				'default_archive_size' => self::DEFAULT_ARCHIVE_MAX_SIZE,
-				'packages_table'       => $this->packages_table,
-				'cache_size'           => self::get_dir_size_mb( 'cache' ),
-				'logs_size'            => self::get_dir_size_mb( 'logs' ),
-				'package_rows'         => $package_rows,
-				'packages_dir'         => Data_Manager::get_data_dir( 'packages' ),
+				'packages_table' => $this->packages_table,
+				'cache_size'     => self::get_dir_size_mb( 'cache' ),
+				'logs_size'      => self::get_dir_size_mb( 'logs' ),
+				'package_rows'   => $package_rows,
+				'packages_dir'   => Data_Manager::get_data_dir( 'packages' ),
+				'options'        => $options,
 			)
 		);
 	}

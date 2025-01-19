@@ -250,11 +250,20 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_template_package_manager_option_before_miscellaneous() {
+		$options = array(
+			'access_key'   => get_option( 'upserv_cloud_storage_access_key' ),
+			'secret_key'   => get_option( 'upserv_cloud_storage_secret_key' ),
+			'endpoint'     => get_option( 'upserv_cloud_storage_endpoint' ),
+			'storage_unit' => get_option( 'upserv_cloud_storage_unit' ),
+			'region'       => get_option( 'upserv_cloud_storage_region' ),
+		);
+
 		upserv_get_admin_template(
 			'cloud-storage-options.php',
 			array(
 				'use_cloud_storage' => get_option( 'upserv_use_cloud_storage' ),
 				'virtual_dir'       => self::$virtual_dir,
+				'options'           => $options,
 			)
 		);
 	}

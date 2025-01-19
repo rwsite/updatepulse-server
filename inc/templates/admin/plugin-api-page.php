@@ -30,7 +30,7 @@
 							</div>
 							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a Package API Key' ); ?></button>
 						</div>
-						<input type="hidden" class="api-key-values" id="upserv_package_private_api_keys" name="upserv_package_private_api_keys" value="<?php echo esc_attr( get_option( 'upserv_package_private_api_keys', '{}' ) ); ?>">
+						<input type="hidden" class="api-key-values" id="upserv_package_private_api_keys" name="upserv_package_private_api_keys" value="<?php echo esc_attr( $options['package_private_api_keys'] ); ?>">
 					</div>
 					<p class="description">
 						<?php esc_html_e( 'Used to get tokens for package administration requests and requests of signed URLs used to download packages.', 'updatepulse-server' ); ?>
@@ -53,7 +53,7 @@
 					<label for="upserv_package_private_api_ip_whitelist"><?php esc_html_e( 'IP Whitelist', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<textarea class="ip-whitelist" id="upserv_package_private_api_ip_whitelist" name="upserv_package_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", get_option( 'upserv_package_private_api_ip_whitelist', array() ) ) ); ?></textarea>
+					<textarea class="ip-whitelist" id="upserv_package_private_api_ip_whitelist" name="upserv_package_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", $options['package_private_api_ip_whitelist'] ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'List of IP addresses and/or CIDRs of remote sites authorized to use the Private API (one IP address or CIDR per line).', 'wprus' ); ?> <br/>
 						<?php esc_html_e( 'Leave blank to allow any IP address (not recommended).', 'wprus' ); ?>
@@ -91,7 +91,7 @@
 							</div>
 							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a License API Key' ); ?></button>
 						</div>
-						<input type="hidden" class="api-key-values" id="upserv_license_private_api_keys" name="upserv_license_private_api_keys" value="<?php echo esc_attr( get_option( 'upserv_license_private_api_keys', '{}' ) ); ?>">
+						<input type="hidden" class="api-key-values" id="upserv_license_private_api_keys" name="upserv_license_private_api_keys" value="<?php echo esc_attr( $options['license_private_api_keys'] ); ?>">
 					</div>
 					<p class="description">
 						<?php esc_html_e( 'Used to get tokens for license administration requests.', 'updatepulse-server' ); ?>
@@ -114,7 +114,7 @@
 					<label for="upserv_license_private_api_ip_whitelist"><?php esc_html_e( 'IP Whitelist', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<textarea class="ip-whitelist" id="upserv_license_private_api_ip_whitelist" name="upserv_license_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", get_option( 'upserv_license_private_api_ip_whitelist', array() ) ) ); ?></textarea>
+					<textarea class="ip-whitelist" id="upserv_license_private_api_ip_whitelist" name="upserv_license_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", $options['license_private_api_ip_whitelist'] ) ); ?></textarea>
 					<p class="description">
 						<?php esc_html_e( 'List of IP addresses and/or CIDRs of remote sites authorized to use the Private API (one IP address or CIDR per line).', 'wprus' ); ?> <br/>
 						<?php esc_html_e( 'Leave blank to allow any IP address (not recommended).', 'wprus' ); ?>
@@ -151,7 +151,7 @@
 							</div>
 							<button disabled="disabled" class="webhook-add button" type="button"><?php esc_html_e( 'Add a Webhook' ); ?></button>
 						</div>
-						<input type="hidden" class="webhook-values" id="upserv_webhooks" name="upserv_webhooks" value="<?php echo esc_attr( get_option( 'upserv_webhooks', '{}' ) ); ?>">
+						<input type="hidden" class="webhook-values" id="upserv_webhooks" name="upserv_webhooks" value="<?php echo esc_attr( $options['webhooks'] ); ?>">
 						<p class="description">
 							<?php esc_html_e( 'Webhooks are event notifications sent to arbitrary URLs during the next cron job (within 1 minute after the event occurs with a server cron configuration schedule to execute every minute). The event is sent along with a payload of data for third party services integration.', 'updatepulse-server' ); ?>
 							<br>

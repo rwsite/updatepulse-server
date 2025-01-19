@@ -193,10 +193,16 @@ class Webhook_Manager {
 	}
 
 	public function upserv_template_remote_source_manager_option_before_recurring_check() {
+		$options = array(
+			'use_webhooks'   => get_option( 'upserv_remote_repository_use_webhooks' ),
+			'check_delay'    => get_option( 'upserv_remote_repository_check_delay', 0 ),
+			'webhook_secret' => get_option( 'upserv_remote_repository_webhook_secret', 'repository_webhook_secret' ),
+		);
+
 		upserv_get_admin_template(
 			'remote-webhook-options.php',
 			array(
-				'use_webhooks' => get_option( 'upserv_remote_repository_use_webhooks' ),
+				'options' => $options,
 			)
 		);
 	}

@@ -7,7 +7,7 @@
 		<h3><?php esc_html_e( 'Packages', 'updatepulse-server' ); ?></h3>
 		<?php $packages_table->search_box( 'Search', 'updatepulse-server' ); ?>
 		<?php $packages_table->display(); ?>
-		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
+		<?php if ( $options['use_remote_repository'] ) : ?>
 		<ul class="description">
 			<li>
 				<?php
@@ -29,7 +29,7 @@
 	<?php do_action( 'upserv_template_package_manager_option_before_add_packages' ); ?>
 	<h3><?php esc_html_e( 'Add Packages', 'updatepulse-server' ); ?></h3>
 	<table class="form-table upserv-add-packages">
-		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
+		<?php if ( $options['use_remote_repository'] ) : ?>
 		<tr>
 			<th>
 				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository', 'updatepulse-server' ); ?></label>
@@ -71,7 +71,7 @@
 		<tr id="upserv_manual_package_upload_dropzone">
 			<th>
 				<label for="upserv_manual_package_upload"><?php esc_html_e( 'Upload a package', 'updatepulse-server' ); ?>
-				<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
+				<?php if ( $options['use_remote_repository'] ) : ?>
 					<?php esc_html_e( ' (discouraged)', 'updatepulse-server' ); ?>
 				<?php endif; ?>
 				</label>
@@ -97,7 +97,7 @@
 					?>
 					<br>
 					<?php esc_html_e( 'Using this method adds the package to the list if not present or overwrites the existing package.', 'updatepulse-server' ); ?>
-					<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
+					<?php if ( $options['use_remote_repository'] ) : ?>
 					<br>
 						<?php esc_html_e( 'Note: a manually uploaded package that does not have its counterpart in a Remote Repository will need to be uploaded manually for each new release to provide updates.', 'updatepulse-server' ); ?>
 					<?php endif; ?>
@@ -115,7 +115,7 @@
 					<label for="upserv_archive_max_size"><?php esc_html_e( 'Archive max size (in MB)', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="regular-text" type="number" id="upserv_archive_max_size" name="upserv_archive_max_size" value="<?php echo esc_attr( get_option( 'upserv_archive_max_size', $default_archive_size ) ); ?>">
+					<input class="regular-text" type="number" id="upserv_archive_max_size" name="upserv_archive_max_size" value="<?php echo esc_attr( $options['archive_max_size'] ); ?>">
 					<p class="description">
 						<?php esc_html_e( 'Maximum file size when uploading or downloading packages.', 'updatepulse-server' ); ?>
 					</p>
@@ -126,7 +126,7 @@
 					<label for="upserv_cache_max_size"><?php esc_html_e( 'Cache max size (in MB)', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="regular-text" type="number" id="upserv_cache_max_size" name="upserv_cache_max_size" value="<?php echo esc_attr( get_option( 'upserv_cache_max_size', $default_cache_size ) ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'updatepulse-server' ); ?> (<?php print esc_attr( $cache_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="cache" />
+					<input class="regular-text" type="number" id="upserv_cache_max_size" name="upserv_cache_max_size" value="<?php echo esc_attr( $options['cache_max_size'] ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'updatepulse-server' ); ?> (<?php print esc_attr( $cache_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="cache" />
 					<p class="description">
 						<?php
 						printf(
@@ -143,7 +143,7 @@
 					<label for="upserv_logs_max_size"><?php esc_html_e( 'Logs max size (in MB)', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="regular-text" type="number" id="upserv_logs_max_size" name="upserv_logs_max_size" value="<?php echo esc_attr( get_option( 'upserv_logs_max_size', $default_logs_size ) ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'updatepulse-server' ); ?> (<?php print esc_attr( $logs_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="logs" />
+					<input class="regular-text" type="number" id="upserv_logs_max_size" name="upserv_logs_max_size" value="<?php echo esc_attr( $options['logs_max_size'] ); ?>"> <input type="button" value="<?php print esc_attr_e( 'Force Clean', 'updatepulse-server' ); ?> (<?php print esc_attr( $logs_size ); ?>)" class="button ajax-trigger" data-action="force_clean" data-type="logs" />
 					<p class="description">
 						<?php
 						printf(

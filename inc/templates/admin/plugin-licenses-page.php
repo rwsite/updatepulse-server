@@ -3,7 +3,7 @@
 } ?>
 <div class="wrap upserv-wrap">
 	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
-	<?php if ( get_option( 'upserv_use_licenses' ) ) : ?>
+	<?php if ( $options['use_licenses'] ) : ?>
 	<form autocomplete="off" id="upserv-licenses-list" action="" method="post">
 		<h3><?php esc_html_e( 'Licenses', 'updatepulse-server' ); ?></h3>
 		<?php $licenses_table->search_box( 'Search', 'updatepulse-server' ); ?>
@@ -184,7 +184,7 @@
 					<label for="upserv_use_licenses"><?php esc_html_e( 'Enable Package Licenses', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input type="checkbox" id="upserv_use_licenses" name="upserv_use_licenses" value="1" <?php checked( get_option( 'upserv_use_licenses', 0 ), 1 ); ?>>
+					<input type="checkbox" id="upserv_use_licenses" name="upserv_use_licenses" value="1" <?php checked( $options['use_licenses'], 1 ); ?>>
 					<p class="description">
 						<?php esc_html_e( 'Check to activate license-enabled plugin, theme, and generic packages delivery.', 'updatepulse-server' ); ?>
 						<br>

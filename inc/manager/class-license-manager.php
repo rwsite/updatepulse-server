@@ -274,7 +274,12 @@ class License_Manager {
 		}
 
 		$licenses_table = $this->licenses_table;
-		$notices        = wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
+		$notices        = $this->plugin_options_handler();
+		$options        = array(
+			'use_licenses' => get_option( 'upserv_use_licenses', 0 ),
+		);
+
+		$licenses_table->prepare_items();
 
 		if ( ! $notices ) {
 
@@ -285,10 +290,13 @@ class License_Manager {
 			}
 		}
 
-		$licenses_table->prepare_items();
+		wp_cache_set( 'settings_notice', $notices, 'upserv' );
 		upserv_get_admin_template(
 			'plugin-licenses-page.php',
-			array( 'licenses_table' => $licenses_table )
+			array(
+				'licenses_table' => $licenses_table,
+				'options'        => $options,
+			)
 		);
 	}
 

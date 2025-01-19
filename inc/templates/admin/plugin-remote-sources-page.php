@@ -10,7 +10,7 @@
 					<label for="upserv_use_remote_repository"><?php esc_html_e( 'Use a Remote Repository Service', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input type="checkbox" id="upserv_use_remote_repository" name="upserv_use_remote_repository" value="1" <?php checked( get_option( 'upserv_use_remote_repository', 0 ), 1 ); ?>>
+					<input type="checkbox" id="upserv_use_remote_repository" name="upserv_use_remote_repository" value="1" <?php checked( $options['use_remote_repository'], 1 ); ?>>
 					<p class="description">
 						<?php esc_html_e( 'Enables this server to download plugins, themes and generic packages from a Remote Repository before delivering updates.', 'updatepulse-server' ); ?>
 						<br>
@@ -35,7 +35,7 @@
 					<label for="upserv_remote_repository_url"><?php esc_html_e( 'Remote Repository Service URL', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="regular-text remote-repository-setting" type="text" id="upserv_remote_repository_url" name="upserv_remote_repository_url" value="<?php echo esc_attr( get_option( 'upserv_remote_repository_url' ) ); ?>">
+					<input class="regular-text remote-repository-setting" type="text" id="upserv_remote_repository_url" name="upserv_remote_repository_url" value="<?php echo esc_attr( $options['url'] ); ?>">
 					<p class="description">
 						<?php esc_html_e( 'The URL of the Remote Repository Service where packages are hosted.', 'updatepulse-server' ); ?>
 						<br>
@@ -65,7 +65,7 @@
 					<label for="upserv_remote_repository_self_hosted"><?php esc_html_e( 'Self-hosted Remote Repository Service', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="remote-repository-setting" type="checkbox" id="upserv_remote_repository_self_hosted" name="upserv_remote_repository_self_hosted" value="1" <?php checked( get_option( 'upserv_remote_repository_self_hosted', 0 ), 1 ); ?>>
+					<input class="remote-repository-setting" type="checkbox" id="upserv_remote_repository_self_hosted" name="upserv_remote_repository_self_hosted" value="1" <?php checked( $options['self_hosted'], 1 ); ?>>
 					<p class="description">
 						<?php esc_html_e( 'Check this only if the Remote Repository Service is a self-hosted instance of Gitlab.', 'updatepulse-server' ); ?>
 					</p>
@@ -76,7 +76,7 @@
 					<label for="upserv_remote_repository_branch"><?php esc_html_e( 'Packages Branch Name', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="remote-repository-setting regular-text" type="text" id="upserv_remote_repository_branch" name="upserv_remote_repository_branch" value="<?php echo esc_attr( get_option( 'upserv_remote_repository_branch', 'main' ) ); ?>">
+					<input class="remote-repository-setting regular-text" type="text" id="upserv_remote_repository_branch" name="upserv_remote_repository_branch" value="<?php echo esc_attr( $options['branch'] ); ?>">
 					<p class="description">
 						<?php esc_html_e( 'The branch to download when getting remote packages from the Remote Repository Service.', 'updatepulse-server' ); ?>
 					</p>
@@ -87,7 +87,7 @@
 					<label for="upserv_remote_repository_credentials"><?php esc_html_e( 'Remote Repository Service Credentials', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input class="remote-repository-setting regular-text secret" type="password" autocomplete="new-password" id="upserv_remote_repository_credentials" name="upserv_remote_repository_credentials" value="<?php echo esc_attr( get_option( 'upserv_remote_repository_credentials' ) ); ?>">
+					<input class="remote-repository-setting regular-text secret" type="password" autocomplete="new-password" id="upserv_remote_repository_credentials" name="upserv_remote_repository_credentials" value="<?php echo esc_attr( $options['credentials'] ); ?>">
 					<p class="description">
 						<?php esc_html_e( 'Credentials for non-publicly accessible repositories.', 'updatepulse-server' ); ?>
 						<br>
@@ -116,7 +116,7 @@
 					<label for="upserv_remote_repository_filter_packages"><?php esc_html_e( 'Filter Packages', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input type="checkbox" id="upserv_remote_repository_filter_packages" name="upserv_remote_repository_filter_packages" value="1" <?php checked( get_option( 'upserv_remote_repository_filter_packages' ), 1 ); ?>>
+					<input type="checkbox" id="upserv_remote_repository_filter_packages" name="upserv_remote_repository_filter_packages" value="1" <?php checked( $options['filter_packages'], 1 ); ?>>
 					<p class="description">
 						<?php esc_html_e( 'Check this if you wish to filter the packages to download from the Remote Repository Service so that only packages explicitly associated with this server are downloaded.', 'updatepulse-server' ); ?>
 						<br/>
@@ -155,7 +155,7 @@
 				<td>
 					<select name="upserv_remote_repository_check_frequency" id="upserv_remote_repository_check_frequency">
 						<?php foreach ( $schedules as $display => $schedule ) : ?>
-							<option value="<?php echo esc_attr( $schedule['slug'] ); ?>" <?php selected( get_option( 'upserv_remote_repository_check_frequency', 'daily' ), $schedule['slug'] ); ?>><?php echo esc_html( $display ); ?></option>
+							<option value="<?php echo esc_attr( $schedule['slug'] ); ?>" <?php selected( $options['check_frequency'], $schedule['slug'] ); ?>><?php echo esc_html( $display ); ?></option>
 						<?php endforeach; ?>
 					</select>
 					<p class="description">
@@ -170,7 +170,7 @@
 		<p class="submit">
 			<input type="submit" name="upserv_options_save" value="<?php esc_attr_e( 'Save', 'updatepulse-server' ); ?>" class="button button-primary" />
 		</p>
-		<?php if ( get_option( 'upserv_use_remote_repository' ) ) : ?>
+		<?php if ( $options['use_remote_repository'] ) : ?>
 		<hr>
 		<table class="form-table package-source check-frequency <?php echo ( $hide_check_frequency ) ? 'hidden' : ''; ?>">
 			<tr>

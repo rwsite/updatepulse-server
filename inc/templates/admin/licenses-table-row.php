@@ -53,7 +53,7 @@
 					$timezone = new DateTimeZone( wp_timezone_string() );
 					$date     = new DateTime( $record[ $key ], $timezone );
 
-					echo esc_html( $date->format( get_option( 'date_format' ) ) );
+					echo esc_html( $date->format( $date_format ) );
 					?>
 				<?php elseif ( 'col_date_expiry' === $column_name ) : ?>
 					<?php if ( '0000-00-00' === $record[ $key ] ) : ?>
@@ -63,7 +63,7 @@
 						$timezone = new DateTimeZone( wp_timezone_string() );
 						$date     = new DateTime( $record[ $key ], $timezone );
 
-						echo esc_html( $date->format( get_option( 'date_format' ) ) );
+						echo esc_html( $date->format( $date_format ) );
 						?>
 					<?php endif; ?>
 				<?php endif; ?>

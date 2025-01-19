@@ -186,6 +186,7 @@ class Licenses_Table extends WP_List_Table {
 		list( $columns, $hidden ) = $this->get_column_info();
 
 		if ( ! empty( $records ) ) {
+			$date_format = get_option( 'date_format' );
 
 			foreach ( $records as $record_key => $record ) {
 				$bulk_value = wp_json_encode( $record );
@@ -193,13 +194,14 @@ class Licenses_Table extends WP_List_Table {
 				upserv_get_admin_template(
 					'licenses-table-row.php',
 					array(
-						'bulk_value' => $bulk_value,
-						'table'      => $table,
-						'columns'    => $columns,
-						'hidden'     => $hidden,
-						'records'    => $records,
-						'record_key' => $record_key,
-						'record'     => $record,
+						'bulk_value'  => $bulk_value,
+						'table'       => $table,
+						'columns'     => $columns,
+						'hidden'      => $hidden,
+						'records'     => $records,
+						'record_key'  => $record_key,
+						'record'      => $record,
+						'date_format' => $date_format,
 					)
 				);
 			}
@@ -244,17 +246,7 @@ class Licenses_Table extends WP_List_Table {
 
 	protected function extra_tablenav( $which ) {
 
-		if ( 'top' === $which ) {
-
-			if ( 'max_file_size_exceeded' === $this->bulk_action_error ) {
-				$class   = 'notice notice-error';
-				$message = __( 'Download: Archive max size exceeded - try to adjust it in the settings below.', 'updatepulse-server' );
-
-				printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-				$this->bulk_action_error = '';
-			}
-		} elseif ( 'bottom' === $which ) {
+		if ( 'bottom' === $which ) {
 			print '<div class="alignleft actions bulkactions"><input id="post-query-submit" type="submit" name="upserv_delete_all_licenses" value="' . esc_html( __( 'Delete All Licenses', 'updatepulse-server' ) ) . '" class="button upserv-delete-all-licenses"><input id="add_license_trigger" type="button" value="' . esc_html( __( 'Add License', 'updatepulse-server' ) ) . '" class="button button-primary open-panel"></div>';
 		}
 	}

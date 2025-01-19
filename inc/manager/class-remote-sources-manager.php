@@ -344,6 +344,15 @@ class Remote_Sources_Manager {
 
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();
+		$options              = array(
+			'use_remote_repository' => get_option( 'upserv_use_remote_repository', 0 ),
+			'url'                   => get_option( 'upserv_remote_repository_url' ),
+			'self_hosted'           => get_option( 'upserv_remote_repository_self_hosted', 0 ),
+			'branch'                => get_option( 'upserv_remote_repository_branch', 'main' ),
+			'credentials'           => get_option( 'upserv_remote_repository_credentials' ),
+			'filter_packages'       => get_option( 'upserv_remote_repository_filter_packages' ),
+			'check_frequency'       => get_option( 'upserv_remote_repository_check_frequency', 'daily' ),
+		);
 
 		foreach ( $registered_schedules as $key => $schedule ) {
 			$schedules[ $schedule['display'] ] = array(
@@ -355,14 +364,14 @@ class Remote_Sources_Manager {
 		upserv_get_admin_template(
 			'plugin-remote-sources-page.php',
 			array(
-				'action_error'         => '',
+				'options'              => $options,
+				'packages_dir'         => Data_Manager::get_data_dir( 'packages' ),
 				'registered_schedules' => $registered_schedules,
 				'schedules'            => $schedules,
 				'hide_check_frequency' => ! apply_filters(
 					'upserv_use_recurring_schedule',
 					true
 				),
-				'packages_dir'         => Data_Manager::get_data_dir( 'packages' ),
 			)
 		);
 	}

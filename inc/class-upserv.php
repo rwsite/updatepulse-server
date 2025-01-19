@@ -403,10 +403,15 @@ class UPServ {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		$options = array(
+			'use_remote_repository' => get_option( 'upserv_use_remote_repository' ),
+		);
+
 		upserv_get_admin_template(
 			'plugin-help-page.php',
 			array(
 				'packages_dir' => Data_Manager::get_data_dir( 'packages' ),
+				'options'      => $options,
 			)
 		);
 	}

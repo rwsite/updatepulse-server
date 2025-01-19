@@ -27,7 +27,7 @@
 			<label for="upserv_cloud_storage_access_key"><?php esc_html_e( 'Cloud Storage Access Key', 'updatepulse-server' ); ?></label>
 		</th>
 		<td>
-			<input class="regular-text cloud-storage-setting secret" type="password" autocomplete="new-password" id="upserv_cloud_storage_access_key" name="upserv_cloud_storage_access_key" value="<?php echo esc_attr( get_option( 'upserv_cloud_storage_access_key' ) ); ?>">
+			<input class="regular-text cloud-storage-setting secret" type="password" autocomplete="new-password" id="upserv_cloud_storage_access_key" name="upserv_cloud_storage_access_key" value="<?php echo esc_attr( $options['access_key'] ); ?>">
 			<p class="description">
 				<?php esc_html_e( 'The Access Key provided by the Cloud Storage service provider.', 'updatepulse-server' ); ?>
 			</p>
@@ -38,7 +38,7 @@
 			<label for="upserv_cloud_storage_secret_key"><?php esc_html_e( 'Cloud Storage Secret Key', 'updatepulse-server' ); ?></label>
 		</th>
 		<td>
-			<input class="regular-text cloud-storage-setting secret" type="password" autocomplete="new-password" id="upserv_cloud_storage_secret_key" name="upserv_cloud_storage_secret_key" value="<?php echo esc_attr( get_option( 'upserv_cloud_storage_secret_key' ) ); ?>">
+			<input class="regular-text cloud-storage-setting secret" type="password" autocomplete="new-password" id="upserv_cloud_storage_secret_key" name="upserv_cloud_storage_secret_key" value="<?php echo esc_attr( $options['secret_key'] ); ?>">
 			<p class="description">
 				<?php esc_html_e( 'The Secret Key provided by the Cloud Storage service provider.', 'updatepulse-server' ); ?>
 			</p>
@@ -49,7 +49,7 @@
 			<label for="upserv_cloud_storage_endpoint"><?php esc_html_e( 'Cloud Storage Endpoint', 'updatepulse-server' ); ?></label>
 		</th>
 		<td>
-			<input class="regular-text cloud-storage-setting" type="text" id="upserv_cloud_storage_endpoint" name="upserv_cloud_storage_endpoint" value="<?php echo esc_attr( get_option( 'upserv_cloud_storage_endpoint' ) ); ?>">
+			<input class="regular-text cloud-storage-setting" type="text" id="upserv_cloud_storage_endpoint" name="upserv_cloud_storage_endpoint" value="<?php echo esc_attr( $options['endpoint'] ); ?>">
 			<p class="description">
 				<?php
 				printf(
@@ -67,7 +67,7 @@
 			<label for="upserv_cloud_storage_unit"><?php esc_html_e( 'Cloud Storage Unit', 'updatepulse-server' ); ?></label>
 		</th>
 		<td>
-			<input class="regular-text cloud-storage-setting" type="text" id="upserv_cloud_storage_unit" name="upserv_cloud_storage_unit" value="<?php echo esc_attr( get_option( 'upserv_cloud_storage_unit' ) ); ?>">
+			<input class="regular-text cloud-storage-setting" type="text" id="upserv_cloud_storage_unit" name="upserv_cloud_storage_unit" value="<?php echo esc_attr( $options['storage_unit'] ); ?>">
 			<p class="description">
 				<?php esc_html_e( 'Usually known as a "bucket" or a "container" depending on the Cloud Storage service provider.', 'updatepulse-server' ); ?>
 			</p>
@@ -78,7 +78,7 @@
 			<label for="upserv_cloud_storage_region"><?php esc_html_e( 'Cloud Storage Region', 'updatepulse-server' ); ?></label>
 		</th>
 		<td>
-			<input class="regular-text cloud-storage-setting" type="text" id="upserv_cloud_storage_region" name="upserv_cloud_storage_region" value="<?php echo esc_attr( get_option( 'upserv_cloud_storage_region' ) ); ?>">
+			<input class="regular-text cloud-storage-setting" type="text" id="upserv_cloud_storage_region" name="upserv_cloud_storage_region" value="<?php echo esc_attr( $options['region'] ); ?>">
 			<p class="description">
 				<?php esc_html_e( 'The region of the Cloud Storage Unit, as indicated by the Cloud Storage service provider.', 'updatepulse-server' ); ?>
 			</p>

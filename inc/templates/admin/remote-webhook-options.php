@@ -6,7 +6,7 @@
 		<label for="upserv_remote_repository_use_webhooks"><?php esc_html_e( 'Use Webhooks', 'updatepulse-server' ); ?></label>
 	</th>
 	<td>
-		<input type="checkbox" id="upserv_remote_repository_use_webhooks" name="upserv_remote_repository_use_webhooks" value="1" <?php checked( $use_webhooks, 1 ); ?>>
+		<input type="checkbox" id="upserv_remote_repository_use_webhooks" name="upserv_remote_repository_use_webhooks" value="1" <?php checked( $options['use_webhooks'], 1 ); ?>>
 		<p class="description">
 			<?php esc_html_e( 'Check this if you wish for each repository of the Remote Repository Service to call a Webhook when updates are pushed.', 'updatepulse-server' ); ?><br>
 			<?php esc_html_e( 'When checked, UpdatePulse Server will not regularly poll repositories for package version changes, but relies on events sent by the repositories to schedule a package download.', 'updatepulse-server' ); ?>
@@ -28,24 +28,24 @@
 		</p>
 	</td>
 </tr>
-<tr class="webhooks <?php echo ( $use_webhooks ) ? '' : 'hidden'; ?>">
+<tr class="webhooks <?php echo ( $options['use_webhooks'] ) ? '' : 'hidden'; ?>">
 	<th>
 		<label for="upserv_remote_repository_check_delay"><?php esc_html_e( 'Remote Download Delay', 'updatepulse-server' ); ?></label>
 	</th>
 	<td>
-		<input type="number" min="0" id="upserv_remote_repository_check_delay" name="upserv_remote_repository_check_delay" value="<?php echo esc_attr( get_option( 'upserv_remote_repository_check_delay', 0 ) ); ?>">
+		<input type="number" min="0" id="upserv_remote_repository_check_delay" name="upserv_remote_repository_check_delay" value="<?php echo esc_attr( $options['check_delay'] ); ?>">
 		<p class="description">
 			<?php esc_html_e( 'Delay in minutes after which UpdatePulse Server will poll the Remote Repository for package updates when the Webhook has been called.', 'updatepulse-server' ); ?><br>
 			<?php esc_html_e( 'Leave at 0 to schedule a package update during the cron run happening immediately after the Webhook was called.', 'updatepulse-server' ); ?>
 		</p>
 	</td>
 </tr>
-<tr class="webhooks <?php echo ( $use_webhooks ) ? '' : 'hidden'; ?>">
+<tr class="webhooks <?php echo ( $options['use_webhooks'] ) ? '' : 'hidden'; ?>">
 	<th>
 		<label for="upserv_remote_repository_webhook_secret"><?php esc_html_e( 'Remote Repository Webhook Secret', 'updatepulse-server' ); ?></label>
 	</th>
 	<td>
-		<input class="regular-text secret" type="password" autocomplete="new-password" id="upserv_remote_repository_webhook_secret" name="upserv_remote_repository_webhook_secret" value="<?php echo esc_attr( get_option( 'upserv_remote_repository_webhook_secret', 'repository_webhook_secret' ) ); ?>">
+		<input class="regular-text secret" type="password" autocomplete="new-password" id="upserv_remote_repository_webhook_secret" name="upserv_remote_repository_webhook_secret" value="<?php echo esc_attr( $options['webhook_secret'] ); ?>">
 		<p class="description">
 			<?php esc_html_e( 'Preferably a random string, the secret string included in the request by the repository service when calling the Webhook.', 'updatepulse-server' ); ?>
 			<br>
