@@ -2560,10 +2560,10 @@ Fired during client update API request.
 > (string) the name of the virtual directory where the packages are stored in the Cloud Storage Service - default `updatepulse-packages`  
 
 ___
-### upserv_cloud_storage_api_config
+### upserv_cloud_storage_config
 
 ```php
-apply_filters( 'upserv_cloud_storage_api_config', array $config );
+apply_filters( 'upserv_cloud_storage_config', array $config );
 ```
 
 **Description**  
