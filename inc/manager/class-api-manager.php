@@ -298,6 +298,14 @@ class API_Manager {
 				);
 
 				if ( $condition ) {
+					$option_info['value'] = apply_filters(
+						'upserv_api_option_save_value',
+						$option_info['value'],
+						$option_name,
+						$option_info,
+						$options
+					);
+
 					update_option( $option_name, $option_info['value'] );
 				} else {
 					$errors[ $option_name ] = sprintf(

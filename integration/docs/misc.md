@@ -43,6 +43,7 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 		* [upserv\_fetch\_nonce](#upserv_fetch_nonce)
 		* [upserv\_nonce\_authorize](#upserv_nonce_authorize)
 		* [upserv\_api\_option\_update](#upserv_api_option_update)
+		* [upserv\_api\_option\_value](#upserv_api_option_value)
 		* [upserv\_api\_webhook\_events](#upserv_api_webhook_events)
 		* [upserv\_webhook\_fire](#upserv_webhook_fire)
 		* [upserv\_schedule\_webhook\_is\_instant](#upserv_schedule_webhook_is_instant)
@@ -1007,6 +1008,29 @@ Filter whether to update the API plugin option.
 
 `$options`
 > (array) the values submitted along with the option  
+
+___
+### upserv_api_option_value
+
+```php
+apply_filters( 'upserv_api_option_save_value', mixed $value, string $option_name, array $option_info, array $options );
+```
+
+**Description**
+Filter the value of the API plugin option before saving it.
+
+**Parameters**
+`$value`
+> (mixed) the value of the API plugin option
+
+`$option_name`
+> (string) the name of the option
+
+`$option_info`
+> (array) the info related to the option
+
+`$options`
+> (array) the values submitted along with the option
 
 ___
 ### upserv_api_webhook_events
