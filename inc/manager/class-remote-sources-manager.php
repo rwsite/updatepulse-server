@@ -342,16 +342,21 @@ class Remote_Sources_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
+
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();
+		$repo_config          = upserv_get_option( 'remote_repositories', array() );
+		$idx                  = array_key_first( $repo_config );
+		$repo_config          = $repo_config[ $idx ];
 		$options              = array(
-			'use_remote_repository' => get_option( 'upserv_use_remote_repository', 0 ),
-			'url'                   => get_option( 'upserv_remote_repository_url' ),
-			'self_hosted'           => get_option( 'upserv_remote_repository_self_hosted', 0 ),
-			'branch'                => get_option( 'upserv_remote_repository_branch', 'main' ),
-			'credentials'           => get_option( 'upserv_remote_repository_credentials' ),
-			'filter_packages'       => get_option( 'upserv_remote_repository_filter_packages' ),
-			'check_frequency'       => get_option( 'upserv_remote_repository_check_frequency', 'daily' ),
+			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
+			'url'                     => $repo_config['url'],
+			'self_hosted'             => $repo_config['self_hosted'],
+			'branch'                  => $repo_config['branch'],
+			'credentials'             => $repo_config['credentials'],
+			'filter_packages'         => $repo_config['filter_packages'],
+			'check_frequency'         => $repo_config['check_frequency'],
 		);
 
 		foreach ( $registered_schedules as $key => $schedule ) {
@@ -360,7 +365,6 @@ class Remote_Sources_Manager {
 			);
 		}
 
-		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 		upserv_get_admin_template(
 			'plugin-remote-sources-page.php',
 			array(
@@ -381,8 +385,9 @@ class Remote_Sources_Manager {
 	 *******************************************************************/
 
 	protected function plugin_options_handler() {
-		$errors = array();
-		$result = '';
+		$errors  = array();
+		$result  = '';
+		$to_save = array();
 		$original_upserv_remote_repository_check_frequency = get_option( 'upserv_remote_repository_check_frequency', 'daily' );
 		$new_upserv_remote_repository_check_frequency      = null;
 		$original_upserv_use_remote_repository             = get_option( 'upserv_use_remote_repository' );
@@ -437,7 +442,8 @@ class Remote_Sources_Manager {
 				}
 
 				if ( ! $skip && $condition ) {
-					update_option( $option_name, $option_info['value'] );
+
+					$to_save[ $option_info['path'] ] = $option_info['value'];
 
 					if ( 'upserv_remote_repository_check_frequency' === $option_name ) {
 						$new_upserv_remote_repository_check_frequency = $option_info['value'];
@@ -454,6 +460,19 @@ class Remote_Sources_Manager {
 						$option_info['failure_display_message']
 					);
 				}
+			}
+
+			if ( ! empty( $to_save ) ) {
+				$to_update = upserv_set_option( 'use_remote_repositories', $to_save['use_remote_repositories'] );
+
+				unset( $to_save['use_remote_repositories'] );
+
+				$idx             = str_replace( '/', '|', base64_encode( $to_save['url'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				$options         = array( $idx => array() );
+				$options[ $idx ] = $to_save;
+				$to_update       = upserv_set_option( 'remote_repositories', $options );
+
+				upserv_update_options( $to_update );
 			}
 		} elseif (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -517,6 +536,7 @@ class Remote_Sources_Manager {
 					'value'        => filter_input( INPUT_POST, 'upserv_use_remote_repository', FILTER_VALIDATE_BOOLEAN ),
 					'display_name' => __( 'Use a Remote Repository Service', 'updatepulse-server' ),
 					'condition'    => 'boolean',
+					'path'         => 'use_remote_repositories',
 				),
 				'upserv_remote_repository_url'             => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_url', FILTER_VALIDATE_URL ),
@@ -524,32 +544,38 @@ class Remote_Sources_Manager {
 					'failure_display_message' => __( 'Not a valid URL', 'updatepulse-server' ),
 					'dependency'              => 'upserv_use_remote_repository',
 					'condition'               => 'service_url',
+					'path'                    => 'url',
 				),
 				'upserv_remote_repository_self_hosted'     => array(
 					'value'        => filter_input( INPUT_POST, 'upserv_remote_repository_self_hosted', FILTER_VALIDATE_BOOLEAN ),
 					'display_name' => __( 'Self-hosted Remote Repository Service', 'updatepulse-server' ),
 					'condition'    => 'boolean',
+					'path'         => 'self_hosted',
 				),
 				'upserv_remote_repository_branch'          => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Packages Branch Name', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
+					'path'                    => 'branch',
 				),
 				'upserv_remote_repository_credentials'     => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_credentials', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Remote Repository Service Credentials', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
+					'path'                    => 'credentials',
 				),
 				'upserv_remote_repository_filter_packages' => array(
 					'value'        => filter_input( INPUT_POST, 'upserv_remote_repository_filter_packages', FILTER_VALIDATE_BOOLEAN ),
 					'display_name' => __( 'Filter Packages', 'updatepulse-server' ),
 					'condition'    => 'boolean',
+					'path'         => 'filter_packages',
 				),
 				'upserv_remote_repository_check_frequency' => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_check_frequency', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Remote Update Check Frequency', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid option', 'updatepulse-server' ),
 					'condition'               => 'known frequency',
+					'path'                    => 'check_frequency',
 				),
 			)
 		);

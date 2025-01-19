@@ -10,7 +10,7 @@
 					<label for="upserv_use_remote_repository"><?php esc_html_e( 'Use a Remote Repository Service', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input type="checkbox" id="upserv_use_remote_repository" name="upserv_use_remote_repository" value="1" <?php checked( $options['use_remote_repository'], 1 ); ?>>
+					<input type="checkbox" id="upserv_use_remote_repository" name="upserv_use_remote_repository" value="1" <?php checked( $options['use_remote_repositories'], 1 ); ?>>
 					<p class="description">
 						<?php esc_html_e( 'Enables this server to download plugins, themes and generic packages from a Remote Repository before delivering updates.', 'updatepulse-server' ); ?>
 						<br>
@@ -170,7 +170,7 @@
 		<p class="submit">
 			<input type="submit" name="upserv_options_save" value="<?php esc_attr_e( 'Save', 'updatepulse-server' ); ?>" class="button button-primary" />
 		</p>
-		<?php if ( $options['use_remote_repository'] ) : ?>
+		<?php if ( $options['use_remote_repositories'] ) : ?>
 		<hr>
 		<table class="form-table package-source check-frequency <?php echo ( $hide_check_frequency ) ? 'hidden' : ''; ?>">
 			<tr>
