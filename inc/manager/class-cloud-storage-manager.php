@@ -137,14 +137,8 @@ class Cloud_Storage_Manager {
 	public static function get_config( $force = false ) {
 
 		if ( $force || ! self::$config ) {
-			$config = array(
-				'use_cloud_storage' => get_option( 'upserv_use_cloud_storage' ),
-				'access_key'        => get_option( 'upserv_cloud_storage_access_key' ),
-				'secret_key'        => get_option( 'upserv_cloud_storage_secret_key' ),
-				'endpoint'          => get_option( 'upserv_cloud_storage_endpoint' ),
-				'storage_unit'      => get_option( 'upserv_cloud_storage_unit' ),
-				'region'            => get_option( 'upserv_cloud_storage_region' ),
-			);
+			$config                      = upserv_get_option( 'cloud_storage' );
+			$config['use_cloud_storage'] = upserv_get_option( 'use_cloud_storage' );
 
 			self::$config = $config;
 		}
@@ -180,36 +174,42 @@ class Cloud_Storage_Manager {
 					'display_name'            => __( 'Use Cloud Storage', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Something went wrong', 'updatepulse-server' ),
 					'condition'               => 'boolean',
+					'path'                    => 'use_cloud_storage',
 				),
 				'upserv_cloud_storage_access_key' => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_access_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Cloud Storage Access Key', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
+					'path'                    => 'cloud_storage/access_key',
 				),
 				'upserv_cloud_storage_secret_key' => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_secret_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Cloud Storage Secret Key', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
+					'path'                    => 'cloud_storage/secret_key',
 				),
 				'upserv_cloud_storage_endpoint'   => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_endpoint', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Cloud Storage Endpoint', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
+					'path'                    => 'cloud_storage/endpoint',
 				),
 				'upserv_cloud_storage_unit'       => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_unit', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Cloud Storage Unit', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
+					'path'                    => 'cloud_storage/storage_unit',
 				),
 				'upserv_cloud_storage_region'     => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_region', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'display_name'            => __( 'Cloud Storage Region', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
+					'path'                    => 'cloud_storage/region',
 				),
 			)
 		);
@@ -240,7 +240,7 @@ class Cloud_Storage_Manager {
 			}
 
 			if ( ! $condition ) {
-				update_option( 'upserv_use_cloud_storage', false );
+				upserv_update_option( 'use_cloud_storage', false );
 			}
 		} else {
 			$condition = true;
@@ -251,17 +251,17 @@ class Cloud_Storage_Manager {
 
 	public function upserv_template_package_manager_option_before_miscellaneous() {
 		$options = array(
-			'access_key'   => get_option( 'upserv_cloud_storage_access_key' ),
-			'secret_key'   => get_option( 'upserv_cloud_storage_secret_key' ),
-			'endpoint'     => get_option( 'upserv_cloud_storage_endpoint' ),
-			'storage_unit' => get_option( 'upserv_cloud_storage_unit' ),
-			'region'       => get_option( 'upserv_cloud_storage_region' ),
+			'access_key'   => upserv_get_option( 'cloud_storage/access_key' ),
+			'secret_key'   => upserv_get_option( 'cloud_storage/secret_key' ),
+			'endpoint'     => upserv_get_option( 'cloud_storage/endpoint' ),
+			'storage_unit' => upserv_get_option( 'cloud_storage/storage_unit' ),
+			'region'       => upserv_get_option( 'cloud_storage/region' ),
 		);
 
 		upserv_get_admin_template(
 			'cloud-storage-options.php',
 			array(
-				'use_cloud_storage' => get_option( 'upserv_use_cloud_storage' ),
+				'use_cloud_storage' => upserv_get_option( 'use_cloud_storage' ),
 				'virtual_dir'       => self::$virtual_dir,
 				'options'           => $options,
 			)
