@@ -347,16 +347,16 @@ class Remote_Sources_Manager {
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();
 		$repo_config          = upserv_get_option( 'remote_repositories', array() );
-		$idx                  = array_key_first( $repo_config );
-		$repo_config          = $repo_config[ $idx ];
+		$idx                  = empty( $repo_config ) ? false : array_key_first( $repo_config );
+		$repo_config          = ( $idx ) ? $repo_config[ $idx ] : false;
 		$options              = array(
 			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
-			'url'                     => $repo_config['url'],
-			'self_hosted'             => $repo_config['self_hosted'],
-			'branch'                  => $repo_config['branch'],
-			'credentials'             => $repo_config['credentials'],
-			'filter_packages'         => $repo_config['filter_packages'],
-			'check_frequency'         => $repo_config['check_frequency'],
+			'url'                     => ( $idx ) ? $repo_config['url'] : '',
+			'self_hosted'             => ( $idx ) ? $repo_config['self_hosted'] : 0,
+			'branch'                  => ( $idx ) ? $repo_config['branch'] : '',
+			'credentials'             => ( $idx ) ? $repo_config['credentials'] : '',
+			'filter_packages'         => ( $idx ) ? $repo_config['filter_packages'] : 0,
+			'check_frequency'         => ( $idx ) ? $repo_config['check_frequency'] : 'daily',
 		);
 
 		foreach ( $registered_schedules as $key => $schedule ) {
