@@ -98,7 +98,8 @@ class Nonce {
 					$response = self::$method( $payload );
 
 					if ( $response ) {
-						$code = 200;
+						$code                     = 200;
+						$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 					} else {
 						$response = array(
 							'message' => __( 'Internal Error - nonce insert error', 'updatepulse-server' ),
@@ -178,11 +179,11 @@ class Nonce {
 	public static function register() {
 
 		if ( ! self::is_doing_api_request() ) {
-			add_action( 'init', array( get_class(), 'add_endpoints' ), 10, 0 );
 			add_action( 'action_scheduler_init', array( get_class(), 'action_scheduler_init' ) );
 			add_action( 'upserv_nonce_cleanup', array( get_class(), 'upserv_nonce_cleanup' ) );
 		}
 
+		add_action( 'init', array( get_class(), 'add_endpoints' ) );
 		add_action( 'parse_request', array( get_class(), 'parse_request' ), -99, 0 );
 
 		add_filter( 'query_vars', array( get_class(), 'query_vars' ), -99, 1 );

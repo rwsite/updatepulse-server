@@ -28,11 +28,7 @@ class License_API {
 			}
 
 			if ( $init_hooks ) {
-
-				if ( ! self::is_doing_api_request() ) {
-					add_action( 'init', array( $this, 'add_endpoints' ), -99, 0 );
-				}
-
+				add_action( 'init', array( $this, 'add_endpoints' ), -99, 0 );
 				add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
 				add_action( 'upserv_pre_activate_license', array( $this, 'upserv_bypass_did_edit_license_action' ), 10, 0 );
 				add_action( 'upserv_did_activate_license', array( $this, 'upserv_did_license_action' ), 20, 2 );
@@ -154,8 +150,9 @@ class License_API {
 				$this->http_response_code = 404;
 			} else {
 				$this->http_response_code = 400;
-				$result                   = array();
 			}
+
+			$result = array();
 		} elseif ( ! isset( $result->license_key ) ) {
 			$this->http_response_code = 404;
 			$result                   = array(
@@ -870,9 +867,13 @@ class License_API {
 					in_array( $action, $this->api_access, true )
 				);
 			} elseif ( isset( $payload['license_key'] ) ) {
-				$license = $this->read( $payload );
+				$license = $this->license_server->read_license( $payload );
 				$is_auth = $is_auth && (
 					! is_object( $license ) ||
+					(
+						is_object( $license ) &&
+						empty( get_object_vars( $license ) )
+					) ||
 					(
 						is_object( $license ) &&
 						(
@@ -955,8 +956,11 @@ class License_API {
 						do_action( 'upserv_license_api_request', $method, $payload );
 
 						if ( method_exists( $this, $method ) ) {
-							$response               = $this->$method( $payload );
-							$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+							$response = $this->$method( $payload );
+
+							if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
+								$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+							}
 						} else {
 							$this->http_response_code = 400;
 							$response                 = array(

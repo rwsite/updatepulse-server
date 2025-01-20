@@ -19,11 +19,7 @@ class Update_API {
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
-
-			if ( ! self::is_doing_api_request() ) {
-				add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
-			}
-
+			add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
 			add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
 			add_action( 'upserv_checked_remote_package_update', array( $this, 'upserv_checked_remote_package_update' ), 10, 3 );
 			add_action( 'upserv_removed_package', array( $this, 'upserv_removed_package' ), 10, 3 );

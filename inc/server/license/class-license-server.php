@@ -138,9 +138,8 @@ class License_Server {
 	public function read_license( $payload ) {
 		$payload    = $this->filter_license_payload( $payload );
 		$payload    = apply_filters( 'upserv_read_license_payload', $payload );
-		$validation = ( isset( $payload['id'] ) && ! empty( $payload['id'] ) );
-		$validation = $validation || ( isset( $payload['license_key'] ) && ! empty( $payload['license_key'] ) );
-		$return     = false;
+		$validation = $this->validate_license_payload( $payload, true );
+		$return     = $validation;
 
 		if ( true === $validation ) {
 			global $wpdb;

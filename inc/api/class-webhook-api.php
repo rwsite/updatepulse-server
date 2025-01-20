@@ -38,11 +38,7 @@ class Webhook_API {
 		}
 
 		if ( $init_hooks && $use_webhooks ) {
-
-			if ( ! self::is_doing_api_request() ) {
-				add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
-			}
-
+			add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
 			add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
 			add_action( 'upserv_webhook_invalid_request', array( $this, 'upserv_webhook_invalid_request' ), 10, 0 );
 

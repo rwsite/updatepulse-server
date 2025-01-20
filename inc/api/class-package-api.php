@@ -19,11 +19,7 @@ class Package_API {
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
-
-			if ( ! self::is_doing_api_request() ) {
-				add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
-			}
-
+			add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
 			add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
 			add_action( 'upserv_saved_remote_package_to_local', array( $this, 'upserv_saved_remote_package_to_local' ), 20, 3 );
 			add_action( 'upserv_pre_delete_package', array( $this, 'upserv_pre_delete_package' ), 0, 2 );
@@ -59,6 +55,7 @@ class Package_API {
 
 		if ( isset( $result['count'] ) && 0 === $result['count'] ) {
 			$this->http_response_code = 404;
+			$result                   = (object) array();
 		}
 
 		return $result;
@@ -83,6 +80,7 @@ class Package_API {
 
 		if ( ! $result ) {
 			$this->http_response_code = 404;
+			$result                   = (object) array();
 		}
 
 		return $result;
@@ -104,6 +102,7 @@ class Package_API {
 
 		if ( ! $result ) {
 			$this->http_response_code = 400;
+			$result                   = (object) array();
 		}
 
 		return $result;
@@ -131,9 +130,11 @@ class Package_API {
 
 			if ( ! $result ) {
 				$this->http_response_code = 409;
+				$result                   = (object) array();
 			}
 		} else {
 			$this->http_response_code = 400;
+			$result                   = (object) array();
 		}
 
 		return $result;
@@ -149,6 +150,7 @@ class Package_API {
 			do_action( 'upserv_did_delete_package', $result, $package_id, $type );
 		} else {
 			$this->http_response_code = 404;
+			$result                   = (object) array();
 		}
 
 		return $result;
@@ -210,6 +212,7 @@ class Package_API {
 			do_action( 'upserv_did_signed_url_package', $result );
 		} else {
 			$this->http_response_code = 404;
+			$result                   = (object) array();
 		}
 
 		return $result;
@@ -582,9 +585,6 @@ class Package_API {
 					$method,
 					$payload
 				);
-				$response   = array(
-					'message' => 'OK',
-				);
 
 				if ( $authorized ) {
 					do_action( 'upserv_package_api_request', $method, $payload );
@@ -599,7 +599,9 @@ class Package_API {
 							$response = $this->$method( $payload );
 						}
 
-						$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+						if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
+							$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+						}
 					} else {
 						$this->http_response_code = 400;
 						$response                 = array(

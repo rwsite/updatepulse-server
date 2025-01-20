@@ -311,7 +311,8 @@ Response `$data` - **success** (in case all domains have been deactivated):
 	"date_renewed": "2099-12-15",
 	"date_expiry": "2099-12-31",
 	"package_slug": "example-package",
-	"package_type": "plugin"
+	"package_type": "plugin",
+	"time_elapsed": "0.034"
 }
 ```
 
@@ -453,7 +454,7 @@ Response `$data` - **success**:
 
 Response `$data` - **failure** (in case of malformed License Query - same as no result):
 ```php
-[]
+{}
 ```
 
 ___
@@ -497,7 +498,7 @@ Response `$data` - **success**:
 
 Response `$data` - **failure**:
 ```json
-[]
+{}
 ```
 
 ___
@@ -672,7 +673,7 @@ Response `$data` - **success**:
 
 Response `$data` - **failure**:
 ```json
-[]
+{}
 ```
 
 ___

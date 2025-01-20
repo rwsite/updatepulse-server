@@ -67,15 +67,21 @@ foreach ( $require as $file ) {
 	}
 }
 
-if ( class_exists( 'Anyape\UpdatePulse\Server\Nonce' ) ) {
-	Nonce::register();
-	Nonce::init_auth(
-		array_merge(
-			json_decode( get_option( 'upserv_package_private_api_keys', '{}' ), true ),
-			json_decode( get_option( 'upserv_license_private_api_keys', '{}' ), true ),
-		)
-	);
+$options      = json_decode( get_option( 'upserv_options' ), true );
+$private_keys = array();
+
+if ( is_array( $options ) && ! empty( $options ) && isset( $options['api'] ) ) {
+
+	foreach ( $options['api'] as $index => $option ) {
+
+		if ( isset( $option['private_api_keys'] ) ) {
+			$private_keys = array_merge( $private_keys, $option['private_api_keys'] );
+		}
+	}
 }
+
+Nonce::register();
+Nonce::init_auth( $private_keys );
 
 if (
 	! Update_API::is_doing_api_request() &&
