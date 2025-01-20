@@ -536,11 +536,11 @@ class Cloud_Storage_Manager {
 			$config = self::get_config();
 
 			try {
-				$filename = $local_package->getFileName();
+				$filename = $local_package->get_filename();
 				$result   = self::$cloud_storage->getObject(
 					$config['storage_unit'],
 					self::$virtual_dir . '/' . $slug . '.zip',
-					$local_package->getFileName()
+					$local_package->get_filename()
 				);
 
 				if (
@@ -557,14 +557,14 @@ class Cloud_Storage_Manager {
 						'file'     => $e->getFile(),
 						'line'     => $e->getLine(),
 						'caller'   => $e->getTrace()[1],
-						'filename' => $local_package->getFileName(),
+						'filename' => $local_package->get_filename(),
 					)
 				);
 			}
 		}
 
-		if ( is_file( $local_package->getFileName() ) ) {
-			wp_delete_file( $local_package->getFileName() );
+		if ( is_file( $local_package->get_filename() ) ) {
+			wp_delete_file( $local_package->get_filename() );
 		}
 
 		return $local_meta;
