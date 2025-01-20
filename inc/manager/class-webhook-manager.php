@@ -177,7 +177,7 @@ class Webhook_Manager {
 						FILTER_SANITIZE_FULL_SPECIAL_CHARS
 					);
 					$license_api_key = filter_var(
-						isset( $values['secret'] ) ? $values['secret'] : false,
+						isset( $values['licenseAPIKey'] ) ? $values['licenseAPIKey'] : false,
 						FILTER_SANITIZE_FULL_SPECIAL_CHARS
 					);
 
