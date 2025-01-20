@@ -15,7 +15,6 @@ class Webhook_Manager {
 		if ( $init_hooks ) {
 			add_action( 'upserv_template_remote_source_manager_option_before_recurring_check', array( $this, 'upserv_template_remote_source_manager_option_before_recurring_check' ), 10, 0 );
 
-			add_filter( 'upserv_admin_scripts', array( $this, 'upserv_admin_scripts' ), 10, 1 );
 			add_filter( 'upserv_submitted_remote_sources_config', array( $this, 'upserv_submitted_remote_sources_config' ), 10, 1 );
 			add_filter( 'upserv_submitted_api_config', array( $this, 'upserv_submitted_api_config' ), 10, 1 );
 			add_filter( 'upserv_remote_source_option_update', array( $this, 'upserv_remote_source_option_update' ), 10, 3 );
@@ -32,16 +31,6 @@ class Webhook_Manager {
 	public static function deactivate() {}
 
 	public static function uninstall() {}
-
-	public function upserv_admin_scripts( $scripts ) {
-		$scripts['webhook'] = array(
-			'path' => UPSERV_PLUGIN_PATH . 'js/admin/webhook' . upserv_assets_suffix() . '.js',
-			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/webhook' . upserv_assets_suffix() . '.js',
-			'deps' => array( 'jquery' ),
-		);
-
-		return $scripts;
-	}
 
 	public function upserv_page_upserv_scripts_l10n( $l10n ) {
 		$repo_configs = upserv_get_option( 'remote_repositories', array() );

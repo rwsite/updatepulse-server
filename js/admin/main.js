@@ -14,6 +14,47 @@ jQuery(document).ready(function ($) {
 		history.pushState(null, '', hrefParts.join('?') );
 	}
 
+	/** Modal */
+	$('body').on('click', '.upserv-modal-open-handle', function (e) {
+		var modal = $('#' + $(this).data('modal_id'));
+
+		e.preventDefault();
+		modal.trigger('open', [$(this)]);
+	});
+
+	$('body').on('click', '.upserv-modal-close-handle', function (e) {
+		var modal = $('#' + $(this).data('modal_id'));
+
+		e.preventDefault();
+		modal.trigger('close', [$(this)]);
+	});
+
+	$('body').on('click', '.upserv-modal-close', function (e) {
+		var modal = $(this).closest('.upserv-modal');
+
+		e.preventDefault();
+		modal.trigger('close', [$(this)]);
+	});
+
+	$('body').on('open', '.upserv-modal', function(handler) {
+		var modal = $(this);
+
+		modal.data('handler', handler);
+		$(document).trigger('upserv-modal-open', [handler]);
+		modal.removeClass('hidden');
+		$('body').addClass('upserv-modal-open');
+	});
+
+	$('body').on('close', '.upserv-modal', function(handler) {
+		var modal = $(this);
+
+		modal.data('handler', null);
+		$(document).trigger('upserv-modal-close', [handler]);
+		modal.addClass('hidden');
+		$('body').removeClass('upserv-modal-open');
+	});
+	/** End Modal */
+
 	$('input[type="password"].secret').on('focus', function () {
 		$(this).attr('type', 'text');
 	});

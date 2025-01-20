@@ -19,12 +19,13 @@
     padding: 0
 }
 
-.form-table td input[type=text].new-api-key-item-id,.form-table td input[type=text].new-webhook-item-url,.form-table td input[type=text].new-webhook-item-secret,.form-table td textarea.ip-whitelist,.api-keys-items {
-    max-width: 600px
-}
-
+.form-table td input[type=text].new-api-key-item-id,
+.form-table td input[type=text].new-webhook-item-url,
+.form-table td input[type=text].new-webhook-item-secret,
+.form-table td textarea.ip-whitelist,
+.api-keys-items,
 .webhook-items {
-    max-width: 750px
+    max-width: 600px
 }
 
 .new-webhook-item-license_api_key {
@@ -42,7 +43,7 @@
 }
 
 .webhook-items .item {
-    grid-template-columns: 1fr 2fr 2fr auto;
+    grid-template-columns: auto auto 2fr auto;
 }
 
 .api-keys-items .item:last-child,.webhook-items .item:last-child {
@@ -51,7 +52,8 @@
 
 .api-keys-items .key,.webhook-items .secret {
     word-break: break-all;
-    min-width: 75px
+    min-width: 75px;
+    justify-self: end;
 }
 
 .api-keys-items .id {

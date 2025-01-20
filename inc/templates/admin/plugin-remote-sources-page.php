@@ -25,33 +25,21 @@
 						);
 						?>
 						<br>
-						<strong><?php esc_html_e( 'It affects all the packages delivered by this installation of UpdatePulse Server if they have a corresponding repository in the Remote Repository Service.', 'updatepulse-server' ); ?></strong>
-						<br>
-						<strong><?php esc_html_e( 'Settings of the "Remote Sources" section will be saved only if this option is checked.', 'updatepulse-server' ); ?></strong>
+						<strong>
+							<?php
+							printf(
+								// translators: %s <a href="admin.php?page=upserv-page-help">initialize packages</a>
+								esc_html__( 'It is necessary to %s linked to a Remote Repository for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
+								'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page-help' ) ) . '">' . esc_html__( 'register packages', 'updatepulse-server' ) . '</a>'
+							);
+							?>
+						</strong>
 					</p>
 				</td>
 			</tr>
 		</table>
 		<div class="repositories">
-			<div class="item button selected" id="aHR0cHM6Ly9naXRo4WIuY29tL0FueWFwZS8=-main">
-				<div class="url">
-					<span>https://github.com/identifier/</span>
-				</div>
-				<div class="branch">
-					<span class="label"><?php esc_html_e( 'Branch: ', 'updatepulse-server' ); ?></span>
-					<span class="branch-name">main</span>
-				</div>
-			</div>
-			<div class="item button" id="aHR0cHM6Ly9naXRo1WIuY29tL08ueWFwZS8=-dev">
-				<div class="url">
-					<span>https://github.com/identifier/</span>
-				</div>
-				<div class="branch">
-					<span class="label"><?php esc_html_e( 'Branch: ', 'updatepulse-server' ); ?></span>
-					<span class="branch-name">dev</span>
-				</div>
-			</div>
-			<div class="item button template">
+			<div class="item button template upserv-modal-open-handle" data-modal_id="upserv_modal_add_remote_source">
 				<div class="placeholder">
 					<span class="icon">+</span>
 					<div><?php esc_html_e( 'Add a Remote Repository', 'updatepulse-server' ); ?></div>
@@ -65,14 +53,14 @@
 				</div>
 			</div>
 		</div>
-		<div class="form-container package-source">
+		<div class="form-container package-source hidden">
 			<table class="form-table form-settings">
 				<tr>
 					<th>
 						<label for="upserv_remote_repository_url"><?php esc_html_e( 'Remote Repository Service URL', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="regular-text remote-repository-setting" type="text" id="upserv_remote_repository_url" name="upserv_remote_repository_url" value="<?php echo esc_attr( $options['url'] ); ?>">
+						<input class="regular-text remote-repository-setting" type="text" id="upserv_remote_repository_url" data-prop="url" name="upserv_remote_repository_url" value="<?php echo esc_attr( $options['url'] ); ?>">
 						<p class="description">
 							<?php esc_html_e( 'The URL of the Remote Repository Service where packages are hosted.', 'updatepulse-server' ); ?>
 							<br>
@@ -102,7 +90,7 @@
 						<label for="upserv_remote_repository_self_hosted"><?php esc_html_e( 'Self-hosted Remote Repository Service', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="remote-repository-setting" type="checkbox" id="upserv_remote_repository_self_hosted" name="upserv_remote_repository_self_hosted" value="1" <?php checked( $options['self_hosted'], 1 ); ?>>
+						<input class="remote-repository-setting" type="checkbox" id="upserv_remote_repository_self_hosted" data-prop="self_hosted" name="upserv_remote_repository_self_hosted" value="1" <?php checked( $options['self_hosted'], 1 ); ?>>
 						<p class="description">
 							<?php esc_html_e( 'Check this only if the Remote Repository Service is a self-hosted instance of Gitlab.', 'updatepulse-server' ); ?>
 						</p>
@@ -113,7 +101,7 @@
 						<label for="upserv_remote_repository_branch"><?php esc_html_e( 'Packages Branch Name', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="remote-repository-setting regular-text" type="text" id="upserv_remote_repository_branch" name="upserv_remote_repository_branch" value="<?php echo esc_attr( $options['branch'] ); ?>">
+						<input class="remote-repository-setting regular-text" type="text" id="upserv_remote_repository_branch" data-prop="branch" name="upserv_remote_repository_branch" value="<?php echo esc_attr( $options['branch'] ); ?>">
 						<p class="description">
 							<?php esc_html_e( 'The branch to download when getting remote packages from the Remote Repository Service.', 'updatepulse-server' ); ?>
 						</p>
@@ -124,7 +112,7 @@
 						<label for="upserv_remote_repository_credentials"><?php esc_html_e( 'Remote Repository Service Credentials', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="remote-repository-setting regular-text secret" type="password" autocomplete="new-password" id="upserv_remote_repository_credentials" name="upserv_remote_repository_credentials" value="<?php echo esc_attr( $options['credentials'] ); ?>">
+						<input class="remote-repository-setting regular-text secret" type="password" autocomplete="new-password" id="upserv_remote_repository_credentials" data-prop="credentials" name="upserv_remote_repository_credentials" value="<?php echo esc_attr( $options['credentials'] ); ?>">
 						<p class="description">
 							<?php esc_html_e( 'Credentials for non-publicly accessible repositories.', 'updatepulse-server' ); ?>
 							<br>
@@ -153,7 +141,7 @@
 						<label for="upserv_remote_repository_filter_packages"><?php esc_html_e( 'Filter Packages', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input type="checkbox" id="upserv_remote_repository_filter_packages" name="upserv_remote_repository_filter_packages" value="1" <?php checked( $options['filter_packages'], 1 ); ?>>
+						<input type="checkbox" id="upserv_remote_repository_filter_packages" data-prop="filter_packages" name="upserv_remote_repository_filter_packages" value="1" <?php checked( $options['filter_packages'], 1 ); ?>>
 						<p class="description">
 							<?php esc_html_e( 'Check this if you wish to filter the packages to download from the Remote Repository Service so that only packages explicitly associated with this server are downloaded.', 'updatepulse-server' ); ?>
 							<br/>
@@ -190,7 +178,7 @@
 						<label for="upserv_remote_repository_check_frequency"><?php esc_html_e( 'Remote update check frequency', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<select name="upserv_remote_repository_check_frequency" id="upserv_remote_repository_check_frequency">
+						<select name="upserv_remote_repository_check_frequency" id="upserv_remote_repository_check_frequency" data-prop="check_frequency">
 							<?php foreach ( $schedules as $display => $schedule ) : ?>
 								<option value="<?php echo esc_attr( $schedule['slug'] ); ?>" <?php selected( $options['check_frequency'], $schedule['slug'] ); ?>><?php echo esc_html( $display ); ?></option>
 							<?php endforeach; ?>
@@ -231,4 +219,57 @@
 			<input type="submit" name="upserv_options_save" value="<?php esc_attr_e( 'Save', 'updatepulse-server' ); ?>" class="button button-primary" />
 		</p>
 	</form>
+</div>
+<div id="upserv_modal_add_remote_source" class='upserv-modal upserv-modal-remote-sources hidden'>
+	<div class='upserv-modal-content'>
+		<div class='upserv-modal-header'>
+			<span class='upserv-modal-close'>&times;</span>
+			<h2><?php esc_html_e( 'Add a Remote Source', 'upserv' ); ?><span></span></h2>
+		</div>
+		<div class='upserv-modal-body'>
+			<table class="form-table form-settings">
+				<tr>
+					<th>
+						<label for="upserv_add_remote_repository_url"><?php esc_html_e( 'Remote Repository Service URL', 'updatepulse-server' ); ?></label>
+					</th>
+					<td>
+						<input class="regular-text remote-repository-setting" type="text" id="upserv_add_remote_repository_url" data-prop="url" name="upserv_add_remote_repository_url" value="">
+						<p class="description">
+							<?php esc_html_e( 'The URL of the Remote Repository Service where packages are hosted.', 'updatepulse-server' ); ?>
+							<br>
+							<?php
+							printf(
+								// translators: %1$s is <code>https://repository-service.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://repository-service.tld</code>
+								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the user name in case of BitBucket, is a group in case of Gitlab (no support for Gitlab subgroups), and where %3$s may be a self-hosted instance of Gitlab.', 'updatepulse-server' ),
+								'<code>https://repository-service.tld/identifier/</code>',
+								'<code>identifier</code>',
+								'<code>https://repository-service.tld</code>'
+							);
+							?>
+							<br>
+							<?php
+							printf(
+								// translators: %1$s is <code>https://repository-service.tld/identifier/package-slug/</code>, %2$s is <code>identifier</code>
+								esc_html__( 'Each package repository URL must follow the following pattern: %1$s ; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern %2$s.', 'updatepulse-server' ),
+								'<code>https://repository-service.tld/identifier/package-slug/</code>',
+								'<code>package-slug.php</code>',
+							);
+							?>
+						</p>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						<label for="upserv_add_remote_repository_branch"><?php esc_html_e( 'Packages Branch Name', 'updatepulse-server' ); ?></label>
+					</th>
+					<td>
+						<input class="remote-repository-setting regular-text" type="text" id="upserv_add_remote_repository_branch" data-prop="branch" name="upserv_add_remote_repository_branch" value="">
+						<p class="description">
+							<?php esc_html_e( 'The branch to download when getting remote packages from the Remote Repository Service.', 'updatepulse-server' ); ?>
+						</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 </div>

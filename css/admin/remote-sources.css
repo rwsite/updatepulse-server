@@ -1,4 +1,4 @@
-.repositories {
+.upserv-wrap .repositories {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -6,7 +6,7 @@
     gap: 1em;
 }
 
-.repositories .item.button.template .placeholder {
+.upserv-wrap .repositories .item.button.template .placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,45 +16,46 @@
     font-weight: bold;
 }
 
-.repositories .item.button.template .placeholder span.icon {
+.upserv-wrap .repositories .item.button.template .placeholder span.icon {
     font-size: 2em;
     line-height: 1em;
 }
 
 .repositories .button.item.selected {
-    border-width: 2px;
+    box-shadow: inset 0px 0px 0px 2px #2271b1;
 }
 
-.repositories .button.item .url span {
+.upserv-wrap .repositories .button.item .url span {
     font-size: 1.15em
 }
 
-.repositories .button.item.selected .url span {
-    font-weight: bold;
+.upserv-wrap .repositories .button.item.selected .url span {
+    /* font-weight: bold; */
 }
 
-.repositories .item {
-
+.upserv-wrap .repositories .item {
+    box-shadow: inset 0px 0px 0px 2px transparent;
 }
 
-.repositories .item:not(.template) {
+.upserv-wrap .repositories .item:not(.template) {
 }
 
-.repositories .item .branch:not(.hidden) {
+.upserv-wrap .repositories .item .branch:not(.hidden) {
     display: flex;
     gap: 0.25em;
     align-items: center;
 }
 
-.repositories .item .url span {
+.upserv-wrap .repositories .item .url span {
     display: inline-block;
     word-break: break-all;
     max-width: 300px;
 }
 
-.package-source.form-container {
+.upserv-wrap .package-source.form-container {
     padding: 0 2em 1em 2em;
     margin: 1em 0;
     background: #fff;
     border-radius: 0.5em;
+    max-width: 1400px;
 }

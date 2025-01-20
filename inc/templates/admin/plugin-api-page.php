@@ -10,7 +10,9 @@
 				<th>
 					<label for="upserv_package_private_api_keys"><?php esc_html_e( 'Private API Keys', 'updatepulse-server' ); ?></label>
 				</th>
-				<td>
+			</tr>
+			<tr>
+				<td colspan="2">
 					<div class="api-keys-multiple package" data-prefix="UPDATEPULSE_P_">
 						<div class="api-keys-items empty">
 						</div>
@@ -68,7 +70,9 @@
 				<th>
 					<label for="upserv_license_private_api_keys"><?php esc_html_e( 'Private API Keys', 'updatepulse-server' ); ?></label>
 				</th>
-				<td>
+			</tr>
+			<tr>
+				<td colspan="2">
 					<div class="api-keys-multiple license" data-prefix="UPDATEPULSE_L_">
 						<div class="api-keys-items empty">
 						</div>
@@ -126,7 +130,7 @@
 		<h3><?php esc_html_e( 'Webhooks', 'updatepulse-server' ); ?></h3>
 		<table class="form-table">
 			<tr>
-				<td colspan="2">
+				<td>
 					<div class="webhook-multiple">
 						<div class="webhook-items empty">
 						</div>

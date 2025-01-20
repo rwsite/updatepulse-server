@@ -73,7 +73,7 @@ class Remote_Sources_Manager {
 
 		foreach ( $repo_configs as $r_c ) {
 
-			if ( $r_c['use_webhooks'] ) {
+			if ( $r_c['use_webhooks'] || ! isset( $r_c['url'] ) ) {
 				continue;
 			}
 
@@ -109,6 +109,11 @@ class Remote_Sources_Manager {
 		if ( ! empty( $repo_configs ) ) {
 
 			foreach ( $repo_configs as $r_c ) {
+
+				if ( ! isset( $r_c['url'] ) ) {
+					continue;
+				}
+
 				$slugs = $this->get_package_slugs( $r_c['url'] );
 
 				if ( ! empty( $slugs ) ) {
@@ -350,6 +355,10 @@ class Remote_Sources_Manager {
 			return false;
 		}
 
+		if ( ! isset( $repo_config['url'], $repo_config['use_webhooks'] ) ) {
+			return false;
+		}
+
 		if ( ! $repo_config['use_webhooks'] ) {
 			$slugs = $this->get_package_slugs( $repo_config['url'] );
 
@@ -455,89 +464,80 @@ class Remote_Sources_Manager {
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
-			wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
-		) {
-			$result  = __( 'UpdatePulse Server options successfully updated', 'updatepulse-server' );
-			$options = $this->get_submitted_options();
-
-			foreach ( $options as $option_name => $option_info ) {
-				$condition = $option_info['value'];
-				$skip      = false;
-
-				if ( ! $skip && isset( $option_info['condition'] ) ) {
-
-					if ( 'boolean' === $option_info['condition'] ) {
-						$condition            = true;
-						$option_info['value'] = ( $option_info['value'] );
-					}
-
-					if ( 'known frequency' === $option_info['condition'] ) {
-						$schedules      = wp_get_schedules();
-						$schedule_slugs = array_keys( $schedules );
-						$condition      = $condition && in_array( $option_info['value'], $schedule_slugs, true );
-					}
-
-					if ( 'service_url' === $condition ) {
-						$repo_regex = '@^/?([^/]+?)/([^/#?&]+?)/?$@';
-						$path       = wp_parse_url( $option_info['value'], PHP_URL_PATH );
-						$condition  = (bool) preg_match( $repo_regex, $path );
-					}
-
-					$condition = apply_filters(
-						'upserv_remote_source_option_update',
-						$condition,
-						$option_name,
-						$option_info,
-						$options
-					);
-				}
-
-				if (
-					! $skip &&
-					isset( $option_info['dependency'] ) &&
-					! $options[ $option_info['dependency'] ]['value']
-				) {
-					$skip      = true;
-					$condition = false;
-				}
-
-				if ( ! $skip && $condition ) {
-					$to_save[ $option_info['path'] ] = $option_info['value'];
-
-					if ( 'upserv_remote_repository_check_frequency' === $option_name ) {
-						$new_check_frequency = $option_info['value'];
-					}
-
-					if ( 'upserv_use_remote_repository' === $option_name ) {
-						$new_use_remote_repository = $option_info['value'];
-					}
-				} elseif ( ! $skip ) {
-					$errors[ $option_name ] = sprintf(
-						// translators: %1$s is the option display name, %2$s is the condition for update
-						__( 'Option %1$s was not updated. Reason: %2$s', 'updatepulse-server' ),
-						$option_info['display_name'],
-						$option_info['failure_display_message']
-					);
-				}
-			}
-
-			if ( ! empty( $to_save ) ) {
-				$to_update = upserv_set_option( 'use_remote_repositories', $to_save['use_remote_repositories'] );
-
-				unset( $to_save['use_remote_repositories'] );
-
-				$idx             = str_replace( '/', '|', base64_encode( $to_save['url'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-				$options         = array( $idx => array() );
-				$options[ $idx ] = $to_save;
-				$to_update       = upserv_set_option( 'remote_repositories', $options );
-
-				upserv_update_options( $to_update );
-			}
-		} elseif (
-			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
 			! wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
 		) {
 			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
+
+			return $errors;
+		} elseif ( ! isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) ) {
+			return $result;
+		}
+
+		$result  = __( 'UpdatePulse Server options successfully updated', 'updatepulse-server' );
+		$options = $this->get_submitted_options();
+
+		foreach ( $options as $option_name => $option_info ) {
+			$condition = $option_info['value'];
+
+			if ( isset( $option_info['condition'] ) ) {
+
+				if ( 'boolean' === $option_info['condition'] ) {
+					$condition            = true;
+					$option_info['value'] = ( $option_info['value'] );
+				}
+
+				if ( 'known frequency' === $option_info['condition'] ) {
+					$schedules      = wp_get_schedules();
+					$schedule_slugs = array_keys( $schedules );
+					$condition      = $condition && in_array( $option_info['value'], $schedule_slugs, true );
+				}
+
+				if ( 'service_url' === $condition ) {
+					$repo_regex = '@^/?([^/]+?)/([^/#?&]+?)/?$@';
+					$path       = wp_parse_url( $option_info['value'], PHP_URL_PATH );
+					$condition  = (bool) preg_match( $repo_regex, $path );
+				}
+
+				$condition = apply_filters(
+					'upserv_remote_source_option_update',
+					$condition,
+					$option_name,
+					$option_info,
+					$options
+				);
+			}
+
+			if ( $condition ) {
+				$to_save[ $option_info['path'] ] = $option_info['value'];
+
+				if ( 'upserv_remote_repository_check_frequency' === $option_name ) {
+					$new_check_frequency = $option_info['value'];
+				}
+
+				if ( 'upserv_use_remote_repository' === $option_name ) {
+					$new_use_remote_repository = $option_info['value'];
+				}
+			} else {
+				$errors[ $option_name ] = sprintf(
+					// translators: %1$s is the option display name, %2$s is the condition for update
+					__( 'Option %1$s was not updated. Reason: %2$s', 'updatepulse-server' ),
+					$option_info['display_name'],
+					$option_info['failure_display_message']
+				);
+			}
+		}
+
+		if ( ! empty( $to_save ) ) {
+			$to_update = upserv_set_option( 'use_remote_repositories', $to_save['use_remote_repositories'] );
+
+			unset( $to_save['use_remote_repositories'] );
+
+			$idx             = str_replace( '/', '|', base64_encode( $to_save['url'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			$options         = array( $idx => array() );
+			$options[ $idx ] = $to_save;
+			$to_update       = upserv_set_option( 'remote_repositories', $options );
+
+			upserv_update_options( $to_update );
 		}
 
 		if ( ! empty( $errors ) ) {
@@ -582,7 +582,7 @@ class Remote_Sources_Manager {
 			set_transient( 'upserv_flush', 1, 60 );
 		}
 
-		do_action( 'upserv_remote_sources_options_updated', $errors );
+		do_action( 'upserv_remote_sources_options_updated', $result );
 
 		return $result;
 	}
@@ -601,7 +601,6 @@ class Remote_Sources_Manager {
 					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_url', FILTER_VALIDATE_URL ),
 					'display_name'            => __( 'Remote Repository Service URL', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid URL', 'updatepulse-server' ),
-					'dependency'              => 'upserv_use_remote_repository',
 					'condition'               => 'service_url',
 					'path'                    => 'url',
 				),
