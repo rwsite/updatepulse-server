@@ -346,9 +346,9 @@ class Remote_Sources_Manager {
 
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();
-		$repo_config          = upserv_get_option( 'remote_repositories', array() );
+		$repo_configs         = upserv_get_option( 'remote_repositories', array() );
 		$idx                  = empty( $repo_config ) ? false : array_key_first( $repo_config );
-		$repo_config          = ( $idx ) ? $repo_config[ $idx ] : false;
+		$repo_config          = ( $idx ) ? $repo_configs[ $idx ] : false;
 		$options              = array(
 			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
 			'url'                     => ( $idx ) ? $repo_config['url'] : '',

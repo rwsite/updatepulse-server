@@ -21,9 +21,23 @@ class Webhook_API {
 	protected $http_response_code = 200;
 
 	public function __construct( $init_hooks = false ) {
-		$this->webhooks = json_decode( get_option( 'upserv_webhooks', '{}' ), true );
+		$this->webhooks = upserv_get_option( 'api/webhooks', array() );
+		$repo_configs   = upserv_get_option( 'remote_repositories', array() );
+		$use_webhooks   = false;
 
-		if ( $init_hooks && get_option( 'upserv_remote_repository_use_webhooks' ) ) {
+		if ( ! empty( $repo_configs ) ) {
+
+			foreach ( $repo_configs as $r_c ) {
+
+				if ( isset( $r_c['use_webhooks'] ) && $r_c['use_webhooks'] ) {
+					$use_webhooks = true;
+
+					break;
+				}
+			}
+		}
+
+		if ( $init_hooks && $use_webhooks ) {
 
 			if ( ! self::is_doing_api_request() ) {
 				add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
@@ -141,26 +155,20 @@ class Webhook_API {
 	public static function get_config() {
 
 		if ( ! self::$config ) {
-			$config = array(
-				'use_webhooks'           => (bool) get_option( 'upserv_remote_repository_use_webhooks' ),
-				'repository_branch'      => get_option( 'upserv_remote_repository_branch', 'main' ),
-				'repository_check_delay' => intval( get_option( 'upserv_remote_repository_check_delay', 0 ) ),
-				'webhook_secret'         => get_option( 'upserv_remote_repository_webhook_secret' ),
+			$repo_configs = upserv_get_option( 'remote_repositories', array() );
+			$idx          = empty( $repo_config ) ? false : array_key_first( $repo_config );
+			$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
+			$config       = array(
+				'use_webhooks'   => ( $idx ) ? $repo_config['use_webhooks'] : 0,
+				'webhook_secret' => ( $idx ) ? $repo_config['secret'] : '',
+				'check_delay'    => ( $idx ) ? $repo_config['check_delay'] : 0,
 			);
 
 			if (
-				! is_numeric( $config['repository_check_delay'] ) &&
-				0 <= intval( $config['repository_check_delay'] )
+				! is_numeric( $config['check_delay'] ) ||
+				0 > intval( $config['check_delay'] )
 			) {
-				$config['repository_check_delay'] = 0;
-
-				update_option( 'upserv_remote_repository_check_delay', 0 );
-			}
-
-			if ( empty( $config['webhook_secret'] ) ) {
-				$config['webhook_secret'] = bin2hex( openssl_random_pseudo_bytes( 16 ) );
-
-				update_option( 'upserv_remote_repository_webhook_secret', $config['webhook_secret'] );
+				$config['check_delay'] = 0;
 			}
 
 			self::$config = $config;
@@ -194,7 +202,7 @@ class Webhook_API {
 		$payload['origin']    = get_bloginfo( 'url' );
 		$payload['timestamp'] = time();
 
-		foreach ( $this->webhooks as $url => $info ) {
+		foreach ( $this->webhooks as $info ) {
 			$fire = false;
 
 			if (
@@ -218,13 +226,13 @@ class Webhook_API {
 				}
 			}
 
-			if ( apply_filters( 'upserv_webhook_fire', $fire, $payload, $url, $info ) ) {
+			if ( apply_filters( 'upserv_webhook_fire', $fire, $payload, $info['url'], $info ) ) {
 				$body   = wp_json_encode(
 					$payload,
 					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK
 				);
 				$hook   = 'upserv_webhook';
-				$params = array( $url, $info['secret'], $body, current_action() );
+				$params = array( $info['url'], $info['secret'], $body, current_action() );
 
 				if ( ! as_has_scheduled_action( 'upserv_webhook', $params ) ) {
 					$instant = apply_filters(
@@ -290,7 +298,10 @@ class Webhook_API {
 			$webhooks = array_filter(
 				$this->webhooks,
 				function ( $key ) use ( $source ) {
-					return 0 === strpos( $key, $source );
+					return 0 === strpos(
+						str_replace( '|', '/', base64_decode( $key ) ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+						$source
+					);
 				},
 				ARRAY_FILTER_USE_KEY
 			);
@@ -331,7 +342,7 @@ class Webhook_API {
 			$type              = isset( $wp->query_vars['type'] ) ?
 				trim( rawurldecode( $wp->query_vars['type'] ) ) :
 				null;
-			$delay             = $config['repository_check_delay'];
+			$delay             = $config['check_delay'];
 			$package_directory = Data_Manager::get_data_dir( 'packages' );
 			$package_exists    = null;
 			$payload           = @file_get_contents( 'php://input' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
@@ -485,6 +496,10 @@ class Webhook_API {
 		$valid  = false;
 		$sign   = false;
 		$secret = apply_filters( 'upserv_webhook_secret', $config['webhook_secret'], $config );
+
+		if ( ! $secret ) {
+			return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $config );
+		}
 
 		if ( isset( $_SERVER['HTTP_X_GITLAB_TOKEN'] ) ) {
 			$valid = $_SERVER['HTTP_X_GITLAB_TOKEN'] === $secret;

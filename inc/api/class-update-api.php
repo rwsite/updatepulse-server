@@ -138,36 +138,48 @@ class Update_API {
 	public static function get_config() {
 
 		if ( ! self::$config ) {
-			$config = array(
-				'use_remote_repository' => (bool) get_option( 'upserv_use_remote_repository' ),
-				'server_directory'      => Data_Manager::get_data_dir(),
-				'url'                   => get_option( 'upserv_remote_repository_url' ),
-				'branch'                => get_option( 'upserv_remote_repository_branch', 'main' ),
-				'credentials'           => explode( '|', get_option( 'upserv_remote_repository_credentials' ) ),
-				'self_hosted'           => (bool) get_option( 'upserv_remote_repository_self_hosted' ),
-				'filter_packages'       => (bool) get_option( 'upserv_remote_repository_filter_packages' ),
-				'check_frequency'       => get_option( 'upserv_remote_repository_check_frequency', 'daily' ),
+			$repo_configs = upserv_get_option( 'remote_repositories', array() );
+			$idx          = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
+			$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
+			$config       = array(
+				'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
+				'server_directory'        => Data_Manager::get_data_dir(),
+				'url'                     => ( $idx ) ? $repo_config['url'] : '',
+				'self_hosted'             => ( $idx ) ? $repo_config['self_hosted'] : 0,
+				'branch'                  => ( $idx ) ? $repo_config['branch'] : '',
+				'credentials'             => ( $idx ) ? $repo_config['credentials'] : '',
+				'filter_packages'         => ( $idx ) ? $repo_config['filter_packages'] : 0,
+				'check_frequency'         => ( $idx ) ? $repo_config['check_frequency'] : 'daily',
 			);
 
-			$is_valid_schedule = in_array(
-				strtolower( $config['repository_check_frequency'] ),
-				array_keys( wp_get_schedules() ),
-				true
-			);
+			if ( ! empty( $repo_configs ) ) {
+				$needs_updated = false;
 
-			if ( ! $is_valid_schedule ) {
-				$config['repository_check_frequency'] = 'daily';
+				foreach ( $repo_configs as $index => $r_c ) {
+					$is_valid_schedule = in_array(
+						strtolower( $r_c['check_frequency'] ),
+						array_keys( wp_get_schedules() ),
+						true
+					);
 
-				update_option( 'upserv_remote_repository_check_frequency', 'daily' );
+					if ( ! $is_valid_schedule ) {
+						$needs_updated                             = true;
+						$repo_configs[ $index ]['check_frequency'] = 'daily';
+					}
+				}
+
+				if ( $needs_updated ) {
+					upserv_update_option( 'remote_repositories', $repo_configs );
+				}
 			}
 
-			if ( 2 === count( $config['repository_credentials'] ) ) {
+			if ( 2 === count( $config['credentials'] ) ) {
 				$config['repository_credentials'] = array(
-					'consumer_key'    => $config['repository_credentials'][0],
-					'consumer_secret' => $config['repository_credentials'][1],
+					'consumer_key'    => $config['credentials'][0],
+					'consumer_secret' => $config['credentials'][1],
 				);
 			} else {
-				$config['repository_credentials'] = $config['repository_credentials'][0];
+				$config['credentials'] = $config['credentials'][0];
 			}
 
 			self::$config = $config;
@@ -239,7 +251,7 @@ class Update_API {
 
 		if (
 			apply_filters( 'upserv_use_recurring_schedule', true ) &&
-			$config['use_remote_repository'] &&
+			$config['use_remote_repositories'] &&
 			$config['url']
 		) {
 			$hook   = 'upserv_check_remote_' . $slug;
@@ -304,7 +316,7 @@ class Update_API {
 
 		if ( ! isset( $this->update_server ) || ! is_a( $this->update_server, $_class_name ) ) {
 			$this->update_server = new $_class_name(
-				$config['use_remote_repository'],
+				$config['use_remote_repositories'],
 				home_url( '/updatepulse-server-update-api/' ),
 				$config['server_directory'],
 				$url,
