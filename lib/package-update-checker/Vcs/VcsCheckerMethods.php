@@ -6,9 +6,9 @@ if ( ! trait_exists( VcsCheckerMethods::class, false ) ) :
 
 	trait VcsCheckerMethods {
 		/**
-		 * @var string The branch where to look for updates. Defaults to "master".
+		 * @var string The branch where to look for updates. Defaults to "main".
 		 */
-		protected $branch = 'master';
+		protected $branch = 'main';
 
 		/**
 		 * @var Api Repository API client.

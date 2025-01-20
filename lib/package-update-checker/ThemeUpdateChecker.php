@@ -4,7 +4,7 @@ namespace Anyape\PackageUpdateChecker;
 
 if ( ! class_exists( ThemeUpdateChecker::class, false ) ) :
 
-	class ThemeUpdateChecker extends UpdateChecker implements Vcs\BaseChecker {
+	class ThemeUpdateChecker extends UpdateChecker {
 		public $theme_absolute_path = '';
 
 		public function __construct( $api, $slug, $container ) {
@@ -100,22 +100,6 @@ if ( ! class_exists( ThemeUpdateChecker::class, false ) ) :
 				'TextDomain'  => 'Text Domain',
 				'DomainPath'  => 'Domain Path',
 			);
-		}
-
-		public function set_branch( $branch ) {
-			$this->branch = $branch;
-
-			return $this;
-		}
-
-		public function set_authentication( $credentials ) {
-			$this->api->set_authentication( $credentials );
-
-			return $this;
-		}
-
-		public function get_vcs_api() {
-			return $this->api;
 		}
 	}
 

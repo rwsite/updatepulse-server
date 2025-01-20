@@ -268,7 +268,7 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param string $ref
 		 * @return null|string Either the contents of the file, or null if the file doesn't exist or there's an error.
 		 */
-		abstract public function get_remote_file( $path, $ref = 'master' );
+		abstract public function get_remote_file( $path, $ref = 'main' );
 
 		/**
 		 * Get the timestamp of the latest commit that changed the specified branch or tag.

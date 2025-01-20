@@ -4,7 +4,7 @@ namespace Anyape\PackageUpdateChecker;
 
 if ( ! class_exists( PluginUpdateChecker::class, false ) ) :
 
-	class PluginUpdateChecker extends UpdateChecker implements Vcs\BaseChecker {
+	class PluginUpdateChecker extends UpdateChecker {
 		public $plugin_absolute_path = ''; //Full path of the main plugin file.
 		public $plugin_file          = '';  //Plugin filename relative to the plugins directory. Many WP APIs use this to identify plugins.
 
@@ -113,20 +113,6 @@ if ( ! class_exists( PluginUpdateChecker::class, false ) ) :
 				'Tested up to'      => 'Tested up to',
 				'Requires at least' => 'Requires at least',
 			);
-		}
-
-		public function set_branch( $branch ) {
-			$this->branch = $branch;
-			return $this;
-		}
-
-		public function set_authentication( $credentials ) {
-			$this->api->set_authentication( $credentials );
-			return $this;
-		}
-
-		public function get_vcs_api() {
-			return $this->api;
 		}
 	}
 

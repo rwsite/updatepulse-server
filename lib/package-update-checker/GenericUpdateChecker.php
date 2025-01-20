@@ -4,7 +4,7 @@ namespace Anyape\PackageUpdateChecker;
 
 if ( ! class_exists( GenericUpdateChecker::class, false ) ) :
 
-	class GenericUpdateChecker extends UpdateChecker implements Vcs\BaseChecker {
+	class GenericUpdateChecker extends UpdateChecker {
 		public $generic_absolute_path = '';
 		public $generic_file          = '';
 
@@ -91,22 +91,6 @@ if ( ! class_exists( GenericUpdateChecker::class, false ) ) :
 
 		protected function get_header_names() {
 			return array();
-		}
-
-		public function set_branch( $branch ) {
-			$this->branch = $branch;
-
-			return $this;
-		}
-
-		public function set_authentication( $credentials ) {
-			$this->api->set_authentication( $credentials );
-
-			return $this;
-		}
-
-		public function get_vcs_api() {
-			return $this->api;
 		}
 	}
 

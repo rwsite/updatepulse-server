@@ -50,6 +50,22 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 			return $results;
 		}
 
+		public function set_branch( $branch ) {
+			$this->branch = $branch;
+
+			return $this;
+		}
+
+		public function set_authentication( $credentials ) {
+			$this->api->set_authentication( $credentials );
+
+			return $this;
+		}
+
+		public function get_vcs_api() {
+			return $this->api;
+		}
+
 		/**
 		 * @return array Format: ['HeaderKey' => 'Header Name']
 		 */
