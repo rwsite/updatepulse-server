@@ -8,7 +8,7 @@ if ( ! class_exists( GenericUpdateChecker::class, false ) ) :
 		public $generic_absolute_path = '';
 		public $generic_file          = '';
 
-		public function __construct( $api, $slug, $file_name, $container ) {
+		public function __construct( $api, $slug, $container, $file_name ) {
 			$this->api                   = $api;
 			$this->generic_absolute_path = trailingslashit( $container ) . $slug;
 			$this->generic_file          = $slug . '/' . $file_name . '.json';

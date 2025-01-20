@@ -8,7 +8,7 @@ if ( ! class_exists( PluginUpdateChecker::class, false ) ) :
 		public $plugin_absolute_path = ''; //Full path of the main plugin file.
 		public $plugin_file          = '';  //Plugin filename relative to the plugins directory. Many WP APIs use this to identify plugins.
 
-		public function __construct( $api, $slug, $file_name, $container ) {
+		public function __construct( $api, $slug, $container, $file_name ) {
 			$this->api                  = $api;
 			$this->plugin_absolute_path = trailingslashit( $container ) . $slug;
 			$this->plugin_file          = $slug . '/' . $file_name . '.php';

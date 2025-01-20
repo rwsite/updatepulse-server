@@ -803,19 +803,17 @@ class Update_Server {
 		if ( 'Plugin' !== $type && 'Theme' !== $type && 'Generic' !== $type ) {
 			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				sprintf(
-					'Proxuc does not support packages of type %s',
+					'UpdatePulse does not support packages of type %s',
 					esc_html( $type )
 				),
 				E_USER_ERROR
 			);
 		}
 
-		$service       = null;
-		$api_class     = null;
-		$checker_class = null;
+		$api_class = false;
 
 		if ( $self_hosted ) {
-			$service = 'GitLab';
+			$api_class = 'GitLabApi';
 		} else {
 			$host                = wp_parse_url( $metadata_url, PHP_URL_HOST );
 			$path                = wp_parse_url( $metadata_url, PHP_URL_PATH );
@@ -829,45 +827,34 @@ class Update_Server {
 				);
 
 				if ( isset( $known_services[ $host ] ) ) {
-					$service = $known_services[ $host ];
+					$api_class = $known_services[ $host ] . 'Api';
 				}
 			}
 		}
 
-		if ( $service ) {
-			$checker_class = 'Anyape\PackageUpdateChecker\\' . $type . 'UpdateChecker';
-			$api_class     = $service . 'Api';
-		} else {
+		if ( ! $api_class ) {
 			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				sprintf(
-					'Proxuc could not find a supported service for %s',
+					'UpdatePulse could not find a supported service for %s',
 					esc_html( $metadata_url )
 				),
 				E_USER_ERROR
 			);
 		}
 
-		$api_class = 'Anyape\PackageUpdateChecker\Vcs\\' . $api_class;
-		$params    = array();
+		$checker_class = 'Anyape\PackageUpdateChecker\\' . $type . 'UpdateChecker';
+		$api_class     = 'Anyape\PackageUpdateChecker\Vcs\\' . $api_class;
+		$params        = array(
+			new $api_class( $metadata_url ),
+			$slug,
+			$package_container,
+		);
 
 		if ( $file_name ) {
-			$params = array(
-				new $api_class( $metadata_url ),
-				$slug,
-				$file_name,
-				$package_container,
-			);
-		} else {
-			$params = array(
-				new $api_class( $metadata_url ),
-				$slug,
-				$package_container,
-			);
+			$params[] = $file_name;
 		}
 
-		$update_checker = new $checker_class( ...$params );
-
-		return $update_checker;
+		return new $checker_class( ...$params );
 	}
 
 	protected function init_update_checker( $slug ) {
