@@ -21,7 +21,7 @@ class License_API {
 
 	public function __construct( $init_hooks = false, $local_request = true ) {
 
-		if ( get_option( 'upserv_use_licenses' ) ) {
+		if ( upserv_get_option( 'use_licenses' ) ) {
 
 			if ( $local_request ) {
 				$this->init_server();
@@ -794,10 +794,9 @@ class License_API {
 	public static function get_config() {
 
 		if ( ! self::$config ) {
-			$keys   = json_decode( get_option( 'upserv_license_private_api_keys', '{}' ), true );
 			$config = array(
-				'private_api_auth_keys' => $keys,
-				'ip_whitelist'          => get_option( 'upserv_license_private_api_ip_whitelist' ),
+				'private_api_auth_keys' => upserv_get_option( 'api/licenses/private_api_keys' ),
+				'ip_whitelist'          => upserv_get_option( 'api/licenses/private_api_ip_whitelist' ),
 			);
 
 			self::$config = $config;

@@ -16,7 +16,7 @@ class Remote_Sources_Manager {
 
 		if ( $init_hooks ) {
 
-			if ( get_option( 'upserv_use_remote_repository' ) ) {
+			if ( upserv_get_option( 'use_remote_repositories' ) ) {
 				add_action( 'action_scheduler_init', array( $this, 'register_remote_check_scheduled_hooks' ), 10, 0 );
 			} else {
 				add_action( 'init', array( $this, 'clear_remote_check_scheduled_hooks' ), 10, 0 );
@@ -37,52 +37,71 @@ class Remote_Sources_Manager {
 	// WordPress hooks ---------------------------------------------
 
 	public function register_remote_check_scheduled_hooks() {
-		$result = false;
 
-		if ( ! Update_API::is_doing_api_request() ) {
-			$slugs = $this->get_package_slugs();
-
-			if ( ! empty( $slugs ) ) {
-				$api         = Update_API::get_instance();
-				$action_hook = array( $api, 'download_remote_package' );
-
-				foreach ( $slugs as $slug ) {
-					add_action( 'upserv_check_remote_' . $slug, $action_hook, 10, 3 );
-					do_action(
-						'upserv_registered_check_remote_schedule',
-						$slug,
-						'upserv_check_remote_' . $slug,
-						$action_hook
-					);
-				}
-
-				$result = true;
-			}
+		if ( upserv_is_doing_update_api_request() ) {
+			return;
 		}
 
-		return $result;
+		$repo_configs = upserv_get_option( 'remote_repositories', array() );
+
+		if ( empty( $repo_configs ) ) {
+			return;
+		}
+		$slugs = array();
+
+		foreach ( $repo_configs as $r_c ) {
+
+			if ( $r_c['use_webhooks'] ) {
+				continue;
+			}
+
+			$slugs = $this->get_package_slugs( $r_c['url'] );
+
+			if ( empty( $slugs ) ) {
+				continue;
+			}
+
+			$api         = Update_API::get_instance();
+			$action_hook = array( $api, 'download_remote_package' );
+
+			foreach ( $slugs as $slug ) {
+				add_action( 'upserv_check_remote_' . $slug, $action_hook, 10, 3 );
+				do_action(
+					'upserv_registered_check_remote_schedule',
+					$slug,
+					'upserv_check_remote_' . $slug,
+					$action_hook
+				);
+			}
+		}
 	}
 
 	public function clear_remote_check_scheduled_hooks() {
-		$result = false;
 
-		if ( ! upserv_is_doing_update_api_request() ) {
-			$slugs = $this->get_package_slugs();
+		if ( upserv_is_doing_update_api_request() ) {
+			return false;
+		}
 
-			if ( ! empty( $slugs ) ) {
+		$repo_configs = upserv_get_option( 'remote_repositories', array() );
 
-				foreach ( $slugs as $slug ) {
-					$scheduled_hook = 'upserv_check_remote_' . $slug;
+		if ( ! empty( $repo_configs ) ) {
 
-					as_unschedule_all_actions( $scheduled_hook );
-					do_action( 'upserv_cleared_check_remote_schedule', $slug, $scheduled_hook );
+			foreach ( $repo_configs as $r_c ) {
+				$slugs = $this->get_package_slugs( $r_c['url'] );
+
+				if ( ! empty( $slugs ) ) {
+
+					foreach ( $slugs as $slug ) {
+						$scheduled_hook = 'upserv_check_remote_' . $slug;
+
+						as_unschedule_all_actions( $scheduled_hook );
+						do_action( 'upserv_cleared_check_remote_schedule', $slug, $scheduled_hook );
+					}
 				}
-
-				$result = true;
 			}
 		}
 
-		return $result;
+		return true;
 	}
 
 	public function admin_menu() {
@@ -120,9 +139,16 @@ class Remote_Sources_Manager {
 				$result = $this->clear_remote_check_scheduled_hooks();
 
 				if ( $result ) {
-					$this->reschedule_remote_check_recurring_events(
-						get_option( 'upserv_remote_repository_check_frequency', 'daily' )
-					);
+					$repo_configs = upserv_get_option( 'remote_repositories', array() );
+
+					if ( ! empty( $repo_configs ) ) {
+
+						foreach ( $repo_configs as $r_c ) {
+							$check_frequency = isset( $r_c['check_frequency'] ) ? $r_c['check_frequency'] : 'daily';
+
+							$this->reschedule_remote_check_recurring_events( $check_frequency, $r_c );
+						}
+					}
 				}
 			}
 		}
@@ -282,55 +308,63 @@ class Remote_Sources_Manager {
 
 	public static function register_schedules() {
 		$manager = new self();
-		$result  = false;
 
 		if ( apply_filters( 'upserv_use_recurring_schedule', true ) ) {
-			$frequency = get_option( 'upserv_remote_repository_check_frequency', 'daily' );
-			$result    = $manager->reschedule_remote_check_recurring_events( $frequency );
-		}
+			$repo_configs = upserv_get_option( 'remote_repositories', array() );
 
-		return $result;
+			if ( ! empty( $repo_configs ) ) {
+
+				foreach ( $repo_configs as $r_c ) {
+					$check_frequency = isset( $r_c['check_frequency'] ) ? $r_c['check_frequency'] : 'daily';
+					$manager->reschedule_remote_check_recurring_events( $check_frequency, $r_c );
+				}
+			}
+		}
 	}
 
-	public function reschedule_remote_check_recurring_events( $frequency ) {
+	public function reschedule_remote_check_recurring_events( $frequency, $repo_config ) {
 
-		if ( Update_API::is_doing_api_request() ) {
+		if ( upserv_is_doing_update_api_request() ) {
 			return false;
 		}
 
-		$slugs = $this->get_package_slugs();
+		if ( ! $repo_config['use_webhooks'] ) {
+			$slugs = $this->get_package_slugs( $repo_config['url'] );
 
-		if ( ! empty( $slugs ) ) {
+			if ( ! empty( $slugs ) ) {
 
-			foreach ( $slugs as $slug ) {
-				$hook      = 'upserv_check_remote_' . $slug;
-				$params    = array( $slug, null, false );
-				$frequency = apply_filters( 'upserv_check_remote_frequency', $frequency, $slug );
-				$timestamp = time();
-				$schedules = wp_get_schedules();
+				foreach ( $slugs as $slug ) {
+					$meta      = upserv_get_package_metadata( $slug );
+					$type      = isset( $meta['type'] ) ? $meta['type'] : null;
+					$hook      = 'upserv_check_remote_' . $slug;
+					$params    = array( $slug, $type, false );
+					$frequency = apply_filters( 'upserv_check_remote_frequency', $frequency, $slug );
+					$timestamp = time();
+					$schedules = wp_get_schedules();
 
-				as_unschedule_all_actions( $hook );
-				do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
+					as_unschedule_all_actions( $hook );
+					do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 
-				$result = as_schedule_recurring_action(
-					$timestamp,
-					$schedules[ $frequency ]['interval'],
-					$hook,
-					$params
-				);
+					$result = as_schedule_recurring_action(
+						$timestamp,
+						$schedules[ $frequency ]['interval'],
+						$hook,
+						$params
+					);
 
-				do_action(
-					'upserv_scheduled_check_remote_event',
-					$result,
-					$slug,
-					$timestamp,
-					$frequency,
-					$hook,
-					$params
-				);
+					do_action(
+						'upserv_scheduled_check_remote_event',
+						$result,
+						$slug,
+						$timestamp,
+						$frequency,
+						$hook,
+						$params
+					);
+				}
+
+				return true;
 			}
-
-			return true;
 		}
 
 		return false;
@@ -347,7 +381,7 @@ class Remote_Sources_Manager {
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();
 		$repo_configs         = upserv_get_option( 'remote_repositories', array() );
-		$idx                  = empty( $repo_config ) ? false : array_key_first( $repo_config );
+		$idx                  = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
 		$repo_config          = ( $idx ) ? $repo_configs[ $idx ] : false;
 		$options              = array(
 			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
@@ -385,13 +419,16 @@ class Remote_Sources_Manager {
 	 *******************************************************************/
 
 	protected function plugin_options_handler() {
-		$errors  = array();
-		$result  = '';
-		$to_save = array();
-		$original_upserv_remote_repository_check_frequency = get_option( 'upserv_remote_repository_check_frequency', 'daily' );
-		$new_upserv_remote_repository_check_frequency      = null;
-		$original_upserv_use_remote_repository             = get_option( 'upserv_use_remote_repository' );
-		$new_upserv_use_remote_repository                  = null;
+		$errors                         = array();
+		$result                         = '';
+		$to_save                        = array();
+		$repo_configs                   = upserv_get_option( 'remote_repositories', array() );
+		$idx                            = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
+		$repo_config                    = ( $idx ) ? $repo_configs[ $idx ] : false;
+		$original_check_frequency       = ( $idx ) ? $repo_config['check_frequency'] : 'daily';
+		$new_check_frequency            = null;
+		$original_use_remote_repository = upserv_get_option( 'use_remote_repositories' );
+		$new_use_remote_repository      = null;
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -442,15 +479,14 @@ class Remote_Sources_Manager {
 				}
 
 				if ( ! $skip && $condition ) {
-
 					$to_save[ $option_info['path'] ] = $option_info['value'];
 
 					if ( 'upserv_remote_repository_check_frequency' === $option_name ) {
-						$new_upserv_remote_repository_check_frequency = $option_info['value'];
+						$new_check_frequency = $option_info['value'];
 					}
 
 					if ( 'upserv_use_remote_repository' === $option_name ) {
-						$new_upserv_use_remote_repository = $option_info['value'];
+						$new_use_remote_repository = $option_info['value'];
 					}
 				} elseif ( ! $skip ) {
 					$errors[ $option_name ] = sprintf(
@@ -488,34 +524,34 @@ class Remote_Sources_Manager {
 		if ( apply_filters( 'upserv_use_recurring_schedule', true ) ) {
 
 			if (
-				null !== $new_upserv_use_remote_repository &&
-				$new_upserv_use_remote_repository !== $original_upserv_use_remote_repository
+				null !== $new_use_remote_repository &&
+				$new_use_remote_repository !== $original_use_remote_repository
 			) {
 
-				if ( ! $original_upserv_use_remote_repository && $new_upserv_use_remote_repository ) {
+				if ( ! $original_use_remote_repository && $new_use_remote_repository ) {
 					$this->reschedule_remote_check_recurring_events(
-						get_option( 'upserv_remote_repository_check_frequency', 'daily' )
+						$repo_config['check_frequency'],
+						$repo_config
 					);
-				} elseif (
-					$original_upserv_use_remote_repository &&
-					! $new_upserv_use_remote_repository
-				) {
+				} elseif ( $original_use_remote_repository && ! $new_use_remote_repository ) {
 					$this->clear_remote_check_scheduled_hooks();
 				}
 			}
 
 			if (
-				null !== $new_upserv_remote_repository_check_frequency &&
-				$new_upserv_remote_repository_check_frequency !== $original_upserv_remote_repository_check_frequency
+				null !== $new_check_frequency &&
+				$new_check_frequency !== $original_check_frequency
 			) {
 				$this->reschedule_remote_check_recurring_events(
-					$new_upserv_remote_repository_check_frequency
+					$new_check_frequency,
+					$repo_config
 				);
 			}
 
 			if ( apply_filters( 'upserv_need_reschedule_remote_check_recurring_events', false ) ) {
 				$this->reschedule_remote_check_recurring_events(
-					$new_upserv_remote_repository_check_frequency
+					$new_check_frequency,
+					$repo_config
 				);
 			}
 		} else {
@@ -581,26 +617,42 @@ class Remote_Sources_Manager {
 		);
 	}
 
-	protected function get_package_slugs() {
+	protected function get_package_slugs( $repo_url ) {
 		$slugs = wp_cache_get( 'package_slugs', 'updatepulse-server' );
 
 		if ( false === $slugs ) {
-			$slugs             = array();
-			$package_directory = Data_Manager::get_data_dir( 'packages' );
+			$slugs    = array();
+			$meta_dir = Data_Manager::get_data_dir( 'metadata' );
 
-			if ( is_dir( $package_directory ) ) {
-				$package_paths = glob( trailingslashit( $package_directory ) . '*.zip' );
+			if ( is_dir( $meta_dir ) ) {
+				$meta_paths = glob( trailingslashit( $meta_dir ) . '*.json' );
 
-				if ( ! empty( $package_paths ) ) {
+				if ( ! empty( $meta_paths ) ) {
 
-					foreach ( $package_paths as $package_path ) {
-						$package_path_parts = explode( '/', $package_path );
-						$slugs[]            = str_replace( '.zip', '', end( $package_path_parts ) );
+					foreach ( $meta_paths as $meta_path ) {
+						$meta_path_parts = explode( '/', $meta_path );
+						$slugs[]         = str_replace( '.json', '', end( $meta_path_parts ) );
 					}
 				}
 			}
 
-			$slugs = apply_filters( 'upserv_remote_sources_manager_get_package_slugs', $slugs );
+			if ( empty( $slugs ) ) {
+
+				foreach ( $slugs as $idx => $slug ) {
+					$meta = upserv_get_package_metadata( $slug );
+					$mode = upserv_get_option( 'use_cloud_storage' ) ? 'cloud' : 'local';
+
+					if (
+						! isset( $meta['vcs'] ) ||
+						trailingslashit( $meta['vcs'] ) !== trailingslashit( $repo_url ) ||
+						! isset( $meta['whitelisted'] ) ||
+						! isset( $meta['whitelisted'][ $mode ] ) ||
+						! $meta['whitelisted'][ $mode ]
+					) {
+						unset( $slugs[ $idx ] );
+					}
+				}
+			}
 
 			wp_cache_set( 'package_slugs', $slugs, 'updatepulse-server' );
 		}

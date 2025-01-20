@@ -147,7 +147,7 @@ class Update_API {
 				'url'                     => ( $idx ) ? $repo_config['url'] : '',
 				'self_hosted'             => ( $idx ) ? $repo_config['self_hosted'] : 0,
 				'branch'                  => ( $idx ) ? $repo_config['branch'] : '',
-				'credentials'             => ( $idx ) ? $repo_config['credentials'] : '',
+				'credentials'             => ( $idx ) ? explode( '|', $repo_config['credentials'] ) : array(),
 				'filter_packages'         => ( $idx ) ? $repo_config['filter_packages'] : 0,
 				'check_frequency'         => ( $idx ) ? $repo_config['check_frequency'] : 'daily',
 			);
@@ -174,12 +174,12 @@ class Update_API {
 			}
 
 			if ( 2 === count( $config['credentials'] ) ) {
-				$config['repository_credentials'] = array(
+				$config['credentials'] = array(
 					'consumer_key'    => $config['credentials'][0],
 					'consumer_secret' => $config['credentials'][1],
 				);
 			} else {
-				$config['credentials'] = $config['credentials'][0];
+				$config['credentials'] = empty( $config['credentials'] ) ? '' : $config['credentials'][0];
 			}
 
 			self::$config = $config;
@@ -208,7 +208,7 @@ class Update_API {
 		$result = false;
 
 		if ( ! $type ) {
-			$types = array( 'Plugin', 'Theme', 'Generic' );
+			$types = array( 'plugin', 'theme', 'generic' );
 
 			foreach ( $types as $type ) {
 				$result = $this->download_remote_package( $slug, $type, $force );
@@ -221,16 +221,15 @@ class Update_API {
 			return $result;
 		}
 
-		$type = ucfirst( strtolower( $type ) );
-
 		$this->init_server( $slug );
 		$this->update_server->set_type( $type );
 
 		if ( ! upserv_is_package_whitelisted( $slug ) ) {
 			upserv_whitelist_package( $slug );
 
-			$meta        = upserv_get_package_metadata( $slug );
-			$meta['vcs'] = $this->update_server->get_repository_service_url();
+			$meta         = upserv_get_package_metadata( $slug );
+			$meta['vcs']  = $this->update_server->get_vcs_url();
+			$meta['type'] = $type;
 
 			upserv_set_package_metadata( $slug, $meta );
 		}
@@ -316,12 +315,11 @@ class Update_API {
 
 		if ( ! isset( $this->update_server ) || ! is_a( $this->update_server, $_class_name ) ) {
 			$this->update_server = new $_class_name(
-				$config['use_remote_repositories'],
 				home_url( '/updatepulse-server-update-api/' ),
 				$config['server_directory'],
 				$url,
-				$config['repository_branch'],
-				$config['repository_credentials'],
+				$config['branch'],
+				$config['credentials'],
 				$config['self_hosted'],
 			);
 		}

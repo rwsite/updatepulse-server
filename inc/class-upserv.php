@@ -255,7 +255,7 @@ class UPServ {
 			'deleteRecord'      => array( __( 'Are you sure you want to delete this record?', 'updatepulse-server' ) ),
 		);
 
-		if ( get_option( 'upserv_use_remote_repository' ) ) {
+		if ( upserv_get_option( 'use_remote_repositories' ) ) {
 			$l10n['deletePackagesConfirm'] = array(
 				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
 				__( 'Packages with a Remote Repository will be added again automatically whenever a client asks for updates.', 'updatepulse-server' ),
@@ -496,7 +496,7 @@ class UPServ {
 		}
 
 		$options = array(
-			'use_remote_repository' => get_option( 'upserv_use_remote_repository' ),
+			'use_remote_repository' => upserv_get_option( 'use_remote_repositories' ),
 		);
 
 		upserv_get_admin_template(

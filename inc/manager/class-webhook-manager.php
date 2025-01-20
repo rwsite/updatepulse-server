@@ -27,15 +27,7 @@ class Webhook_Manager {
 		}
 	}
 
-	public static function activate() {
-
-		if (
-			! get_option( 'upserv_remote_repository_webhook_secret' ) ||
-			'repository_webhook_secret' === get_option( 'upserv_remote_repository_webhook_secret' )
-		) {
-			update_option( 'upserv_remote_repository_webhook_secret', bin2hex( openssl_random_pseudo_bytes( 16 ) ) );
-		}
-	}
+	public static function activate() {}
 
 	public static function deactivate() {}
 
@@ -52,11 +44,12 @@ class Webhook_Manager {
 	}
 
 	public function upserv_page_upserv_scripts_l10n( $l10n ) {
+		$repo_configs = upserv_get_option( 'remote_repositories', array() );
+		$idx          = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
+		$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
+		$use_webhooks = ( $idx ) ? $repo_config['use_webhooks'] : 0;
 
-		if (
-			get_option( 'upserv_remote_repository_use_webhooks' ) &&
-			get_option( 'upserv_use_remote_repository' )
-		) {
+		if ( $use_webhooks && upserv_get_option( 'use_remote_repositories' ) ) {
 			$l10n['deletePackagesConfirm'][1] = __( 'Packages with a Remote Repository will be added again automatically whenever a client asks for updates, or when its Webhook is called.', 'updatepulse-server' );
 		}
 
@@ -64,7 +57,12 @@ class Webhook_Manager {
 	}
 
 	public function upserv_use_recurring_schedule( $use_recurring_schedule ) {
-		return $use_recurring_schedule && ! get_option( 'upserv_remote_repository_use_webhooks' );
+		$repo_configs = upserv_get_option( 'remote_repositories', array() );
+		$idx          = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
+		$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
+		$use_webhooks = ( $idx ) ? $repo_config['use_webhooks'] : 0;
+
+		return $use_recurring_schedule && ! $use_webhooks;
 	}
 
 	public function upserv_submitted_remote_sources_config( $config ) {
@@ -98,13 +96,17 @@ class Webhook_Manager {
 	}
 
 	public function upserv_remote_source_option_update( $condition, $option_name, $option_info ) {
+		$repo_configs = upserv_get_option( 'remote_repositories', array() );
+		$idx          = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
+		$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
+		$use_webhooks = ( $idx ) ? $repo_config['use_webhooks'] : 0;
 
 		if ( 'upserv_remote_repository_use_webhooks' === $option_name ) {
 			wp_cache_set(
 				'upserv_remote_repository_use_webhooks',
 				array(
 					'new' => $option_info['value'],
-					'old' => get_option( 'upserv_remote_repository_use_webhooks' ),
+					'old' => $use_webhooks,
 				),
 				'updatepulse-server'
 			);
@@ -214,13 +216,13 @@ class Webhook_Manager {
 	}
 
 	public function upserv_template_remote_source_manager_option_before_recurring_check() {
-		$repo_config = upserv_get_option( 'remote_repositories', array() );
-		$idx         = array_key_first( $repo_config );
-		$repo_config = $repo_config[ $idx ];
-		$options     = array(
-			'use_webhooks'   => $repo_config['use_webhooks'],
-			'check_delay'    => $repo_config['check_delay'],
-			'webhook_secret' => $repo_config['webhook_secret'],
+		$repo_configs = upserv_get_option( 'remote_repositories', array() );
+		$idx          = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
+		$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
+		$options      = array(
+			'use_webhooks'   => ( $idx ) ? $repo_config['use_webhooks'] : 0,
+			'check_delay'    => ( $idx ) ? $repo_config['check_delay'] : 'daily',
+			'webhook_secret' => ( $idx ) ? $repo_config['webhook_secret'] : bin2hex( openssl_random_pseudo_bytes( 16 ) ),
 		);
 
 		upserv_get_admin_template(

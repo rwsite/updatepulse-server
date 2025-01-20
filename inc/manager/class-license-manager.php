@@ -21,7 +21,7 @@ class License_Manager {
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
-			$use_licenses = get_option( 'upserv_use_licenses' );
+			$use_licenses = upserv_get_option( 'use_licenses' );
 
 			if ( $use_licenses ) {
 				$this->license_server = new License_Server();

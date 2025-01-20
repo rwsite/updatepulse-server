@@ -30,80 +30,33 @@ class Update_Server {
 	protected $server_url;
 	protected $timezone;
 	protected $server_directory;
-	protected $use_remote_repository;
-	protected $repository_service_url;
-	protected $repository_branch;
-	protected $repository_credentials;
-	protected $repository_service_self_hosted;
+	protected $vcs_url;
+	protected $branch;
+	protected $credentials;
+	protected $self_hosted;
 	protected $update_checker;
 	protected $type;
 	protected $filter_packages_file_content;
 	protected $license_key;
 	protected $license_signature;
 
-	public function __construct(
-		$use_remote_repository,
-		$server_url,
-		$server_directory = null,
-		$repository_service_url = null,
-		$repository_branch = 'main',
-		$repository_credentials = null,
-		$repository_service_self_hosted = false
-	) {
-
-		if ( null === $server_directory ) {
-			$server_directory = realpath( __DIR__ . '/../..' );
-		}
-
-		$this->server_directory = $this->normalize_file_path( untrailingslashit( $server_directory ) );
-
-		if ( null === $server_url ) {
-			$server_url = self::guess_server_url();
-		}
-
-		$this->server_url                     = $server_url;
-		$this->package_directory              = $server_directory . 'packages';
-		$this->log_directory                  = $server_directory . 'logs';
-		$this->cache                          = new Cache( $server_directory . 'cache' );
-		$this->timezone                       = new DateTimeZone( wp_timezone_string() );
-		$this->use_remote_repository          = $use_remote_repository;
-		$this->server_directory               = $server_directory;
-		$this->repository_service_self_hosted = $repository_service_self_hosted;
-		$this->repository_service_url         = $repository_service_url;
-		$this->repository_branch              = $repository_branch;
-		$this->repository_credentials         = $repository_credentials;
+	public function __construct( $server_url, $server_directory, $vcs_url, $branch, $credentials, $self_hosted ) {
+		$this->server_directory  = $this->normalize_file_path( untrailingslashit( $server_directory ) );
+		$this->server_url        = $server_url;
+		$this->package_directory = $server_directory . 'packages';
+		$this->log_directory     = $server_directory . 'logs';
+		$this->cache             = new Cache( $server_directory . 'cache' );
+		$this->timezone          = new DateTimeZone( wp_timezone_string() );
+		$this->server_directory  = $server_directory;
+		$this->self_hosted       = $self_hosted;
+		$this->vcs_url           = $vcs_url;
+		$this->branch            = $branch;
+		$this->credentials       = $credentials;
 	}
 
 	/*******************************************************************
 	 * Public methods
 	 *******************************************************************/
-
-	/**
-	 * Guess the Server Url based on the current request.
-	 *
-	 * Defaults to the current URL minus the query and "index.php".
-	 *
-	 * @static
-	 *
-	 * @return string Url
-	 */
-	public static function guess_server_url() {
-		$server_url  = is_ssl() ? 'https' : 'http';
-		$server_url .= '://' . $_SERVER['HTTP_HOST'];
-		$path        = $_SERVER['SCRIPT_NAME'];
-
-		if ( basename( $path ) === 'index.php' ) {
-			$path = dirname( $path );
-
-			if ( DIRECTORY_SEPARATOR === '/' ) {
-				$path = str_replace( '\\', '/', $path );
-			}
-		}
-
-		$server_url .= trailingslashit( $path );
-
-		return $server_url;
-	}
 
 	/**
 	 * Process an update API request.
@@ -125,8 +78,8 @@ class Update_Server {
 
 	// Misc. -------------------------------------------------------
 
-	public function get_repository_service_url() {
-		return $this->repository_service_url;
+	public function get_vcs_url() {
+		return $this->vcs_url;
 	}
 
 	public function pre_filter_package_info( $info, $api, $ref ) {
@@ -250,7 +203,7 @@ class Update_Server {
 	}
 
 	public function set_type( $type ) {
-		$type = $type ? ucfirst( $type ) : false;
+		$type = is_string( $type ) ? ucfirst( strtolower( $type ) ) : false;
 
 		if ( 'Plugin' === $type || 'Theme' === $type || 'Generic' === $type ) {
 			$this->type = $type;
@@ -365,11 +318,7 @@ class Update_Server {
 	 * @param string $url The old URL. Optional, defaults to the request url without query arguments.
 	 * @return string New URL.
 	 */
-	protected static function add_query_arg( $args, $url = null ) {
-
-		if ( ! isset( $url ) ) {
-			$url = self::guess_server_url();
-		}
+	protected static function add_query_arg( $args, $url ) {
 
 		if ( strpos( $url, '?' ) !== false ) {
 			$parts = explode( '?', $url, 2 );
@@ -538,11 +487,10 @@ class Update_Server {
 			$this->cache = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 		}
 
-		$safe_slug        = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
-		$package          = false;
-		$is_package_ready = false;
-		$filename         = trailingslashit( $this->package_directory ) . $safe_slug . '.zip';
-		$save_to_local    = apply_filters(
+		$safe_slug     = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
+		$package       = false;
+		$filename      = trailingslashit( $this->package_directory ) . $safe_slug . '.zip';
+		$save_to_local = apply_filters(
 			'upserv_save_remote_to_local',
 			! is_file( $filename ) || ! is_readable( $filename ),
 			$safe_slug,
@@ -550,14 +498,8 @@ class Update_Server {
 			$check_remote
 		);
 
-		if ( $save_to_local ) {
-
-			if ( $this->use_remote_repository && $this->repository_service_url ) {
-
-				if ( $check_remote ) {
-					$is_package_ready = $this->save_remote_package_to_local( $safe_slug );
-				}
-			}
+		if ( $save_to_local && $check_remote ) {
+			$is_package_ready = $this->save_remote_package_to_local( $safe_slug );
 
 			if ( true === $is_package_ready ) {
 				return $this->find_package( $slug, false );
@@ -945,23 +887,21 @@ class Update_Server {
 		}
 
 		$this->update_checker = self::build_update_checker(
-			trailingslashit( $this->repository_service_url ) . $slug,
+			trailingslashit( $this->vcs_url ) . $slug,
 			$slug,
 			$package_file_name,
 			$this->type,
 			$this->package_directory,
-			$this->repository_service_self_hosted
+			$this->self_hosted
 		);
 
 		if ( $this->update_checker ) {
 
-			if ( $this->repository_credentials ) {
-				$this->update_checker->set_authentication( $this->repository_credentials );
+			if ( $this->credentials ) {
+				$this->update_checker->set_authentication( $this->credentials );
 			}
 
-			if ( $this->repository_branch ) {
-				$this->update_checker->set_branch( $this->repository_branch );
-			}
+			$this->update_checker->set_branch( $this->branch );
 		}
 
 		$this->update_checker = apply_filters(
@@ -969,10 +909,10 @@ class Update_Server {
 			$this->update_checker,
 			$slug,
 			$this->type,
-			$this->repository_service_url,
-			$this->repository_branch,
-			$this->repository_credentials,
-			$this->repository_service_self_hosted
+			$this->vcs_url,
+			$this->branch,
+			$this->credentials,
+			$this->self_hosted
 		);
 	}
 
@@ -994,9 +934,9 @@ class Update_Server {
 			'filename' => $local_filename,
 		);
 
-		if ( is_string( $this->repository_credentials ) ) {
+		if ( is_string( $this->credentials ) ) {
 			$params['headers'] = array(
-				'Authorization' => 'token ' . $this->repository_credentials,
+				'Authorization' => 'token ' . $this->credentials,
 			);
 		}
 

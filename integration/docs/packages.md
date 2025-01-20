@@ -122,7 +122,6 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_packages\_table\_sortable\_columns](#upserv_packages_table_sortable_columns)
         * [upserv\_packages\_table\_bulk\_actions](#upserv_packages_table_bulk_actions)
         * [upserv\_use\_recurring\_schedule](#upserv_use_recurring_schedule)
-        * [upserv\_remote\_sources\_manager\_get\_package\_slugs](#upserv_remote_sources_manager_get_package_slugs)
         * [upserv\_server\_class\_name](#upserv_server_class_name)
         * [upserv\_delete\_packages\_bulk\_paths](#upserv_delete_packages_bulk_paths)
         * [upserv\_package\_manager\_get\_package\_info](#upserv_package_manager_get_package_info)
@@ -2814,20 +2813,6 @@ Filter whether UpdatePulse Server is using recurring schedules to check to updat
 **Parameters**  
 `$use_recurring_schedule`
 > (bool) whether UpdatePulse Server is using recurring schedules to check to update packages from the Remote Repository Service  
-
-___
-### upserv_remote_sources_manager_get_package_slugs
-
-```php
-apply_filters( 'upserv_remote_sources_manager_get_package_slugs', array $package_slugs );
-```
-
-**Description**  
-Filter the slugs of packages currently available on the file system to display in the packages Overview table.  
-
-**Parameters**  
-`$package_slugs`
-> (array) the slugs of packages currently available on the file system to display in the packages Overview table  
 
 ___
 ### upserv_server_class_name

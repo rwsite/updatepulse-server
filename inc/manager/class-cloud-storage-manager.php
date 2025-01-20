@@ -90,7 +90,6 @@ class Cloud_Storage_Manager {
 				array( 'upserv_package_manager_get_batch_package_info', 'upserv_package_manager_get_batch_package_info', 10, 2 ),
 				array( 'upserv_package_manager_get_package_info', 'upserv_package_manager_get_package_info', 10, 2 ),
 				array( 'upserv_update_server_action_download_handled', 'upserv_update_server_action_download_handled', 10, 1 ),
-				array( 'upserv_remote_sources_manager_get_package_slugs', 'upserv_remote_sources_manager_get_package_slugs', 10, 4 ),
 				array( 'upserv_remove_package_result', 'upserv_remove_package_result', 10, 3 ),
 				array( 'upserv_delete_packages_bulk_paths', 'upserv_delete_packages_bulk_paths', 10, 1 ),
 				array( 'upserv_webhook_package_exists', 'upserv_webhook_package_exists', 10, 3 ),
@@ -266,40 +265,6 @@ class Cloud_Storage_Manager {
 				'options'           => $options,
 			)
 		);
-	}
-
-	public function upserv_remote_sources_manager_get_package_slugs( $slugs ) {
-		$slugs    = array();
-		$config   = self::get_config();
-		$contents = wp_cache_get( 'upserv-getBucket', 'updatepulse-server' );
-
-		if ( false === $contents ) {
-
-			try {
-				$contents = self::$cloud_storage->getBucket( $config['storage_unit'], self::$virtual_dir . '/' );
-
-				unset( $contents[ self::$virtual_dir . '/' ] );
-
-				if ( ! empty( $contents ) ) {
-
-					foreach ( $contents as $item ) {
-						$slugs[] = str_replace( array( self::$virtual_dir . '/', '.zip' ), array( '', '' ), $item['name'] );
-					}
-				}
-			} catch ( PhpS3Exception $e ) {
-				php_log(
-					array(
-						'error'  => $e->getMessage(),
-						'file'   => $e->getFile(),
-						'line'   => $e->getLine(),
-						'caller' => $e->getTrace()[1],
-						'slugs'  => $slugs,
-					)
-				);
-			}
-		}
-
-		return $slugs;
 	}
 
 	public function upserv_delete_packages_bulk_paths( $package_paths ) {

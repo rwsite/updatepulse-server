@@ -454,11 +454,10 @@ class Package_API {
 	public static function get_config() {
 
 		if ( ! self::$config ) {
-			$keys   = json_decode( get_option( 'upserv_package_private_api_keys', '{}' ), true );
 			$config = array(
-				'use_remote_repository' => get_option( 'upserv_use_remote_repository' ),
-				'private_api_auth_keys' => $keys,
-				'ip_whitelist'          => get_option( 'upserv_package_private_api_ip_whitelist' ),
+				'use_remote_repository' => upserv_get_option( 'use_remote_repositories' ),
+				'private_api_auth_keys' => upserv_get_option( 'api/packages/private_api_keys' ),
+				'ip_whitelist'          => upserv_get_option( 'api/packages/private_api_ip_whitelist' ),
 			);
 
 			self::$config = $config;

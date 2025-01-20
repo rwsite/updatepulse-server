@@ -167,7 +167,7 @@ class Data_Manager {
 		$total_size             = 0;
 
 		if ( $default_max_size && $is_dir && false === $force ) {
-			$max_size = get_option( 'upserv_' . $type . '_max_size', $default_max_size );
+			$max_size = upserv_get_option( 'limits/' . $type . '_max_size', $default_max_size );
 
 			foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $directory ) ) as $file ) {
 				$size = $file->getSize();

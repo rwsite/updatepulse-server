@@ -450,17 +450,12 @@ class Package_Manager {
 			return;
 		}
 
-		$config = array(
+		$config        = array(
 			'use_remote_repository' => false,
 			'server_directory'      => Data_Manager::get_data_dir(),
 		);
-
-		$update_server = new Update_Server(
-			$config['use_remote_repository'],
-			home_url( '/updatepulse-server-update-api/' ),
-			$config['server_directory']
-		);
-
+		$server_url    = home_url( '/updatepulse-server-update-api/' );
+		$update_server = new Update_Server( $server_url, $config['server_directory'], '', '', '', false );
 		$update_server = apply_filters( 'upserv_update_server', $update_server, $config, '', '' );
 
 		do_action( 'upserv_package_manager_pre_delete_packages_bulk', $package_slugs );
@@ -503,7 +498,7 @@ class Package_Manager {
 
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$total_size        = 0;
-		$max_archive_size  = get_option( 'upserv_archive_max_size', self::DEFAULT_ARCHIVE_MAX_SIZE );
+		$max_archive_size  = upserv_get_option( 'limits/archive_max_size', self::DEFAULT_ARCHIVE_MAX_SIZE );
 		$package_slugs     = is_array( $package_slugs ) ? $package_slugs : array( $package_slugs );
 
 		if ( 1 === count( $package_slugs ) ) {
