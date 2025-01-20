@@ -51,3 +51,10 @@
     word-break: break-all;
     max-width: 300px;
 }
+
+.package-source.form-container {
+    padding: 0 2em 1em 2em;
+    margin: 1em 0;
+    background: #fff;
+    border-radius: 0.5em;
+}
