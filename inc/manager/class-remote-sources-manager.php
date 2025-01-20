@@ -25,6 +25,9 @@ class Remote_Sources_Manager {
 			add_action( 'wp_ajax_upserv_force_clean', array( $this, 'force_clean' ), 10, 0 );
 			add_action( 'wp_ajax_upserv_remote_repository_test', array( $this, 'remote_repository_test' ), 10, 0 );
 			add_action( 'admin_menu', array( $this, 'admin_menu' ), 15, 0 );
+
+			add_filter( 'upserv_admin_scripts', array( $this, 'upserv_admin_scripts' ), 10, 1 );
+			add_filter( 'upserv_admin_styles', array( $this, 'upserv_admin_styles' ), 10, 1 );
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 15, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 15, 2 );
 		}
@@ -35,6 +38,25 @@ class Remote_Sources_Manager {
 	 *******************************************************************/
 
 	// WordPress hooks ---------------------------------------------
+
+	public function upserv_admin_scripts( $scripts ) {
+		$scripts['remote_sources'] = array(
+			'path' => UPSERV_PLUGIN_PATH . 'js/admin/remote-sources' . upserv_assets_suffix() . '.js',
+			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/remote-sources' . upserv_assets_suffix() . '.js',
+			'deps' => array( 'jquery' ),
+		);
+
+		return $scripts;
+	}
+
+	public function upserv_admin_styles( $styles ) {
+		$styles['remote_sources'] = array(
+			'path' => UPSERV_PLUGIN_PATH . 'css/admin/remote-sources' . upserv_assets_suffix() . '.css',
+			'uri'  => UPSERV_PLUGIN_URL . 'css/admin/remote-sources' . upserv_assets_suffix() . '.css',
+		);
+
+		return $styles;
+	}
 
 	public function register_remote_check_scheduled_hooks() {
 
@@ -391,6 +413,7 @@ class Remote_Sources_Manager {
 			'credentials'             => ( $idx ) ? $repo_config['credentials'] : '',
 			'filter_packages'         => ( $idx ) ? $repo_config['filter_packages'] : 0,
 			'check_frequency'         => ( $idx ) ? $repo_config['check_frequency'] : 'daily',
+			'repositories'            => wp_json_encode( $repo_configs ),
 		);
 
 		foreach ( $registered_schedules as $key => $schedule ) {

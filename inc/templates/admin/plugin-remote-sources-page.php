@@ -4,7 +4,8 @@
 <div class="wrap upserv-wrap">
 	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
 	<form autocomplete="off" action="" method="post">
-		<table class="form-table package-source">
+		<input type="hidden" class="repositories-values" id="upserv_repositories" name="upserv_repositories" value="<?php echo esc_attr( $options['repositories'] ); ?>">
+		<table class="form-table package-source switch">
 			<tr>
 				<th>
 					<label for="upserv_use_remote_repository"><?php esc_html_e( 'Use a Remote Repository Service', 'updatepulse-server' ); ?></label>
@@ -30,6 +31,41 @@
 					</p>
 				</td>
 			</tr>
+		</table>
+		<div class="repositories">
+			<div class="item button selected" id="aHR0cHM6Ly9naXRo4WIuY29tL0FueWFwZS8=-main">
+				<div class="url">
+					<span>https://github.com/identifier/</span>
+				</div>
+				<div class="branch">
+					<span class="label"><?php esc_html_e( 'Branch: ', 'updatepulse-server' ); ?></span>
+					<span class="branch-name">main</span>
+				</div>
+			</div>
+			<div class="item button" id="aHR0cHM6Ly9naXRo1WIuY29tL08ueWFwZS8=-dev">
+				<div class="url">
+					<span>https://github.com/identifier/</span>
+				</div>
+				<div class="branch">
+					<span class="label"><?php esc_html_e( 'Branch: ', 'updatepulse-server' ); ?></span>
+					<span class="branch-name">dev</span>
+				</div>
+			</div>
+			<div class="item button template">
+				<div class="placeholder">
+					<span class="icon">+</span>
+					<div><?php esc_html_e( 'Add a Remote Repository', 'updatepulse-server' ); ?></div>
+				</div>
+				<div class="url hidden">
+					<span></span>
+				</div>
+				<div class="branch hidden">
+					<span class="label"><?php esc_html_e( 'Branch: ', 'updatepulse-server' ); ?></span>
+					<span class="branch-name"></span>
+				</div>
+			</div>
+		</div>
+		<table class="form-table package-source form">
 			<tr>
 				<th>
 					<label for="upserv_remote_repository_url"><?php esc_html_e( 'Remote Repository Service URL', 'updatepulse-server' ); ?></label>

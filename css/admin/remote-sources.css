@@ -1,0 +1,53 @@
+.repositories {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1em;
+}
+
+.repositories .item.button.template .placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    min-height: 60px;
+    font-weight: bold;
+}
+
+.repositories .item.button.template .placeholder span.icon {
+    font-size: 2em;
+    line-height: 1em;
+}
+
+.repositories .button.item.selected {
+    border-width: 2px;
+}
+
+.repositories .button.item .url span {
+    font-size: 1.15em
+}
+
+.repositories .button.item.selected .url span {
+    font-weight: bold;
+}
+
+.repositories .item {
+
+}
+
+.repositories .item:not(.template) {
+}
+
+.repositories .item .branch:not(.hidden) {
+    display: flex;
+    gap: 0.25em;
+    align-items: center;
+}
+
+.repositories .item .url span {
+    display: inline-block;
+    word-break: break-all;
+    max-width: 300px;
+}
