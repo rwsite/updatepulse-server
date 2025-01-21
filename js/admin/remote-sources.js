@@ -15,7 +15,25 @@ jQuery(document).ready(function ($) {
             firstItem.trigger('click');
         }
     };
+    var selectRepository = function (id) {
+        var item = $('#' + id);
+
+        if (0 === item.length) {
+            return
+        }
+
+        $('.repositories .item').removeClass('selected');
+        item.addClass('selected');
+        form.removeClass('hidden');
+        inputElements.trigger('change');
+        // updateForm(id);
+    };
     var addItem = function (id, data) {
+
+        if ($('#' + id).length > 0) {
+            return;
+        }
+
         var item = $('.repositories .item.template').clone();
 
         item.removeClass('template upserv-modal-open-handle');
@@ -27,6 +45,26 @@ jQuery(document).ready(function ($) {
         item.find('.hidden').removeClass('hidden');
         item.attr('id', id);
         $('.repositories').prepend(item);
+    };
+    var updateForm = function (id) {
+        inputElements.each(function () {
+            var elem = $(this);
+            var prop = elem.data('prop');
+
+            if (!prop) {
+                return;
+            }
+
+            var value = data[id] && data[id][prop] ? data[id][prop] : '';
+
+            if (elem.is('input[type="checkbox"]')) {
+                elem.prop('checked', ['1', 'true', 'yes', 'on', 1, true].includes(value));
+            } else {
+                elem.val(value);
+            }
+
+            console.log('updateForm', prop, value);
+        });
     };
     var updateData = function (elem) {
         var key = $('.repositories .item.selected').attr('id');
@@ -44,30 +82,51 @@ jQuery(document).ready(function ($) {
             value = elem.val();
         }
 
+        if (!data[key]) {
+            data[key] = {};
+        }
+
         data[key][prop] = value;
+
+        console.log('updateData', prop, value);
     };
 
     inputElements.on('change', function (e) {
+        e.stopPropagation();
         updateData($(this));
     });
 
     inputTextElements.on('keyup', function (e) {
+        e.stopPropagation();
         updateData($(this));
     });
 
     $('.repositories').on('click', '.item', function (e) {
         var elem = $(this);
 
-        $('.repositories .item').removeClass('selected');
-        elem.addClass('selected');
-
         if (elem.hasClass('upserv-modal-open-handle')) {
             form.addClass('hidden');
         } else {
-            form.removeClass('hidden');
+            selectRepository(elem.attr('id'));
+        }
+    });
+
+    $("#upserv_add_remote_repository").on('click', function (e) {
+        e.preventDefault();
+
+        var url = $('#upserv_add_remote_repository_url').val();
+        var branch = $('#upserv_add_remote_repository_branch').val();
+        // make sure the values are not empty
+        if (!url || !branch || !isNaN(branch) || !url.match(/^https?:\/\/.+/)) {
+            return;
         }
 
-        inputElements.trigger('change');
+        var id = btoa(url + '|' + branch).replace(/=/g, '');
+
+        addItem(id, { url: url, branch: branch });
+        selectRepository(id);
+
+        $(this).closest('.upserv-modal').trigger('close', [$(this)]);
     });
 
     $('#upserv_remote_repository_use_webhooks').on('change', function (e) {

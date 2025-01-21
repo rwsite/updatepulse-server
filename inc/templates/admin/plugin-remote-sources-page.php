@@ -77,7 +77,7 @@
 							<?php
 							printf(
 								// translators: %1$s is <code>https://repository-service.tld/identifier/package-slug/</code>, %2$s is <code>identifier</code>
-								esc_html__( 'Each package repository URL must follow the following pattern: %1$s ; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern %2$s.', 'updatepulse-server' ),
+								esc_html__( 'Each package repository URL must follow the following pattern: %1$s; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern %2$s.', 'updatepulse-server' ),
 								'<code>https://repository-service.tld/identifier/package-slug/</code>',
 								'<code>package-slug.php</code>',
 							);
@@ -168,7 +168,7 @@
 							<br/>
 							<?php esc_html_e( 'The request checks whether the service is reachable and if the request can be authenticated.', 'updatepulse-server' ); ?>
 							<br/>
-							<strong><?php esc_html_e( 'Tests are not supported for Bitbucket ; if you use Bitbucket, save your settings & try to prime a package in the "Packages Overview" tab.', 'updatepulse-server' ); ?></strong>
+							<strong><?php esc_html_e( 'Tests are not supported for Bitbucket; if you use Bitbucket, save your settings & try to prime a package in the "Packages Overview" tab.', 'updatepulse-server' ); ?></strong>
 						</p>
 					</td>
 				</tr>
@@ -250,7 +250,7 @@
 							<?php
 							printf(
 								// translators: %1$s is <code>https://repository-service.tld/identifier/package-slug/</code>, %2$s is <code>identifier</code>
-								esc_html__( 'Each package repository URL must follow the following pattern: %1$s ; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern %2$s.', 'updatepulse-server' ),
+								esc_html__( 'Each package repository URL must follow the following pattern: %1$s; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern %2$s.', 'updatepulse-server' ),
 								'<code>https://repository-service.tld/identifier/package-slug/</code>',
 								'<code>package-slug.php</code>',
 							);
@@ -270,6 +270,10 @@
 					</td>
 				</tr>
 			</table>
+			<hr>
+			<p>
+				<button class="button" id="upserv_add_remote_repository"><?php esc_html_e( 'Add', 'updatepulse-server' ); ?></button>
+			</p>
 		</div>
 	</div>
 </div>
