@@ -15,10 +15,10 @@ class Webhook_Manager {
 		if ( $init_hooks ) {
 			add_action( 'upserv_template_remote_source_manager_option_before_recurring_check', array( $this, 'upserv_template_remote_source_manager_option_before_recurring_check' ), 10, 0 );
 
-			add_filter( 'upserv_submitted_remote_sources_config', array( $this, 'upserv_submitted_remote_sources_config' ), 10, 1 );
 			add_filter( 'upserv_submitted_api_config', array( $this, 'upserv_submitted_api_config' ), 10, 1 );
 			add_filter( 'upserv_remote_source_option_update', array( $this, 'upserv_remote_source_option_update' ), 10, 3 );
 			add_filter( 'upserv_page_upserv_scripts_l10n', array( $this, 'upserv_page_upserv_scripts_l10n' ), 10, 1 );
+			// TODO
 			add_filter( 'upserv_use_recurring_schedule', array( $this, 'upserv_use_recurring_schedule' ), 10, 1 );
 			add_filter( 'upserv_need_reschedule_remote_check_recurring_events', array( $this, 'upserv_need_reschedule_remote_check_recurring_events' ), 10, 1 );
 			add_filter( 'upserv_api_option_update', array( $this, 'upserv_api_option_update' ), 10, 3 );
@@ -45,6 +45,7 @@ class Webhook_Manager {
 		return $l10n;
 	}
 
+	// TODO
 	public function upserv_use_recurring_schedule( $use_recurring_schedule ) {
 		$repo_configs = upserv_get_option( 'remote_repositories', array() );
 		$idx          = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
@@ -52,36 +53,6 @@ class Webhook_Manager {
 		$use_webhooks = ( $idx ) ? $repo_config['use_webhooks'] : 0;
 
 		return $use_recurring_schedule && ! $use_webhooks;
-	}
-
-	public function upserv_submitted_remote_sources_config( $config ) {
-		$config = array_merge(
-			$config,
-			array(
-				'upserv_remote_repository_use_webhooks'   => array(
-					'value'        => filter_input( INPUT_POST, 'upserv_remote_repository_use_webhooks', FILTER_VALIDATE_BOOLEAN ),
-					'display_name' => __( 'Use Webhooks', 'updatepulse-server' ),
-					'condition'    => 'boolean',
-					'path'         => 'use_webhooks',
-				),
-				'upserv_remote_repository_check_delay'    => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_check_delay', FILTER_UNSAFE_RAW ),
-					'display_name'            => __( 'Remote download delay', 'updatepulse-server' ),
-					'failure_display_message' => __( 'Not a valid option', 'updatepulse-server' ),
-					'condition'               => 'positive number',
-					'path'                    => 'check_delay',
-				),
-				'upserv_remote_repository_webhook_secret' => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_webhook_secret', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
-					'display_name'            => __( 'Remote repository Webhook Secret', 'updatepulse-server' ),
-					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
-					'condition'               => 'non-empty',
-					'path'                    => 'webhook_secret',
-				),
-			)
-		);
-
-		return $config;
 	}
 
 	public function upserv_remote_source_option_update( $condition, $option_name, $option_info ) {

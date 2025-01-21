@@ -147,6 +147,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_webhook\_process\_request](#upserv_webhook_process_request)
         * [upserv\_webhook\_response](#upserv_webhook_response)
         * [upserv\_package\_option\_update](#upserv_package_option_update)
+        * [upserv\_remote\_sources\_option\_save\_value](#upserv_remote_sources_option_save_value)
         * [upserv\_remote\_source\_option\_update](#upserv_remote_source_option_update)
         * [upserv\_api\_package\_actions](#upserv_api_package_actions)
         * [upserv\_is\_package\_whitelisted](#upserv_is_package_whitelisted-1)
@@ -3312,6 +3313,28 @@ Filter whether to update the packages plugin option.
 
 `$options`
 > (array) the values submitted along with the option  
+
+### upserv_remote_sources_option_save_value
+
+```php
+apply_filters( 'upserv_remote_sources_option_save_value', mixed $value, string $option_name, array $option_info, array $options );
+```
+
+**Description**
+Filter the value of the Remote Sources option before saving it.
+
+**Parameters**
+`$value`
+> (mixed) the value of the Remote Sources option
+
+`$option_name`
+> (string) the name of the option
+
+`$option_info`
+> (array) the info related to the option
+
+`$options`
+> (array) the values submitted along with the option
 
 ___
 ### upserv_remote_source_option_update

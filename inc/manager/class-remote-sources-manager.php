@@ -58,6 +58,7 @@ class Remote_Sources_Manager {
 		return $styles;
 	}
 
+	// TODO
 	public function register_remote_check_scheduled_hooks() {
 
 		if ( upserv_is_doing_update_api_request() ) {
@@ -333,9 +334,11 @@ class Remote_Sources_Manager {
 		return $manager->clear_remote_check_scheduled_hooks();
 	}
 
+	// TODO
 	public static function register_schedules() {
 		$manager = new self();
 
+		// TODO
 		if ( apply_filters( 'upserv_use_recurring_schedule', true ) ) {
 			$repo_configs = upserv_get_option( 'remote_repositories', array() );
 
@@ -343,12 +346,14 @@ class Remote_Sources_Manager {
 
 				foreach ( $repo_configs as $r_c ) {
 					$check_frequency = isset( $r_c['check_frequency'] ) ? $r_c['check_frequency'] : 'daily';
+					// TODO
 					$manager->reschedule_remote_check_recurring_events( $check_frequency, $r_c );
 				}
 			}
 		}
 	}
 
+	// TODO
 	public function reschedule_remote_check_recurring_events( $frequency, $repo_config ) {
 
 		if ( upserv_is_doing_update_api_request() ) {
@@ -412,16 +417,8 @@ class Remote_Sources_Manager {
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();
 		$repo_configs         = upserv_get_option( 'remote_repositories', array() );
-		$idx                  = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
-		$repo_config          = ( $idx ) ? $repo_configs[ $idx ] : false;
 		$options              = array(
 			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
-			'url'                     => ( $idx ) ? $repo_config['url'] : '',
-			'self_hosted'             => ( $idx ) ? $repo_config['self_hosted'] : 0,
-			'branch'                  => ( $idx ) ? $repo_config['branch'] : '',
-			'credentials'             => ( $idx ) ? $repo_config['credentials'] : '',
-			'filter_packages'         => ( $idx ) ? $repo_config['filter_packages'] : 0,
-			'check_frequency'         => ( $idx ) ? $repo_config['check_frequency'] : 'daily',
 			'repositories'            => wp_json_encode( $repo_configs ),
 		);
 
@@ -438,10 +435,6 @@ class Remote_Sources_Manager {
 				'packages_dir'         => Data_Manager::get_data_dir( 'packages' ),
 				'registered_schedules' => $registered_schedules,
 				'schedules'            => $schedules,
-				'hide_check_frequency' => ! apply_filters(
-					'upserv_use_recurring_schedule',
-					true
-				),
 			)
 		);
 	}
@@ -479,44 +472,103 @@ class Remote_Sources_Manager {
 		foreach ( $options as $option_name => $option_info ) {
 			$condition = $option_info['value'];
 
-			if ( isset( $option_info['condition'] ) ) {
+			if ( isset( $option_info['condition'] ) && 'repositories' === $option_info['condition'] ) {
+				$inputs = json_decode( $option_info['value'], true );
 
-				if ( 'boolean' === $option_info['condition'] ) {
-					$condition            = true;
-					$option_info['value'] = ( $option_info['value'] );
+				if ( ! is_array( $inputs ) ) {
+					$inputs = upserv_get_option( 'remote_repositories' );
+				} else {
+					$filtered = array();
+					$index    = 0;
+
+					// "url": "https:\/\/github.com\/test\/",
+					// "branch": "main",
+					// "self_hosted": 0,
+					// "credentials": "github_pat_11AObNUuLX5BvkUXIhAH5JECWVa5XySENb",
+					// "filter_packages": 1,
+					// "check_frequency": "daily",
+					// "use_webhooks": 1,
+					// "check_delay": 0,
+					// "webhook_secret": "asecretremotehook"
+
+					foreach ( $inputs as $id => $values ) {
+						$id           = filter_var( $id, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+						$decoded      = $id ? base64_decode( str_replace( '|', '/', $id ) ) : ''; // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+						$decoded      = $decoded ? explode( '|', $decoded ) : array();
+						$url_check    = 2 === count( $decoded ) ? $decoded[0] : false;
+						$branch_check = 2 === count( $decoded ) ? $decoded[1] : false;
+						$url          = filter_var( $values['url'], FILTER_VALIDATE_URL );
+						$branch       = filter_var( $values['branch'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+						if ( ! $url_check || ! $branch_check || $url_check !== $url || $branch_check !== $branch ) {
+
+							if ( ! isset( $errors[ $option_name ] ) ) {
+								$errors[ $option_name ] = array();
+							}
+
+							$errors[ $option_name ][] = sprintf(
+								// translators: %d is the index of the item in the list
+								__( 'Invalid URL or Branch for item at index %d', 'updatepulse-server' ),
+								$index
+							);
+
+							continue;
+						}
+
+						$self_hosted       = intval( filter_var( $values['self_hosted'], FILTER_VALIDATE_BOOLEAN ) );
+						$credentials       = filter_var( $values['credentials'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+						$filter_packages   = intval( filter_var( $values['filter_packages'], FILTER_VALIDATE_BOOLEAN ) );
+						$check_frequency   = filter_var( $values['check_frequency'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+						$use_webhooks      = intval( filter_var( $values['use_webhooks'], FILTER_VALIDATE_BOOLEAN ) );
+						$check_delay       = intval( filter_var( $values['check_delay'], FILTER_VALIDATE_INT ) );
+						$webhook_secret    = filter_var( $values['webhook_secret'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+						$known_frequencies = wp_get_schedules();
+						$known_frequencies = array_keys( $known_frequencies );
+
+						if ( ! in_array( $check_frequency, $known_frequencies, true ) ) {
+							$check_frequency = 'daily';
+						}
+
+						$recomputed_id              = str_replace( '/', '|', base64_encode( $url . '|' . $branch ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+						$filtered[ $recomputed_id ] = array(
+							'url'             => $url,
+							'branch'          => $branch,
+							'self_hosted'     => $self_hosted,
+							'credentials'     => $credentials,
+							'filter_packages' => $filter_packages,
+							'check_frequency' => $check_frequency,
+							'use_webhooks'    => $use_webhooks,
+							'check_delay'     => $check_delay,
+							'webhook_secret'  => $webhook_secret,
+						);
+
+						++$index;
+					}
+
+					$option_info['value'] = $filtered;
 				}
+			} elseif ( isset( $option_info['condition'] ) && 'boolean' === $option_info['condition'] ) {
+				$condition            = true;
+				$option_info['value'] = ( $option_info['value'] );
+			}
 
-				if ( 'known frequency' === $option_info['condition'] ) {
-					$schedules      = wp_get_schedules();
-					$schedule_slugs = array_keys( $schedules );
-					$condition      = $condition && in_array( $option_info['value'], $schedule_slugs, true );
-				}
+			$condition = apply_filters(
+				'upserv_remote_source_option_update',
+				$condition,
+				$option_name,
+				$option_info,
+				$options
+			);
 
-				if ( 'service_url' === $condition ) {
-					$repo_regex = '@^/?([^/]+?)/([^/#?&]+?)/?$@';
-					$path       = wp_parse_url( $option_info['value'], PHP_URL_PATH );
-					$condition  = (bool) preg_match( $repo_regex, $path );
-				}
-
-				$condition = apply_filters(
-					'upserv_remote_source_option_update',
-					$condition,
+			if ( $condition ) {
+				$to_save[ $option_info['path'] ] = apply_filters(
+					'upserv_remote_sources_option_save_value',
+					$option_info['value'],
 					$option_name,
 					$option_info,
 					$options
 				);
-			}
-
-			if ( $condition ) {
 				$to_save[ $option_info['path'] ] = $option_info['value'];
-
-				if ( 'upserv_remote_repository_check_frequency' === $option_name ) {
-					$new_check_frequency = $option_info['value'];
-				}
-
-				if ( 'upserv_use_remote_repository' === $option_name ) {
-					$new_use_remote_repository = $option_info['value'];
-				}
 			} else {
 				$errors[ $option_name ] = sprintf(
 					// translators: %1$s is the option display name, %2$s is the condition for update
@@ -544,6 +596,7 @@ class Remote_Sources_Manager {
 			$result = $errors;
 		}
 
+		// TODO
 		if ( apply_filters( 'upserv_use_recurring_schedule', true ) ) {
 
 			if (
@@ -591,49 +644,18 @@ class Remote_Sources_Manager {
 		return apply_filters(
 			'upserv_submitted_remote_sources_config',
 			array(
-				'upserv_use_remote_repository'             => array(
+				'upserv_use_remote_repository' => array(
 					'value'        => filter_input( INPUT_POST, 'upserv_use_remote_repository', FILTER_VALIDATE_BOOLEAN ),
 					'display_name' => __( 'Use a Remote Repository Service', 'updatepulse-server' ),
 					'condition'    => 'boolean',
 					'path'         => 'use_remote_repositories',
 				),
-				'upserv_remote_repository_url'             => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_url', FILTER_VALIDATE_URL ),
-					'display_name'            => __( 'Remote Repository Service URL', 'updatepulse-server' ),
-					'failure_display_message' => __( 'Not a valid URL', 'updatepulse-server' ),
-					'condition'               => 'service_url',
-					'path'                    => 'url',
-				),
-				'upserv_remote_repository_self_hosted'     => array(
-					'value'        => filter_input( INPUT_POST, 'upserv_remote_repository_self_hosted', FILTER_VALIDATE_BOOLEAN ),
-					'display_name' => __( 'Self-hosted Remote Repository Service', 'updatepulse-server' ),
-					'condition'    => 'boolean',
-					'path'         => 'self_hosted',
-				),
-				'upserv_remote_repository_branch'          => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
-					'display_name'            => __( 'Packages Branch Name', 'updatepulse-server' ),
-					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
-					'path'                    => 'branch',
-				),
-				'upserv_remote_repository_credentials'     => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_credentials', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
-					'display_name'            => __( 'Remote Repository Service Credentials', 'updatepulse-server' ),
-					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
-					'path'                    => 'credentials',
-				),
-				'upserv_remote_repository_filter_packages' => array(
-					'value'        => filter_input( INPUT_POST, 'upserv_remote_repository_filter_packages', FILTER_VALIDATE_BOOLEAN ),
-					'display_name' => __( 'Filter Packages', 'updatepulse-server' ),
-					'condition'    => 'boolean',
-					'path'         => 'filter_packages',
-				),
-				'upserv_remote_repository_check_frequency' => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_remote_repository_check_frequency', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
-					'display_name'            => __( 'Remote Update Check Frequency', 'updatepulse-server' ),
-					'failure_display_message' => __( 'Not a valid option', 'updatepulse-server' ),
-					'condition'               => 'known frequency',
-					'path'                    => 'check_frequency',
+				'upserv_repositories'          => array(
+					'value'                   => filter_input( INPUT_POST, 'upserv_repositories', FILTER_UNSAFE_RAW ),
+					'display_name'            => __( 'Remote Repository Services', 'updatepulse-server' ),
+					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
+					'condition'               => 'repositories',
+					'path'                    => 'repositories',
 				),
 			)
 		);

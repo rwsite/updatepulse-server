@@ -365,7 +365,7 @@ class API_Manager {
 				'upserv_license_private_api_keys'         => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_license_private_api_keys', FILTER_UNSAFE_RAW ),
 					'display_name'            => __( 'Private API Authentication Key', 'updatepulse-server' ),
-					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
+					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
 					'condition'               => 'api-keys',
 					'path'                    => 'api/licenses/private_api_keys',
 				),

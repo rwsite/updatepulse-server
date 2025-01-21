@@ -24,7 +24,7 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 		* [upserv\_mu\_optimizer\_ready](#upserv_mu_optimizer_ready)
 		* [upserv\_no\_api\_includes](#upserv_no_api_includes)
 		* [upserv\_no\_priority\_api\_includes](#upserv_no_priority_api_includes)
-		* [upserv\_remote\_sources\_options\_updated](#upserv_remote_sources_options_updated)
+		* [upserv\_api\_options\_updated](#upserv_api_options_updated)
 	* [Filters](#filters)
 		* [upserv\_mu\_optimizer\_active\_plugins](#upserv_mu_optimizer_active_plugins)
 		* [upserv\_mu\_optimizer\_doing\_api\_request](#upserv_mu_optimizer_doing_api_request)
@@ -43,7 +43,7 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 		* [upserv\_fetch\_nonce](#upserv_fetch_nonce)
 		* [upserv\_nonce\_authorize](#upserv_nonce_authorize)
 		* [upserv\_api\_option\_update](#upserv_api_option_update)
-		* [upserv\_api\_option\_value](#upserv_api_option_value)
+		* [upserv\_api\_option\_save\_value](#upserv_api_option_save_value)
 		* [upserv\_api\_webhook\_events](#upserv_api_webhook_events)
 		* [upserv\_webhook\_fire](#upserv_webhook_fire)
 		* [upserv\_schedule\_webhook\_is\_instant](#upserv_schedule_webhook_is_instant)
@@ -651,7 +651,7 @@ do_action( 'upserv_no_priority_api_includes' );
 Fired when the plugin is including files and the current request is not made by a client plugin or theme interacting with the plugin's high priority API (typically the license API).
 
 ___
-### upserv_remote_sources_options_updated
+### upserv_api_options_updated
 
 ```php
 do_action( 'upserv_api_options_updated', array $errors );
@@ -1010,18 +1010,18 @@ Filter whether to update the API plugin option.
 > (array) the values submitted along with the option  
 
 ___
-### upserv_api_option_value
+### upserv_api_option_save_value
 
 ```php
 apply_filters( 'upserv_api_option_save_value', mixed $value, string $option_name, array $option_info, array $options );
 ```
 
 **Description**
-Filter the value of the API plugin option before saving it.
+Filter the value of the API option before saving it.
 
 **Parameters**
 `$value`
-> (mixed) the value of the API plugin option
+> (mixed) the value of the API option
 
 `$option_name`
 > (string) the name of the option
