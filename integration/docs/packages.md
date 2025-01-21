@@ -103,7 +103,6 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_schedule\_cleanup\_frequency](#upserv_schedule_cleanup_frequency)
         * [upserv\_check\_remote\_frequency](#upserv_check_remote_frequency)
         * [upserv\_handle\_update\_request\_params](#upserv_handle_update_request_params)
-        * [upserv\_update\_api\_config](#upserv_update_api_config)
         * [upserv\_update\_server](#upserv_update_server)
         * [upserv\_update\_checker](#upserv_update_checker)
         * [upserv\_cloud\_storage\_virtual\_dir](#upserv_cloud_storage_virtual_dir)
@@ -121,7 +120,6 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_packages\_table\_columns](#upserv_packages_table_columns)
         * [upserv\_packages\_table\_sortable\_columns](#upserv_packages_table_sortable_columns)
         * [upserv\_packages\_table\_bulk\_actions](#upserv_packages_table_bulk_actions)
-        * [upserv\_use\_recurring\_schedule](#upserv_use_recurring_schedule)
         * [upserv\_server\_class\_name](#upserv_server_class_name)
         * [upserv\_delete\_packages\_bulk\_paths](#upserv_delete_packages_bulk_paths)
         * [upserv\_package\_manager\_get\_package\_info](#upserv_package_manager_get_package_info)
@@ -2473,21 +2471,6 @@ Fired during client update API request.
 > (array) the parameters of the request to the API  
 
 ___
-### upserv_update_api_config
-
-```php
-apply_filters( 'upserv_update_api_config', array $config );
-```
-
-**Description**  
-Filter the update API configuration values before using them.  
-Fired during client update API request.  
-
-**Parameters**  
-`$config`
-> (array) the update api configuration values  
-
-___
 ### upserv_update_server
 
 ```php
@@ -2800,20 +2783,6 @@ Filter the bulk actions in the packages Overview table.
 **Parameters**  
 `$actions`
 > (array) the bulk actions in the packages Overview table  
-
-___
-### upserv_use_recurring_schedule
-
-```php
-apply_filters( 'upserv_use_recurring_schedule', bool $use_recurring_schedule );
-```
-
-**Description**  
-Filter whether UpdatePulse Server is using recurring schedules to check to update packages from the Remote Repository Service.  
-
-**Parameters**  
-`$use_recurring_schedule`
-> (bool) whether UpdatePulse Server is using recurring schedules to check to update packages from the Remote Repository Service  
 
 ___
 ### upserv_server_class_name

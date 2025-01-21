@@ -97,7 +97,6 @@ jQuery(document).ready(function ($) {
         updateForm();
         disableForm(true);
         form.addClass('hidden');
-        console.log('after', data);
     };
     var updateForm = function (id) {
         inputElements.each(function () {
@@ -117,6 +116,8 @@ jQuery(document).ready(function ($) {
             } else {
                 elem.val(value ? value : '');
             }
+
+            $('#upserv_vcs_list').val(id);
         });
     };
     var updateData = function (elem) {
@@ -144,7 +145,6 @@ jQuery(document).ready(function ($) {
         updateRepositories();
     };
     var updateRepositories = function () {
-        console.log('updateRepositories');
         $('#upserv_repositories').val(JSON.stringify(data));
     };
     var disableForm = function (disable) {
@@ -199,14 +199,12 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        var id = btoa(url + '|' + branch).replace(/=/g, '').replace(/\//g, '_');
+        var id = btoa(url + '|' + branch).replace(/=/g, '-').replace(/\//g, '_');
 
         addData(id, { url: url, branch: branch });
         addItem(id, data[id]);
         selectRepository(id);
-
         $(this).closest('.upserv-modal').trigger('close', [$(this)]);
-        console.log(data);
     });
 
     $('#upserv_remove_remote_repository').on('click', function (e) {

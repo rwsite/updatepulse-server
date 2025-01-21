@@ -87,10 +87,15 @@ class Update_API {
 	}
 
 	public function puc_request_info_pre_filter( $info, $api_obj, $ref, $update_checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		$config          = self::get_config();
+		$vcs_config = $this->get_vcs_config( $info['slug'] );
+
+		if ( ! $vcs_config ) {
+			return $info;
+		}
+
 		$filter_packages = apply_filters(
 			'upserv_repository_filter_packages',
-			$config['repository_filter_packages'],
+			$vcs_config['filter_packages'],
 			$info
 		);
 
@@ -104,10 +109,15 @@ class Update_API {
 	}
 
 	public function puc_request_info_result( $info, $api_obj, $ref, $checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		$config          = self::get_config();
+		$vcs_config = $this->get_vcs_config( $info['slug'] );
+
+		if ( ! $vcs_config ) {
+			return $info;
+		}
+
 		$filter_packages = apply_filters(
 			'upserv_repository_filter_packages',
-			$config['repository_filter_packages'],
+			$vcs_config['filter_packages'],
 			$info
 		);
 
@@ -129,59 +139,6 @@ class Update_API {
 		}
 
 		return self::$doing_update_api_request;
-	}
-
-	public static function get_config() {
-
-		if ( ! self::$config ) {
-			$repo_configs = upserv_get_option( 'remote_repositories', array() );
-			$idx          = empty( $repo_configs ) ? false : array_key_first( $repo_configs );
-			$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
-			$config       = array(
-				'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
-				'server_directory'        => Data_Manager::get_data_dir(),
-				'url'                     => ( $idx ) ? $repo_config['url'] : '',
-				'self_hosted'             => ( $idx ) ? $repo_config['self_hosted'] : 0,
-				'branch'                  => ( $idx ) ? $repo_config['branch'] : '',
-				'credentials'             => ( $idx ) ? explode( '|', $repo_config['credentials'] ) : array(),
-				'filter_packages'         => ( $idx ) ? $repo_config['filter_packages'] : 0,
-				'check_frequency'         => ( $idx ) ? $repo_config['check_frequency'] : 'daily',
-			);
-
-			if ( ! empty( $repo_configs ) ) {
-				$needs_updated = false;
-
-				foreach ( $repo_configs as $index => $r_c ) {
-					$is_valid_schedule = in_array(
-						strtolower( $r_c['check_frequency'] ),
-						array_keys( wp_get_schedules() ),
-						true
-					);
-
-					if ( ! $is_valid_schedule ) {
-						$needs_updated                             = true;
-						$repo_configs[ $index ]['check_frequency'] = 'daily';
-					}
-				}
-
-				if ( $needs_updated ) {
-					upserv_update_option( 'remote_repositories', $repo_configs );
-				}
-			}
-
-			if ( 2 === count( $config['credentials'] ) ) {
-				$config['credentials'] = array(
-					'consumer_key'    => $config['credentials'][0],
-					'consumer_secret' => $config['credentials'][1],
-				);
-			} else {
-				$config['credentials'] = empty( $config['credentials'] ) ? '' : $config['credentials'][0];
-			}
-
-			self::$config = $config;
-		}
-
-		return apply_filters( 'upserv_update_api_config', self::$config );
 	}
 
 	public static function get_instance() {
@@ -223,9 +180,10 @@ class Update_API {
 		if ( ! upserv_is_package_whitelisted( $slug ) ) {
 			upserv_whitelist_package( $slug );
 
-			$meta         = upserv_get_package_metadata( $slug );
-			$meta['vcs']  = $this->update_server->get_vcs_url();
-			$meta['type'] = $type;
+			$meta           = upserv_get_package_metadata( $slug );
+			$meta['vcs']    = $this->update_server->get_vcs_url();
+			$meta['branch'] = $this->update_server->get_branch();
+			$meta['type']   = $type;
 
 			upserv_set_package_metadata( $slug, $meta );
 		}
@@ -242,34 +200,63 @@ class Update_API {
 	 *******************************************************************/
 
 	protected function schedule_check_remote_event( $slug ) {
-		$config = self::get_config();
+		$vcs_config = $this->get_vcs_config( $slug );
 
 		if (
-			apply_filters( 'upserv_use_recurring_schedule', true ) &&
-			$config['use_remote_repositories'] &&
-			$config['url']
+			! upserv_get_option( 'use_remote_repositories', 0 ) ||
+			! $vcs_config ||
+			! $vcs_config['use_webhooks']
 		) {
-			$hook   = 'upserv_check_remote_' . $slug;
-			$params = array( $slug, null, false );
-
-			if ( ! as_has_scheduled_action( $hook, $params ) ) {
-				$frequency = apply_filters(
-					'upserv_check_remote_frequency',
-					$config['repository_check_frequency'],
-					$slug
-				);
-				$timestamp = time();
-				$schedules = wp_get_schedules();
-				$result    = as_schedule_recurring_action(
-					$timestamp,
-					$schedules[ $frequency ]['interval'],
-					$hook,
-					$params
-				);
-
-				do_action( 'upserv_scheduled_check_remote_event', $result, $slug, $timestamp, $frequency, $hook, $params );
-			}
+			return;
 		}
+
+		$meta   = upserv_get_package_metadata( $slug );
+		$type   = isset( $meta['type'] ) ? $meta['type'] : null;
+		$hook   = 'upserv_check_remote_' . $slug;
+		$params = array( $slug, $type, false );
+
+		if ( as_has_scheduled_action( $hook, $params ) ) {
+			return;
+		}
+		$frequency = apply_filters(
+			'upserv_check_remote_frequency',
+			$vcs_config['repository_check_frequency'],
+			$slug
+		);
+		$timestamp = time();
+		$schedules = wp_get_schedules();
+		$result    = as_schedule_recurring_action(
+			$timestamp,
+			$schedules[ $frequency ]['interval'],
+			$hook,
+			$params
+		);
+
+		do_action(
+			'upserv_scheduled_check_remote_event',
+			$result,
+			$slug,
+			$timestamp,
+			$frequency,
+			$hook,
+			$params
+		);
+	}
+
+	protected function get_vcs_config( $slug ) {
+		$meta = upserv_get_package_metadata( $slug );
+
+		if ( ! isset( $meta['vcs'], $meta['branch'] ) ) {
+			return;
+		}
+
+		$key = str_replace(
+			array( '/', '-' ),
+			array( '_', '-' ),
+			base64_encode( $meta['vcs'] . '|' . $meta['branch'] )// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		);
+
+		return upserv_get_option( 'remote_repositories/' . $key, false );
 	}
 
 	protected function handle_api_request() {
@@ -297,33 +284,50 @@ class Update_API {
 	}
 
 	protected function init_server( $slug ) {
-		$config      = self::get_config();
-		$meta        = upserv_get_package_metadata( $slug );
-		$url         = isset( $meta['url'] ) ?
-			$meta['url'] :
-			$config['url'];
+		$vcs_config  = $this->get_vcs_config( $slug );
+		$url         = isset( $vcs_config['url'] ) ? $vcs_config['url'] : null;
+		$branch      = isset( $vcs_config['branch'] ) ? $vcs_config['branch'] : null;
+		$credentials = isset( $vcs_config['credentials'] ) ? explode( '|', $vcs_config['credentials'] ) : null;
+		$self_hosted = isset( $vcs_config['self_hosted'] ) ? $vcs_config['self_hosted'] : false;
+
+		if ( $credentials && 2 === count( $credentials ) ) {
+			$credentials = array(
+				'consumer_key'    => $credentials[0],
+				'consumer_secret' => $credentials[1],
+			);
+		} else {
+			$credentials = ! $credentials ? '' : $credentials[0];
+		}
+		$filer_args  = array(
+			'url'         => $url,
+			'branch'      => $branch,
+			'credentials' => $credentials,
+			'self_hosted' => $self_hosted,
+			'directory'   => Data_Manager::get_data_dir(),
+			'vcs_config'  => $vcs_config,
+		);
 		$_class_name = apply_filters(
 			'upserv_server_class_name',
 			str_replace( 'API', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
 			$slug,
-			$config
+			$filer_args
 		);
 
 		if ( ! isset( $this->update_server ) || ! is_a( $this->update_server, $_class_name ) ) {
 			$this->update_server = new $_class_name(
 				home_url( '/updatepulse-server-update-api/' ),
-				$config['server_directory'],
+				Data_Manager::get_data_dir(),
 				$url,
-				$config['branch'],
-				$config['credentials'],
-				$config['self_hosted'],
+				$branch,
+				$credentials,
+				$self_hosted,
 			);
 		}
 
 		$this->update_server = apply_filters(
 			'upserv_update_server',
 			$this->update_server,
-			$config,
+			$filer_args,
 			$slug
 		);
 	}

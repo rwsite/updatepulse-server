@@ -299,6 +299,50 @@ class API_Manager {
 
 					$option_info['value'] = $filtered;
 				}
+			} elseif ( 'webhooks' === $option_info['condition'] ) {
+				$inputs = json_decode( $option_info['value'], true );
+
+				if ( empty( $option_info['value'] ) || json_last_error() ) {
+					$option_info['value'] = (object) array();
+				} else {
+					$filtered = array();
+
+					foreach ( $inputs as $index => $values ) {
+						$check_url       = base64_decode( str_replace( '|', '/', $index ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+						$url             = filter_var(
+							isset( $values['url'] ) ? $values['url'] : false,
+							FILTER_SANITIZE_URL
+						);
+						$events          = filter_var(
+							isset( $values['events'] ) ? $values['events'] : array(),
+							FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+							FILTER_REQUIRE_ARRAY
+						);
+						$secret          = filter_var(
+							isset( $values['secret'] ) ? $values['secret'] : false,
+							FILTER_SANITIZE_FULL_SPECIAL_CHARS
+						);
+						$license_api_key = filter_var(
+							isset( $values['licenseAPIKey'] ) ? $values['licenseAPIKey'] : false,
+							FILTER_SANITIZE_FULL_SPECIAL_CHARS
+						);
+
+						if ( ! $url || $check_url !== $url || empty( $events ) || ! $secret ) {
+							$filtered = (object) array();
+
+							break;
+						}
+
+						$filtered[ $index ] = array(
+							'url'           => $url,
+							'secret'        => $secret,
+							'events'        => $events,
+							'licenseAPIKey' => $license_api_key,
+						);
+					}
+
+					$option_info['value'] = $filtered;
+				}
 			}
 
 			$condition = apply_filters(
@@ -373,6 +417,13 @@ class API_Manager {
 					'value'     => filter_input( INPUT_POST, 'upserv_license_private_api_ip_whitelist', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
 					'condition' => 'ip-list',
 					'path'      => 'api/licenses/private_api_ip_whitelist',
+				),
+				'upserv_webhooks'                         => array(
+					'value'                   => filter_input( INPUT_POST, 'upserv_webhooks', FILTER_UNSAFE_RAW ),
+					'display_name'            => __( 'Webhooks', 'updatepulse-server' ),
+					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
+					'condition'               => 'webhooks',
+					'path'                    => 'api/webhooks',
 				),
 			)
 		);

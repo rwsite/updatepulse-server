@@ -174,14 +174,11 @@ class UPServ {
 	public function update_options( $options ) {
 		$options = array_merge( self::$options, $options );
 		$options = apply_filters( 'upserv_update_options', $options );
-		$result  = update_option(
-			'upserv_options',
-			wp_json_encode(
-				$options,
-				JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-			),
-			true
+		$options = wp_json_encode(
+			$options,
+			JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
 		);
+		$result  = update_option( 'upserv_options', $options, true );
 
 		if ( $result ) {
 			self::$options = $this->get_options();
@@ -266,7 +263,7 @@ class UPServ {
 		if ( upserv_get_option( 'use_remote_repositories' ) ) {
 			$l10n['deletePackagesConfirm'] = array(
 				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
-				__( 'Packages with a Remote Repository will be added again automatically whenever a client asks for updates.', 'updatepulse-server' ),
+				__( 'Packages with a Remote Repository will be added again automatically whenever a client asks for updates, or, if configured, when its Webhook is called.', 'updatepulse-server' ),
 				__( 'All packages manually uploaded without counterpart in a Remote Repository will be permanently deleted.', 'updatepulse-server' ),
 				"\n",
 				__( 'Are you sure you want to do this?', 'updatepulse-server' ),

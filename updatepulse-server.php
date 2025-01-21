@@ -183,10 +183,6 @@ function upserv_run() {
 			$objects['remote_sources_manager'] = new Remote_Sources_Manager( true );
 		}
 
-		if ( ! isset( $objects['webhook_manager'] ) ) {
-			$objects['webhook_manager'] = new Webhook_Manager( true );
-		}
-
 		if ( ! isset( $objects['package_manager'] ) ) {
 			$objects['package_manager'] = new Package_Manager( true );
 		}

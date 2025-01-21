@@ -82,6 +82,10 @@ class Update_Server {
 		return $this->vcs_url;
 	}
 
+	public function get_branch() {
+		return $this->branch;
+	}
+
 	public function pre_filter_package_info( $info, $api, $ref ) {
 		$abort        = true;
 		$_file        = apply_filters( 'upserv_filter_packages_filename', 'updatepulse.json' );

@@ -140,7 +140,6 @@ $upserv_filters_to_test = array(
 	// 'upserv_update_server'                               => 4, // mixed $update_server, array $config, string $slug, bool $use_license
 	// 'upserv_handle_update_request_params'                => 1, // array $params
 	// 'upserv_update_checker'                              => 8, // mixed $update_checker, string $slug, string $type, string $package_file_name, string $repository_service_url, string $repository_branch, mixed $repository_credentials, bool $repository_service_self_hosted
-	// 'upserv_update_api_config'                           => 1, // array $config
 	// 'upserv_submitted_remote_sources_config'             => 1, // array $config
 	// 'upserv_check_remote_frequency'                      => 2, // string $frequency, string $slug
 	// /** Licenses filters **/

@@ -954,12 +954,12 @@ class Package_Manager {
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
-			wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
+			! wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
 		) {
 			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
 
 			return $errors;
-		} elseif ( isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) ) {
+		} elseif ( ! isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) ) {
 			return $result;
 		}
 
