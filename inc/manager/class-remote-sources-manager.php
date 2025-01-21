@@ -481,16 +481,6 @@ class Remote_Sources_Manager {
 					$filtered = array();
 					$index    = 0;
 
-					// "url": "https:\/\/github.com\/test\/",
-					// "branch": "main",
-					// "self_hosted": 0,
-					// "credentials": "github_pat_11AObNUuLX5BvkUXIhAH5JECWVa5XySENb",
-					// "filter_packages": 1,
-					// "check_frequency": "daily",
-					// "use_webhooks": 1,
-					// "check_delay": 0,
-					// "webhook_secret": "asecretremotehook"
-
 					foreach ( $inputs as $id => $values ) {
 						$id           = filter_var( $id, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 						$decoded      = $id ? base64_decode( str_replace( '|', '/', $id ) ) : ''; // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
