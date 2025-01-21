@@ -1,12 +1,19 @@
 .upserv-wrap .repositories {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: stretch;
     justify-content: flex-start;
     gap: 1em;
+    height: 100%;
+    margin-top: 2em;
 }
 
-.upserv-wrap .repositories .item.button.template .placeholder {
+.upserv-wrap .item.template {
+    max-width: 100px;
+    text-align: center;
+}
+
+.upserv-wrap .repositories .item.template .placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -16,28 +23,48 @@
     font-weight: bold;
 }
 
-.upserv-wrap .repositories .item.button.template .placeholder span.icon {
+.upserv-wrap .repositories .item.template .placeholder span.icon {
     font-size: 2em;
     line-height: 1em;
 }
 
-.repositories .button.item.selected {
-    box-shadow: inset 0px 0px 0px 2px #2271b1;
-}
-
-.upserv-wrap .repositories .button.item .url span {
-    font-size: 1.15em
-}
-
-.upserv-wrap .repositories .button.item.selected .url span {
-    /* font-weight: bold; */
-}
-
 .upserv-wrap .repositories .item {
-    box-shadow: inset 0px 0px 0px 2px transparent;
+    background: #fff;
+    padding: 1em 2em;
+    border-radius: 0.75em;
+    box-shadow: inset 0px 0px 0px 1px transparent, rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.upserv-wrap .repositories .item:hover,
+.upserv-wrap .repositories .item:focus,
+.upserv-wrap .repositories .item:active,
+.upserv-wrap .repositories .item.selected {
+    box-shadow: inset 0px 0px 0px 1px #2271b1, rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+.upserv-wrap .repositories .item .service span:not(.hidden) {
+    font-size: 1.5em;
+    display: flex;
+    align-items: baseline;
+    gap: 0.33em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    justify-content: flex-start;
+}
+
+.upserv-wrap .repositories .item.selected .service span:not(.hidden) {
+    color: #2271b1;
 }
 
 .upserv-wrap .repositories .item:not(.template) {
+    line-height: 1.5em;
+    padding: 1em 1em 0.5em;
+    min-width: 175px;
+    max-width: 245px;
 }
 
 .upserv-wrap .repositories .item .branch:not(.hidden) {
@@ -46,10 +73,12 @@
     align-items: center;
 }
 
-.upserv-wrap .repositories .item .url span {
-    display: inline-block;
+.upserv-wrap .repositories .item code:not(.hidden) {
     word-break: break-all;
-    max-width: 300px;
+    white-space: initial;
+    width: auto;
+    display: block;
+    margin: 0 auto 0.5em 0;
 }
 
 .upserv-wrap .package-source.form-container {
@@ -58,4 +87,10 @@
     background: #fff;
     border-radius: 0.5em;
     max-width: 1400px;
+    border: 1px solid #c3c4c7;
+}
+
+.upserv-wrap .button.remove {
+    color: #d63638;
+    border-color: #d63638;
 }

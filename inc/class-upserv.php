@@ -238,9 +238,17 @@ class UPServ {
 	}
 
 	public function upserv_admin_styles( $styles ) {
-		$styles['main'] = array(
+		$styles['main']        = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/admin/main' . upserv_assets_suffix() . '.css',
 			'uri'  => UPSERV_PLUGIN_URL . 'css/admin/main' . upserv_assets_suffix() . '.css',
+		);
+		$styles['brands']      = array(
+			'path' => UPSERV_PLUGIN_PATH . 'css/fontawesome/css/brands' . upserv_assets_suffix() . '.css',
+			'uri'  => UPSERV_PLUGIN_URL . 'css/fontawesome/css/brands' . upserv_assets_suffix() . '.css',
+		);
+		$styles['fontawesome'] = array(
+			'path' => UPSERV_PLUGIN_PATH . 'css/fontawesome/css/fontawesome' . upserv_assets_suffix() . '.css',
+			'uri'  => UPSERV_PLUGIN_URL . 'css/fontawesome/css/fontawesome' . upserv_assets_suffix() . '.css',
 		);
 
 		return $styles;

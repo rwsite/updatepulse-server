@@ -63,6 +63,10 @@
     tab-size: 4;
 }
 
+.upserv-modal.hidden {
+    display: none;
+}
+
 .upserv-modal {
     position: fixed;
     z-index: 9999;
@@ -72,6 +76,9 @@
     height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .upserv-modal-content {
@@ -81,9 +88,6 @@
     max-width: 700px;
     width: 80%;
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     max-height: 85vh;
     overflow: hidden;
 }
