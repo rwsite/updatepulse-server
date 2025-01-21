@@ -219,124 +219,122 @@ class API_Manager {
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
-			wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
+			! wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
 		) {
-			$result  = __( 'UpdatePulse Server options successfully updated', 'updatepulse-server' );
-			$options = $this->get_submitted_options();
+			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
 
-			foreach ( $options as $option_name => $option_info ) {
-				$condition = $option_info['value'];
+			return $errors;
+		} elseif ( ! isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) ) {
+			return $result;
+		}
 
-				if ( isset( $option_info['condition'] ) ) {
+		$result  = __( 'UpdatePulse Server options successfully updated', 'updatepulse-server' );
+		$options = $this->get_submitted_options();
 
-					if ( 'ip-list' === $option_info['condition'] ) {
-						$condition = true;
+		foreach ( $options as $option_name => $option_info ) {
+			$condition = $option_info['value'];
 
-						if ( empty( $option_info['value'] ) ) {
-							$option_info['value'] = array();
-						} else {
-							$option_info['value'] = array_filter( array_map( 'trim', explode( "\n", $option_info['value'] ) ) );
-							$option_info['value'] = array_unique(
-								array_map(
-									function ( $ip ) {
-										return preg_match( '/\//', $ip ) ? $ip : $ip . '/32';
-									},
-									$option_info['value']
-								)
-							);
-						}
-					} elseif ( 'api-keys' === $option_info['condition'] ) {
-						$inputs = json_decode( $option_info['value'], true );
-						$prefix = '';
+			if ( isset( $option_info['condition'] ) && 'ip-list' === $option_info['condition'] ) {
+				$condition = true;
 
-						if ( 'upserv_package_private_api_keys' === $option_name ) {
-							$prefix = 'UPDATEPULSE_P_';
-						} elseif ( 'upserv_license_private_api_keys' === $option_name ) {
-							$prefix = 'UPDATEPULSE_L_';
-						}
+				if ( empty( $option_info['value'] ) ) {
+					$option_info['value'] = array();
+				} else {
+					$option_info['value'] = array_filter( array_map( 'trim', explode( "\n", $option_info['value'] ) ) );
+					$option_info['value'] = array_unique(
+						array_map(
+							function ( $ip ) {
+								return preg_match( '/\//', $ip ) ? $ip : $ip . '/32';
+							},
+							$option_info['value']
+						)
+					);
+				}
+			} elseif ( isset( $option_info['condition'] ) && 'api-keys' === $option_info['condition'] ) {
+				$inputs = json_decode( $option_info['value'], true );
+				$prefix = '';
 
-						if ( empty( $option_info['value'] ) || json_last_error() ) {
-							$option_info['value'] = (object) array();
-						} else {
-							$filtered = array();
-
-							foreach ( $inputs as $id => $values ) {
-								$id = filter_var( $id, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-								$id = preg_replace( '/^' . preg_quote( $prefix, '/' ) . '/', '', $id );
-
-								if ( ! preg_match( '/^[a-zA-Z0-9_-]+$/', $id ) ) {
-									$id = false;
-								} else {
-									$id = $prefix . $id;
-								}
-
-								$access = filter_var(
-									isset( $values['access'] ) ? $values['access'] : array(),
-									FILTER_SANITIZE_FULL_SPECIAL_CHARS,
-									FILTER_REQUIRE_ARRAY
-								);
-								$key    = filter_var(
-									isset( $values['key'] ) ? $values['key'] : false,
-									FILTER_SANITIZE_FULL_SPECIAL_CHARS
-								);
-
-								if ( ! $id || empty( $access ) || ! $key ) {
-									$filtered = new stdClass();
-
-									break;
-								}
-
-								$filtered[ $id ] = array(
-									'key'    => $key,
-									'access' => $access,
-								);
-							}
-
-							$option_info['value'] = $filtered;
-						}
-					}
+				if ( 'upserv_package_private_api_keys' === $option_name ) {
+					$prefix = 'UPDATEPULSE_P_';
+				} elseif ( 'upserv_license_private_api_keys' === $option_name ) {
+					$prefix = 'UPDATEPULSE_L_';
 				}
 
-				$condition = apply_filters(
-					'upserv_api_option_update',
-					$condition,
+				if ( empty( $option_info['value'] ) || json_last_error() ) {
+					$option_info['value'] = (object) array();
+				} else {
+					$filtered = array();
+
+					foreach ( $inputs as $id => $values ) {
+						$id = filter_var( $id, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+						$id = preg_replace( '/^' . preg_quote( $prefix, '/' ) . '/', '', $id );
+
+						if ( ! preg_match( '/^[a-zA-Z0-9_-]+$/', $id ) ) {
+							$id = false;
+						} else {
+							$id = $prefix . $id;
+						}
+
+						$access = filter_var(
+							isset( $values['access'] ) ? $values['access'] : array(),
+							FILTER_SANITIZE_FULL_SPECIAL_CHARS,
+							FILTER_REQUIRE_ARRAY
+						);
+						$key    = filter_var(
+							isset( $values['key'] ) ? $values['key'] : false,
+							FILTER_SANITIZE_FULL_SPECIAL_CHARS
+						);
+
+						if ( ! $id || empty( $access ) || ! $key ) {
+							$filtered = new stdClass();
+
+							break;
+						}
+
+						$filtered[ $id ] = array(
+							'key'    => $key,
+							'access' => $access,
+						);
+					}
+
+					$option_info['value'] = $filtered;
+				}
+			}
+
+			$condition = apply_filters(
+				'upserv_api_option_update',
+				$condition,
+				$option_name,
+				$option_info,
+				$options
+			);
+
+			if ( $condition ) {
+				$to_save[ $option_info['path'] ] = apply_filters(
+					'upserv_api_option_save_value',
+					$option_info['value'],
 					$option_name,
 					$option_info,
 					$options
 				);
+			} else {
+				$errors[ $option_name ] = sprintf(
+					// translators: %1$s is the option display name, %2$s is the condition for update
+					__( 'Option %1$s was not updated. Reason: %2$s', 'updatepulse-server' ),
+					$option_info['display_name'],
+					$option_info['failure_display_message']
+				);
+			}
+		}
 
-				if ( $condition ) {
-					$to_save[ $option_info['path'] ] = apply_filters(
-						'upserv_api_option_save_value',
-						$option_info['value'],
-						$option_name,
-						$option_info,
-						$options
-					);
-				} else {
-					$errors[ $option_name ] = sprintf(
-						// translators: %1$s is the option display name, %2$s is the condition for update
-						__( 'Option %1$s was not updated. Reason: %2$s', 'updatepulse-server' ),
-						$option_info['display_name'],
-						$option_info['failure_display_message']
-					);
-				}
+		if ( ! empty( $to_save ) ) {
+			$to_update = array();
+
+			foreach ( $to_save as $path => $value ) {
+				$to_update = upserv_set_option( $path, $value );
 			}
 
-			if ( ! empty( $to_save ) ) {
-				$to_update = array();
-
-				foreach ( $to_save as $path => $value ) {
-					$to_update = upserv_set_option( $path, $value );
-				}
-
-				upserv_update_options( $to_update );
-			}
-		} elseif (
-			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
-			! wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
-		) {
-			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
+			upserv_update_options( $to_update );
 		}
 
 		if ( ! empty( $errors ) ) {

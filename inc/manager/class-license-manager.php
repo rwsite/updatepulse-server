@@ -355,53 +355,54 @@ class License_Manager {
 
 	protected function plugin_options_handler() {
 		$errors  = array();
-		$result  = false;
+		$result  = '';
 		$to_save = array();
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
-			wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
-		) {
-			$result  = __( 'UpdatePulse Server license options successfully updated.', 'updatepulse-server' );
-			$options = $this->get_submitted_options();
-
-			foreach ( $options as $option_name => $option_info ) {
-				$condition = $option_info['value'];
-
-				if ( isset( $option_info['condition'] ) ) {
-
-					if ( 'boolean' === $option_info['condition'] ) {
-						$condition            = true;
-						$option_info['value'] = ( $option_info['value'] );
-					}
-				}
-
-				if ( $condition ) {
-					$to_save[ $option_info['path'] ] = $option_info['value'];
-				} else {
-					$errors[ $option_name ] = sprintf(
-						// translators: %1$s is the option display name, %2$s is the condition for update
-						__( 'Option %1$s was not updated. Reason: %2$s', 'updatepulse-server' ),
-						$option_info['display_name'],
-						$option_info['failure_display_message']
-					);
-				}
-			}
-
-			if ( ! empty( $to_save ) ) {
-				$to_update = array();
-
-				foreach ( $to_save as $path => $value ) {
-					$to_update = upserv_set_option( $path, $value );
-				}
-
-				upserv_update_options( $to_update );
-			}
-		} elseif (
-			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
 			! wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
 		) {
-			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
+			$this->errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
+
+			return false;
+		} elseif ( ! isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) ) {
+			return $result;
+		}
+
+		$result  = __( 'UpdatePulse Server license options successfully updated.', 'updatepulse-server' );
+		$options = $this->get_submitted_options();
+
+		foreach ( $options as $option_name => $option_info ) {
+			$condition = $option_info['value'];
+
+			if ( isset( $option_info['condition'] ) ) {
+
+				if ( 'boolean' === $option_info['condition'] ) {
+					$condition            = true;
+					$option_info['value'] = ( $option_info['value'] );
+				}
+			}
+
+			if ( $condition ) {
+				$to_save[ $option_info['path'] ] = $option_info['value'];
+			} else {
+				$errors[ $option_name ] = sprintf(
+					// translators: %1$s is the option display name, %2$s is the condition for update
+					__( 'Option %1$s was not updated. Reason: %2$s', 'updatepulse-server' ),
+					$option_info['display_name'],
+					$option_info['failure_display_message']
+				);
+			}
+		}
+
+		if ( ! empty( $to_save ) ) {
+			$to_update = array();
+
+			foreach ( $to_save as $path => $value ) {
+				$to_update = upserv_set_option( $path, $value );
+			}
+
+			upserv_update_options( $to_update );
 		}
 
 		if ( ! empty( $errors ) ) {
