@@ -19,7 +19,7 @@
 				?>
 			</li>
 			<li>
-				<?php esc_html_e( 'If a package linked to a Remote Repository is deleted using this interface, it needs to be registered again to become available in UpdatePulse Server.', 'updatepulse-server' ); ?>
+				<?php esc_html_e( 'If a registered package is deleted using this interface, it needs to be registered again to become available in UpdatePulse Server.', 'updatepulse-server' ); ?>
 			</li>
 		</ul>
 		<?php endif; ?>
@@ -56,6 +56,7 @@
 						'<code>' . esc_html( $packages_dir ) . '</code>',
 					);
 					?>
+					<br>
 					<?php
 					printf(
 						// translators: %s is <code>package-slug</code>
@@ -75,7 +76,7 @@
 					<br>
 					<?php esc_html_e( 'Using this method adds the package to the list if not present or forcefully downloads its latest version from the Remote Repository and overwrites the existing package.', 'updatepulse-server' ); ?>
 					<br>
-					<?php esc_html_e( 'Note: packages will be overwritten automatically and regularly with their counterpart from the Remote Repository if a newer version exists.', 'updatepulse-server' ); ?>
+					<?php esc_html_e( 'Note: registered packages get overwritten automatically with their counterpart from the Remote Repository when a newer version is made available.', 'updatepulse-server' ); ?>
 				</p>
 			</td>
 		</tr>
@@ -94,10 +95,12 @@
 					<?php
 					printf(
 						// translators: %s is <code>$packages_dir</code>
-						esc_html__( 'Add a package zip archive to the %s directory. The archive needs to be a valid generic package, or a valid WordPress plugin or theme package.', 'updatepulse-server' ),
+						esc_html__( 'Add a package zip archive to the %s directory.', 'updatepulse-server' ),
 						'<code>' . esc_html( $packages_dir ) . '</code>',
 					);
 					?>
+					<br>
+					<?php esc_html_e( 'The archive needs to be a valid generic package, or a valid WordPress plugin or theme package.', 'updatepulse-server' ); ?>
 					<br>
 					<?php
 					printf(
@@ -108,10 +111,10 @@
 					);
 					?>
 					<br>
-					<?php esc_html_e( 'Using this method adds the package to the list if not present or overwrites the existing package.', 'updatepulse-server' ); ?>
+					<?php esc_html_e( 'This method adds the package to the list if it is not already present, or it overwrites the existing package.', 'updatepulse-server' ); ?>
 					<?php if ( $options['use_vcs'] ) : ?>
 					<br>
-						<?php esc_html_e( 'Note: unless already been registered, packages uploaded this way will not be updated automatically from a Remote Repository.', 'updatepulse-server' ); ?>
+						<?php esc_html_e( 'Note: packages uploaded this way get updated only by manually uploading a new version again.', 'updatepulse-server' ); ?>
 					<?php endif; ?>
 				</p>
 			</td>

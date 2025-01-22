@@ -185,6 +185,7 @@ class Update_API {
 		$meta['branch']  = $this->update_server->get_branch();
 		$meta['type']    = $type;
 		$meta['vcs_key'] = hash( 'sha256', trailingslashit( $meta['vcs'] ) . '|' . $meta['branch'] );
+		$meta['origin']  = 'vcs';
 
 		upserv_set_package_metadata( $slug, $meta );
 

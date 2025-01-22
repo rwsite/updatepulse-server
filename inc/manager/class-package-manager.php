@@ -205,7 +205,7 @@ class Package_Manager {
 			$vcs_key = filter_input( INPUT_POST, 'vcs_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( $slug && $vcs_key ) {
-				$vcs_config      = upserv_get_package_vcs_config( $vcs_key );
+				$vcs_config      = upserv_get_option( 'remote_repositories/' . $vcs_key, false );
 				$meta            = upserv_get_package_metadata( $slug );
 				$meta['vcs_key'] = hash( 'sha256', trailingslashit( $vcs_config['url'] ) . '|' . $vcs_config['branch'] );
 
@@ -227,7 +227,7 @@ class Package_Manager {
 
 		if ( wp_cache_get( 'upserv_download_remote_package_aborted', 'updatepulse-server' ) ) {
 			$vcs_config = upserv_get_package_vcs_config( $slug );
-			$error      = $vcs_config['filter_packages'] ?
+			$error      = isset( $vcs_config['filter_packages'] ) && $vcs_config['filter_packages'] ?
 				new WP_Error(
 					__METHOD__,
 					__( 'Error - could not get remote package. The package was filtered out because it is not linked to this server.', 'updatepulse-server' )
@@ -364,6 +364,10 @@ class Package_Manager {
 
 		if ( $result ) {
 			upserv_whitelist_package( $slug );
+
+			$meta['origin'] = 'manual';
+
+			upserv_set_package_metadata( $slug, $meta );
 			wp_send_json_success();
 		} else {
 			wp_send_json_error(
@@ -946,7 +950,7 @@ class Package_Manager {
 
 		wp_cache_delete( 'package_metadata_' . $package_slug, 'updatepulse-server' );
 
-		if ( empty( $metadata ) ) {
+		if ( empty( $data ) ) {
 
 			if ( ! has_filter( 'upserv_did_delete_package_metadata' ) && is_file( $file_path ) ) {
 				WP_Filesystem();
@@ -962,6 +966,9 @@ class Package_Manager {
 
 			return $result;
 		}
+
+		$data['timestamp'] = time();
+		$data['previous']  = $this->get_package_metadata( $package_slug, true );
 
 		if ( ! has_filter( 'upserv_did_set_package_metadata' ) ) {
 			$result = (bool) file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents

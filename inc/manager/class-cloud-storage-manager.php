@@ -96,6 +96,7 @@ class Cloud_Storage_Manager {
 				array( 'upserv_get_admin_template_args', 'upserv_get_admin_template_args', 10, 2 ),
 				array( 'upserv_is_package_whitelisted', 'upserv_is_package_whitelisted', 10, 2 ),
 				array( 'upserv_whitelist_package_data', 'upserv_whitelist_package_data', 10, 2 ),
+				array( 'upserv_unwhitelist_package_data', 'upserv_unwhitelist_package_data', 10, 2 ),
 			),
 		);
 
@@ -1024,6 +1025,15 @@ class Cloud_Storage_Manager {
 	public function upserv_whitelist_package_data( $data, $slug ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		$data['whitelisted']['cloud'] = array(
 			true,
+			time(),
+		);
+
+		return $data;
+	}
+
+	public function upserv_unwhitelist_package_data( $data, $slug ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		$data['whitelisted']['cloud'] = array(
+			false,
 			time(),
 		);
 

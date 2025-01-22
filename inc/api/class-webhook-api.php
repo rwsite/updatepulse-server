@@ -109,26 +109,7 @@ class Webhook_API {
 	}
 
 	public function upserv_webhook_process_request( $process, $payload, $slug, $type, $package_exists, $vcs_config ) {
-		$payload = json_decode( $payload, true );
-
-		if ( ! $payload ) {
-			return false;
-		}
-
-		$branch = false;
-
-		if (
-			( isset( $payload['object_kind'] ) && 'push' === $payload['object_kind'] ) ||
-			( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'push' === $_SERVER['HTTP_X_GITHUB_EVENT'] )
-		) {
-			$branch = str_replace( 'refs/heads/', '', $payload['ref'] );
-		} elseif ( isset( $payload['push'], $payload['push']['changes'] ) ) {
-			$branch = str_replace(
-				'refs/heads/',
-				'',
-				$payload['push']['changes'][0]['new']['name']
-			);
-		}
+		$branch = $this->get_payload_vcs_branch( $payload );
 
 		$process = $branch === $vcs_config['branch'];
 
@@ -299,25 +280,13 @@ class Webhook_API {
 			$this->handle_remote_test();
 		}
 
-		$response = array();
-		$payload  = $this->get_payload();
-		$slug     = isset( $payload['repository'], $payload['repository']['name'] ) ? $payload['repository']['name'] : false;
-
-		if ( ! $slug ) {
-			$full_name = isset( $payload['repository'], $payload['repository']['full_name'] ) ?
-				$payload['repository']['full_name'] :
-				false;
-			$parts     = explode( '/', $full_name );
-			$slug      = isset( $parts[1] ) ? $parts[1] : false;
-		}
-
-		$url        = $this->get_payload_vcs_url( $payload );
-		$vcs_config = upserv_get_package_vcs_config( $slug );
-		$vcs_url    = $vcs_config ? trailingslashit( $vcs_config['url'] ) : false;
-
-		if ( ! $vcs_url || ! $url || $vcs_url !== $url ) {
-			return;
-		}
+		$response    = array();
+		$payload     = $this->get_payload();
+		$url         = $this->get_payload_vcs_url( $payload );
+		$branch      = $this->get_payload_vcs_branch( $payload );
+		$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$vcs_key     = hash( 'sha256', trailingslashit( $url ) . '|' . $branch );
+		$vcs_config  = isset( $vcs_configs[ $vcs_key ] ) ? $vcs_configs[ $vcs_key ] : false;
 
 		do_action( 'upserv_webhook_before_handling_request', $vcs_config );
 
@@ -468,7 +437,7 @@ class Webhook_API {
 	protected function validate_request( $vcs_config ) {
 		$valid  = false;
 		$sign   = false;
-		$secret = $vcs_config && isset( $vcs_config['secret'] ) ? $vcs_config['secret'] : false;
+		$secret = $vcs_config && isset( $vcs_config['webhook_secret'] ) ? $vcs_config['webhook_secret'] : false;
 		$secret = apply_filters( 'upserv_webhook_secret', $secret, $vcs_config );
 
 		if ( ! $vcs_config || ! $secret ) {
@@ -507,9 +476,9 @@ class Webhook_API {
 			parse_str( $payload, $payload );
 
 			if ( is_array( $payload ) && isset( $payload['payload'] ) ) {
-				$decoded = json_decode( $payload['payload'] );
+				$decoded = json_decode( $payload['payload'], true );
 			} elseif ( is_string( $payload ) ) {
-				$decoded = json_decode( $payload );
+				$decoded = json_decode( $payload, true );
 			}
 		}
 
@@ -521,8 +490,8 @@ class Webhook_API {
 
 		if ( isset( $payload['repository'], $payload['repository']['html_url'] ) ) {
 			$url = $payload['repository']['html_url'];
-		} elseif ( isset( $payload['repository'], $payload['repository']['git_http_url'] ) ) {
-			$url = $payload['repository']['git_http_url'];
+		} elseif ( isset( $payload['repository'], $payload['repository']['homepage'] ) ) {
+			$url = $payload['repository']['homepage'];
 		} elseif (
 			isset(
 				$payload['repository'],
@@ -533,6 +502,8 @@ class Webhook_API {
 		) {
 			$url = $payload['repository']['links']['html']['href'];
 		}
+
+		// TODO: make it more robust to change by adding a filter here
 
 		$parsed_url = wp_parse_url( $url );
 
@@ -551,5 +522,30 @@ class Webhook_API {
 			. $parsed_url['path'];
 
 		return trailingslashit( $url );
+	}
+
+	protected function get_payload_vcs_branch( $payload ) {
+		$payload = json_decode( $payload, true );
+
+		if ( ! $payload ) {
+			return false;
+		}
+
+		$branch = false;
+
+		if (
+			( isset( $payload['object_kind'] ) && 'push' === $payload['object_kind'] ) ||
+			( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'push' === $_SERVER['HTTP_X_GITHUB_EVENT'] )
+		) {
+			$branch = str_replace( 'refs/heads/', '', $payload['ref'] );
+		} elseif ( isset( $payload['push'], $payload['push']['changes'] ) ) {
+			$branch = str_replace(
+				'refs/heads/',
+				'',
+				$payload['push']['changes'][0]['new']['name']
+			);
+		}
+
+		return $branch;
 	}
 }
