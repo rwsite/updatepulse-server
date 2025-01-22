@@ -153,7 +153,7 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 }</pre>
 				</li>
 				<li>
-				<?php esc_html_e( 'Connect UpdatePulse Server with your repository and prime your package, or manually upload your package to UpdatePulse Server.', 'updatepulse-server' ); ?>
+				<?php esc_html_e( 'Connect UpdatePulse Server with your repository and registeryour package, or manually upload your package to UpdatePulse Server.', 'updatepulse-server' ); ?>
 			</li>
 		</ul>
 		<p>

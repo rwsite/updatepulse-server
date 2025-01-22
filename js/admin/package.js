@@ -1,40 +1,40 @@
 /* global UPServAdminMain, console, UPServAdminMain_l10n */
 jQuery(document).ready(function ($) {
-	var primeLocked = false;
+	var registrationLocked = false;
 
-	$('#upserv_prime_package_slug').on('input', function () {
+	$('#upserv_register_package_slug').on('input', function () {
 
-		if (0 < $(this).val().length && !primeLocked && 0 < $('#upserv_vcs_select').val().length) {
-			$('#upserv_prime_package_trigger').removeAttr('disabled');
-		} else if (!primeLocked) {
-			$('#upserv_prime_package_trigger').attr('disabled', 'disabled');
+		if (0 < $(this).val().length && !registrationLocked && 0 < $('#upserv_vcs_select').val().length) {
+			$('#upserv_register_package_trigger').removeAttr('disabled');
+		} else if (!registrationLocked) {
+			$('#upserv_register_package_trigger').attr('disabled', 'disabled');
 		}
 	});
 
 	$('#upserv_vcs_select').on('change', function () {
 
-		if (0 < $(this).val().length && !primeLocked && 0 < $('#upserv_prime_package_slug').val().length) {
-			$('#upserv_prime_package_trigger').removeAttr('disabled');
-		} else if (!primeLocked) {
-			$('#upserv_prime_package_trigger').attr('disabled', 'disabled');
+		if (0 < $(this).val().length && !registrationLocked && 0 < $('#upserv_register_package_slug').val().length) {
+			$('#upserv_register_package_trigger').removeAttr('disabled');
+		} else if (!registrationLocked) {
+			$('#upserv_register_package_trigger').attr('disabled', 'disabled');
 		}
 	});
 
-	$('#upserv_prime_package_trigger').on('click', function(e) {
+	$('#upserv_register_package_trigger').on('click', function(e) {
 		e.preventDefault();
 
 		var button = $(this),
 			data   = {
-				slug: $('#upserv_prime_package_slug').val(),
+				slug: $('#upserv_register_package_slug').val(),
 				vcs_key: $('#upserv_vcs_select').val(),
 				nonce: $('#upserv_plugin_options_handler_nonce').val(),
-				action: 'upserv_prime_package_from_remote'
+				action: 'upserv_register_package_from_vcs'
 			};
 
 		button.attr('disabled', 'disabled');
 		button.next().css('visibility', 'visible');
 
-		primeLocked = true;
+		registrationLocked = true;
 
 		$.ajax({
 			url: UPServAdminMain.ajax_url,
@@ -51,7 +51,7 @@ jQuery(document).ready(function ($) {
 					});
 					/* jshint ignore:end */
 
-					primeLocked = false;
+					registrationLocked = false;
 
 					button.removeAttr('disabled');
 					button.next().css('visibility', 'hidden');
@@ -63,7 +63,7 @@ jQuery(document).ready(function ($) {
 			error: function (jqXHR, textStatus) {
 				UPServAdminMain.debug && console.log(textStatus);
 
-				primeLocked = false;
+				registrationLocked = false;
 
 				button.removeAttr('disabled');
 				button.next().css('visibility', 'hidden');

@@ -237,7 +237,7 @@ class Remote_Sources_Manager {
 					wp_send_json_error(
 						new WP_Error(
 							__METHOD__,
-							__( 'Error - Test Remote Repository Access is not supported for Bitbucket. Please save your settings and try to prime a package in the Overview page.', 'updatepulse-server' )
+							__( 'Error - Test Remote Repository Access is not supported for Bitbucket. Please save your settings and try to registera package in the Overview page.', 'updatepulse-server' )
 						)
 					);
 				}

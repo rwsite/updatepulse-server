@@ -101,7 +101,7 @@ $upserv_actions_to_test = array(
 	// 'upserv_cleared_cleanup_schedule'                     => 2, // string $type, array $params
 	// 'upserv_did_cleanup'                                  => 4, // bool $result, string $type, int $size, bool $force
 	// /** Update Server actions **/
-	// 'upserv_primed_package_from_remote'                   => 2, // bool $result, string $slug
+	// 'upserv_registered_package_from_vcs'                   => 2, // bool $result, string $slug
 	// 'upserv_scheduled_check_remote_event'                 => 6, // bool $result, string $slug, int $timestamp, string $frequency, string $hook, array $params
 	// 'upserv_registered_check_remote_schedule'             => 3, // string $slug, string $scheduled_hook, string $action_hook
 	// 'upserv_cleared_check_remote_schedule'                => 3, // string $slug, string $scheduled_hook, array $params

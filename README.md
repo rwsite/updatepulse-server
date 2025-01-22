@@ -158,7 +158,7 @@ Remote Repository Webhook Secret      | text      | Ideally a random string, the
 Remote update check frequency         | select    | Only available in case Webhooks are not used - How often UpdatePulse Server will poll each Remote Repository for package updates - checking too often may slow down the server (recommended "Once Daily").
 
 A button is available to send a test request to the Remote Repository Service. The request checks whether the service is reachable and if the request can be authenticated.  
-Tests via this button are not supported for Bitbucket ; if Bitbucket is used, testing should be done after saving the settings and trying to prime a package in the Packages Overview tab.  
+Tests via this button are not supported for Bitbucket ; if Bitbucket is used, testing should be done after saving the settings and trying to register a package in the Packages Overview tab.  
 
 In case Webhooks are not used, the following actions are available to forcefully alter the packages schedules (maintenance, tests, etc):
 - Clear all the scheduled remote updates
@@ -364,7 +364,7 @@ The "Licensed With" header is used to link packages together (for example, in th
    "server": "https://server.domain.tld/"
 }
 ```
-- Connect UpdatePulse Server with your repository and prime your package, or manually upload your package to UpdatePulse Server.
+- Connect UpdatePulse Server with your repository and register your package, or manually upload your package to UpdatePulse Server.
 
 For generic packages, the steps involved entirely depend on the language used to write the package and the update process of the target platform.  
 You may refer to the documentation found [here](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md).

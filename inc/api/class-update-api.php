@@ -22,7 +22,7 @@ class Update_API {
 			add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
 			add_action( 'upserv_checked_remote_package_update', array( $this, 'upserv_checked_remote_package_update' ), 10, 3 );
 			add_action( 'upserv_removed_package', array( $this, 'upserv_removed_package' ), 10, 3 );
-			add_action( 'upserv_primed_package_from_remote', array( $this, 'upserv_primed_package_from_remote' ), 10, 2 );
+			add_action( 'upserv_registered_package_from_vcs', array( $this, 'upserv_registered_package_from_vcs' ), 10, 2 );
 
 			add_filter( 'query_vars', array( $this, 'query_vars' ), -99, 1 );
 			add_filter( 'puc_request_info_pre_filter', array( $this, 'puc_request_info_pre_filter' ), 10, 4 );
@@ -71,7 +71,7 @@ class Update_API {
 		$this->schedule_check_remote_event( $slug );
 	}
 
-	public function upserv_primed_package_from_remote( $result, $slug ) {
+	public function upserv_registered_package_from_vcs( $result, $slug ) {
 
 		if ( $result ) {
 			$this->schedule_check_remote_event( $slug );

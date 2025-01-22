@@ -32,11 +32,11 @@
 		<?php if ( $options['use_vcs'] ) : ?>
 		<tr>
 			<th>
-				<label for="upserv_prime_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository', 'updatepulse-server' ); ?></label>
+				<label for="upserv_register_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository', 'updatepulse-server' ); ?></label>
 			</th>
 			<td>
 				<div class="register-package-container">
-					<input type="text" id="upserv_prime_package_slug" placeholder="<?php esc_attr_e( 'package-slug' ); ?>" name="upserv_prime_package_slug" value="">
+					<input type="text" id="upserv_register_package_slug" placeholder="<?php esc_attr_e( 'package-slug' ); ?>" name="upserv_register_package_slug" value="">
 					<select id="upserv_vcs_select">
 						<option value=""><?php esc_html_e( 'Select a Remote Repository', 'updatepulse-server' ); ?></option>
 						<?php
@@ -46,7 +46,7 @@
 						}
 						?>
 					</select>
-					<input type="button" id="upserv_prime_package_trigger" value="<?php print esc_attr_e( 'Get remote package', 'updatepulse-server' ); ?>" class="button button-primary" disabled /><div class="spinner"></div>
+					<input type="button" id="upserv_register_package_trigger" value="<?php print esc_attr_e( 'Get remote package', 'updatepulse-server' ); ?>" class="button button-primary" disabled /><div class="spinner"></div>
 				</div>
 				<p class="description">
 					<?php

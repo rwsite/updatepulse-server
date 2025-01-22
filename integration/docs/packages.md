@@ -45,7 +45,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_get\_package\_metadata](#upserv_get_package_metadata)
         * [upserv\_set\_package\_metadata](#upserv_set_package_metadata)
     * [Actions](#actions)
-        * [upserv\_primed\_package\_from\_remote](#upserv_primed_package_from_remote)
+        * [upserv\_registered\_package\_from\_remote](#upserv_registered_package_from_vcs)
         * [upserv\_did\_manual\_upload\_package](#upserv_did_manual_upload_package)
         * [upserv\_before\_packages\_download](#upserv_before_packages_download)
         * [upserv\_triggered\_package\_download](#upserv_triggered_package_download)
@@ -1449,14 +1449,14 @@ UpdatePulse Server gives developers the possibility to have their plugins react 
 **Warning**: the actions below with the mention "Fired during client update API request" need to be used with caution. Although they may also be triggered when using the functions above, these actions will possibly be called when client packages request for updates. Registering functions doing heavy computation to these actions when client update API requests are handled can seriously degrade the server's performances.  
 
 ___
-### upserv_primed_package_from_remote
+### upserv_registered_package_from_vcs
 
 ```php
-do_action( 'upserv_primed_package_from_remote', bool $result, string $package_slug );
+do_action( 'upserv_registered_package_from_vcs', bool $result, string $package_slug );
 ```
 
 **Description**  
-Fired after an attempt to prime a package from a Remote Repository has been performed.  
+Fired after an attempt to registera package from a Remote Repository has been performed.  
 
 **Parameters**  
 `$result`

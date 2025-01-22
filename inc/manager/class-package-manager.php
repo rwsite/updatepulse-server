@@ -41,7 +41,7 @@ class Package_Manager {
 			add_action( 'admin_init', array( $this, 'admin_init' ), 10, 0 );
 			add_action( 'admin_menu', array( $this, 'admin_menu' ), 10, 0 );
 			add_action( 'wp_ajax_upserv_force_clean', array( $this, 'force_clean' ), 10, 0 );
-			add_action( 'wp_ajax_upserv_prime_package_from_remote', array( $this, 'prime_package_from_remote' ), 10, 0 );
+			add_action( 'wp_ajax_upserv_register_package_from_vcs', array( $this, 'register_package_from_vcs' ), 10, 0 );
 			add_action( 'wp_ajax_upserv_manual_package_upload', array( $this, 'manual_package_upload' ), 10, 0 );
 			add_action( 'load-toplevel_page_upserv-page', array( $this, 'add_page_options' ), 10, 0 );
 			add_action( 'upserv_package_manager_pre_delete_package', array( $this, 'upserv_package_manager_pre_delete_package' ), 10, 1 );
@@ -195,7 +195,7 @@ class Package_Manager {
 		wp_cache_set( 'upserv_download_remote_package_aborted', $info, 'updatepulse-server' );
 	}
 
-	public function prime_package_from_remote() {
+	public function register_package_from_vcs() {
 		$result = false;
 		$error  = false;
 		$slug   = 'N/A';
@@ -240,7 +240,7 @@ class Package_Manager {
 			wp_cache_delete( 'upserv_download_remote_package_aborted', 'updatepulse-server' );
 		}
 
-		do_action( 'upserv_primed_package_from_remote', $result, $slug );
+		do_action( 'upserv_registered_package_from_vcs', $result, $slug );
 
 		if ( ! $error && $result ) {
 			wp_send_json_success();

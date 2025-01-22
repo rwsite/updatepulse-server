@@ -169,7 +169,7 @@
 							<br/>
 							<?php esc_html_e( 'The request checks whether the service is reachable and if the request can be authenticated.', 'updatepulse-server' ); ?>
 							<br/>
-							<strong><?php esc_html_e( 'Tests are not supported for Bitbucket; if you use Bitbucket, save your settings & try to prime a package in the "Packages Overview" tab.', 'updatepulse-server' ); ?></strong>
+							<strong><?php esc_html_e( 'Tests are not supported for Bitbucket; if you use Bitbucket, save your settings & try to registera package in the "Packages Overview" tab.', 'updatepulse-server' ); ?></strong>
 						</p>
 					</td>
 				</tr>
