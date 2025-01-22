@@ -63,8 +63,8 @@
 .upserv-wrap .vcs .item:not(.template) {
     line-height: 1.5em;
     padding: 1em 1em 0.5em;
-    min-width: 175px;
-    max-width: 245px;
+    min-width: 100px;
+    max-width: 170px;
 }
 
 .upserv-wrap .vcs .item .branch:not(.hidden) {
@@ -78,7 +78,8 @@
     white-space: initial;
     width: auto;
     display: block;
-    margin: 0 auto 0.5em 0;
+    margin: 0 0 0.5em 0;
+    text-align: center;
 }
 
 .upserv-wrap .package-source.form-container {
