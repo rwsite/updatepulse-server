@@ -31,7 +31,6 @@ use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\Manager\Cloud_Storage_Manager;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Remote_Sources_Manager;
-use Anyape\UpdatePulse\Server\Manager\Webhook_Manager;
 use Anyape\UpdatePulse\Server\Manager\Package_Manager;
 use Anyape\UpdatePulse\Server\Manager\License_Manager;
 use Anyape\UpdatePulse\Server\Manager\API_Manager;
@@ -134,6 +133,10 @@ function upserv_run() {
 
 	if ( ! isset( $objects['license_api'] ) ) {
 		$objects['license_api'] = new License_API( true, false );
+	}
+
+	if ( ! isset( $objects['webhook_api'] ) ) {
+		$objects['webhook_api'] = new Webhook_API( true );
 	}
 
 	if ( ! $priority_api_request ) {

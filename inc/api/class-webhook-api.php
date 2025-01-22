@@ -290,7 +290,7 @@ class Webhook_API {
 
 		do_action( 'upserv_webhook_before_handling_request', $vcs_config );
 
-		if ( $this->validate_request( $vcs_config ) ) {
+		if ( $vcs_config && $this->validate_request( $vcs_config ) ) {
 			$slug           = isset( $wp->query_vars['slug'] ) ?
 				trim( rawurldecode( $wp->query_vars['slug'] ) ) :
 				null;
@@ -417,15 +417,17 @@ class Webhook_API {
 					$vcs_config
 				);
 			}
-
-			$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
-		} else {
+		} elseif ( $vcs_config ) {
 			$this->http_response_code = 403;
 			$response                 = array(
 				'message' => __( 'Invalid request signature', 'updatepulse-server' ),
 			);
 
 			do_action( 'upserv_webhook_invalid_request', $vcs_config );
+		}
+
+		if ( 200 === $this->http_response_code ) {
+			$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 		}
 
 		$response = apply_filters( 'upserv_webhook_response', $response, $this->http_response_code, $vcs_config );
@@ -525,12 +527,6 @@ class Webhook_API {
 	}
 
 	protected function get_payload_vcs_branch( $payload ) {
-		$payload = json_decode( $payload, true );
-
-		if ( ! $payload ) {
-			return false;
-		}
-
 		$branch = false;
 
 		if (
