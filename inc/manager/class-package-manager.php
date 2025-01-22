@@ -365,9 +365,10 @@ class Package_Manager {
 		if ( $result ) {
 			upserv_whitelist_package( $slug );
 
+			$meta           = $this->get_package_metadata( $slug );
 			$meta['origin'] = 'manual';
 
-			upserv_set_package_metadata( $slug, $meta );
+			$this->set_package_metadata( $slug, $meta );
 			wp_send_json_success();
 		} else {
 			wp_send_json_error(
@@ -401,7 +402,7 @@ class Package_Manager {
 	}
 
 	public function batch_package_info_include( $_include, $info, $type ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		return upserv_is_package_whitelisted( $info['slug'] );
+		return ! upserv_get_option( 'use_vcs' ) || upserv_is_package_whitelisted( $info['slug'] );
 	}
 
 	// Misc. -------------------------------------------------------
@@ -967,8 +968,13 @@ class Package_Manager {
 			return $result;
 		}
 
+		$previous = $this->get_package_metadata( $package_slug );
+
+		wp_cache_delete( 'package_metadata_' . $package_slug, 'updatepulse-server' );
+		unset( $previous['previous'] );
+
 		$data['timestamp'] = time();
-		$data['previous']  = $this->get_package_metadata( $package_slug, true );
+		$data['previous']  = $previous;
 
 		if ( ! has_filter( 'upserv_did_set_package_metadata' ) ) {
 			$result = (bool) file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents

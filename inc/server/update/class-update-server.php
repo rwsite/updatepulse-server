@@ -49,7 +49,7 @@ class Update_Server {
 		$this->timezone          = new DateTimeZone( wp_timezone_string() );
 		$this->server_directory  = $server_directory;
 		$this->self_hosted       = $self_hosted;
-		$this->vcs_url           = trailingslashit( $vcs_url );
+		$this->vcs_url           = $vcs_url ? trailingslashit( $vcs_url ) : false;
 		$this->branch            = $branch;
 		$this->credentials       = $credentials;
 	}
@@ -372,7 +372,7 @@ class Update_Server {
 		$http_method = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : 'GET';
 		$request     = new Request( $query, $headers, $client_ip, $http_method );
 
-		if ( ! upserv_is_package_whitelisted( $request->slug ) ) {
+		if ( ! upserv_is_package_whitelisted( $request->slug ) && upserv_get_option( 'use_vcs' ) ) {
 			$this->exit_with_error( 'Invalid package.', 404 );
 		}
 
@@ -502,7 +502,7 @@ class Update_Server {
 			$check_remote
 		);
 
-		if ( $save_to_local && $check_remote ) {
+		if ( upserv_get_option( 'use_vcs' ) && $save_to_local && $check_remote ) {
 			$is_package_ready = $this->save_remote_package_to_local( $safe_slug );
 
 			if ( true === $is_package_ready ) {

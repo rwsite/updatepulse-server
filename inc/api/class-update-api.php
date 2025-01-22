@@ -272,32 +272,35 @@ class Update_API {
 	}
 
 	protected function init_server( $slug ) {
-		$vcs_config  = upserv_get_package_vcs_config( $slug );
-		$url         = isset( $vcs_config['url'] ) ? $vcs_config['url'] : false;
-		$branch      = isset( $vcs_config['branch'] ) ? $vcs_config['branch'] : false;
-		$credentials = isset( $vcs_config['credentials'] ) ? explode( '|', $vcs_config['credentials'] ) : false;
-		$self_hosted = isset( $vcs_config['self_hosted'] ) ? $vcs_config['self_hosted'] : false;
 
-		if ( ! $url || ! $branch ) {
-			return;
-		}
+		if ( upserv_get_option( 'use_vcs' ) ) {
+			$vcs_config  = upserv_get_package_vcs_config( $slug );
+			$url         = isset( $vcs_config['url'] ) ? $vcs_config['url'] : false;
+			$branch      = isset( $vcs_config['branch'] ) ? $vcs_config['branch'] : false;
+			$credentials = isset( $vcs_config['credentials'] ) ? explode( '|', $vcs_config['credentials'] ) : false;
+			$self_hosted = isset( $vcs_config['self_hosted'] ) ? $vcs_config['self_hosted'] : false;
 
-		if ( $credentials && 2 === count( $credentials ) ) {
-			$credentials = array(
-				'consumer_key'    => $credentials[0],
-				'consumer_secret' => $credentials[1],
-			);
-		} else {
-			$credentials = ! $credentials ? '' : $credentials[0];
+			if ( ! $url || ! $branch ) {
+				return;
+			}
+
+			if ( $credentials && 2 === count( $credentials ) ) {
+				$credentials = array(
+					'consumer_key'    => $credentials[0],
+					'consumer_secret' => $credentials[1],
+				);
+			} else {
+				$credentials = ! $credentials ? '' : $credentials[0];
+			}
 		}
 
 		$filter_args = array(
-			'url'         => $url,
-			'branch'      => $branch,
-			'credentials' => $credentials,
-			'self_hosted' => $self_hosted,
+			'url'         => isset( $url ) ? $url : null,
+			'branch'      => isset( $branch ) ? $branch : null,
+			'credentials' => isset( $credentials ) ? $credentials : null,
+			'self_hosted' => isset( $self_hosted ) ? $self_hosted : null,
 			'directory'   => Data_Manager::get_data_dir(),
-			'vcs_config'  => $vcs_config,
+			'vcs_config'  => isset( $vcs_config ) ? $vcs_config : null,
 		);
 		$_class_name = apply_filters(
 			'upserv_server_class_name',
@@ -310,10 +313,10 @@ class Update_API {
 			array(
 				home_url( '/updatepulse-server-update-api/' ),
 				Data_Manager::get_data_dir(),
-				$url,
-				$branch,
-				$credentials,
-				$self_hosted,
+				isset( $url ) ? $url : null,
+				isset( $branch ) ? $branch : null,
+				isset( $credentials ) ? $credentials : null,
+				isset( $self_hosted ) ? $self_hosted : null,
 			),
 			$slug,
 			$filter_args
