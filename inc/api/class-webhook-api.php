@@ -341,21 +341,8 @@ class Webhook_API {
 			$delay             = $config['check_delay'];
 			$package_directory = Data_Manager::get_data_dir( 'packages' );
 			$package_exists    = null;
-			$payload           = @file_get_contents( 'php://input' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
-
-			if ( ! json_decode( $payload, true ) ) {
-				parse_str( $payload, $payload );
-
-				if ( is_array( $payload ) && isset( $payload['payload'] ) ) {
-					$payload = json_decode( $payload['payload'] );
-				} elseif ( is_string( $payload ) ) {
-					$payload = json_decode( $payload );
-				}
-
-				$payload = $payload ? wp_json_encode( $payload ) : false;
-			}
-
-			$package_exists = apply_filters(
+			$payload           = $this->get_payload();
+			$package_exists    = apply_filters(
 				'upserv_webhook_package_exists',
 				$package_exists,
 				$payload,
@@ -492,6 +479,15 @@ class Webhook_API {
 		$valid  = false;
 		$sign   = false;
 		$secret = apply_filters( 'upserv_webhook_secret', $config['webhook_secret'], $config );
+		// bitbucket: repository > full_name
+		// github: repository > full_name
+		$payload   = $this->get_payload( true );
+		$full_name = isset( $payload['repository']['full_name'] ) ? $payload['repository']['full_name'] : false;
+		$parts     = explode( '/', $full_name );
+		$username  = isset( $parts[0] ) ? $parts[0] : false;
+		$slug      = isset( $parts[1] ) ? $parts[1] : false;
+
+		// TODO need to identify the service and get its url? or use the meta?
 
 		if ( ! $secret ) {
 			return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $config );
@@ -519,5 +515,23 @@ class Webhook_API {
 		}
 
 		return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $config );
+	}
+
+	protected function get_payload( $decoded = false ) {
+		$payload = @file_get_contents( 'php://input' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+
+		if ( ! json_decode( $payload, true ) ) {
+			parse_str( $payload, $payload );
+
+			if ( is_array( $payload ) && isset( $payload['payload'] ) ) {
+				$payload = json_decode( $payload['payload'] );
+			} elseif ( is_string( $payload ) ) {
+				$payload = json_decode( $payload );
+			}
+
+			$payload = $payload ? wp_json_encode( $payload ) : false;
+		}
+
+		return $decoded ? json_decode( $payload, true ) : $payload;
 	}
 }
