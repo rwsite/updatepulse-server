@@ -137,7 +137,6 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_pre\_filter\_packages\_info](#upserv_pre_filter_packages_info)
         * [upserv\_filter\_packages\_info](#upserv_filter_packages_info)
         * [upserv\_filter\_packages\_filename](#upserv_filter_packages_filename)
-        * [upserv\_webhook\_config](#upserv_webhook_config)
         * [upserv\_webhook\_secret](#upserv_webhook_secret)
         * [upserv\_webhook\_signature](#upserv_webhook_signature)
         * [upserv\_webhook\_validate\_request](#upserv_webhook_validate_request)
@@ -3109,20 +3108,6 @@ Filter the name of the file used to filter the packages retrieved from the Remot
 **Parameters**  
 `$file_name`
 > (string) the name of the file used to filter the packages retrieved from the Remote Repository Service
-
-___
-### upserv_webhook_config
-
-```php
-apply_filters( 'upserv_webhook_config', array $config );
-```
-
-**Description**
-Filter the configuration used to handle webhook requests.
-
-**Parameters**
-`$config`
-> (array) the configuration used to handle webhook requests
 
 ___
 ### upserv_webhook_secret

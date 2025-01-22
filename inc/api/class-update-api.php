@@ -180,10 +180,16 @@ class Update_API {
 		if ( ! upserv_is_package_whitelisted( $slug ) ) {
 			upserv_whitelist_package( $slug );
 
-			$meta           = upserv_get_package_metadata( $slug );
-			$meta['vcs']    = $this->update_server->get_vcs_url();
-			$meta['branch'] = $this->update_server->get_branch();
-			$meta['type']   = $type;
+			$meta            = upserv_get_package_metadata( $slug );
+			$meta['vcs']     = $this->update_server->get_vcs_url();
+			$meta['branch']  = $this->update_server->get_branch();
+			$meta['type']    = $type;
+			$key             = str_replace(
+				array( '/', '-' ),
+				array( '_', '-' ),
+				base64_encode( $meta['vcs'] . '|' . $meta['branch'] )// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			);
+			$meta['vcs_key'] = $key;
 
 			upserv_set_package_metadata( $slug, $meta );
 		}

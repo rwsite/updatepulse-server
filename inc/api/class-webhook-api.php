@@ -15,7 +15,6 @@ class Webhook_API {
 
 	protected static $doing_update_api_request = null;
 	protected static $instance;
-	protected static $config;
 
 	protected $webhooks;
 	protected $http_response_code = 200;
@@ -43,7 +42,7 @@ class Webhook_API {
 			add_action( 'upserv_webhook_invalid_request', array( $this, 'upserv_webhook_invalid_request' ), 10, 0 );
 
 			add_filter( 'query_vars', array( $this, 'query_vars' ), -99, 1 );
-			add_filter( 'upserv_webhook_process_request', array( $this, 'upserv_webhook_process_request' ), 10, 2 );
+			add_filter( 'upserv_webhook_process_request', array( $this, 'upserv_webhook_process_request' ), 10, 6 );
 		}
 
 		add_action( 'upserv_webhook', array( $this, 'fire_webhook' ), 10, 4 );
@@ -59,7 +58,7 @@ class Webhook_API {
 		add_rewrite_rule( '^updatepulse-server-webhook$', 'index.php?__upserv_webhook=1&', 'top' );
 		add_rewrite_rule(
 			'^updatepulse-server-webhook/(plugin|theme|generic)/(.+)?$',
-			'index.php?type=$matches[1]&package_id=$matches[2]&__upserv_webhook=1&',
+			'index.php?type=$matches[1]&slug=$matches[2]&__upserv_webhook=1&',
 			'top'
 		);
 	}
@@ -79,7 +78,7 @@ class Webhook_API {
 			$query_vars,
 			array(
 				'__upserv_webhook',
-				'package_id',
+				'slug',
 				'type',
 			)
 		);
@@ -109,7 +108,7 @@ class Webhook_API {
 		exit( -1 );
 	}
 
-	public function upserv_webhook_process_request( $process, $payload ) {
+	public function upserv_webhook_process_request( $process, $payload, $slug, $type, $package_exists, $vcs_config ) {
 		$payload = json_decode( $payload, true );
 
 		if ( ! $payload ) {
@@ -117,7 +116,6 @@ class Webhook_API {
 		}
 
 		$branch = false;
-		$config = self::get_config();
 
 		if (
 			( isset( $payload['object_kind'] ) && 'push' === $payload['object_kind'] ) ||
@@ -132,7 +130,7 @@ class Webhook_API {
 			);
 		}
 
-		$process = $branch === $config['repository_branch'];
+		$process = $branch === $vcs_config['branch'];
 
 		return $process;
 	}
@@ -146,31 +144,6 @@ class Webhook_API {
 		}
 
 		return self::$doing_update_api_request;
-	}
-
-	public static function get_config() {
-
-		if ( ! self::$config ) {
-			$repo_configs = upserv_get_option( 'remote_repositories', array() );
-			$idx          = empty( $repo_config ) ? false : array_key_first( $repo_config );
-			$repo_config  = ( $idx ) ? $repo_configs[ $idx ] : false;
-			$config       = array(
-				'use_webhooks'   => ( $idx ) ? $repo_config['use_webhooks'] : 0,
-				'webhook_secret' => ( $idx ) ? $repo_config['secret'] : '',
-				'check_delay'    => ( $idx ) ? $repo_config['check_delay'] : 0,
-			);
-
-			if (
-				! is_numeric( $config['check_delay'] ) ||
-				0 > intval( $config['check_delay'] )
-			) {
-				$config['check_delay'] = 0;
-			}
-
-			self::$config = $config;
-		}
-
-		return apply_filters( 'upserv_webhook_config', self::$config );
 	}
 
 	public static function get_instance() {
@@ -326,33 +299,53 @@ class Webhook_API {
 			$this->handle_remote_test();
 		}
 
-		$config   = self::get_config();
 		$response = array();
+		$payload  = $this->get_payload();
+		$slug     = isset( $payload['repository'], $payload['repository']['name'] ) ? $payload['repository']['name'] : false;
 
-		do_action( 'upserv_webhook_before_handling_request', $config );
+		if ( ! $slug ) {
+			$full_name = isset( $payload['repository'], $payload['repository']['full_name'] ) ?
+				$payload['repository']['full_name'] :
+				false;
+			$parts     = explode( '/', $full_name );
+			$slug      = isset( $parts[1] ) ? $parts[1] : false;
+		}
 
-		if ( $this->validate_request( $config ) ) {
-			$package_id        = isset( $wp->query_vars['package_id'] ) ?
-				trim( rawurldecode( $wp->query_vars['package_id'] ) ) :
+		$url     = $this->get_payload_vcs_url( $payload );
+		$meta    = $slug ? upserv_get_package_metadata( $slug ) : false;
+		$vcs_url = $meta ? trailingslashit( $meta['vcs_url'] ) : false;
+
+		if ( ! $vcs_url || ! $url || $vcs_url !== $url ) {
+			return;
+		}
+
+		$key        = $meta ? $meta['vcs_key'] : false;
+		$vcs_config = upserv_get_option( 'remote_repositories/' . $key, array() );
+
+		do_action( 'upserv_webhook_before_handling_request', $vcs_config );
+
+		if ( $this->validate_request( $vcs_config ) ) {
+			$slug           = isset( $wp->query_vars['slug'] ) ?
+				trim( rawurldecode( $wp->query_vars['slug'] ) ) :
 				null;
-			$type              = isset( $wp->query_vars['type'] ) ?
+			$type           = isset( $wp->query_vars['type'] ) ?
 				trim( rawurldecode( $wp->query_vars['type'] ) ) :
 				null;
-			$delay             = $config['check_delay'];
-			$package_directory = Data_Manager::get_data_dir( 'packages' );
-			$package_exists    = null;
-			$payload           = $this->get_payload();
-			$package_exists    = apply_filters(
+			$delay          = $vcs_config['check_delay'];
+			$dir            = Data_Manager::get_data_dir( 'packages' );
+			$package_exists = null;
+			$payload        = $payload ? wp_json_encode( $payload ) : false;
+			$package_exists = apply_filters(
 				'upserv_webhook_package_exists',
 				$package_exists,
 				$payload,
-				$package_id,
+				$slug,
 				$type,
-				$config
+				$vcs_config
 			);
 
-			if ( null === $package_exists && is_dir( $package_directory ) ) {
-				$package_path   = trailingslashit( $package_directory ) . $package_id . '.zip';
+			if ( null === $package_exists && is_dir( $dir ) ) {
+				$package_path   = trailingslashit( $dir ) . $slug . '.zip';
 				$package_exists = file_exists( $package_path );
 			}
 
@@ -360,26 +353,26 @@ class Webhook_API {
 				'upserv_webhook_process_request',
 				true,
 				$payload,
-				$package_id,
+				$slug,
 				$type,
 				$package_exists,
-				$config
+				$vcs_config
 			);
 
 			if ( $process ) {
 				do_action(
 					'upserv_webhook_before_processing_request',
 					$payload,
-					$package_id,
+					$slug,
 					$type,
 					$package_exists,
-					$config
+					$vcs_config
 				);
 
-				$hook = 'upserv_check_remote_' . $package_id;
+				$hook = 'upserv_check_remote_' . $slug;
 
 				if ( $package_exists ) {
-					$params           = array( $package_id, $type, true );
+					$params           = array( $slug, $type, true );
 					$result           = true;
 					$scheduled_action = as_next_scheduled_action( $hook, $params );
 					$timestamp        = is_int( $scheduled_action ) ? $scheduled_action : false;
@@ -388,10 +381,10 @@ class Webhook_API {
 
 						if ( ! $scheduled_action ) {
 							as_unschedule_all_actions( $hook );
-							do_action( 'upserv_cleared_check_remote_schedule', $package_id, $hook );
+							do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 						}
 
-						$delay     = apply_filters( 'upserv_check_remote_delay', $delay, $package_id );
+						$delay     = apply_filters( 'upserv_check_remote_delay', $delay, $slug );
 						$timestamp = ( $delay ) ?
 							time() + ( abs( intval( $delay ) ) * MINUTE_IN_SECONDS ) :
 							time();
@@ -400,7 +393,7 @@ class Webhook_API {
 						do_action(
 							'upserv_scheduled_check_remote_event',
 							$result,
-							$package_id,
+							$slug,
 							$timestamp,
 							false,
 							$hook,
@@ -416,7 +409,7 @@ class Webhook_API {
 						$response['message'] = sprintf(
 						/* translators: %1$s: package ID, %2$s: scheduled date and time */
 							__( 'Package %1$s has been scheduled for download: %2$s.', 'updatepulse-server' ),
-							sanitize_title( $package_id ),
+							sanitize_title( $slug ),
 							$date->format( 'Y-m-d H:i:s' ) . ' (' . wp_timezone_string() . ')'
 						);
 					} else {
@@ -424,27 +417,27 @@ class Webhook_API {
 						$response['message']      = sprintf(
 						/* translators: %s: package ID */
 							__( 'Failed to sechedule download for package %s.', 'updatepulse-server' ),
-							sanitize_title( $package_id )
+							sanitize_title( $slug )
 						);
 					}
 				} else {
 					as_unschedule_all_actions( $hook );
-					do_action( 'upserv_cleared_check_remote_schedule', $package_id, $hook );
+					do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 
-					$result = upserv_download_remote_package( $package_id, $type );
+					$result = upserv_download_remote_package( $slug, $type );
 
 					if ( $result ) {
 						$response['message'] = sprintf(
 						/* translators: %s: package ID */
 							__( 'Package %s downloaded.', 'updatepulse-server' ),
-							sanitize_title( $package_id )
+							sanitize_title( $slug )
 						);
 					} else {
 						$this->http_response_code = 400;
 						$response['message']      = sprintf(
 						/* translators: %s: package ID */
 							__( 'Failed to download package %s.', 'updatepulse-server' ),
-							sanitize_title( $package_id )
+							sanitize_title( $slug )
 						);
 					}
 				}
@@ -452,10 +445,10 @@ class Webhook_API {
 				do_action(
 					'upserv_webhook_after_processing_request',
 					$payload,
-					$package_id,
+					$slug,
 					$type,
 					$package_exists,
-					$config
+					$vcs_config
 				);
 			}
 
@@ -466,31 +459,23 @@ class Webhook_API {
 				'message' => __( 'Invalid request signature', 'updatepulse-server' ),
 			);
 
-			do_action( 'upserv_webhook_invalid_request', $config );
+			do_action( 'upserv_webhook_invalid_request', $vcs_config );
 		}
 
-		$response = apply_filters( 'upserv_webhook_response', $response, $this->http_response_code, $config );
+		$response = apply_filters( 'upserv_webhook_response', $response, $this->http_response_code, $vcs_config );
 
-		do_action( 'upserv_webhook_after_handling_request', $config, $response );
+		do_action( 'upserv_webhook_after_handling_request', $vcs_config, $response );
 		wp_send_json( $response, $this->http_response_code );
 	}
 
-	protected function validate_request( $config ) {
+	protected function validate_request( $vcs_config ) {
 		$valid  = false;
 		$sign   = false;
-		$secret = apply_filters( 'upserv_webhook_secret', $config['webhook_secret'], $config );
-		// bitbucket: repository > full_name
-		// github: repository > full_name
-		$payload   = $this->get_payload( true );
-		$full_name = isset( $payload['repository']['full_name'] ) ? $payload['repository']['full_name'] : false;
-		$parts     = explode( '/', $full_name );
-		$username  = isset( $parts[0] ) ? $parts[0] : false;
-		$slug      = isset( $parts[1] ) ? $parts[1] : false;
+		$secret = $vcs_config && isset( $vcs_config['secret'] ) ? $vcs_config['secret'] : false;
+		$secret = apply_filters( 'upserv_webhook_secret', $secret, $vcs_config );
 
-		// TODO need to identify the service and get its url? or use the meta?
-
-		if ( ! $secret ) {
-			return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $config );
+		if ( ! $vcs_config || ! $secret ) {
+			return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, '', $vcs_config );
 		}
 
 		if ( isset( $_SERVER['HTTP_X_GITLAB_TOKEN'] ) ) {
@@ -503,7 +488,7 @@ class Webhook_API {
 				$sign = $_SERVER['HTTP_X_HUB_SIGNATURE'];
 			}
 
-			$sign = apply_filters( 'upserv_webhook_signature', $sign, $secret, $config );
+			$sign = apply_filters( 'upserv_webhook_signature', $sign, $secret, $vcs_config );
 
 			if ( $sign ) {
 				$sign_parts = explode( '=', $sign );
@@ -514,24 +499,60 @@ class Webhook_API {
 			}
 		}
 
-		return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $config );
+		return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $vcs_config );
 	}
 
-	protected function get_payload( $decoded = false ) {
+	protected function get_payload() {
 		$payload = @file_get_contents( 'php://input' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
+		$decoded = json_decode( $payload, true );
 
-		if ( ! json_decode( $payload, true ) ) {
+		if ( ! $decoded ) {
 			parse_str( $payload, $payload );
 
 			if ( is_array( $payload ) && isset( $payload['payload'] ) ) {
-				$payload = json_decode( $payload['payload'] );
+				$decoded = json_decode( $payload['payload'] );
 			} elseif ( is_string( $payload ) ) {
-				$payload = json_decode( $payload );
+				$decoded = json_decode( $payload );
 			}
-
-			$payload = $payload ? wp_json_encode( $payload ) : false;
 		}
 
-		return $decoded ? json_decode( $payload, true ) : $payload;
+		return $decoded;
+	}
+
+	protected function get_payload_vcs_url( $payload ) {
+		$url = false;
+
+		if ( isset( $payload['repository'], $payload['repository']['html_url'] ) ) {
+			$url = $payload['repository']['html_url'];
+		} elseif ( isset( $payload['repository'], $payload['repository']['git_http_url'] ) ) {
+			$url = $payload['repository']['git_http_url'];
+		} elseif (
+			isset(
+				$payload['repository'],
+				$payload['repository']['links'],
+				$payload['repository']['links']['html'],
+				$payload['repository']['links']['html']['href']
+			)
+		) {
+			$url = $payload['repository']['links']['html']['href'];
+		}
+
+		$parsed_url = wp_parse_url( $url );
+
+		if ( ! isset( $parsed_url['path'] ) ) {
+			return false;
+		}
+
+		$path_segments = explode( '/', trim( $parsed_url['path'], '/' ) );
+
+		array_pop( $path_segments );
+
+		$parsed_url['path'] = '/' . implode( '/', $path_segments );
+		$url                = $parsed_url['scheme']
+			. '://'
+			. $parsed_url['host']
+			. $parsed_url['path'];
+
+		return trailingslashit( $url );
 	}
 }
