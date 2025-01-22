@@ -211,7 +211,7 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        var id = sha256(url + '|' + branch);
+        var id = Math.random().toString(36).substring(7);
 
         addData(id, { url: url, branch: branch });
         addItem(id, data[id]);
