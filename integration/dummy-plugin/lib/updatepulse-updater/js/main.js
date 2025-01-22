@@ -26,7 +26,7 @@ let P = function(global) {
 			let Y = d.getFullYear(),
 			M = d.getMonth(),
 			D = d.getDate();
-			return Math.floor((Date.UTC(Y, M, D) - Date.UTC(Y, 0, 1)) / 8.64e7) ;
+			return Math.floor((Date.UTC(Y, M, D) - Date.UTC(Y, 0, 1)) / 8.64e7);
 		},
 		// ISO week number of year
 		W: d => getWeekNumber(d)[1],

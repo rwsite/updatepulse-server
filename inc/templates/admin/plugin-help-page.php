@@ -7,14 +7,14 @@
 	<div class="help-content">
 		<h2><?php esc_html_e( 'Registering packages with a Version Control System', 'updatepulse-server' ); ?></h2>
 		<p>
-			<?php esc_html_e( 'It is necessary to register packages linked to a Version Control System for them to be available in UpdatePulse Server with one of the following methods:', 'updatepulse-server' ); ?>
+			<?php esc_html_e( 'It is necessary to register packages associated with a Version Control System for them to be available in UpdatePulse Server with one of the following methods:', 'updatepulse-server' ); ?>
 		</p>
 		<ul class="description">
 			<li>
 				<?php
 					printf(
 						// translators: %1$s is <strong>Register a package using a VCS</strong>, %2$s is <a href="admin.php?page=upserv-page">Packages Overview</a>
-						esc_html__( 'using the %1$s feature in %2$s', 'updatepulse-server' ),
+						esc_html__( '[simple] using the %1$s feature in %2$s', 'updatepulse-server' ),
 						'<strong>' . esc_html__( 'Register a package using a VCS', 'updatepulse-server' ) . '</strong>',
 						'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page' ) ) . '">' . esc_html__( 'Packages Overview' ) . '</a>'
 					);
@@ -22,34 +22,7 @@
 			</li>
 			<li>
 				<?php
-					printf(
-						// translators: %s is <code>add</code>
-						esc_html__( 'calling the %s method of the package API', 'updatepulse-server' ),
-						'<code>add</code>'
-					);
-				?>
-			</li>
-			<li>
-				<?php
-					printf(
-						// translators: %s is <code>wp updatepulse download_remote_package my-package plugin</code>
-						esc_html__( 'calling %s in the command line', 'updatepulse-server' ),
-						'<code>' . esc_html( 'wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>' ) . '</code>'
-					);
-				?>
-			</li>
-			<li>
-				<?php
-					printf(
-						// translators: %s is <code>upserv_download_remote_package( string $package_slug, string $type );</code>
-						esc_html__( 'calling the %s method in your own code', 'updatepulse-server' ),
-						'<code>upserv_download_remote_package( string $package_slug, string $type );</code>'
-					);
-				?>
-			</li>
-			<li>
-				<?php
-					esc_html_e( 'triggering a webhook from a VCS' );
+					esc_html_e( '[simple] triggering a webhook from a VCS already added to UpdatePulse Server' );
 				?>
 				<br>
 				<?php
@@ -63,6 +36,33 @@
 					'<code>generic</code>',
 					'<code>package-slug</code>'
 				);
+				?>
+			</li>
+			<li>
+				<?php
+					printf(
+						// translators: %s is <code>wp updatepulse download_remote_package my-package plugin</code>
+						esc_html__( '[advanced] calling %s in the command line, with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server', 'updatepulse-server' ),
+						'<code>' . esc_html( 'wp updatepulse download_remote_package <package-slug> <plugin|theme|generic> <vcs-url> <branch>' ) . '</code>'
+					);
+				?>
+			</li>
+			<li>
+				<?php
+					printf(
+						// translators: %s is <code>upserv_download_remote_package( string $package_slug, string $type );</code>
+						esc_html__( '[expert] calling the %s method in your own code, with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server', 'updatepulse-server' ),
+						'<code>upserv_download_remote_package( string $package_slug, string $type, string $vcs_url = false, string branch = \'main\');</code>'
+					);
+				?>
+			</li>
+			<li>
+				<?php
+					printf(
+						// translators: %s is <code>add</code>
+						esc_html__( '[expert] calling the %s method of the package API, with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server present in the request payload', 'updatepulse-server' ),
+						'<code>add</code>'
+					);
 				?>
 			</li>
 		</ul>
@@ -123,7 +123,7 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 				<?php
 				printf(
 					// translators: %1$s is <code>yes</code>, %2$s is <code>true</code>, %3$s is <code>1</code>
-					esc_html__( 'The "Require License" header can be %1$s, %2$s, or %3$s: all other values are considered as false ; it is used to enable license checks for your package.', 'updatepulse-server' ),
+					esc_html__( 'The "Require License" header can be %1$s, %2$s, or %3$s: all other values are considered as false; it is used to enable license checks for your package.', 'updatepulse-server' ),
 					'<code>yes</code>',
 					'<code>true</code>',
 					'<code>1</code>'
@@ -194,7 +194,7 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 			<?php
 			printf(
 				// translators: %1$s is <code>packages_dir</code>, %2$s is <code>package-slug.zip</code>, %3$s is <code>package-slug.php</code>
-				esc_html__( 'Unless "Use Version Control System" is checked in "Remote Sources (VCS) ", you need to manually upload the packages zip archives (and subsequent updates) in %1$s. A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in %2$s would be %3$s.', 'updatepulse-server' ),
+				esc_html__( 'Unless "Enable VCS" is checked in "Version Control Systems ", you need to manually upload the packages zip archives (and subsequent updates) in %1$s. A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in %2$s would be %3$s.', 'updatepulse-server' ),
 				'<code>' . esc_html( $packages_dir ) . '</code>',
 				'<code>package-slug.zip</code>',
 				'<code>package-slug.php</code>',

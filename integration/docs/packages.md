@@ -259,14 +259,14 @@ The Private API, only accessible via the POST method, requires extra authenticat
 The first action, `browse`, is particular in the sense that, unlike the other actions, its endpoint must not include the `package-type/package-slug` part of the query string (`$url = 'https://domain.tld/updatepulse-server-package-api/';`).  
 With the Private API, depending on granted privileges, developers can theoretically perform any operation on the packages stored by UpdatePulse Server - **be careful to keep the Private API Authentication Key an absolute secret!**
 
-To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/anyape//blob/master/misc.md#nonce-api) ; for example:
+To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/anyape//blob/master/misc.md#nonce-api) - for example:
 
 ```php
 $url        = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
 $api_key_id = getenv( 'UPSERV_LICENSE_API_KEY_ID' );          // This exampe assumes the API Key ID is stored in environment variables
 $api_key    = getenv( 'UPSERV_LICENSE_API_KEY' );             // This exampe assumes the API Key is stored in environment variables
 $payload    = array(
-    'api' => 'package', // The target API (required ; must be `'package'` to access the package Private API)
+    'api' => 'package', // The target API (required - must be `'package'` to access the package Private API)
 );
 $cred_sign  = upserv_build_nonce_api_signature( $api_key_id, $api_key, time(), $payload );
 
@@ -520,7 +520,10 @@ false
 ___
 #### edit
 
-The `edit` operation downloads the package from the Version Control System. If the "Use a Version Control System" option is not active, or if the package does not exist in the Version Control System, the operation fails.
+The `edit` operation downloads the package from the Version Control System.  
+The operation fails if:
+- the "Enable VCS" option is not active
+- the package does not exist in the Version Control System associated with the package
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
@@ -662,7 +665,12 @@ false
 ___
 #### add
 
-The `add` operation downloads the package from the Version Control System if it does not exist on the file system. If the "Use a Version Control System" option is not active, the package does not exist in the Version Control System, or if the package already exists on the file system, the operation fails.
+The `add` operation downloads the package from the Version Control System if it does not exist on the file system.  
+The operation fails if:
+- the "Enable VCS" option is not active
+- the package does not exist in the Version Control System, or if 
+- the package already exists on the file system
+- the provided VCS-related parameters do not correspond to a VCS already configured in UpdatePulse Server
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
@@ -670,8 +678,10 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 
 ```php
 $params = array(
-    'action'       => 'add',    // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'action'       => 'add',                             // Action to perform when calling the Package API (required)
+    'api_auth_key' => 'secret',                          // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'vcs_url'      => 'https://vcs-url.tld/identifier/', // The URL of a VCS configured in UpdatePulse Server. If provided along with a valid branch, the package will be downloaded from the VCS, and associated with that VCS. (optional - default `false`)
+    'branch'       => 'main',                            // The branch of the VCS to download the package from. If provided along with a valid VCS URL, the package will be downloaded from the VCS, and associated with that VCS. (optional - default `main`)
 );
 ```
 
@@ -1023,18 +1033,25 @@ ___
 ### upserv_download_remote_package
 
 ```php
-upserv_download_remote_package( string $package_slug, string $type );
+upserv_download_remote_package( string $package_slug, string $type, $vcs_url = false, $branch = 'main' );
 ```
 
 **Description**  
 Download a package from the Version Control System to the package directory on the file system.
+If `$vcs_url` and `$branch` are provided, the plugin will attempt to get an existing VCS configuration and register the package with it.
 
 **Parameters**  
 `$package_slug`
 > (string) slug of the package to download  
 
 `$type`
-> (string) type of the package ; default to `'generic'`  
+> (string) type of the package; default to `'generic'`
+
+`$vcs_url`
+> (string) the URL of a VCS configured in UpdatePulse Server; default to `false`
+
+`$branch`
+> (string) the branch as provided in a VCS configured in UpdatePulse Server; default to `'main'`
 
 **Return value**
 > (bool) `true` if the plugin package was successfully downloaded, `false` otherwise
@@ -1059,15 +1076,22 @@ ___
 ### upserv_download_remote_plugin
 
 ```php
-upserv_download_remote_plugin( string $package_slug );
+upserv_download_remote_plugin( string $package_slug, $vcs_url = false, $branch = 'main' );
 ```
 
 **Description**  
 Download a plugin package from the Version Control System to the package directory on the file system.
+If `$vcs_url` and `$branch` are provided, the plugin will attempt to get an existing VCS configuration and register the package with it.
 
 **Parameters**  
 `$package_slug`
 > (string) slug of the plugin package to download  
+
+`$vcs_url`
+> (string) the URL of a VCS configured in UpdatePulse Server; default to `false`
+
+`$branch`
+> (string) the branch as provided in a VCS configured in UpdatePulse Server; default to `'main'`
 
 **Return value**
 > (bool) `true` if the plugin package was successfully downloaded, `false` otherwise
@@ -1076,15 +1100,22 @@ ___
 ### upserv_download_remote_theme
 
 ```php
-upserv_download_remote_theme( string $package_slug );
+upserv_download_remote_theme( string $package_slug, $vcs_url = false, $branch = 'main' );
 ```
 
 **Description**  
 Download a theme package from the Version Control System to the package directory on the file system.
+If `$vcs_url` and `$branch` are provided, the plugin will attempt to get an existing VCS configuration and register the package with it.
 
 **Parameters**  
 `$package_slug`
 > (string) slug of the theme package to download  
+
+`$vcs_url`
+> (string) the URL of a VCS configured in UpdatePulse Server; default to `false`
+
+`$branch`
+> (string) the branch as provided in a VCS configured in UpdatePulse Server; default to `'main'`
 
 **Return value**
 > (bool) `true` if the theme package was successfully downloaded, `false` otherwise
@@ -1160,7 +1191,7 @@ Start a download of a package from the file system and exits.
 > (string) slug of the package  
 
 `$package_path`
-> (string) path of the package on the **local** file system - if `null`, will attempt to find it using `upserv_get_local_package_path( $package_slug )` ; default `null`  
+> (string) path of the package on the **local** file system - if `null`, will attempt to find it using `upserv_get_local_package_path( $package_slug )`; default `null`  
 
 ___
 ### upserv_delete_package
@@ -1193,7 +1224,7 @@ Get information about a package on the file system
 > (string) slug of the package  
 
 `$json_encode`
-> (bool) whether to return a JSON object if `true`, or a PHP associative array otherwise ; default to `true`  
+> (bool) whether to return a JSON object if `true`, or a PHP associative array otherwise; default to `true`  
 
 **Return value**
 > (array|string) the package information as a PHP associative array or a JSON object  
@@ -1307,7 +1338,7 @@ Get batch information of packages on the file system
 > (bool) whether to return a JSON object (default) or a PHP associative array  
 
 **Return value**
-> (array|string) the batch information as a PHP associative array or a JSON object ; each entry is formatted like in [upserv_get_package_info](#upserv_get_package_info)
+> (array|string) the batch information as a PHP associative array or a JSON object; each entry is formatted like in [upserv_get_package_info](#upserv_get_package_info)
 
 Values format:
 ```json
@@ -1979,7 +2010,7 @@ do_action( 'upserv_package_api_request', string $method, array $payload );
 ```
 
 **Description**  
-Fired before the Package API request is processed ; useful to bypass the execution of currently implemented actions, or implement new actions. 
+Fired before the Package API request is processed; useful to bypass the execution of currently implemented actions, or implement new actions. 
 
 **Parameters**  
 `$action`
@@ -2711,7 +2742,7 @@ apply_filters( 'upserv_package_public_api_actions', array $public_api_actions );
 ```
 
 **Description**  
-Filter the public API actions ; public actions can be accessed via the `GET` method and a token, all other actions are considered private and can only be accessed via the `POST` method.
+Filter the public API actions; public actions can be accessed via the `GET` method and a token, all other actions are considered private and can only be accessed via the `POST` method.
 
 **Parameters**  
 `$public_api_actions`
@@ -3052,7 +3083,7 @@ Fired during client update API request.
 > (string) the slug of the package  
 
 `$type`
-> (string) the type of the package ; one of `"Plugin"`, `"Theme"`, `"Generic"`, or `null`  
+> (string) the type of the package; one of `"Plugin"`, `"Theme"`, `"Generic"`, or `null`  
 
 `$info`
 > (array) the information of the package from the VCS
@@ -3194,7 +3225,7 @@ Filter whether the package exists on the file system before processing the Webho
 
 **Parameters**  
 `$package_exists`
-> (bool|null) whether the package exists on the file system ; return `null` to leave the decision to the default behavior    
+> (bool|null) whether the package exists on the file system; return `null` to leave the decision to the default behavior    
 
 `$payload`
 > (array) the payload of the request  

@@ -160,7 +160,7 @@
 					<h4><?php esc_html_e( 'Extra Data', 'updatepulse-server' ); ?></h4>
 					<p class="description">
 						<?php esc_html_e( 'Advanced - JSON-formatted custom data to add to the license.', 'updatepulse-server' ); ?><br>
-						<?php esc_html_e( 'Typically used by plugins & API integrations ; proceed with caution when editing.', 'updatepulse-server' ); ?><br>
+						<?php esc_html_e( 'Typically used by plugins & API integrations; proceed with caution when editing.', 'updatepulse-server' ); ?><br>
 					</p>
 					<textarea id="upserv_license_data"></textarea>
 				</div>
@@ -176,7 +176,6 @@
 	</div>
 	<hr>
 	<?php endif; ?>
-	<h3><?php esc_html_e( 'License Settings', 'updatepulse-server' ); ?></h3>
 	<form autocomplete="off" id="upserv-licenses-settings" action="" method="post">
 		<table class="form-table">
 			<tr>
@@ -186,7 +185,7 @@
 				<td>
 					<input type="checkbox" id="upserv_use_licenses" name="upserv_use_licenses" value="1" <?php checked( $options['use_licenses'], 1 ); ?>>
 					<p class="description">
-						<?php esc_html_e( 'Check to activate license-enabled plugin, theme, and generic packages delivery.', 'updatepulse-server' ); ?>
+						<?php esc_html_e( 'Check to activate license checking when delivering package updates.', 'updatepulse-server' ); ?>
 						<br>
 						<strong><?php esc_html_e( 'It affects all the packages with a "Requires License" license status delivered by this installation of UpdatePulse Server.', 'updatepulse-server' ); ?></strong>
 					</p>

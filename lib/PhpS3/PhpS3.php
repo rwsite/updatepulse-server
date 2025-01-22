@@ -2057,8 +2057,8 @@ class PhpS3
     * @param array $headers The canonical headers
     * @param string $method The request method aka verb
     * @param string $uri The object URI
-    * @param array $parameters Query string parameters ; if $returnQuery string is true, do not include x-amz-* values
-    * @param bool $returnQueryString Whether to return the query string ; returns authorization header by default
+    * @param array $parameters Query string parameters; if $returnQuery string is true, do not include x-amz-* values
+    * @param bool $returnQueryString Whether to return the query string; returns authorization header by default
     * @return array
     */
     public static function getSignatureV4(
@@ -2128,7 +2128,7 @@ class PhpS3
         // payload hash
         $amzPayload[] = isset($amzHeaders['x-amz-content-sha256']) ?
             $amzHeaders['x-amz-content-sha256'] :
-            'UNSIGNED-PAYLOAD' ;
+            'UNSIGNED-PAYLOAD';
         // request as string
         $amzPayloadStr = implode("\n", $amzPayload);
         // stringToSign

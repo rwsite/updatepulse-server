@@ -290,19 +290,34 @@ if ( ! function_exists( 'upserv_check_remote_package_update' ) ) {
 }
 
 if ( ! function_exists( 'upserv_download_remote_plugin' ) ) {
-	function upserv_download_remote_plugin( $slug ) {
-		return upserv_download_remote_package( $slug, 'plugin' );
+	function upserv_download_remote_plugin( $slug, $vcs_url = false, $branch = 'main' ) {
+		return upserv_download_remote_package( $slug, 'plugin', $vcs_url, $branch );
 	}
 }
 
 if ( ! function_exists( 'upserv_download_remote_theme' ) ) {
-	function upserv_download_remote_theme( $slug ) {
-		return upserv_download_remote_package( $slug, 'theme' );
+	function upserv_download_remote_theme( $slug, $vcs_url = false, $branch = 'main' ) {
+		return upserv_download_remote_package( $slug, 'theme', $vcs_url, $branch );
 	}
 }
 
 if ( ! function_exists( 'upserv_download_remote_package' ) ) {
-	function upserv_download_remote_package( $slug, $type = 'generic' ) {
+	function upserv_download_remote_package( $slug, $type = 'generic', $vcs_url = false, $branch = 'main' ) {
+
+		if ( $vcs_url ) {
+			$vcs_configs     = upserv_get_option( 'vcs', array() );
+			$meta            = upserv_get_package_metadata( $slug );
+			$meta['type']    = $type;
+			$meta['vcs_key'] = hash( 'sha256', trailingslashit( $vcs_url ) . '|' . $branch );
+			$meta['origin']  = 'vcs';
+
+			if ( isset( $vcs_configs[ $meta['vcs_key'] ] ) ) {
+				upserv_set_package_metadata( $slug, $meta );
+			} else {
+				return false;
+			}
+		}
+
 		$api = Update_API::get_instance();
 
 		return $api->download_remote_package( $slug, $type, true );

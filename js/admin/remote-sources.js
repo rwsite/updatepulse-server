@@ -71,7 +71,7 @@ jQuery(document).ready(function ($) {
         var item = $('.vcs .item.template').clone();
         var itemData = data[id];
         var service = itemData.url.match(/https?:\/\/([^\/]+)\//);
-        var name = itemData.url.split('/').filter(function (part) {
+        var identifier = itemData.url.split('/').filter(function (part) {
             return part.length > 0;
         }).pop();
 
@@ -79,8 +79,8 @@ jQuery(document).ready(function ($) {
         item.data('modal_id', null);
         item.removeAttr('data-modal_id');
         item.find('.placeholder').remove();
-        item.find('.url').text(name);
-        item.find('.branch-name').text(itemData.branch);
+        item.find('.identifier').text(identifier);
+        item.find('.branch').text(itemData.branch);
         item.find('.hidden').removeClass('hidden');
         item.attr('id', id);
         item.find('.service span').addClass('hidden');
@@ -148,12 +148,12 @@ jQuery(document).ready(function ($) {
             data[id][prop] = value;
         }
 
-        var name = data[id].url.split('/').filter(function (part) {
+        var identifier = data[id].url.split('/').filter(function (part) {
             return part.length > 0;
         }).pop();
 
-        $('#' + id).find('.branch-name').text(data[id].branch);
-        $('#' + id).find('.url').text(name);
+        $('#' + id).find('.branch').text(data[id].branch);
+        $('#' + id).find('.identifier').text(identifier);
         updateRepositories();
     };
     var updateRepositories = function () {

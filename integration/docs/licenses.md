@@ -76,7 +76,7 @@ The License Query is an associative array. It is used to browse the license reco
 ```php
 $license_query = array(
 	'relationship' => 'AND',          // Relationship of the criteria when provided - 'AND or 'OR' - default 'AND' (optional)
-	'limit'        => '10',           // Limit the number of results ; set to any negative value for no limit - default 999 (optional)
+	'limit'        => '10',           // Limit the number of results; set to any negative value for no limit - default 999 (optional)
 	'offset'       => '0',            // Results offset - default 0 (optional)
 	'order_by'     => 'date_created', // Order of the license records returned - default 'date_created' (optional)
 	'criteria'     => array(          // Criteria to filter the license records - accepts multiple values - if omitted, the result is not filtered (optional)
@@ -332,14 +332,14 @@ The Private API, only accessible via the `POST` method, requires extra authentic
 The first action, `browse`, is particular in the sense that, unlike the other actions and aside from the authentication token, it accepts a JSON License Query instead of the classic form-data payload.  
 With the Private API, depending on granted privileges, developers can theoretically perform any operation on the license records - **be careful to keep the Private API Authentication Key an absolute secret!**
 
-To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/anyape/updatepulse-server/blob/master/misc.md#nonce-api) ; for example:
+To access the Private API, an authentication token must first be obtained with the [Nonce API](https://github.com/anyape/updatepulse-server/blob/master/misc.md#nonce-api); for example:
 
 ```php
 $url        = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
 $api_key_id = getenv( 'UPSERV_LICENSE_API_KEY_ID' );          // This exampe assumes the API Key ID is stored in environment variables
 $api_key    = getenv( 'UPSERV_LICENSE_API_KEY' );             // This exampe assumes the API Key is stored in environment variables
 $payload    = array(
-	'api' => 'license', // The target API (required ; must be `'license'` to access the license Private API)
+	'api' => 'license', // The target API (required - must be `'license'` to access the license Private API)
 );
 $cred_sign  = upserv_build_nonce_api_signature( $api_key_id, $api_key, time(), $payload );
 
@@ -1086,7 +1086,7 @@ do_action( 'upserv_license_api_request', string $action, array $payload );
 ```
 
 **Description**  
-Fired before the License API request is processed ; useful to bypass the execution of currently implemented actions, or implement new actions. 
+Fired before the License API request is processed; useful to bypass the execution of currently implemented actions, or implement new actions. 
 
 **Parameters**  
 `$action`
@@ -1247,7 +1247,7 @@ Fired during client license API request.
 
 **Parameters**  
 `$next_deactivate`
-> (int) the timestamp of the next deactivation ; default `time()`
+> (int) the timestamp of the next deactivation; default `time()`
 
 **Parameters**  
 `$license`
@@ -1266,7 +1266,7 @@ Fired during client license API request.
 
 **Parameters**  
 `$next_deactivate`
-> (int) the timestamp of the next deactivation ; default `time() + MONTH_IN_SECONDS`, or `time() + MINUTE_IN_SECONDS` if `WP_DEBUG` is set to `true`
+> (int) the timestamp of the next deactivation; default `time() + MONTH_IN_SECONDS`, or `time() + MINUTE_IN_SECONDS` if `WP_DEBUG` is set to `true`
 
 **Parameters**  
 `$license`
@@ -1430,7 +1430,7 @@ apply_filters( 'upserv_license_public_api_actions', array $public_api_actions );
 ```
 
 **Description**  
-Filter the public API actions ; public actions can be accessed via the `GET` method, all other actions are considered private and can only be accessed via the `POST` method.
+Filter the public API actions; public actions can be accessed via the `GET` method, all other actions are considered private and can only be accessed via the `POST` method.
 
 **Parameters**  
 `$public_api_actions`

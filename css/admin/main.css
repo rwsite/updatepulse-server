@@ -1,7 +1,11 @@
-.upserv-wrap .nav-tab {
+#upserv-header .nav-tab {
     display: flex;
     align-items: center;
     gap: 0.5em;
+}
+
+#upserv-header .nav-tab i {
+    font-size: 1.25em;
 }
 
 .upserv-wrap .column-col_id {

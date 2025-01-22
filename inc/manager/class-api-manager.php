@@ -109,7 +109,7 @@ class API_Manager {
 			_x( 'license', 'UpdatePulse Server webhook event type', 'updatepulse-server' ),
 		);
 		$l10n['apiSumSep']                     = array(
-			// translators: the separator between summaries ; example: All package events, 3 license events
+			// translators: the separator between summaries; example: All package events, 3 license events
 			_x( ', ', 'UpdatePulse Server separator between API summaries', 'updatepulse-server' ),
 		);
 
@@ -128,7 +128,7 @@ class API_Manager {
 	public function upserv_admin_tab_links( $links ) {
 		$links['api'] = array(
 			admin_url( 'admin.php?page=upserv-page-api' ),
-			"<span class='dashicons dashicons-rest-api'></span> " . __( 'API & Webhooks', 'updatepulse-server' ),
+			'<i class="fa-solid fa-share-nodes"></i>' . __( 'API & Webhooks', 'updatepulse-server' ),
 		);
 
 		return $links;

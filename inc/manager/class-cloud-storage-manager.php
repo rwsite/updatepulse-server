@@ -447,7 +447,7 @@ class Cloud_Storage_Manager {
 			} else {
 				$result = new WP_Error(
 					__METHOD__,
-					__( 'Error - Received invalid data ; please reload the page and try again.', 'updatepulse-server' )
+					__( 'Error - Received invalid data; please reload the page and try again.', 'updatepulse-server' )
 				);
 			}
 		}
@@ -927,7 +927,7 @@ class Cloud_Storage_Manager {
 					)
 				);
 			} else {
-				php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
+				php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
 
 				$log  = 'Exception caught: ' . $e->getMessage() . "\n";
 				$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";

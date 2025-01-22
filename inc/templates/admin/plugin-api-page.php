@@ -163,7 +163,7 @@
 							<?php
 							printf(
 								// translators: %1$s is <code>secret</code>, %2$s is <code>X-UPDATEPULSE-Signature-256</code>
-								esc_html__( 'To allow the recipients to authenticate the notifications, the payload is signed with a %1$s secret key using the SHA-256 algorithm ; the resulting hash is made available in the %2$s header.', 'updatepulse-server' ),
+								esc_html__( 'To allow the recipients to authenticate the notifications, the payload is signed with a %1$s secret key using the SHA-256 algorithm; the resulting hash is made available in the %2$s header.', 'updatepulse-server' ),
 								'<code>secret-key</code>',
 								'<code>X-UpdatePulse-Signature-256</code>'
 							);

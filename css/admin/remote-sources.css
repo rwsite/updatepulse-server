@@ -21,6 +21,7 @@
     flex-wrap: nowrap;
     min-height: 60px;
     font-weight: bold;
+    gap: 1em;
 }
 
 .upserv-wrap .vcs .item.template .placeholder span.icon {
@@ -67,18 +68,18 @@
     max-width: 170px;
 }
 
-.upserv-wrap .vcs .item .branch:not(.hidden) {
-    display: flex;
-    gap: 0.25em;
-    align-items: center;
-}
-
-.upserv-wrap .vcs .item code:not(.hidden) {
+.upserv-wrap .vcs .item code {
     word-break: break-all;
     white-space: initial;
-    width: auto;
-    display: block;
+    display: flex;
     margin: 0 0 0.5em 0;
+    gap: 0.75em;
+    padding-left: 0.75em;
+    align-items: baseline;
+}
+
+.upserv-wrap .vcs .item code i {
+    min-width: 1.25em;
     text-align: center;
 }
 

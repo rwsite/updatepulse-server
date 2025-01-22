@@ -1,7 +1,7 @@
 # Dummy Theme details
 
 This is an example of details page displayed in the WordPress admin when a new version is available.  
-`Details URI` or `Theme URI` below are used to show new version details (`Details URI` is optional and used only if present) ; the one used **MUST** be the URL of a destination that can be displayed in an `iframe` from any source.
+`Details URI` or `Theme URI` below are used to show new version details (`Details URI` is optional and used only if present); the one used **MUST** be the URL of a destination that can be displayed in an `iframe` from any source.
 
 ```php
 /*

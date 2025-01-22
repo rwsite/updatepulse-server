@@ -8,7 +8,7 @@
 		<table class="form-table package-source switch">
 			<tr>
 				<th>
-					<label for="use_vcs"><?php esc_html_e( 'Use Version Control Systems', 'updatepulse-server' ); ?></label>
+					<label for="use_vcs"><?php esc_html_e( 'Enable VCS', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
 					<input type="checkbox" id="use_vcs" name="use_vcs" value="1" <?php checked( $options['use_vcs'], 1 ); ?>>
@@ -29,7 +29,7 @@
 							<?php
 							printf(
 								// translators: %s <a href="admin.php?page=upserv-page-help">initialize packages</a>
-								esc_html__( 'It is necessary to %s linked to a Version Control System for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
+								esc_html__( 'It is necessary to %s associated with a Version Control System for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
 								'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page-help' ) ) . '">' . esc_html__( 'register packages', 'updatepulse-server' ) . '</a>'
 							);
 							?>
@@ -50,8 +50,10 @@
 					<span class="gitlab hidden"><i class="fa-brands fa-gitlab"></i><?php esc_html_e( 'Gitlab', 'updatepulse-server' ); ?></span>
 					<span class="self-hosted hidden"><i class="fa-brands fa-square-gitlab"></i><?php esc_html_e( 'Self-hosted', 'updatepulse-server' ); ?></span>
 				</div>
-				<code class="url hidden"></code>
-				<code class="branch-name hidden"></code>
+				<div class="info hidden">
+					<code><i class="fa-solid fa-code"></i> <span class="identifier"></span></code>
+					<code><i class="fa-solid fa-code-branch"></i> <span class="branch"></span></code>
+				</div>
 			</div>
 		</div>
 		<div class="form-container package-source">
@@ -242,7 +244,6 @@
 						</p>
 					</td>
 				</tr>
-				<?php do_action( 'upserv_template_remote_source_manager_option_after_recurring_check' ); ?>
 			</table>
 			<table class="form-table check-frequency">
 				<tr>

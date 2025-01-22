@@ -524,7 +524,7 @@ class Update_Server {
 
 			$package = Package::from_archive( $filename, $safe_slug, $this->cache );
 		} catch ( Exception $e ) {
-			php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
+			php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
 
 			$log  = 'Exception caught: ' . $e->getMessage() . "\n";
 			$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";

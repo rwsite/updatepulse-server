@@ -138,8 +138,8 @@ class Remote_Sources_Manager {
 
 	public function admin_menu() {
 		$function   = array( $this, 'plugin_page' );
-		$page_title = __( 'UpdatePulse Server - Remote Sources (VCS) ', 'updatepulse-server' );
-		$menu_title = __( 'Remote Sources (VCS) ', 'updatepulse-server' );
+		$page_title = __( 'UpdatePulse Server - Version Control Systems ', 'updatepulse-server' );
+		$menu_title = __( 'Version Control Systems ', 'updatepulse-server' );
 		$menu_slug  = 'upserv-page-remote-sources';
 
 		add_submenu_page( 'upserv-page', $page_title, $menu_title, 'manage_options', $menu_slug, $function );
@@ -148,7 +148,7 @@ class Remote_Sources_Manager {
 	public function upserv_admin_tab_links( $links ) {
 		$links['remote-sources'] = array(
 			admin_url( 'admin.php?page=upserv-page-remote-sources' ),
-			"<span class='dashicons dashicons-networking'></span> " . __( 'Remote Sources (VCS) ', 'updatepulse-server' ),
+			'<i class="fa-brands fa-git"></i>' . __( 'Version Control Systems ', 'updatepulse-server' ),
 		);
 
 		return $links;
@@ -324,7 +324,7 @@ class Remote_Sources_Manager {
 			} else {
 				$result = new WP_Error(
 					__METHOD__,
-					__( 'Error - Received invalid data ; please reload the page and try again.', 'updatepulse-server' )
+					__( 'Error - Received invalid data; please reload the page and try again.', 'updatepulse-server' )
 				);
 			}
 		}
@@ -666,7 +666,7 @@ class Remote_Sources_Manager {
 			array(
 				'upserv_use_vcs' => array(
 					'value'        => filter_input( INPUT_POST, 'upserv_use_vcs', FILTER_VALIDATE_BOOLEAN ),
-					'display_name' => __( 'Use Version Control Systems', 'updatepulse-server' ),
+					'display_name' => __( 'Enable VCS', 'updatepulse-server' ),
 					'condition'    => 'boolean',
 					'path'         => 'use_vcs',
 				),

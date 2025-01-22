@@ -31,7 +31,7 @@ Make sure to read the full documentation and the content of the "Help" tab under
 This plugin adds the following major features to WordPress:
 
 * **UpdatePulse Server admin page:** to manage the list of packages and configure the plugin.
-* **Package management:** to manage update packages, showing a listing with Package Name, Version, Type, File Name, Size, Last Modified and License Status ; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages.
+* **Package management:** to manage update packages, showing a listing with Package Name, Version, Type, File Name, Size, Last Modified and License Status; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages.
 * **Add Packages:** Upload update packages from a local machine to the server, or download them to the server from a Remote Repository.
 * **General settings:** for archive files download size, cache, and logs, with force clean.
 * **Packages licensing:** Prevent plugins and themes installed on remote WordPress installation from being updated without a valid license. Licenses are generated automatically by default and the values are unguessable (it is recommended to keep the default). When checking the validity of licenses an extra license signature is also checked to prevent the use of a license on more than the configured allowed domains.

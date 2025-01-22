@@ -56,8 +56,8 @@ It accepts form-data payloads (arrays, basically). This documentation page uses 
 
 Authorization is granted with either the `HTTP_X_UPDATEPULSE_API_CREDENTIALS` and `HTTP_X_UPDATEPULSE_API_SIGNATURE` headers or with the `api_credentials` and `api_signature` parameters.  
 If requesting a token for an existing API, the `api` parameter value must be provided with one of `package` or `license` to specify the target API.  
-The credentials and the signature are valid for 1 minute ; building them is the responsibility of the third-party client making use of the API - an implementation in PHP is provided below.  
-**Using `GET` requests directly in the browser, whether through the URL bar or JavaScript, is strongly discouraged due to security concerns** ; it should be avoided at all cost to prevent the inadvertent exposure of the credentials and signature.  
+The credentials and the signature are valid for 1 minute; building them is the responsibility of the third-party client making use of the API - an implementation in PHP is provided below.  
+**Using `GET` requests directly in the browser, whether through the URL bar or JavaScript, is strongly discouraged due to security concerns**; it should be avoided at all cost to prevent the inadvertent exposure of the credentials and signature.  
 
 In case the Private API Key is invalid, the API will return the following response (message's language depending on available translations), with HTTP response code set to `403`:
 
@@ -102,7 +102,7 @@ if ( is_wp_error( $response ) ) {
 }
 ```
 
-Payload to acquire a reusable token or a true nonce ; please note that **boolean values are NOT supported**: if the payload needs to include such value type, developers are invited to use the string `'true'`/`'false'`, or the integers `1`/`0` :
+Payload to acquire a reusable token or a true nonce; please note that **boolean values are NOT supported**: if the payload needs to include such value type, developers are invited to use the string `'true'`/`'false'`, or the integers `1`/`0` :
 
 ```php
 $payload = array(
@@ -121,7 +121,7 @@ $payload = array(
 	),
 	'api_credentials' => '9999999999|private_key_id', // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-UpdatePulse-API-Credentials header is absent)
 	'api_signature'   => 'complex_signature',         // The signature built using the Private API Key (optional - must be provided in case X-UpdatePulse-API-Signature header is absent)
-	'api'             => 'api_name',                  // The target API (required if requesting a nonce for the existing APIs ; one of `'package'` or `'license'`)
+	'api'             => 'api_name',                  // The target API (required if requesting a nonce for the existing APIs; one of `'package'` or `'license'`)
 );
 ```
 
@@ -225,7 +225,7 @@ SUBCOMMANDS
   delete_license                   Delete a license.
   delete_nonce                     Deletes a nonce.
   delete_package                   Deletes a package.
-  download_remote_package          Downloads a package.
+  download_remote_package          Downloads a package from a VCS.
   edit_license                     Edit a license.
   get_nonce_data                   Gets data saved along with a nonce.
   get_nonce_expiry                 Gets the expiry time of a nonce.
@@ -416,22 +416,22 @@ Creates a cryptographic token - allows creation of tokens that are true one-time
 
 **Parameters**  
 `$true_nonce`
-> (bool) whether the nonce is one-time-use ; default `true`  
+> (bool) whether the nonce is one-time-use; default `true`  
 
 `$expiry_length`
-> (int) the number of seconds after which the nonce expires ; default `UPServ_Nonce::DEFAULT_EXPIRY_LENGTH` - 30 seconds 
+> (int) the number of seconds after which the nonce expires; default `UPServ_Nonce::DEFAULT_EXPIRY_LENGTH` - 30 seconds 
 
 `$data`
-> (array) custom data to save along with the nonce ; set an element with key `permanent` to a truthy value to create a nonce that never expires ; default `array()`  
+> (array) custom data to save along with the nonce; set an element with key `permanent` to a truthy value to create a nonce that never expires; default `array()`  
 
 `$return_type`
-> (int) whether to return the nonce, or an array of information ; default `UPServ_Nonce::NONCE_ONLY` ; other accepted value is `UPServ_Nonce::NONCE_INFO_ARRAY`  
+> (int) whether to return the nonce, or an array of information; default `UPServ_Nonce::NONCE_ONLY`; other accepted value is `UPServ_Nonce::NONCE_INFO_ARRAY`  
 
 `$store`
-> (bool) whether to store the nonce, or let a third party mechanism take care of it ; default `true`  
+> (bool) whether to store the nonce, or let a third party mechanism take care of it; default `true`  
 
 **Return value**
-> (bool|string|array) `false` in case of failure ; the cryptographic token string if `$return_type` is set to `UPServ_Nonce::NONCE_ONLY` ; an array of information if `$return_type` is set to `UPServ_Nonce::NONCE_INFO_ARRAY` with the following format:
+> (bool|string|array) `false` in case of failure; the cryptographic token string if `$return_type` is set to `UPServ_Nonce::NONCE_ONLY`; an array of information if `$return_type` is set to `UPServ_Nonce::NONCE_INFO_ARRAY` with the following format:
 ```php
 array(
 	'nonce'      => 'some_value',	// cryptographic token
@@ -571,10 +571,10 @@ $payload = array(
 ```
 
 `$event_type`
-> (string) the type of event ; the payload will only be delivered to URLs subscribed to this type  
+> (string) the type of event; the payload will only be delivered to URLs subscribed to this type  
 
 `$instant`
-> (bool) whether to send the notification immediately ; default `false`
+> (bool) whether to send the notification immediately; default `false`
 
 **Return value**
 > (null|WP_error) `null` in case of success, a `WP_Error` otherwise  
@@ -619,7 +619,7 @@ do_action( 'upserv_mu_optimizer_ready', bool $doing_api, array|bool $api_active_
 
 **Description**
 Fired when the Must Used Plugin `UpdatePulse Server Endpoint Optimizer` has been executed.
-Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action ; if within, the action must have a priority lower than `0`.
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action; if within, the action must have a priority lower than `0`.
 
 **Parameters**
 `$doing_api`
@@ -679,7 +679,7 @@ apply_filters( 'upserv_mu_optimizer_active_plugins', array $active_plugins );
 
 **Description**
 Filter the plugins to keep active when a request is made by a remote client to interact with any of the APIs.  
-Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action ; if within, the action must have a priority lower than `0`.
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action; if within, the action must have a priority lower than `0`.
 
 **Parameters**
 `$active_plugins`
@@ -703,7 +703,7 @@ apply_filters( 'upserv_mu_optimizer_doing_api_request', bool $doing_api );
 **Description**
 Filter whether the current request must be treated as an API request.  
 The value is cached in `'upserv_mu_doing_api'` (group `''updatepulse-server''`) with `wp_cache_set()` and used before [upserv_is_api_request](#upserv_is_api_request) is fired.
-Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action ; if within, the action must have a priority lower than `0`.
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action; if within, the action must have a priority lower than `0`.
 
 **Parameters**
 `$doing_api`
@@ -737,7 +737,7 @@ Must be subscribed to in a MU plugin to guarantee the correct order of execution
 
 **Parameters**
 `$classes`
-> (array) the classes used to register the hooks ; they may have at least one of the following methods implemented: `activation`, `deactivation`, `uninstall`
+> (array) the classes used to register the hooks; they may have at least one of the following methods implemented: `activation`, `deactivation`, `uninstall`
 
 ___
 ### upserv_is_api_request
@@ -830,7 +830,7 @@ apply_filters( 'upserv_created_nonce', bool|string|array $nonce_value, bool $tru
 ```
 
 **Description**  
-Filter the value of the nonce before it is created ; if `$nonce_value` is truthy, the value is used as nonce and the default generation algorithm is bypassed ; developers must respect the `$return_type`.
+Filter the value of the nonce before it is created; if `$nonce_value` is truthy, the value is used as nonce and the default generation algorithm is bypassed; developers must respect the `$return_type`.
 
 **Parameters**  
 `$nonce_value`

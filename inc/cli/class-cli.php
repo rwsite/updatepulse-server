@@ -123,20 +123,41 @@ class CLI extends WP_CLI_Command {
 	 * <type>
 	 * : The package type.
 	 *
+	 * [--vcs_url=<vcs_url>]
+	 * : The URL of a VCS configured in UpdatePulse Server.
+	 * If provided along with a valid branch, the package will be downloaded from the VCS, and associated with that VCS.
+	 *
+	 * [--branch=<branch>]
+	 * : The branch as provided in a VCS configured in UpdatePulse Server.
+	 * If provided along with a valid VCS URL, the package will be downloaded from the VCS, and associated with that VCS.
+	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp updatepulse download_remote_package my-package plugin
+	 *     wp updatepulse download_remote_package my-package plugin --vcs_url='https://vcs-url.tld/identifier/' --branch='main'
 	 */
 
 	public function download_remote_package( $args, $assoc_args ) {
-		$slug = $args[0];
-		$type = $args[1];
+		$slug       = $args[0];
+		$type       = $args[1];
+		$result     = false;
+		$assoc_args = wp_parse_args(
+			$assoc_args,
+			array(
+				'vcs_url' => false,
+				'branch'  => 'main',
+			)
+		);
 
 		if ( ! in_array( $type, self::PACKAGE_TYPES, true ) ) {
 			$this->process_result( false, '', 'Invalid package type', self::DEFAULT_ERROR, 'error' );
 		}
 
-		$result          = upserv_download_remote_package( $slug, $type );
+		if ( $assoc_args['vcs_url'] ) {
+			$result = upserv_download_remote_package( $slug, $type, $assoc_args['vcs_url'], $assoc_args['branch'] );
+		} else {
+			$result = upserv_download_remote_package( $slug, $type );
+		}
+
 		$success_message = 'Package downloaded';
 		$error_message   = 'Unable to download package';
 

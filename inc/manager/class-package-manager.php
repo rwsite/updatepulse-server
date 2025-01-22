@@ -155,7 +155,7 @@ class Package_Manager {
 	public function upserv_admin_tab_links( $links ) {
 		$links['main'] = array(
 			admin_url( 'admin.php?page=upserv-page' ),
-			"<span class='dashicons dashicons-media-archive'></span> " . __( 'Packages Overview', 'updatepulse-server' ),
+			'<i class="fa-solid fa-square-binary"></i>' . __( 'Packages Overview', 'updatepulse-server' ),
 		);
 
 		return $links;
@@ -211,7 +211,7 @@ class Package_Manager {
 
 				upserv_set_package_metadata( $slug, $meta );
 
-				$result = upserv_download_remote_package( $slug, null, true );
+				$result = upserv_download_remote_package( $slug, null );
 			} else {
 				$error = new WP_Error(
 					__METHOD__,
@@ -1127,7 +1127,7 @@ class Package_Manager {
 
 			$package = Package::from_archive( $filename, $slug, $cache );
 		} catch ( Exception $e ) {
-			php_log( 'Corrupt archive ' . $filename . ' ; package will not be displayed or delivered' );
+			php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
 
 			$log  = 'Exception caught: ' . $e->getMessage() . "\n";
 			$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";

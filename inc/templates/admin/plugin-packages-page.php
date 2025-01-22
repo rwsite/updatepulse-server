@@ -13,7 +13,7 @@
 				<?php
 				printf(
 					// translators: %s <a href="admin.php?page=upserv-page-help">initialize packages</a>
-					esc_html__( 'It is necessary to %s linked to a Version Control System for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
+					esc_html__( 'It is necessary to %s associated with a Version Control System for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
 					'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page-help' ) ) . '">' . esc_html__( 'register packages', 'updatepulse-server' ) . '</a>'
 				);
 				?>

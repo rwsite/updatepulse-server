@@ -242,7 +242,7 @@ class License_Manager {
 	public function upserv_admin_tab_links( $links ) {
 		$links['licenses'] = array(
 			admin_url( 'admin.php?page=upserv-page-licenses' ),
-			"<span class='dashicons dashicons-admin-network'></span> " . __( 'Licenses', 'updatepulse-server' ),
+			'<i class="fa-solid fa-key"></i>' . __( 'Licenses', 'updatepulse-server' ),
 		);
 
 		return $links;

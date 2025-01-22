@@ -239,9 +239,13 @@ class UPServ {
 			'path' => UPSERV_PLUGIN_PATH . 'css/admin/main' . upserv_assets_suffix() . '.css',
 			'uri'  => UPSERV_PLUGIN_URL . 'css/admin/main' . upserv_assets_suffix() . '.css',
 		);
-		$styles['brands']      = array(
+		$styles['fa_brands']   = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/fontawesome/css/brands' . upserv_assets_suffix() . '.css',
 			'uri'  => UPSERV_PLUGIN_URL . 'css/fontawesome/css/brands' . upserv_assets_suffix() . '.css',
+		);
+		$styles['fa_solid']    = array(
+			'path' => UPSERV_PLUGIN_PATH . 'css/fontawesome/css/solid' . upserv_assets_suffix() . '.css',
+			'uri'  => UPSERV_PLUGIN_URL . 'css/fontawesome/css/solid' . upserv_assets_suffix() . '.css',
 		);
 		$styles['fontawesome'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/fontawesome/css/fontawesome' . upserv_assets_suffix() . '.css',
@@ -327,7 +331,7 @@ class UPServ {
 	public function upserv_admin_tab_links( $links ) {
 		$links['help'] = array(
 			admin_url( 'admin.php?page=upserv-page-help' ),
-			"<span class='dashicons dashicons-editor-help'></span> " . __( 'Help', 'updatepulse-server' ),
+			'<i class="fa-solid fa-circle-question"></i>' . __( 'Help', 'updatepulse-server' ),
 		);
 
 		return $links;

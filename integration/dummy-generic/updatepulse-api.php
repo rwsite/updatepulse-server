@@ -4,7 +4,7 @@
 
 # DO NOT USE THIS FILE AS IT IS IN PRODUCTION !!!
 # It is just a collection of basic functions and snippets, and they do not
-# perform the necessary checks to ensure data integrity ; they assume that all
+# perform the necessary checks to ensure data integrity; they assume that all
 # the requests are successful, and do not check paths or permissions.
 # They also assume that the package necessitates a license key.
 
@@ -236,7 +236,7 @@ class UpdatePulse_API {
 					}
 				}
 
-				# move the updated package files to the current directory ; the
+				# move the updated package files to the current directory; the
 				# updated package is in charge of overriding the update scripts
 				# with new ones after update (may be contained in a subdirectory)
 				foreach ( glob( '/tmp/' . self::$package_name . '/{,.}*', GLOB_BRACE | GLOB_MARK ) as $file ) {

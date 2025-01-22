@@ -112,28 +112,36 @@ class Package_API {
 		$result = false;
 		$config = self::get_config();
 
-		if ( $config['use_vcs'] ) {
-			$result = upserv_get_package_info( $package_id, false );
+		if ( ! $config['use_vcs'] ) {
+			$this->http_response_code = 400;
 
-			if ( ! empty( $result ) ) {
-				$result = false;
+			return (object) array();
+		}
+
+		$result = upserv_get_package_info( $package_id, false );
+
+		if ( ! empty( $result ) ) {
+			$result = false;
+		} else {
+			$vcs_url = filter_input( INPUT_POST, 'vcs_url', FILTER_SANITIZE_URL );
+			$branch  = filter_input( INPUT_POST, 'branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+			if ( $vcs_url ) {
+				$branch = $branch ? $branch : 'main';
+				$result = upserv_download_remote_package( $package_id, $type, $vcs_url, $branch );
 			} else {
 				$result = upserv_download_remote_package( $package_id, $type );
-				$result = $result ? upserv_get_package_info( $package_id, false ) : $result;
 			}
 
-			$result = apply_filters( 'upserv_package_add', $result, $package_id, $type );
+			$result = $result ? upserv_get_package_info( $package_id, false ) : $result;
+		}
 
-			if ( $result ) {
-				do_action( 'upserv_did_add_package', $result );
-			}
+		$result = apply_filters( 'upserv_package_add', $result, $package_id, $type );
 
-			if ( ! $result ) {
-				$this->http_response_code = 409;
-				$result                   = (object) array();
-			}
+		if ( $result ) {
+			do_action( 'upserv_did_add_package', $result );
 		} else {
-			$this->http_response_code = 400;
+			$this->http_response_code = 409;
 			$result                   = (object) array();
 		}
 
@@ -318,8 +326,8 @@ class Package_API {
 	public function upserv_api_package_actions( $actions ) {
 		$actions['browse']     = __( 'Get information about multiple packages', 'updatepulse-server' );
 		$actions['read']       = __( 'Get information about a single package', 'updatepulse-server' );
-		$actions['edit']       = __( 'Forcefully download and overwrite an existing package on the file system. ; requires using a VCS', 'updatepulse-server' );
-		$actions['add']        = __( 'Download a package to the file system if it does not exist ; requires using a VCS', 'updatepulse-server' );
+		$actions['edit']       = __( 'Forcefully download and overwrite an existing package on the file system.; requires using a VCS', 'updatepulse-server' );
+		$actions['add']        = __( 'Download a package to the file system if it does not exist; requires using a VCS', 'updatepulse-server' );
 		$actions['delete']     = __( 'Delete a package from the file system', 'updatepulse-server' );
 		$actions['signed_url'] = __( 'Retrieve secure URLs for downloading packages', 'updatepulse-server' );
 
