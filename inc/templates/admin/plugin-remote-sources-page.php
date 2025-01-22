@@ -8,10 +8,10 @@
 		<table class="form-table package-source switch">
 			<tr>
 				<th>
-					<label for="upserv_use_remote_repository"><?php esc_html_e( 'Use a Remote Repository Service', 'updatepulse-server' ); ?></label>
+					<label for="use_vcs"><?php esc_html_e( 'Use a Remote Repository Service', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input type="checkbox" id="upserv_use_remote_repository" name="upserv_use_remote_repository" value="1" <?php checked( $options['use_remote_repositories'], 1 ); ?>>
+					<input type="checkbox" id="use_vcs" name="use_vcs" value="1" <?php checked( $options['use_remote_repositories'], 1 ); ?>>
 					<p class="description">
 						<?php esc_html_e( 'Enables this server to download plugins, themes and generic packages from a Remote Repository before delivering updates.', 'updatepulse-server' ); ?>
 						<br>

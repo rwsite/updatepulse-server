@@ -26,6 +26,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_check\_remote\_plugin\_update](#upserv_check_remote_plugin_update)
         * [upserv\_check\_remote\_theme\_update](#upserv_check_remote_theme_update)
         * [upserv\_download\_remote\_package](#upserv_download_remote_package)
+        * [upserv\_get\_package\_vcs\_config](#upserv_get_package_vcs_config)
         * [upserv\_download\_remote\_plugin](#upserv_download_remote_plugin)
         * [upserv\_download\_remote\_theme](#upserv_download_remote_theme)
         * [upserv\_force\_cleanup\_cache](#upserv_force_cleanup_cache)
@@ -103,7 +104,6 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_schedule\_cleanup\_frequency](#upserv_schedule_cleanup_frequency)
         * [upserv\_check\_remote\_frequency](#upserv_check_remote_frequency)
         * [upserv\_handle\_update\_request\_params](#upserv_handle_update_request_params)
-        * [upserv\_update\_server](#upserv_update_server)
         * [upserv\_update\_checker](#upserv_update_checker)
         * [upserv\_cloud\_storage\_virtual\_dir](#upserv_cloud_storage_virtual_dir)
         * [upserv\_cloud\_storage\_config](#upserv_cloud_storage_config)
@@ -121,6 +121,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_packages\_table\_sortable\_columns](#upserv_packages_table_sortable_columns)
         * [upserv\_packages\_table\_bulk\_actions](#upserv_packages_table_bulk_actions)
         * [upserv\_server\_class\_name](#upserv_server_class_name)
+        * [upserv\_server\_constructor\_args](#upserv_server_constructor_args)
         * [upserv\_delete\_packages\_bulk\_paths](#upserv_delete_packages_bulk_paths)
         * [upserv\_package\_manager\_get\_package\_info](#upserv_package_manager_get_package_info)
         * [upserv\_package\_manager\_package\_info](#upserv_package_manager_package_info)
@@ -1038,6 +1039,22 @@ Download a package from the Remote Repository to the package directory on the fi
 **Return value**
 > (bool) `true` if the plugin package was successfully downloaded, `false` otherwise
 
+___
+### upserv_get_package_vcs_config
+
+```php
+upserv_get_package_vcs_config( string $package_slug );
+```
+
+**Description**
+Get the Version Control System (VCS) configuration for a package.
+
+**Parameters**
+`$package_slug`
+> (string) slug of the package
+
+**Return value**
+> (array) the VCS configuration for the package
 ___
 ### upserv_download_remote_plugin
 
@@ -2470,27 +2487,6 @@ Fired during client update API request.
 > (array) the parameters of the request to the API  
 
 ___
-### upserv_update_server
-
-```php
-apply_filters( 'upserv_update_server', mixed $update_server, array $config, string $package_slug );
-```
-
-**Description**  
-Filter the UPServ_Update_Server object to use.  
-Fired during client update API request.  
-
-**Parameters**  
-`$update_server`
-> (mixed) the UPServ_Update_Server object  
-
-`$config`
-> (array) the configuration values passed to the UPServ_Update_Server object  
-
-`$package_slug`
-> (string) the slug of the package using the UPServ_Update_Server object  
-
-___
 ### upserv_update_checker
 
 ```php
@@ -2791,22 +2787,39 @@ apply_filters( 'upserv_server_class_name', string $class_name, string $package_s
 ```
 
 **Description**  
-Filter the class name to use to instantiate a `Wpup_UpdateServer` object.  
-UpdatePulse Server uses 2 classes inheriting from `Wpup_UpdateServer`:
-- `UPServ_License_Update_Server` in case the package needs a license
-- `UPServ_Update_Server` for all the other packages
-
+Filter the class name to use to instantiate a `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object.
 Fired during client update API request.
 
 **Parameters**  
 `$class_name`
-> (string) the class name to use to instantiate a `Wpup_UpdateServer` object  
+> (string) the class name to use to instantiate a `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object  
 
 `$package_slug`
 > (string) the slug of the package to serve  
 
 `$config`
-> (array) the update API configuration  
+> (array) the configuration to use to serve the package
+
+___
+### upserv_server_constructor_args
+
+```php
+apply_filters( 'upserv_server_constructor_args', array $args, string $package_slug, array $config );
+```
+
+**Description**
+Filter the arguments to pass to the constructor of the `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object.
+Fired during client update API request.
+
+**Parameters**
+`$args`
+> (array) the arguments to pass to the constructor of the `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object
+
+`$package_slug`
+> (string) the slug of the package to serve
+
+`$config`
+> (array) the configuration to use to serve the package
 
 ___
 ### upserv_delete_packages_bulk_paths

@@ -12,7 +12,6 @@ class Update_API {
 
 	protected static $doing_update_api_request = null;
 	protected static $instance;
-	protected static $config;
 
 	protected $update_server;
 
@@ -87,9 +86,9 @@ class Update_API {
 	}
 
 	public function puc_request_info_pre_filter( $info, $api_obj, $ref, $update_checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		$vcs_config = $this->get_vcs_config( $info['slug'] );
+		$vcs_config = upserv_get_package_vcs_config( $info['slug'] );
 
-		if ( ! $vcs_config ) {
+		if ( empty( $vcs_config ) ) {
 			return $info;
 		}
 
@@ -109,9 +108,9 @@ class Update_API {
 	}
 
 	public function puc_request_info_result( $info, $api_obj, $ref, $checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		$vcs_config = $this->get_vcs_config( $info['slug'] );
+		$vcs_config = upserv_get_package_vcs_config( $info['slug'] );
 
-		if ( ! $vcs_config ) {
+		if ( empty( $vcs_config ) ) {
 			return $info;
 		}
 
@@ -179,20 +178,15 @@ class Update_API {
 
 		if ( ! upserv_is_package_whitelisted( $slug ) ) {
 			upserv_whitelist_package( $slug );
-
-			$meta            = upserv_get_package_metadata( $slug );
-			$meta['vcs']     = $this->update_server->get_vcs_url();
-			$meta['branch']  = $this->update_server->get_branch();
-			$meta['type']    = $type;
-			$key             = str_replace(
-				array( '/', '-' ),
-				array( '_', '-' ),
-				base64_encode( $meta['vcs'] . '|' . $meta['branch'] )// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			);
-			$meta['vcs_key'] = $key;
-
-			upserv_set_package_metadata( $slug, $meta );
 		}
+
+		$meta            = upserv_get_package_metadata( $slug );
+		$meta['vcs']     = trailingslashit( $this->update_server->get_vcs_url() );
+		$meta['branch']  = $this->update_server->get_branch();
+		$meta['type']    = $type;
+		$meta['vcs_key'] = hash( 'sha256', trailingslashit( $meta['vcs'] ) . '|' . $meta['branch'] );
+
+		upserv_set_package_metadata( $slug, $meta );
 
 		if ( $force || $this->update_server->check_remote_package_update( $slug ) ) {
 			$result = $this->update_server->save_remote_package_to_local( $slug, $force );
@@ -206,12 +200,15 @@ class Update_API {
 	 *******************************************************************/
 
 	protected function schedule_check_remote_event( $slug ) {
-		$vcs_config = $this->get_vcs_config( $slug );
+		$vcs_config = upserv_get_package_vcs_config( $slug );
 
 		if (
 			! upserv_get_option( 'use_remote_repositories', 0 ) ||
-			! $vcs_config ||
-			! $vcs_config['use_webhooks']
+			empty( $vcs_config ) ||
+			(
+				isset( $vcs_config['use_webhooks'] ) &&
+				$vcs_config['use_webhooks']
+			)
 		) {
 			return;
 		}
@@ -249,22 +246,6 @@ class Update_API {
 		);
 	}
 
-	protected function get_vcs_config( $slug ) {
-		$meta = upserv_get_package_metadata( $slug );
-
-		if ( ! isset( $meta['vcs'], $meta['branch'] ) ) {
-			return;
-		}
-
-		$key = str_replace(
-			array( '/', '-' ),
-			array( '_', '-' ),
-			base64_encode( $meta['vcs'] . '|' . $meta['branch'] )// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		);
-
-		return upserv_get_option( 'remote_repositories/' . $key, false );
-	}
-
 	protected function handle_api_request() {
 		global $wp;
 
@@ -290,11 +271,15 @@ class Update_API {
 	}
 
 	protected function init_server( $slug ) {
-		$vcs_config  = $this->get_vcs_config( $slug );
-		$url         = isset( $vcs_config['url'] ) ? $vcs_config['url'] : null;
-		$branch      = isset( $vcs_config['branch'] ) ? $vcs_config['branch'] : null;
-		$credentials = isset( $vcs_config['credentials'] ) ? explode( '|', $vcs_config['credentials'] ) : null;
+		$vcs_config  = upserv_get_package_vcs_config( $slug );
+		$url         = isset( $vcs_config['url'] ) ? $vcs_config['url'] : false;
+		$branch      = isset( $vcs_config['branch'] ) ? $vcs_config['branch'] : false;
+		$credentials = isset( $vcs_config['credentials'] ) ? explode( '|', $vcs_config['credentials'] ) : false;
 		$self_hosted = isset( $vcs_config['self_hosted'] ) ? $vcs_config['self_hosted'] : false;
+
+		if ( ! $url || ! $branch ) {
+			return;
+		}
 
 		if ( $credentials && 2 === count( $credentials ) ) {
 			$credentials = array(
@@ -304,7 +289,8 @@ class Update_API {
 		} else {
 			$credentials = ! $credentials ? '' : $credentials[0];
 		}
-		$filer_args  = array(
+
+		$filter_args = array(
 			'url'         => $url,
 			'branch'      => $branch,
 			'credentials' => $credentials,
@@ -316,25 +302,24 @@ class Update_API {
 			'upserv_server_class_name',
 			str_replace( 'API', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
 			$slug,
-			$filer_args
+			$filter_args
 		);
-
-		if ( ! isset( $this->update_server ) || ! is_a( $this->update_server, $_class_name ) ) {
-			$this->update_server = new $_class_name(
+		$args        = apply_filters(
+			'upserv_server_constructor_args',
+			array(
 				home_url( '/updatepulse-server-update-api/' ),
 				Data_Manager::get_data_dir(),
 				$url,
 				$branch,
 				$credentials,
 				$self_hosted,
-			);
-		}
-
-		$this->update_server = apply_filters(
-			'upserv_update_server',
-			$this->update_server,
-			$filer_args,
-			$slug
+			),
+			$slug,
+			$filter_args
 		);
+
+		if ( ! isset( $this->update_server ) || ! is_a( $this->update_server, $_class_name ) ) {
+			$this->update_server = new $_class_name( ...$args );
+		}
 	}
 }

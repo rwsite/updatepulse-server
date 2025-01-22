@@ -90,7 +90,7 @@ class Package_API {
 		$result = false;
 		$config = self::get_config();
 
-		if ( $config['use_remote_repository'] ) {
+		if ( $config['use_vcs'] ) {
 			$result = upserv_download_remote_package( $package_id, $type );
 			$result = $result ? upserv_get_package_info( $package_id, false ) : $result;
 			$result = apply_filters( 'upserv_package_edit', $result, $package_id, $type );
@@ -112,7 +112,7 @@ class Package_API {
 		$result = false;
 		$config = self::get_config();
 
-		if ( $config['use_remote_repository'] ) {
+		if ( $config['use_vcs'] ) {
 			$result = upserv_get_package_info( $package_id, false );
 
 			if ( ! empty( $result ) ) {
@@ -458,7 +458,7 @@ class Package_API {
 
 		if ( ! self::$config ) {
 			$config = array(
-				'use_remote_repository' => upserv_get_option( 'use_remote_repositories' ),
+				'use_vcs'               => upserv_get_option( 'use_remote_repositories' ),
 				'private_api_auth_keys' => upserv_get_option( 'api/packages/private_api_keys' ),
 				'ip_whitelist'          => upserv_get_option( 'api/packages/private_api_ip_whitelist' ),
 			);

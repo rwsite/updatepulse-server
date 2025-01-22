@@ -1,0 +1,7 @@
+.upserv-wrap .register-package-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}

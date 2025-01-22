@@ -58,7 +58,6 @@ class Remote_Sources_Manager {
 		return $styles;
 	}
 
-	// TODO
 	public function register_remote_check_scheduled_hooks() {
 
 		if ( upserv_is_doing_update_api_request() ) {
@@ -487,15 +486,12 @@ class Remote_Sources_Manager {
 					$index    = 0;
 
 					foreach ( $inputs as $id => $values ) {
-						$id           = filter_var( $id, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-						$decoded      = $id ? base64_decode( str_replace( '|', '/', $id ) ) : ''; // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-						$decoded      = $decoded ? explode( '|', $decoded ) : array();
-						$url_check    = 2 === count( $decoded ) ? $decoded[0] : false;
-						$branch_check = 2 === count( $decoded ) ? $decoded[1] : false;
-						$url          = filter_var( $values['url'], FILTER_VALIDATE_URL );
-						$branch       = filter_var( $values['branch'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+						$url    = filter_var( $values['url'], FILTER_VALIDATE_URL );
+						$url    = trailingslashit( $url );
+						$branch = filter_var( $values['branch'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+						$id     = hash( 'sha256', $url . '|' . $branch );
 
-						if ( ! $url_check || ! $branch_check || $url_check !== $url || $branch_check !== $branch ) {
+						if ( ! preg_match( '@^https?://[^/]+/[^/]+/$@', $url ) || ! $branch ) {
 
 							if ( ! isset( $errors[ $option_name ] ) ) {
 								$errors[ $option_name ] = array();
@@ -524,12 +520,7 @@ class Remote_Sources_Manager {
 							$check_frequency = 'daily';
 						}
 
-						$recomputed_id              = str_replace(
-							array( '/', '=' ),
-							array( '_', '-' ),
-							base64_encode( $url . '|' . $branch ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-						);
-						$filtered[ $recomputed_id ] = array(
+						$filtered[ $id ] = array(
 							'url'             => $url,
 							'branch'          => $branch,
 							'self_hosted'     => $self_hosted,
@@ -649,16 +640,16 @@ class Remote_Sources_Manager {
 			}
 
 			if ( $clear ) {
-				$configs = false;
+				$vcs_configs = false;
 
 				if ( isset( $new_vcs_configs[ $key ] ) ) {
-					$configs = array( $new_vcs_configs[ $key ] );
+					$vcs_configs = array( $new_vcs_configs[ $key ] );
 				} elseif ( isset( $old_vcs_configs[ $key ] ) ) {
-					$configs = array( $old_vcs_configs[ $key ] );
+					$vcs_configs = array( $old_vcs_configs[ $key ] );
 				}
 
-				if ( $configs ) {
-					$this->clear_remote_check_scheduled_hooks( $configs );
+				if ( $vcs_configs ) {
+					$this->clear_remote_check_scheduled_hooks( $vcs_configs );
 				}
 			}
 		}
@@ -673,13 +664,13 @@ class Remote_Sources_Manager {
 		return apply_filters(
 			'upserv_submitted_remote_sources_config',
 			array(
-				'upserv_use_remote_repository' => array(
-					'value'        => filter_input( INPUT_POST, 'upserv_use_remote_repository', FILTER_VALIDATE_BOOLEAN ),
+				'upserv_use_vcs'      => array(
+					'value'        => filter_input( INPUT_POST, 'upserv_use_vcs', FILTER_VALIDATE_BOOLEAN ),
 					'display_name' => __( 'Use a Remote Repository Service', 'updatepulse-server' ),
 					'condition'    => 'boolean',
 					'path'         => 'use_remote_repositories',
 				),
-				'upserv_repositories'          => array(
+				'upserv_repositories' => array(
 					'value'                   => filter_input( INPUT_POST, 'upserv_repositories', FILTER_UNSAFE_RAW ),
 					'display_name'            => __( 'Remote Repository Services', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),

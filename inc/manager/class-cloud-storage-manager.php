@@ -552,7 +552,7 @@ class Cloud_Storage_Manager {
 						'updatepulse-digests-sha1'   => hash_file( 'sha1', $filename ),
 						'updatepulse-digests-sha256' => hash_file( 'sha256', $filename ),
 						'updatepulse-digests-sha512' => hash_file( 'sha512', $filename ),
-						'updatepulse-digests-crc32'  => hash_file( 'crc32b', $filename ),
+						'updatepulse-digests-crc32'  => hash_file( 'crc32', $filename ),
 						'updatepulse-digests-crc32c' => hash_file( 'crc32c', $filename ),
 					),
 				);

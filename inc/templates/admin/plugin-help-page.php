@@ -3,7 +3,7 @@
 } ?>
 <div class="wrap upserv-wrap">
 	<?php echo $header ? wp_kses_post( $header ) : ''; ?>
-	<?php if ( $options['use_remote_repository'] ) : ?>
+	<?php if ( $options['use_vcs'] ) : ?>
 	<div class="help-content">
 		<h2><?php esc_html_e( 'Registering packages with a Remote Repository Service', 'updatepulse-server' ); ?></h2>
 		<p>

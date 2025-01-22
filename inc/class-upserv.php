@@ -501,7 +501,7 @@ class UPServ {
 		}
 
 		$options = array(
-			'use_remote_repository' => upserv_get_option( 'use_remote_repositories' ),
+			'use_vcs' => upserv_get_option( 'use_remote_repositories' ),
 		);
 
 		upserv_get_admin_template(

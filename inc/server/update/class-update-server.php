@@ -49,7 +49,7 @@ class Update_Server {
 		$this->timezone          = new DateTimeZone( wp_timezone_string() );
 		$this->server_directory  = $server_directory;
 		$this->self_hosted       = $self_hosted;
-		$this->vcs_url           = $vcs_url;
+		$this->vcs_url           = trailingslashit( $vcs_url );
 		$this->branch            = $branch;
 		$this->credentials       = $credentials;
 	}

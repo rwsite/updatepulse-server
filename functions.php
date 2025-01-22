@@ -309,6 +309,14 @@ if ( ! function_exists( 'upserv_download_remote_package' ) ) {
 	}
 }
 
+if ( ! function_exists( 'upserv_get_package_vcs_config' ) ) {
+	function upserv_get_package_vcs_config( $slug ) {
+		$meta = upserv_get_package_metadata( $slug );
+
+		return isset( $meta['vcs_key'] ) ? upserv_get_option( 'remote_repositories/' . $meta['vcs_key'], array() ) : array();
+	}
+}
+
 /*******************************************************************
  * Package functions
  *******************************************************************/

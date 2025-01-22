@@ -1,4 +1,9 @@
 jQuery(document).ready(function ($) {
+
+    if (!$('#upserv_repositories').length) {
+        return;
+    }
+
     var form = $('.form-container.package-source');
     var inputElements = form.find('input[type="checkbox"], input[type="text"], input[type="number"], input[type="password"], select');
     var inputTextElements = form.find('input[type="text"], input[type="number"], input[type="password"]');
@@ -199,7 +204,7 @@ jQuery(document).ready(function ($) {
             return;
         }
 
-        var id = btoa(url + '|' + branch).replace(/=/g, '-').replace(/\//g, '_');
+        var id = sha256(url + '|' + branch);
 
         addData(id, { url: url, branch: branch });
         addItem(id, data[id]);

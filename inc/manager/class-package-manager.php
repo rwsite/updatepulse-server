@@ -11,15 +11,12 @@ use ZipArchive;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use Exception;
-use Anyape\UpdatePulse\Server\UPServ;
 use Anyape\UpdatePulse\Package_Parser\Parser as Package_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Zip_Metadata_Parser;
 use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
-use Anyape\UpdatePulse\Server\Server\Update\Update_Server;
 use Anyape\UpdatePulse\Server\API\Package_API;
-use Anyape\UpdatePulse\Server\API\Update_API;
 use Anyape\UpdatePulse\Server\Table\Packages_Table;
 
 class Package_Manager {
@@ -51,6 +48,8 @@ class Package_Manager {
 			add_action( 'upserv_package_manager_deleted_package', array( $this, 'upserv_package_manager_deleted_package' ), 20, 1 );
 			add_action( 'upserv_download_remote_package_aborted', array( $this, 'upserv_download_remote_package_aborted' ), 10, 3 );
 
+			add_filter( 'upserv_admin_scripts', array( $this, 'upserv_admin_scripts' ), 10, 1 );
+			add_filter( 'upserv_admin_styles', array( $this, 'upserv_admin_styles' ), 10, 1 );
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 10, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 10, 2 );
 			add_filter( 'set-screen-option', array( $this, 'set_page_options' ), 10, 3 );
@@ -130,6 +129,25 @@ class Package_Manager {
 		add_screen_option( $option, $args );
 	}
 
+	public function upserv_admin_scripts( $scripts ) {
+		$scripts['package'] = array(
+			'path' => UPSERV_PLUGIN_PATH . 'js/admin/package' . upserv_assets_suffix() . '.js',
+			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/package' . upserv_assets_suffix() . '.js',
+			'deps' => array( 'jquery' ),
+		);
+
+		return $scripts;
+	}
+
+	public function upserv_admin_styles( $styles ) {
+		$styles['package'] = array(
+			'path' => UPSERV_PLUGIN_PATH . 'css/admin/package' . upserv_assets_suffix() . '.css',
+			'uri'  => UPSERV_PLUGIN_URL . 'css/admin/package' . upserv_assets_suffix() . '.css',
+		);
+
+		return $styles;
+	}
+
 	public function set_page_options( $status, $option, $value ) {
 		return $value;
 	}
@@ -183,14 +201,21 @@ class Package_Manager {
 		$slug   = 'N/A';
 
 		if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
-			$slug = filter_input( INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$slug    = filter_input( INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$vcs_key = filter_input( INPUT_POST, 'vcs_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-			if ( $slug ) {
+			if ( $slug && $vcs_key ) {
+				$vcs_config      = upserv_get_package_vcs_config( $vcs_key );
+				$meta            = upserv_get_package_metadata( $slug );
+				$meta['vcs_key'] = hash( 'sha256', trailingslashit( $vcs_config['url'] ) . '|' . $vcs_config['branch'] );
+
+				upserv_set_package_metadata( $slug, $meta );
+
 				$result = upserv_download_remote_package( $slug, null, true );
 			} else {
 				$error = new WP_Error(
 					__METHOD__,
-					__( 'Error - could not get remote package. Missing package slug - please reload the page and try again.', 'updatepulse-server' )
+					__( 'Error - could not get remote package. Missing data - please reload the page and try again.', 'updatepulse-server' )
 				);
 			}
 		} else {
@@ -201,8 +226,8 @@ class Package_Manager {
 		}
 
 		if ( wp_cache_get( 'upserv_download_remote_package_aborted', 'updatepulse-server' ) ) {
-			$api_config = Update_API::get_instance()->get_config();
-			$error      = $api_config['filter_packages'] ?
+			$vcs_config = upserv_get_package_vcs_config( $slug );
+			$error      = $vcs_config['filter_packages'] ?
 				new WP_Error(
 					__METHOD__,
 					__( 'Error - could not get remote package. The package was filtered out because it is not linked to this server.', 'updatepulse-server' )
@@ -238,107 +263,115 @@ class Package_Manager {
 		$parsed_info = false;
 		$error_text  = __( 'Reload the page and try again.', 'updatepulse-server' );
 
-		if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
-			WP_Filesystem();
-
-			global $wp_filesystem;
-
-			if ( ! $wp_filesystem ) {
-				return;
-			}
-
-			$package_info = isset( $_FILES['package'] ) ? $_FILES['package'] : false;
-			$valid        = (bool) ( $package_info );
-
-			if ( ! $valid ) {
-				$error_text = __( 'Something very wrong happened.', 'updatepulse-server' );
-			}
-
-			$valid_archive_formats = array(
-				'multipart/x-zip',
-				'application/zip',
-				'application/zip-compressed',
-				'application/x-zip-compressed',
+		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not upload the package. The page has expired - please reload the page and try again.', 'updatepulse-server' )
+				)
 			);
+		}
 
-			if ( $valid && ! in_array( $package_info['type'], $valid_archive_formats, true ) ) {
-				$valid      = false;
-				$error_text = __( 'Make sure the uploaded file is a zip archive.', 'updatepulse-server' );
+		WP_Filesystem();
+
+		global $wp_filesystem;
+
+		if ( ! $wp_filesystem ) {
+			return;
+		}
+
+		$package_info = isset( $_FILES['package'] ) ? $_FILES['package'] : false;
+		$valid        = (bool) ( $package_info );
+
+		if ( ! $valid ) {
+			$error_text = __( 'Something very wrong happened.', 'updatepulse-server' );
+		}
+
+		$valid_archive_formats = array(
+			'multipart/x-zip',
+			'application/zip',
+			'application/zip-compressed',
+			'application/x-zip-compressed',
+		);
+
+		if ( $valid && ! in_array( $package_info['type'], $valid_archive_formats, true ) ) {
+			$valid      = false;
+			$error_text = __( 'Make sure the uploaded file is a zip archive.', 'updatepulse-server' );
+		}
+
+		if ( $valid && 0 !== abs( intval( $package_info['error'] ) ) ) {
+			$valid = false;
+
+			switch ( $package_info['error'] ) {
+				case UPLOAD_ERR_INI_SIZE:
+					$error_text = ( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.' );
+					break;
+
+				case UPLOAD_ERR_FORM_SIZE:
+					$error_text = ( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.' );
+					break;
+
+				case UPLOAD_ERR_PARTIAL:
+					$error_text = ( 'The uploaded file was only partially uploaded.' );
+					break;
+
+				case UPLOAD_ERR_NO_FILE:
+					$error_text = ( 'No file was uploaded.' );
+					break;
+
+				case UPLOAD_ERR_NO_TMP_DIR:
+					$error_text = ( 'Missing a temporary folder.' );
+					break;
+
+				case UPLOAD_ERR_CANT_WRITE:
+					$error_text = ( 'Failed to write file to disk.' );
+					break;
+
+				case UPLOAD_ERR_EXTENSION:
+					$error_text = ( 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.' );
+					break;
 			}
+		}
 
-			if ( $valid && 0 !== abs( intval( $package_info['error'] ) ) ) {
-				$valid = false;
+		if ( $valid && 0 >= $package_info['size'] ) {
+			$valid      = false;
+			$error_text = __( 'Make sure the uploaded file is not empty.', 'updatepulse-server' );
+		}
 
-				switch ( $package_info['error'] ) {
-					case UPLOAD_ERR_INI_SIZE:
-						$error_text = ( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.' );
-						break;
+		if ( $valid ) {
+			$parsed_info = Package_Parser::parse_package( $package_info['tmp_name'], true );
+		}
 
-					case UPLOAD_ERR_FORM_SIZE:
-						$error_text = ( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.' );
-						break;
+		if ( $valid && ! $parsed_info ) {
+			$valid      = false;
+			$error_text = __( 'The uploaded package is not a valid Generic, Theme or Plugin package.', 'updatepulse-server' );
+		}
 
-					case UPLOAD_ERR_PARTIAL:
-						$error_text = ( 'The uploaded file was only partially uploaded.' );
-						break;
+		if ( $valid ) {
+			$source      = $package_info['tmp_name'];
+			$filename    = $package_info['name'];
+			$slug        = str_replace( '.zip', '', $filename );
+			$type        = ucfirst( $parsed_info['type'] );
+			$destination = Data_Manager::get_data_dir( 'packages' ) . $filename;
+			$result      = $wp_filesystem->move( $source, $destination, true );
+		} else {
+			$result = false;
 
-					case UPLOAD_ERR_NO_FILE:
-						$error_text = ( 'No file was uploaded.' );
-						break;
-
-					case UPLOAD_ERR_NO_TMP_DIR:
-						$error_text = ( 'Missing a temporary folder.' );
-						break;
-
-					case UPLOAD_ERR_CANT_WRITE:
-						$error_text = ( 'Failed to write file to disk.' );
-						break;
-
-					case UPLOAD_ERR_EXTENSION:
-						$error_text = ( 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.' );
-						break;
-				}
-			}
-
-			if ( $valid && 0 >= $package_info['size'] ) {
-				$valid      = false;
-				$error_text = __( 'Make sure the uploaded file is not empty.', 'updatepulse-server' );
-			}
-
-			if ( $valid ) {
-				$parsed_info = Package_Parser::parse_package( $package_info['tmp_name'], true );
-			}
-
-			if ( $valid && ! $parsed_info ) {
-				$valid      = false;
-				$error_text = __( 'The uploaded package is not a valid Generic, Theme or Plugin package.', 'updatepulse-server' );
-			}
-
-			if ( $valid ) {
-				$source      = $package_info['tmp_name'];
-				$filename    = $package_info['name'];
-				$slug        = str_replace( '.zip', '', $filename );
-				$type        = ucfirst( $parsed_info['type'] );
-				$destination = Data_Manager::get_data_dir( 'packages' ) . $filename;
-				$result      = $wp_filesystem->move( $source, $destination, true );
-			} else {
-				$result = false;
-
-				$wp_filesystem->delete( $package_info['tmp_name'] );
-			}
+			$wp_filesystem->delete( $package_info['tmp_name'] );
 		}
 
 		do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 
 		if ( $result ) {
+			upserv_whitelist_package( $slug );
 			wp_send_json_success();
 		} else {
-			$error = new WP_Error(
-				__METHOD__,
-				__( 'Error - could not upload the package. ', 'updatepulse-server' ) . "\n\n" . $error_text
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not upload the package. ', 'updatepulse-server' ) . "\n\n" . $error_text
+				)
 			);
-
-			wp_send_json_error( $error );
 		}
 	}
 
@@ -386,21 +419,36 @@ class Package_Manager {
 
 		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 
+		$use_vcs     = upserv_get_option( 'use_remote_repositories', 0 );
+		$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$vcs_options = array();
+
+		if ( ! empty( $vcs_configs ) ) {
+			foreach ( $vcs_configs as $key => $vcs_c ) {
+				$url    = untrailingslashit( $vcs_c['url'] );
+				$branch = $vcs_c['branch'];
+				$name   = __( 'Self-hosted', 'updatepulse-server' );
+
+				if ( false !== strpos( $url, 'github.com' ) ) {
+					$name = 'GitHub';
+				} elseif ( false !== strpos( $url, 'gitlab.com' ) ) {
+					$name = 'GitLab';
+				} elseif ( false !== strpos( $url, 'bitbucket.org' ) ) {
+					$name = 'Bitbucket';
+				}
+
+				$username            = substr( $url, strrpos( $url, '/' ) + 1 );
+				$name                = $name . ' - ' . $username . ' - ' . $branch;
+				$vcs_options[ $key ] = $name;
+			}
+		}
+
 		$package_rows = $this->get_batch_package_info();
 		$options      = array(
-			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
-			'archive_max_size'        => upserv_get_option(
-				'limits/archive_max_size',
-				self::DEFAULT_ARCHIVE_MAX_SIZE
-			),
-			'cache_max_size'          => upserv_get_option(
-				'limits/cache_max_size',
-				self::DEFAULT_CACHE_MAX_SIZE
-			),
-			'logs_max_size'           => upserv_get_option(
-				'limits/logs_max_size',
-				self::DEFAULT_LOGS_MAX_SIZE
-			),
+			'use_vcs'          => $use_vcs,
+			'archive_max_size' => upserv_get_option( 'limits/archive_max_size', self::DEFAULT_ARCHIVE_MAX_SIZE ),
+			'cache_max_size'   => upserv_get_option( 'limits/cache_max_size', self::DEFAULT_CACHE_MAX_SIZE ),
+			'logs_max_size'    => upserv_get_option( 'limits/logs_max_size', self::DEFAULT_LOGS_MAX_SIZE ),
 		);
 
 		$this->packages_table->set_rows( $package_rows );
@@ -414,6 +462,7 @@ class Package_Manager {
 				'logs_size'      => self::get_dir_size_mb( 'logs' ),
 				'package_rows'   => $package_rows,
 				'packages_dir'   => Data_Manager::get_data_dir( 'packages' ),
+				'vcs_options'    => $vcs_options,
 				'options'        => $options,
 			)
 		);
@@ -450,13 +499,23 @@ class Package_Manager {
 			return;
 		}
 
-		$config        = array(
-			'use_remote_repository' => false,
-			'server_directory'      => Data_Manager::get_data_dir(),
+		$url           = home_url( '/updatepulse-server-update-api/' );
+		$filter_args   = array(
+			'url' => $url,
 		);
-		$server_url    = home_url( '/updatepulse-server-update-api/' );
-		$update_server = new Update_Server( $server_url, $config['server_directory'], '', '', '', false );
-		$update_server = apply_filters( 'upserv_update_server', $update_server, $config, '', '' );
+		$_class_name   = apply_filters(
+			'upserv_server_class_name',
+			str_replace( 'Manager', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
+			null,
+			$filter_args
+		);
+		$args          = apply_filters(
+			'upserv_server_constructor_args',
+			array( $url, Data_Manager::get_data_dir(), '', '', '', false ),
+			null,
+			$filter_args
+		);
+		$update_server = new $_class_name( ...$args );
 
 		do_action( 'upserv_package_manager_pre_delete_packages_bulk', $package_slugs );
 
@@ -685,7 +744,7 @@ class Package_Manager {
 							'sha1'   => hash_file( 'sha1', $package_info['file_path'] ),
 							'sha256' => hash_file( 'sha256', $package_info['file_path'] ),
 							'sha512' => hash_file( 'sha512', $package_info['file_path'] ),
-							'crc32'  => hash_file( 'crc32b', $package_info['file_path'] ),
+							'crc32'  => hash_file( 'crc32', $package_info['file_path'] ),
 							'crc32c' => hash_file( 'crc32c', $package_info['file_path'] ),
 						);
 					}

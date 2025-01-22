@@ -21,14 +21,14 @@ class Webhook_API {
 
 	public function __construct( $init_hooks = false ) {
 		$this->webhooks = upserv_get_option( 'api/webhooks', array() );
-		$repo_configs   = upserv_get_option( 'remote_repositories', array() );
+		$vcs_configs    = upserv_get_option( 'remote_repositories', array() );
 		$use_webhooks   = false;
 
-		if ( ! empty( $repo_configs ) ) {
+		if ( ! empty( $vcs_configs ) ) {
 
-			foreach ( $repo_configs as $r_c ) {
+			foreach ( $vcs_configs as $vcs_c ) {
 
-				if ( isset( $r_c['use_webhooks'] ) && $r_c['use_webhooks'] ) {
+				if ( isset( $vcs_c['use_webhooks'] ) && $vcs_c['use_webhooks'] ) {
 					$use_webhooks = true;
 
 					break;
@@ -311,16 +311,13 @@ class Webhook_API {
 			$slug      = isset( $parts[1] ) ? $parts[1] : false;
 		}
 
-		$url     = $this->get_payload_vcs_url( $payload );
-		$meta    = $slug ? upserv_get_package_metadata( $slug ) : false;
-		$vcs_url = $meta ? trailingslashit( $meta['vcs_url'] ) : false;
+		$url        = $this->get_payload_vcs_url( $payload );
+		$vcs_config = upserv_get_package_vcs_config( $slug );
+		$vcs_url    = $vcs_config ? trailingslashit( $vcs_config['url'] ) : false;
 
 		if ( ! $vcs_url || ! $url || $vcs_url !== $url ) {
 			return;
 		}
-
-		$key        = $meta ? $meta['vcs_key'] : false;
-		$vcs_config = upserv_get_option( 'remote_repositories/' . $key, array() );
 
 		do_action( 'upserv_webhook_before_handling_request', $vcs_config );
 
