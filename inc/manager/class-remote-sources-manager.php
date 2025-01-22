@@ -148,7 +148,7 @@ class Remote_Sources_Manager {
 	public function upserv_admin_tab_links( $links ) {
 		$links['remote-sources'] = array(
 			admin_url( 'admin.php?page=upserv-page-remote-sources' ),
-			'<i class="fa-brands fa-git"></i>' . __( 'Version Control Systems ', 'updatepulse-server' ),
+			'<i class="fa-solid fa-code-commit"></i>' . __( 'Version Control Systems ', 'updatepulse-server' ),
 		);
 
 		return $links;

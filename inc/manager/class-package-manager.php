@@ -155,7 +155,7 @@ class Package_Manager {
 	public function upserv_admin_tab_links( $links ) {
 		$links['main'] = array(
 			admin_url( 'admin.php?page=upserv-page' ),
-			'<i class="fa-solid fa-square-binary"></i>' . __( 'Packages Overview', 'updatepulse-server' ),
+			'<i class="fa-solid fa-cubes"></i>' . __( 'Packages Overview', 'updatepulse-server' ),
 		);
 
 		return $links;
