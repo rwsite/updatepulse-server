@@ -21,7 +21,7 @@ class Webhook_API {
 
 	public function __construct( $init_hooks = false ) {
 		$this->webhooks = upserv_get_option( 'api/webhooks', array() );
-		$vcs_configs    = upserv_get_option( 'remote_repositories', array() );
+		$vcs_configs    = upserv_get_option( 'vcs', array() );
 		$use_webhooks   = false;
 
 		if ( ! empty( $vcs_configs ) ) {
@@ -284,7 +284,7 @@ class Webhook_API {
 		$payload     = $this->get_payload();
 		$url         = $this->get_payload_vcs_url( $payload );
 		$branch      = $this->get_payload_vcs_branch( $payload );
-		$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$vcs_configs = upserv_get_option( 'vcs', array() );
 		$vcs_key     = hash( 'sha256', trailingslashit( $url ) . '|' . $branch );
 		$vcs_config  = isset( $vcs_configs[ $vcs_key ] ) ? $vcs_configs[ $vcs_key ] : false;
 

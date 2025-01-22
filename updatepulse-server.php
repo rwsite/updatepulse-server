@@ -136,10 +136,6 @@ function upserv_run() {
 		$objects['license_api'] = new License_API( true, false );
 	}
 
-	if ( ! isset( $objects['webhook_api'] ) ) {
-		$objects['webhook_api'] = new Webhook_API( true );
-	}
-
 	if ( ! $priority_api_request ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/file.php';

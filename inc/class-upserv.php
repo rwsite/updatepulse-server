@@ -19,11 +19,11 @@ class UPServ {
 
 	public function __construct( $init_hooks = false ) {
 		self::$default_options = array(
-			'use_remote_repositories' => 0,
-			'use_licenses'            => 0,
-			'use_cloud_storage'       => 0,
-			'remote_repositories'     => (object) array(),
-			'api'                     => array(
+			'use_vcs'           => 0,
+			'use_licenses'      => 0,
+			'use_cloud_storage' => 0,
+			'vcs'               => (object) array(),
+			'api'               => array(
 				'webhooks' => (object) array(),
 				'licenses' => array(
 					'private_api_keys'         => (object) array(),
@@ -34,14 +34,14 @@ class UPServ {
 					'private_api_ip_whitelist' => array(),
 				),
 			),
-			'cloud_storage'           => array(
+			'cloud_storage'     => array(
 				'access_key' => '',
 				'secret_key' => '',
 				'endpoint'   => '',
 				'unit'       => '',
 				'region'     => 'auto',
 			),
-			'limits'                  => array(
+			'limits'            => array(
 				'archive_max_size' => Package_Manager::DEFAULT_ARCHIVE_MAX_SIZE,
 				'cache_max_size'   => Package_Manager::DEFAULT_CACHE_MAX_SIZE,
 				'logs_max_size'    => Package_Manager::DEFAULT_LOGS_MAX_SIZE,
@@ -260,11 +260,11 @@ class UPServ {
 			'deleteRecord'      => array( __( 'Are you sure you want to delete this record?', 'updatepulse-server' ) ),
 		);
 
-		if ( upserv_get_option( 'use_remote_repositories' ) ) {
+		if ( upserv_get_option( 'use_vcs' ) ) {
 			$l10n['deletePackagesConfirm'] = array(
 				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
-				__( 'Packages with a Remote Repository will be added again automatically whenever a client asks for updates, or, if configured, when its Webhook is called.', 'updatepulse-server' ),
-				__( 'All packages manually uploaded without counterpart in a Remote Repository will be permanently deleted.', 'updatepulse-server' ),
+				__( 'Packages registered with a VCS will be added again automatically whenever a client asks for updates, or, if configured, when its Webhook is called.', 'updatepulse-server' ),
+				__( 'All packages manually uploaded will be permanently deleted.', 'updatepulse-server' ),
 				"\n",
 				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
 			);
@@ -501,7 +501,7 @@ class UPServ {
 		}
 
 		$options = array(
-			'use_vcs' => upserv_get_option( 'use_remote_repositories' ),
+			'use_vcs' => upserv_get_option( 'use_vcs' ),
 		);
 
 		upserv_get_admin_template(

@@ -7,7 +7,7 @@
 		* [Compatibility](#compatibility)
 		* [Screenshots](#screenshots)
 			* [Packages Overview](#packages-overview)
-			* [Remote Sources](#remote-sources)
+			* [Remote Sources (VCS)](#remote-sources-vcs)
 			* [Licenses](#licenses)
 			* [API \& Webhooks](#api--webhooks)
 			* [Client - plugin screens](#client---plugin-screens)
@@ -15,7 +15,7 @@
 			* [Client - updates screen](#client---updates-screen)
 	* [User Interface](#user-interface)
 		* [Packages Overview](#packages-overview-1)
-		* [Remote Sources](#remote-sources-1)
+		* [Remote Sources (VCS)](#remote-sources-vcs-1)
 		* [Licenses](#licenses-1)
 		* [API \& Webhooks](#api--webhooks-1)
 	* [Performances](#performances)
@@ -23,7 +23,7 @@
 		* [Update API](#update-api)
 		* [Public License API](#public-license-api)
 	* [Help](#help)
-		* [Registering packages with a Remote Repository Service](#registering-packages-with-a-remote-repository-service)
+		* [Registering packages with a Version Control System](#registering-packages-with-a-version-control-system)
 		* [Provide updates with UpdatePulse Server - packages requirements](#provide-updates-with-updatepulse-server---packages-requirements)
 		* [UpdatePulse Server Endpoint Optimizer - requests optimisation](#updatepulse-server-endpoint-optimizer---requests-optimisation)
 		* [More help...](#more-help)
@@ -38,7 +38,7 @@ Developer documentation:
 ## Introduction
 
 UpdatePulse Server allows developers to provide updates for plugins & themes not hosted on `wordpress.org` (if not compliant with the GPLv2 or later, for example), or for generic packages unrelated to WordPress altogether. It also allows to control the updates with license.
-Package updates may be either uploaded directly, or hosted in a Remote Repository, public or private, with the latest version of packages stored either locally or in the Cloud. It supports Bitbucket, Github, Gitlab, and self-hosted installations of Gitlab for package updates ; S3 compatible service providers are supported for package storage.
+Package updates may be either uploaded directly, or hosted in a Version Control System, public or private, with the latest version of packages stored either locally or in the Cloud. It supports Bitbucket, Github, Gitlab, and self-hosted installations of Gitlab for package updates ; S3 compatible service providers are supported for package storage.
 
 **The `main` branch contains a beta version of UpdatePulse Server. The `dev` branch contains an alpha version of UpdatePulse Server. For stable versions, please use releases.**  
 
@@ -47,8 +47,8 @@ Package updates may be either uploaded directly, or hosted in a Remote Repositor
 
 This plugin adds the following major features to WordPress:
 
-* **Packages Overview:** manage package updates with a table showing Package Name, Version, Type, File Name, Size, Last Modified and License Status ; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages. Upload updates from your local machine to UpdatePulse Server, or let the system to automatically download them to UpdatePulse Server from a Remote Repository. Store packages either locally, or in the Cloud with an S3 compatible service. Packages can also be managed through their own API.
-* **Remote Sources:** configure the Remote Repository Service of your choice (Bitbucket, Github, Gitlab, or a self-hosted installation of Gitlab) with secure credentials and a branch name where the updates are hosted ; choose to check for updates recurringly, or when receiveing a webhook notification. UpdatePulse Server acts as a middleman between your Remote Repository, your udpates storage (local or Cloud), and your clients.
+* **Packages Overview:** manage package updates with a table showing Package Name, Version, Type, File Name, Size, Last Modified and License Status ; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages. Upload updates from your local machine to UpdatePulse Server, or let the system to automatically download them to UpdatePulse Server from a Version Control System. Store packages either locally, or in the Cloud with an S3 compatible service. Packages can also be managed through their own API.
+* **Remote Sources (VCS):** configure the Version Control Systems of your choice (Bitbucket, Github, Gitlab, or a self-hosted installation of Gitlab) with secure credentials and a branch name where the updates are hosted ; choose to check for updates recurringly, or when receiving a webhook notification. UpdatePulse Server acts as a middleman between your reposiroty, your udpates storage (local or Cloud), and your clients.
 * **Licenses:** manage licenses with a table showing ID, License Key, Registered Email, Status, Package Type, Package Slug, Creation Date, and Expiry Date ; add and edit them with a form, or use the API for more control. Licenses prevent packages installed on client machines from being updated without a valid license. Licenses are generated automatically by default and the values are unguessable (it is recommended to keep the default). When checking the validity of licenses an extra license signature is also checked to prevent the use of a license on more than the configured allowed domains.
 * **Not limited to WordPress:** with a platform-agnostic API, updates can be served for any type of package, not just WordPress plugins & themes. Basic examples of integration with Node.js, PHP, bash, and Python are provided in the [documentation](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md).
 * **API & Webhooks:** Use the Package API to administer packages (browse, read, edit, add, delete), and request for expirable signed URLs of packages to allow secure downloads. Use the License API to administer licenses (browse, read, edit, add, delete) and check, activate or deactivate licenses. Fire Webhooks to notify any URL of your choice of key events affecting packages and licenses. 
@@ -81,9 +81,9 @@ Note: the screenshots are updated regularly, but the actual interface may vary s
 
 <img src="https://anyape.com/resources/upserv/screenshots/packages-overview.png" alt="Packages Overview" width="100%">
 
-#### Remote Sources
+#### Remote Sources (VCS)
 
-<img src="https://anyape.com/resources/upserv/screenshots/remote-sources.png" alt="Remote Sources" width="100%">
+<img src="https://anyape.com/resources/upserv/screenshots/remote-sources.png" alt="Remote Sources (VCS)" width="100%">
 
 #### Licenses
 
@@ -110,7 +110,7 @@ Note: the screenshots are updated regularly, but the actual interface may vary s
 
 ## User Interface
 
-UpdatePulse Server provides a user interface to manage packages, manage licenses, manage Remote Repository connection, and to configure API & Webhooks.
+UpdatePulse Server provides a user interface to manage packages, manage licenses, manage Version Control System connections, and to configure API & Webhooks.
 
 ### Packages Overview
 
@@ -120,7 +120,7 @@ This tab allows administrators to:
 - Toggle between "Require License" and "Do not Require License" for a package when "Enable Package Licenses" is checked under the "Licenses" tab
 - Delete a package
 - Apply bulk actions on the list of packages (download, delete, change license status of the package if licenses are enabled)
-- Add a package (either by uploading it directly, or by priming it by pulling it from a configured Remote Repository)
+- Add a package (either by uploading it directly, or by registering it by pulling it from a configured Version Control System)
 - Configure and test a Cloud Storage service
 - Configure other packages-related settings - file upload, cache and logs max sizes.
 
@@ -141,23 +141,23 @@ Logs max size (in MB)               | number   | Maximum size in MB for the `wp-
 A button is available to send a test request to the Cloud Storage Service. The request checks whether the provider is reachable and if the Storage Unit exists and is writable.  
 If it does not exist during the test, a virtual folder `updatepulse-packages` will be created in the Storage Unit chosen for package storage.  
 
-### Remote Sources
+### Remote Sources (VCS)
 
 This tab allows administrators to configure how Remote Sources are handled with the following settings:
 
-Name                                  | Type      | Description
-------------------------------------- |:---------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Use Remote Repository Service         | checkbox  | Enables this server to download packages from a Remote Repository before delivering updates.<br/>Supports Bitbucket, Github and Gitlab.<br/>If left unchecked, zip packages need to be manually uploaded to `wp-content/plugins/updatepulse-server/packages`.<br/>**It affects all the packages delivered by this installation of UpdatePulse Server if they have a corresponding repository in the Remote Repository Service.**<br/>**Settings of the "Packages remote source" section will be saved only if this option is checked.**
-Remote Repository Service URL         | text      | The URL of the Remote Repository Service where packages are hosted.<br/>Must follow the following pattern: `https://repository-service.tld/username` where `https://repository-service.tld` may be a self-hosted instance of Gitlab.<br/>Each package repository URL must follow the following pattern: `https://repository-service.tld/username/package-slug/` ; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern `package-slug.php`.
-Self-hosted Remote Repository Service | checkbox  | Check this only if the Remote Repository Service is a self-hosted instance of Gitlab.
-Packages branch name                  | text      | The branch to download when getting remote packages from the Remote Repository Service.
-Remote Repository Service credentials | text      | Credentials for non-publicly accessible repositories.<br/>In the case of Github and Gitlab, an access token (`token`).<br/>In the case of Bitbucket, the Consumer key and secret separated by a pipe (`consumer_key\|consumer_secret`).<br>IMPORTANT: when creating the BitBucket Consumer, "This is a private consumer" must be checked.	
-Use Webhooks                          | checkbox  | Check so that each repository of the Remote Repository Service calls a Webhook when updates are pushed.<br>When checked, UpdatePulse Server will not regularly poll repositories for package version changes, but relies on events sent by the repositories to schedule a package download.<br>Webhook URL: `https://domain.tld/updatepulse-server-webhook/package-type/package-slug` - where `package-type` is the package type (`plugin`, `theme`, or `generic`) and `package-slug` is the slug of the package that needs updates.<br>Note that UpdatePulse Server does not rely on the content of the payload to schedule a package download, so any type of event can be used to trigger the Webhook.
-Remote Download Delay                 | number    | Delay in minutes after which UpdatePulse Server will poll the Remote Repository for package updates when the Webhook has been called.<br>Leave at `0` to schedule a package update during the cron run happening immediately after the Webhook notification was received.
-Remote Repository Webhook Secret      | text      | Ideally a random string, the secret string included in the request by the repository service when calling the Webhook.<br>**WARNING: Changing this value will invalidate all the existing Webhooks set up on all package repositories.**<br>After changing this setting, make sure to update the Webhooks secrets in the repository service.
-Remote update check frequency         | select    | Only available in case Webhooks are not used - How often UpdatePulse Server will poll each Remote Repository for package updates - checking too often may slow down the server (recommended "Once Daily").
+Name                          | Type      | Description
+----------------------------- |:---------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Use Version Control Systems   | checkbox  | Enables this server to download packages from a Version Control System before delivering updates.<br/>Supports Bitbucket, Github and Gitlab.<br/>If left unchecked, zip packages need to be manually uploaded to `wp-content/plugins/updatepulse-server/packages`.
+VCS URL                       | text      | The URL of the Version Control System where packages are hosted.<br/>Must follow the following pattern: `https://version-control-system.tld/username` where `https://version-control-system.tld` may be a self-hosted instance of Gitlab.<br/>Each package repository URL must follow the following pattern: `https://version-control-system.tld/username/package-slug/` ; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern `package-slug.php`.
+Self-hosted VCS               | checkbox  | Check this only if the Version Control System is a self-hosted instance of Gitlab.
+Packages branch name          | text      | The branch to download when getting remote packages from the Version Control System.
+VCS credentials               | text      | Credentials for non-publicly accessible repositories.<br/>In the case of Github and Gitlab, an access token (`token`).<br/>In the case of Bitbucket, the Consumer key and secret separated by a pipe (`consumer_key\|consumer_secret`).<br>IMPORTANT: when creating the BitBucket Consumer, "This is a private consumer" must be checked.	
+Use Webhooks                  | checkbox  | Check so that each repository of the Version Control System calls a Webhook when updates are pushed.<br>When checked, UpdatePulse Server will not regularly poll repositories for package version changes, but relies on events sent by the repositories to schedule a package download.<br>Webhook URL: `https://domain.tld/updatepulse-server-webhook/package-type/package-slug` - where `package-type` is the package type (`plugin`, `theme`, or `generic`) and `package-slug` is the slug of the package that needs updates.<br>Note that UpdatePulse Server does not rely on the content of the payload to schedule a package download, so any type of event can be used to trigger the Webhook.
+Remote Download Delay         | number    | Delay in minutes after which UpdatePulse Server will poll the Version Control System for package updates when the Webhook has been called.<br>Leave at `0` to schedule a package update during the cron run happening immediately after the Webhook notification was received.
+VCS Webhook Secret            | text      | Ideally a random string, the secret string included in the request by the repository service when calling the Webhook.<br>**WARNING: Changing this value will invalidate all the existing Webhooks set up on all package repositories.**<br>After changing this setting, make sure to update the Webhooks secrets in the repository service.
+Remote update check frequency | select    | Only available in case Webhooks are not used - How often UpdatePulse Server will poll each Version Control System for package updates - checking too often may slow down the server (recommended "Once Daily").
 
-A button is available to send a test request to the Remote Repository Service. The request checks whether the service is reachable and if the request can be authenticated.  
+A button is available to send a test request to the Version Control System. The request checks whether the service is reachable and if the request can be authenticated.  
 Tests via this button are not supported for Bitbucket ; if Bitbucket is used, testing should be done after saving the settings and trying to register a package in the Packages Overview tab.  
 
 In case Webhooks are not used, the following actions are available to forcefully alter the packages schedules (maintenance, tests, etc):
@@ -325,14 +325,14 @@ Number of included/required scripts by the plugin: 11
 
 The following can also be found under the "Help" tab of the UpdatePulse Server admin page.  
 
-### Registering packages with a Remote Repository Service
+### Registering packages with a Version Control System
 
-Register a package using a Remote Repository', 'updatepulse-server' ) . '</strong>',
-- using the "Register a package using a Remote Repository" feature in the "Packages Overview" tab of UpdatePulse Server
+Register a package using a Version Control System by:
+- using the "Register a package using a VCS" feature in the "Packages Overview" tab of UpdatePulse Server
 - calling the `add` method of the [package API](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md)
 - calling `wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>` in the [command line](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md#wp-cli)
 - calling the [upserv_download_remote_package](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md#upserv_download_remote_package) method in your own code
-- triggering a webhook from a Remote Repository.  
+- triggering a webhook from a VCS.  
 Webhook URL: `https://domain.tld/updatepulse-server-webhook/package-type/package-slug` - where `package-type` is the package type (`plugin`, `theme`, or `generic`) and `package-slug` is the slug of the package to register.
 
 ### Provide updates with UpdatePulse Server - packages requirements
@@ -374,7 +374,7 @@ See `wp-content/plugins/updatepulse-server/integration/dummy-plugin` for an exam
 
 See `wp-content/plugins/updatepulse-server/integration/dummy-generic` for examples of a generic package written in Bash, NodeJS, PHP with Curl, and Python. The API calls made by generic packages to the license API and Update API are the same as the WordPress packages. Unlike the upgrade library provided with plugins & themes, the code found in `updatepulse-api.[sh|php|js|py]` files is **NOT ready for production environment and MUST be adapted**.
 
-Unless "Use Remote Repository Service" is checked in "Remote Sources", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
+Unless "Use Version Control System" is checked in "Remote Sources (VCS)", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
 
 ### UpdatePulse Server Endpoint Optimizer - requests optimisation
 

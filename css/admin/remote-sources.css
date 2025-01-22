@@ -1,4 +1,4 @@
-.upserv-wrap .repositories {
+.upserv-wrap .vcs {
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
@@ -13,7 +13,7 @@
     text-align: center;
 }
 
-.upserv-wrap .repositories .item.template .placeholder {
+.upserv-wrap .vcs .item.template .placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -23,12 +23,12 @@
     font-weight: bold;
 }
 
-.upserv-wrap .repositories .item.template .placeholder span.icon {
+.upserv-wrap .vcs .item.template .placeholder span.icon {
     font-size: 2em;
     line-height: 1em;
 }
 
-.upserv-wrap .repositories .item {
+.upserv-wrap .vcs .item {
     background: #fff;
     padding: 1em 2em;
     border-radius: 0.75em;
@@ -39,14 +39,14 @@
     justify-content: center;
 }
 
-.upserv-wrap .repositories .item:hover,
-.upserv-wrap .repositories .item:focus,
-.upserv-wrap .repositories .item:active,
-.upserv-wrap .repositories .item.selected {
+.upserv-wrap .vcs .item:hover,
+.upserv-wrap .vcs .item:focus,
+.upserv-wrap .vcs .item:active,
+.upserv-wrap .vcs .item.selected {
     box-shadow: inset 0px 0px 0px 1px #2271b1, rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
 }
 
-.upserv-wrap .repositories .item .service span:not(.hidden) {
+.upserv-wrap .vcs .item .service span:not(.hidden) {
     font-size: 1.5em;
     display: flex;
     align-items: baseline;
@@ -56,24 +56,24 @@
     justify-content: flex-start;
 }
 
-.upserv-wrap .repositories .item.selected .service span:not(.hidden) {
+.upserv-wrap .vcs .item.selected .service span:not(.hidden) {
     color: #2271b1;
 }
 
-.upserv-wrap .repositories .item:not(.template) {
+.upserv-wrap .vcs .item:not(.template) {
     line-height: 1.5em;
     padding: 1em 1em 0.5em;
     min-width: 175px;
     max-width: 245px;
 }
 
-.upserv-wrap .repositories .item .branch:not(.hidden) {
+.upserv-wrap .vcs .item .branch:not(.hidden) {
     display: flex;
     gap: 0.25em;
     align-items: center;
 }
 
-.upserv-wrap .repositories .item code:not(.hidden) {
+.upserv-wrap .vcs .item code:not(.hidden) {
     word-break: break-all;
     white-space: initial;
     width: auto;

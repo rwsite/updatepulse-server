@@ -16,14 +16,14 @@ class Remote_Sources_Manager {
 
 		if ( $init_hooks ) {
 
-			if ( upserv_get_option( 'use_remote_repositories' ) ) {
+			if ( upserv_get_option( 'use_vcs' ) ) {
 				add_action( 'action_scheduler_init', array( $this, 'register_remote_check_scheduled_hooks' ), 10, 0 );
 			} else {
 				add_action( 'init', array( $this, 'clear_remote_check_scheduled_hooks' ), 10, 0 );
 			}
 
 			add_action( 'wp_ajax_upserv_force_clean', array( $this, 'force_clean' ), 10, 0 );
-			add_action( 'wp_ajax_upserv_remote_repository_test', array( $this, 'remote_repository_test' ), 10, 0 );
+			add_action( 'wp_ajax_upserv_vcs_test', array( $this, 'vcs_test' ), 10, 0 );
 			add_action( 'admin_menu', array( $this, 'admin_menu' ), 15, 0 );
 
 			add_filter( 'upserv_admin_scripts', array( $this, 'upserv_admin_scripts' ), 10, 1 );
@@ -64,7 +64,7 @@ class Remote_Sources_Manager {
 			return;
 		}
 
-		$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$vcs_configs = upserv_get_option( 'vcs', array() );
 
 		if ( empty( $vcs_configs ) ) {
 			return;
@@ -106,7 +106,7 @@ class Remote_Sources_Manager {
 		}
 
 		if ( null === $vcs_configs ) {
-			$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+			$vcs_configs = upserv_get_option( 'vcs', array() );
 		}
 
 		if ( empty( $vcs_configs ) ) {
@@ -138,8 +138,8 @@ class Remote_Sources_Manager {
 
 	public function admin_menu() {
 		$function   = array( $this, 'plugin_page' );
-		$page_title = __( 'UpdatePulse Server - Remote Sources', 'updatepulse-server' );
-		$menu_title = __( 'Remote Sources', 'updatepulse-server' );
+		$page_title = __( 'UpdatePulse Server - Remote Sources (VCS) ', 'updatepulse-server' );
+		$menu_title = __( 'Remote Sources (VCS) ', 'updatepulse-server' );
 		$menu_slug  = 'upserv-page-remote-sources';
 
 		add_submenu_page( 'upserv-page', $page_title, $menu_title, 'manage_options', $menu_slug, $function );
@@ -148,7 +148,7 @@ class Remote_Sources_Manager {
 	public function upserv_admin_tab_links( $links ) {
 		$links['remote-sources'] = array(
 			admin_url( 'admin.php?page=upserv-page-remote-sources' ),
-			"<span class='dashicons dashicons-networking'></span> " . __( 'Remote Sources', 'updatepulse-server' ),
+			"<span class='dashicons dashicons-networking'></span> " . __( 'Remote Sources (VCS) ', 'updatepulse-server' ),
 		);
 
 		return $links;
@@ -180,7 +180,7 @@ class Remote_Sources_Manager {
 			return;
 		}
 
-		$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$vcs_configs = upserv_get_option( 'vcs', array() );
 		$key         = $data['upserv_vcs_list'];
 
 		if ( isset( $vcs_configs[ $key ] ) ) {
@@ -203,16 +203,16 @@ class Remote_Sources_Manager {
 		}
 	}
 
-	public function remote_repository_test() {
+	public function vcs_test() {
 		$result = array();
 
 		if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
 			$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
 
 			if ( $data ) {
-				$url         = $data['upserv_remote_repository_url'];
-				$self_hosted = $data['upserv_remote_repository_self_hosted'];
-				$credentials = $data['upserv_remote_repository_credentials'];
+				$url         = $data['upserv_vcs_url'];
+				$self_hosted = $data['upserv_vcs_self_hosted'];
+				$credentials = $data['upserv_vcs_credentials'];
 				$options     = array();
 				$service     = false;
 				$host        = wp_parse_url( $url, PHP_URL_HOST );
@@ -237,7 +237,7 @@ class Remote_Sources_Manager {
 					wp_send_json_error(
 						new WP_Error(
 							__METHOD__,
-							__( 'Error - Test Remote Repository Access is not supported for Bitbucket. Please save your settings and try to registera package in the Overview page.', 'updatepulse-server' )
+							__( 'Error - Test VCS Access is not supported for Bitbucket. Please save your settings and try to register a package in the Overview page.', 'updatepulse-server' )
 						)
 					);
 				}
@@ -279,7 +279,7 @@ class Remote_Sources_Manager {
 						if ( 'GitHub' === $service ) {
 							$body      = json_decode( $body, true );
 							$condition = trailingslashit(
-								$data['upserv_remote_repository_url']
+								$data['upserv_vcs_url']
 							) === trailingslashit(
 								$body['html_url']
 							);
@@ -302,22 +302,22 @@ class Remote_Sources_Manager {
 						}
 
 						if ( $condition ) {
-							$result[] = __( 'Remote Repository Service was reached sucessfully.', 'updatepulse-server' );
+							$result[] = __( 'Version Control System was reached sucessfully.', 'updatepulse-server' );
 						} elseif ( 'GitHub' === $service && 200 !== $code && 204 !== $code ) {
 							$result = new WP_Error(
 								__METHOD__,
-								__( 'Error - Please check the provided Remote Repository Service URL.', 'updatepulse-server' ) . "\n" . __( 'If you are using a fine-grained access token for an organisation, please check the provided token has the permissions to access members information.', 'updatepulse-server' )
+								__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' ) . "\n" . __( 'If you are using a fine-grained access token for an organisation, please check the provided token has the permissions to access members information.', 'updatepulse-server' )
 							);
 						} else {
 							$result = new WP_Error(
 								__METHOD__,
-								__( 'Error - Please check the provided Remote Repository Service URL.', 'updatepulse-server' )
+								__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' )
 							);
 						}
 					} else {
 						$result = new WP_Error(
 							__METHOD__,
-							__( 'Error - Please check the provided Remote Repository Service Credentials.', 'updatepulse-server' )
+							__( 'Error - Please check the provided Version Control System Credentials.', 'updatepulse-server' )
 						);
 					}
 				}
@@ -346,7 +346,7 @@ class Remote_Sources_Manager {
 
 	public static function register_schedules() {
 		$manager     = new self();
-		$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$vcs_configs = upserv_get_option( 'vcs', array() );
 
 		if ( empty( $vcs_configs ) ) {
 			return;
@@ -425,10 +425,10 @@ class Remote_Sources_Manager {
 
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();
-		$vcs_configs          = upserv_get_option( 'remote_repositories', array() );
+		$vcs_configs          = upserv_get_option( 'vcs', array() );
 		$options              = array(
-			'use_remote_repositories' => upserv_get_option( 'use_remote_repositories', 0 ),
-			'repositories'            => wp_json_encode( $vcs_configs ),
+			'use_vcs' => upserv_get_option( 'use_vcs', 0 ),
+			'vcs'     => wp_json_encode( $vcs_configs ),
 		);
 
 		foreach ( $registered_schedules as $key => $schedule ) {
@@ -456,8 +456,8 @@ class Remote_Sources_Manager {
 		$errors          = array();
 		$result          = '';
 		$to_save         = array();
-		$old_vcs_configs = upserv_get_option( 'remote_repositories' );
-		$old_use_vcs     = upserv_get_option( 'use_remote_repositories' );
+		$old_vcs_configs = upserv_get_option( 'vcs' );
+		$old_use_vcs     = upserv_get_option( 'use_vcs' );
 
 		if (
 			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
@@ -476,11 +476,11 @@ class Remote_Sources_Manager {
 		foreach ( $options as $option_name => $option_info ) {
 			$condition = $option_info['value'];
 
-			if ( isset( $option_info['condition'] ) && 'repositories' === $option_info['condition'] ) {
+			if ( isset( $option_info['condition'] ) && 'vcs' === $option_info['condition'] ) {
 				$inputs = json_decode( $option_info['value'], true );
 
 				if ( ! is_array( $inputs ) ) {
-					$inputs = upserv_get_option( 'remote_repositories' );
+					$inputs = upserv_get_option( 'vcs' );
 				} else {
 					$filtered = array();
 					$index    = 0;
@@ -582,8 +582,8 @@ class Remote_Sources_Manager {
 			$result = $errors;
 		}
 
-		$new_use_vcs     = upserv_get_option( 'use_remote_repositories' );
-		$new_vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$new_use_vcs     = upserv_get_option( 'use_vcs' );
+		$new_vcs_configs = upserv_get_option( 'vcs', array() );
 		$keys            = array_merge( array_keys( $old_vcs_configs ), array_keys( $new_vcs_configs ) );
 
 		foreach ( $keys as $key ) {
@@ -664,18 +664,18 @@ class Remote_Sources_Manager {
 		return apply_filters(
 			'upserv_submitted_remote_sources_config',
 			array(
-				'upserv_use_vcs'      => array(
+				'upserv_use_vcs' => array(
 					'value'        => filter_input( INPUT_POST, 'upserv_use_vcs', FILTER_VALIDATE_BOOLEAN ),
-					'display_name' => __( 'Use a Remote Repository Service', 'updatepulse-server' ),
+					'display_name' => __( 'Use Version Control Systems', 'updatepulse-server' ),
 					'condition'    => 'boolean',
-					'path'         => 'use_remote_repositories',
+					'path'         => 'use_vcs',
 				),
-				'upserv_repositories' => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_repositories', FILTER_UNSAFE_RAW ),
-					'display_name'            => __( 'Remote Repository Services', 'updatepulse-server' ),
+				'upserv_vcs'     => array(
+					'value'                   => filter_input( INPUT_POST, 'upserv_vcs', FILTER_UNSAFE_RAW ),
+					'display_name'            => __( 'Version Control Systems', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
-					'condition'               => 'repositories',
-					'path'                    => 'remote_repositories',
+					'condition'               => 'vcs',
+					'path'                    => 'vcs',
 				),
 			)
 		);

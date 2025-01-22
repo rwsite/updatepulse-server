@@ -1,13 +1,13 @@
 jQuery(document).ready(function ($) {
 
-    if (!$('#upserv_repositories').length) {
+    if (!$('#upserv_vcs').length) {
         return;
     }
 
     var form = $('.form-container.package-source');
     var inputElements = form.find('input[type="checkbox"], input[type="text"], input[type="number"], input[type="password"], select');
     var inputTextElements = form.find('input[type="text"], input[type="number"], input[type="password"]');
-    var data = JSON.parse($('#upserv_repositories').val());
+    var data = JSON.parse($('#upserv_vcs').val());
     var init = function () {
         $.each(data, function (id) {
 
@@ -19,7 +19,7 @@ jQuery(document).ready(function ($) {
         });
 
         if (Object.keys(data).length > 0) {
-            $('.repositories .item:not(.template)').first().trigger('click');
+            $('.vcs .item:not(.template)').first().trigger('click');
         }
     };
     var selectRepository = function (id) {
@@ -29,7 +29,7 @@ jQuery(document).ready(function ($) {
             return
         }
 
-        $('.repositories .item').removeClass('selected');
+        $('.vcs .item').removeClass('selected');
         item.addClass('selected');
         disableForm(false);
         form.removeClass('hidden');
@@ -68,7 +68,7 @@ jQuery(document).ready(function ($) {
         });
     };
     var addItem = function (id) {
-        var item = $('.repositories .item.template').clone();
+        var item = $('.vcs .item.template').clone();
         var itemData = data[id];
         var service = itemData.url.match(/https?:\/\/([^\/]+)\//);
 
@@ -94,7 +94,7 @@ jQuery(document).ready(function ($) {
             item.find('.service .self-hosted').removeClass('hidden');
         }
 
-        item.insertBefore($('.repositories .item.template'));
+        item.insertBefore($('.vcs .item.template'));
     };
     var remove = function (id) {
         delete data[id];
@@ -126,7 +126,7 @@ jQuery(document).ready(function ($) {
         });
     };
     var updateData = function (elem) {
-        var id = $('.repositories .item.selected').attr('id');
+        var id = $('.vcs .item.selected').attr('id');
         var prop = elem.data('prop');
 
         if (!id || !prop) {
@@ -150,7 +150,7 @@ jQuery(document).ready(function ($) {
         updateRepositories();
     };
     var updateRepositories = function () {
-        $('#upserv_repositories').val(JSON.stringify(data));
+        $('#upserv_vcs').val(JSON.stringify(data));
     };
     var disableForm = function (disable) {
         inputElements.prop('disabled', disable);
@@ -173,7 +173,7 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    $('.repositories').on('click', '.item', function (e) {
+    $('.vcs').on('click', '.item', function (e) {
         var elem = $(this);
 
         if (elem.hasClass('upserv-modal-open-handle')) {
@@ -184,13 +184,13 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    $("#upserv_add_remote_repository").on('click', function (e) {
+    $("#upserv_add_vcs").on('click', function (e) {
         e.preventDefault();
         $('.upserv-modal .error').addClass('hidden');
-        $('.repositories .item.selected').removeClass('selected');
+        $('.vcs .item.selected').removeClass('selected');
 
-        var url = $('#upserv_add_remote_repository_url').val();
-        var branch = $('#upserv_add_remote_repository_branch').val();
+        var url = $('#upserv_add_vcs_url').val();
+        var branch = $('#upserv_add_vcs_branch').val();
 
         if (!url || !url.match(/^https?:\/\/[^\/]+\/[^\/]+\/$/)) {
             $('.upserv-modal .error.invalid-url').removeClass('hidden');
@@ -212,9 +212,9 @@ jQuery(document).ready(function ($) {
         $(this).closest('.upserv-modal').trigger('close', [$(this)]);
     });
 
-    $('#upserv_remove_remote_repository').on('click', function (e) {
+    $('#upserv_remove_vcs').on('click', function (e) {
         e.preventDefault();
-        var id = $('.repositories .item.selected').attr('id');
+        var id = $('.vcs .item.selected').attr('id');
 
         if (!id) {
             return;
@@ -223,7 +223,7 @@ jQuery(document).ready(function ($) {
         remove(id);
     });
 
-    $('#upserv_remote_repository_use_webhooks').on('change', function (e) {
+    $('#upserv_vcs_use_webhooks').on('change', function (e) {
 
         if ($(this).prop('checked')) {
             $('.check-frequency').addClass('hidden');

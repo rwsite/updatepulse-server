@@ -13,7 +13,7 @@
 				<?php
 				printf(
 					// translators: %s <a href="admin.php?page=upserv-page-help">initialize packages</a>
-					esc_html__( 'It is necessary to %s linked to a Remote Repository for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
+					esc_html__( 'It is necessary to %s linked to a Version Control System for them to be available in UpdatePulse Server.', 'updatepulse-server' ),
 					'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page-help' ) ) . '">' . esc_html__( 'register packages', 'updatepulse-server' ) . '</a>'
 				);
 				?>
@@ -32,13 +32,13 @@
 		<?php if ( $options['use_vcs'] ) : ?>
 		<tr>
 			<th>
-				<label for="upserv_register_package_slug"><?php esc_html_e( 'Register a package using a Remote Repository', 'updatepulse-server' ); ?></label>
+				<label for="upserv_register_package_slug"><?php esc_html_e( 'Register a package using a VCS', 'updatepulse-server' ); ?></label>
 			</th>
 			<td>
 				<div class="register-package-container">
 					<input type="text" id="upserv_register_package_slug" placeholder="<?php esc_attr_e( 'package-slug' ); ?>" name="upserv_register_package_slug" value="">
 					<select id="upserv_vcs_select">
-						<option value=""><?php esc_html_e( 'Select a Remote Repository', 'updatepulse-server' ); ?></option>
+						<option value=""><?php esc_html_e( 'Select a VCS', 'updatepulse-server' ); ?></option>
 						<?php
 
 						foreach ( $vcs_options as $key => $name ) {
@@ -52,7 +52,7 @@
 					<?php
 					printf(
 						// translators: %s is <code>$packages_dir</code>
-						esc_html__( 'Get an archive of a package from a Remote Repository and put it in the %s directory by entering the package slug.', 'updatepulse-server' ),
+						esc_html__( 'Get an archive of a package from a Version Control System and put it in the %s directory by entering the package slug.', 'updatepulse-server' ),
 						'<code>' . esc_html( $packages_dir ) . '</code>',
 					);
 					?>
@@ -74,9 +74,9 @@
 					);
 					?>
 					<br>
-					<?php esc_html_e( 'Using this method adds the package to the list if not present or forcefully downloads its latest version from the Remote Repository and overwrites the existing package.', 'updatepulse-server' ); ?>
+					<?php esc_html_e( 'Using this method adds the package to the list if not present or forcefully downloads its latest version from the Version Control System and overwrites the existing package.', 'updatepulse-server' ); ?>
 					<br>
-					<?php esc_html_e( 'Note: registered packages get overwritten automatically with their counterpart from the Remote Repository when a newer version is made available.', 'updatepulse-server' ); ?>
+					<?php esc_html_e( 'Note: registered packages get overwritten automatically with their counterpart from the Version Control System when a newer version is made available.', 'updatepulse-server' ); ?>
 				</p>
 			</td>
 		</tr>

@@ -460,7 +460,7 @@ msgid ""
 "Download: Archive max size exceeded - try to adjust it in the settings below."
 msgstr ""
 
-#. %1$s is <code>https://repository-service.tld/identifier/package-slug/</code>, %2$s is <code>identifier</code>
+#. %1$s is <code>https://version-control-system.tld/identifier/package-slug/</code>, %2$s is <code>identifier</code>
 #: inc/templates/admin/plugin-remote-sources-page.php:55
 #, php-format
 msgid ""
@@ -540,7 +540,7 @@ msgstr ""
 #: inc/class-upserv-remote-sources-manager.php:170
 msgid ""
 "Error - Test Remote Repository Access is not supported for Bitbucket. Please "
-"save your settings and try to registera package in the Overview page."
+"save your settings and try to register a package in the Overview page."
 msgstr ""
 
 #: inc/class-upserv.php:154
@@ -971,7 +971,7 @@ msgstr ""
 msgid "More help..."
 msgstr ""
 
-#. %1$s is <code>https://repository-service.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://repository-service.tld</code>
+#. %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://version-control-system.tld</code>
 #: inc/templates/admin/plugin-remote-sources-page.php:45
 #, php-format
 msgid ""
@@ -1391,7 +1391,7 @@ msgstr ""
 #: inc/templates/admin/plugin-remote-sources-page.php:125
 msgid ""
 "Tests are not supported for Bitbucket ; if you use Bitbucket, save your "
-"settings & try to registera package in the \"Packages Overview\" tab."
+"settings & try to register a package in the \"Packages Overview\" tab."
 msgstr ""
 
 #. %s is <code>another-plugin-or-theme-slug</code>

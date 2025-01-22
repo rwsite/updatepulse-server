@@ -205,7 +205,7 @@ class Package_Manager {
 			$vcs_key = filter_input( INPUT_POST, 'vcs_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( $slug && $vcs_key ) {
-				$vcs_config      = upserv_get_option( 'remote_repositories/' . $vcs_key, false );
+				$vcs_config      = upserv_get_option( 'vcs/' . $vcs_key, false );
 				$meta            = upserv_get_package_metadata( $slug );
 				$meta['vcs_key'] = hash( 'sha256', trailingslashit( $vcs_config['url'] ) . '|' . $vcs_config['branch'] );
 
@@ -423,8 +423,8 @@ class Package_Manager {
 
 		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
 
-		$use_vcs     = upserv_get_option( 'use_remote_repositories', 0 );
-		$vcs_configs = upserv_get_option( 'remote_repositories', array() );
+		$use_vcs     = upserv_get_option( 'use_vcs', 0 );
+		$vcs_configs = upserv_get_option( 'vcs', array() );
 		$vcs_options = array();
 
 		if ( ! empty( $vcs_configs ) ) {

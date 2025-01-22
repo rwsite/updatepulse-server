@@ -93,7 +93,7 @@ class Update_API {
 		}
 
 		$filter_packages = apply_filters(
-			'upserv_repository_filter_packages',
+			'upserv_vcs_filter_packages',
 			$vcs_config['filter_packages'],
 			$info
 		);
@@ -115,7 +115,7 @@ class Update_API {
 		}
 
 		$filter_packages = apply_filters(
-			'upserv_repository_filter_packages',
+			'upserv_vcs_filter_packages',
 			$vcs_config['filter_packages'],
 			$info
 		);
@@ -204,7 +204,7 @@ class Update_API {
 		$vcs_config = upserv_get_package_vcs_config( $slug );
 
 		if (
-			! upserv_get_option( 'use_remote_repositories', 0 ) ||
+			! upserv_get_option( 'use_vcs', 0 ) ||
 			empty( $vcs_config ) ||
 			(
 				isset( $vcs_config['use_webhooks'] ) &&
@@ -224,7 +224,7 @@ class Update_API {
 		}
 		$frequency = apply_filters(
 			'upserv_check_remote_frequency',
-			$vcs_config['repository_check_frequency'],
+			$vcs_config['check_frequency'],
 			$slug
 		);
 		$timestamp = time();

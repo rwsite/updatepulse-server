@@ -318,8 +318,8 @@ class Package_API {
 	public function upserv_api_package_actions( $actions ) {
 		$actions['browse']     = __( 'Get information about multiple packages', 'updatepulse-server' );
 		$actions['read']       = __( 'Get information about a single package', 'updatepulse-server' );
-		$actions['edit']       = __( 'Forcefully download and overwrite an existing package on the file system. ; requires using a Remote Repository', 'updatepulse-server' );
-		$actions['add']        = __( 'Download a package to the file system if it does not exist ; requires using a Remote Repository', 'updatepulse-server' );
+		$actions['edit']       = __( 'Forcefully download and overwrite an existing package on the file system. ; requires using a VCS', 'updatepulse-server' );
+		$actions['add']        = __( 'Download a package to the file system if it does not exist ; requires using a VCS', 'updatepulse-server' );
 		$actions['delete']     = __( 'Delete a package from the file system', 'updatepulse-server' );
 		$actions['signed_url'] = __( 'Retrieve secure URLs for downloading packages', 'updatepulse-server' );
 
@@ -458,7 +458,7 @@ class Package_API {
 
 		if ( ! self::$config ) {
 			$config = array(
-				'use_vcs'               => upserv_get_option( 'use_remote_repositories' ),
+				'use_vcs'               => upserv_get_option( 'use_vcs' ),
 				'private_api_auth_keys' => upserv_get_option( 'api/packages/private_api_keys' ),
 				'ip_whitelist'          => upserv_get_option( 'api/packages/private_api_ip_whitelist' ),
 			);

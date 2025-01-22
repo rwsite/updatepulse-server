@@ -45,7 +45,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_get\_package\_metadata](#upserv_get_package_metadata)
         * [upserv\_set\_package\_metadata](#upserv_set_package_metadata)
     * [Actions](#actions)
-        * [upserv\_registered\_package\_from\_remote](#upserv_registered_package_from_vcs)
+        * [upserv\_registered\_package\_from\_vcs](#upserv_registered_package_from_vcs)
         * [upserv\_did\_manual\_upload\_package](#upserv_did_manual_upload_package)
         * [upserv\_before\_packages\_download](#upserv_before_packages_download)
         * [upserv\_triggered\_package\_download](#upserv_triggered_package_download)
@@ -134,7 +134,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_update\_server\_action\_download\_handled](#upserv_update_server_action_download_handled)
         * [upserv\_save\_remote\_to\_local](#upserv_save_remote_to_local)
         * [upserv\_download\_remote\_package](#upserv_download_remote_package-1)
-        * [upserv\_repository\_filter\_packages](#upserv_repository_filter_packages)
+        * [upserv\_vcs\_filter\_packages](#upserv_vcs_filter_packages)
         * [upserv\_pre\_filter\_packages\_info](#upserv_pre_filter_packages_info)
         * [upserv\_filter\_packages\_info](#upserv_filter_packages_info)
         * [upserv\_filter\_packages\_filename](#upserv_filter_packages_filename)
@@ -334,7 +334,7 @@ Response `$data` - unauthorized method:
 ___
 #### browse
 
-The `browse` operation retrieves package information, optionally filtered by a search keyword. If no corresponding package exists on the file system, or in the Remote Repository Service, the operation fails.
+The `browse` operation retrieves package information, optionally filtered by a search keyword. If no corresponding package exists on the file system, or in the Version Control System, the operation fails.
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/'; // Replace domain.tld with the domain where UpdatePulse Server is installed  
@@ -378,7 +378,7 @@ Response `$data` - **failure** (`404` response code - no result):
 ___
 #### read
 
-The `read` operation retrieves information for the specified package. If the package does not exist on the file system, or if the package does not exist in the Remote Repository Service, the operation fails.
+The `read` operation retrieves information for the specified package. If the package does not exist on the file system, or if the package does not exist in the Version Control System, the operation fails.
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
@@ -520,7 +520,7 @@ false
 ___
 #### edit
 
-The `edit` operation downloads the package from the Remote Repository Service. If the "Use a Remote Repository Service" option is not active, or if the package does not exist in the Remote Repository Service, the operation fails.
+The `edit` operation downloads the package from the Version Control System. If the "Use a Version Control System" option is not active, or if the package does not exist in the Version Control System, the operation fails.
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
@@ -662,7 +662,7 @@ false
 ___
 #### add
 
-The `add` operation downloads the package from the Remote Repository Service if it does not exist on the file system. If the "Use a Remote Repository Service" option is not active, the package does not exist in the Remote Repository Service, or if the package already exists on the file system, the operation fails.
+The `add` operation downloads the package from the Version Control System if it does not exist on the file system. If the "Use a Version Control System" option is not active, the package does not exist in the Version Control System, or if the package already exists on the file system, the operation fails.
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
@@ -834,7 +834,7 @@ false
 ___
 #### signed_url
 
-The `signed_url` operation returns a public URL signed with a token to download a package with the `download` [operation](#download). By default, the token is reusable and the URL is valid for 60 minutes. If the package does not exist on the file system or in the Remote Repository Service, the operation fails.
+The `signed_url` operation returns a public URL signed with a token to download a package with the `download` [operation](#download). By default, the token is reusable and the URL is valid for 60 minutes. If the package does not exist on the file system or in the Version Control System, the operation fails.
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
@@ -1027,7 +1027,7 @@ upserv_download_remote_package( string $package_slug, string $type );
 ```
 
 **Description**  
-Download a package from the Remote Repository to the package directory on the file system.
+Download a package from the Version Control System to the package directory on the file system.
 
 **Parameters**  
 `$package_slug`
@@ -1063,7 +1063,7 @@ upserv_download_remote_plugin( string $package_slug );
 ```
 
 **Description**  
-Download a plugin package from the Remote Repository to the package directory on the file system.
+Download a plugin package from the Version Control System to the package directory on the file system.
 
 **Parameters**  
 `$package_slug`
@@ -1080,7 +1080,7 @@ upserv_download_remote_theme( string $package_slug );
 ```
 
 **Description**  
-Download a theme package from the Remote Repository to the package directory on the file system.
+Download a theme package from the Version Control System to the package directory on the file system.
 
 **Parameters**  
 `$package_slug`
@@ -1456,7 +1456,7 @@ do_action( 'upserv_registered_package_from_vcs', bool $result, string $package_s
 ```
 
 **Description**  
-Fired after an attempt to registera package from a Remote Repository has been performed.  
+Fired after an attempt to register a package from a Version Control System has been performed.  
 
 **Parameters**  
 `$result`
@@ -1701,7 +1701,7 @@ do_action( 'upserv_pre_filter_package_info', array $info );
 ```
 
 **Description**
-Fired after pre-filtering the information of the package before it is retrieved from the Remote Repository Service.  
+Fired after pre-filtering the information of the package before it is retrieved from the Version Control System.  
 Fired during client update API request.  
 
 **Parameters**
@@ -1716,7 +1716,7 @@ do_action( 'upserv_filter_package_info', array $info );
 ```
 
 **Description**
-Fired after filtering the information of the package retrieved from the Remote Repository Service.  
+Fired after filtering the information of the package retrieved from the Version Control System.  
 Fired during client update API request.  
 
 **Parameters**
@@ -1731,7 +1731,7 @@ do_action( 'upserv_download_remote_package_aborted', string $package_slug, strin
 ```
 
 **Description**
-Fired after an attempt to download a package from the Remote Repository Service has been aborted.
+Fired after an attempt to download a package from the Version Control System has been aborted.
 Fired during client update API request.  
 
 **Parameters**
@@ -1742,7 +1742,7 @@ Fired during client update API request.
 > (string) the type of the package - `"Plugin"`, `"Theme"`, or `"Generic"`
 
 `$info`
-> (array) the information of the package retrieved from the Remote Repository Service
+> (array) the information of the package retrieved from the Version Control System
 
 ___
 ### upserv_downloaded_remote_package
@@ -1752,7 +1752,7 @@ do_action( 'upserv_downloaded_remote_package', mixed $package, string $type, str
 ```
 
 **Description**  
-Fired after an attempt to download a package from the Remote Repository Service to the file system has been performed.  
+Fired after an attempt to download a package from the Version Control System to the file system has been performed.  
 Fired during client update API request.  
 
 **Parameters**  
@@ -1794,12 +1794,12 @@ do_action( 'upserv_checked_remote_package_update', bool $has_update, string $typ
 ```
 
 **Description**  
-Fired after an update check on the Remote Repository has been performed for a package.  
+Fired after an update check on the Version Control System has been performed for a package.  
 Fired during client update API request.  
 
 **Parameters**  
 `$has_update`
-> (bool) `true` is the package has updates on the Remote Repository, `false` otherwise  
+> (bool) `true` is the package has updates on the Version Control System, `false` otherwise  
 
 `$type`
 > (string) type of the package checked - `"Plugin"`, `"Theme"`, or `"Generic"`   
@@ -1837,7 +1837,7 @@ do_action( 'upserv_before_remote_package_zip', string $package_slug, string $fil
 ```
 
 **Description**  
-Fired before packing the files received from the Remote Repository. Can be used for extra files manipulation.  
+Fired before packing the files received from the Version Control System. Can be used for extra files manipulation.  
 Fired during client update API request.  
 
 **Parameters**  
@@ -2025,12 +2025,12 @@ do_action( 'upserv_check_remote_update', string $package_slug );
 ```
 
 **Description**  
-Fired before checking if the package on the remote repository has updates.  
+Fired before checking if the package on the VCS has updates.  
 Fired during client update API request.
 
 **Parameters**  
 `$package_slug`
-> (string) the slug of the package on the remote repository  
+> (string) the slug of the package on the VCS  
 
 ___
 ### upserv_udpdate_manager_request_action
@@ -2237,7 +2237,7 @@ Fired before processing a webhook request.
 
 **Parameters**  
 `$payload`
-> (array) the data sent by the Remote Repository Service  
+> (array) the data sent by the Version Control System  
 
 `$package_slug`
 > (string) the slug of the package triggering the webhook  
@@ -2263,7 +2263,7 @@ Fired after a webhook request has been processed.
 
 **Parameters**  
 `$payload`
-> (array) the data sent by the Remote Repository Service  
+> (array) the data sent by the Version Control System  
 
 `$package_slug`
 > (string) the slug of the package triggering the webhook  
@@ -2292,7 +2292,7 @@ Fired after handling a webhook request; fired whether it was processed or not.
 > (array) the configuration used to handle webhook requests
 
 `$response`
-> (array) the response data that will be sent to the Remote Repository
+> (array) the response data that will be sent to the Version Control System
 
 ___
 ### upserv_webhook_invalid_request
@@ -2490,7 +2490,7 @@ ___
 ### upserv_update_checker
 
 ```php
-apply_filters( 'upserv_update_checker', mixed $update_checker, string $package_slug, string $type, string $package_file_name, string $repository_service_url, string $repository_branch, mixed $repository_credentials, bool $repository_service_self_hosted );
+apply_filters( 'upserv_update_checker', mixed $update_checker, string $package_slug, string $type, string $package_file_name, string $vcs_url, string $vcs_branch, mixed $vcs_credentials, bool $vcs_self_hosted );
 ```
 
 **Description**  
@@ -2510,17 +2510,17 @@ Fired during client update API request.
 `$package_file_name`
 > (string) the name of the main plugin file or "styles.css" for the package using the checker object  
 
-`$repository_service_url`
-> (string) URL of the repository service where the remote packages are located  
+`$vcs_url`
+> (string) URL of the VCS where the remote packages are located  
 
-`$repository_branch`
-> (string) the branch of the Remote Repository where the packages are located  
+`$vcs_branch`
+> (string) the branch of the VCS repository where the packages are located  
 
-`$repository_credentials`
-> (mixed) the credentials to access the Remote Repository where the packages are located  
+`$vcs_credentials`
+> (mixed) the credentials to access the VCS where the packages are located  
 
-`$repository_service_self_hosted`
-> (bool) `true` if the Remote Repository is on a self-hosted repository service, `false` otherwiseark  
+`$vcs_self_hosted`
+> (bool) `true` if the VCS is self-hosted, `false` otherwiseark  
 
 ___
 ### upserv_cloud_storage_virtual_dir
@@ -2937,7 +2937,7 @@ apply_filters( 'upserv_check_remote_package_update_local_meta', array $package_i
 ```
 
 **Description**  
-Filter the package information gathered from the file system before checking for updates in the Remote Repository Service.  
+Filter the package information gathered from the file system before checking for updates in the Version Control System.  
 Fired during client update API request.
 
 **Parameters**  
@@ -2958,7 +2958,7 @@ apply_filters( 'upserv_check_remote_package_update_no_local_meta_needs_update', 
 ```
 
 **Description**  
-Filter whether the package in the file system needs to be updated with the one hosted on the Remote Repository Service when no corresponding package information was found on the file system.  
+Filter whether the package in the file system needs to be updated with the one hosted on the Version Control System when no corresponding package information was found on the file system.  
 Fired during client update API request.
 
 **Parameters**  
@@ -3017,12 +3017,12 @@ apply_filters( 'upserv_save_remote_to_local', bool $save_to_local, string $packa
 ```
 
 **Description**  
-Filter whether UpdatePulse Server needs to attempt to download a package from the Remote Repository Service onto the file system.  
+Filter whether UpdatePulse Server needs to attempt to download a package from the Version Control System onto the file system.  
 Fired during client update API request.
 
 **Parameters**  
 `$save_to_local`
-> (bool) whether UpdatePulse Server needs to attempt to download a package from the Remote Repository Service onto the file system  
+> (bool) whether UpdatePulse Server needs to attempt to download a package from the Version Control System onto the file system  
 
 `$package_slug`
 > (string) the slug of the package  
@@ -3031,7 +3031,7 @@ Fired during client update API request.
 > (string) the absolute path of the package on the **local** file system  
 
 `$check_remote`
-> (bool) `true` if the Remote Repository Service is about to be checked and the package downloaded, `false` if the local cache is about to be used  
+> (bool) `true` if the Version Control System is about to be checked and the package downloaded, `false` if the local cache is about to be used  
 
 ___
 ### upserv_download_remote_package
@@ -3041,12 +3041,12 @@ apply_filters( 'upserv_download_remote_package', bool $download, string $package
 ```
 
 **Description**
-Filter whether to download the package from the Remote Repository Service after it has been confirmed to exist.
+Filter whether to download the package from the Version Control System after it has been confirmed to exist.
 Fired during client update API request.
 
 **Parameters**  
 `$download`
-> (bool) whether to download the package from the Remote Repository Service  
+> (bool) whether to download the package from the Version Control System  
 
 `$package_slug`
 > (string) the slug of the package  
@@ -3055,24 +3055,24 @@ Fired during client update API request.
 > (string) the type of the package ; one of `"Plugin"`, `"Theme"`, `"Generic"`, or `null`  
 
 `$info`
-> (array) the information of the package from the remote repository
+> (array) the information of the package from the VCS
 
 ___
-### upserv_repository_filter_packages
+### upserv_vcs_filter_packages
 
 ```php
-apply_filters( 'upserv_repository_filter_packages', bool $filter_packages, array $info );
+apply_filters( 'upserv_vcs_filter_packages', bool $filter_packages, array $info );
 ```
 
 **Description**
-Filter whether to filter the packages retrieved from the Remote Repository Service.
+Filter whether to filter the packages retrieved from the Version Control System.
 
 **Parameters**  
 `$filter_packages`
-> (bool) whether to filter the packages retrieved from the Remote Repository Service  
+> (bool) whether to filter the packages retrieved from the Version Control System  
 
 `$info`
-> (array) the information of the package from the remote repository  
+> (array) the information of the package from the VCS  
 
 ### upserv_pre_filter_packages_info
 
@@ -3081,14 +3081,14 @@ apply_filters( 'upserv_pre_filter_packages_info', array $info, string $file_cont
 ```
 
 **Description**
-Filter the information of the package before it is retrieved from the Remote Repository Service to extend it with additional information.
+Filter the information of the package before it is retrieved from the Version Control System to extend it with additional information.
 
 **Parameters**  
 `$info`
-> (array) the information of the package from the remote repository  
+> (array) the information of the package from the VCS  
 
 `$file_content`
-> (string) the content of the file used to filter the packages retrieved from the Remote Repository Service
+> (string) the content of the file used to filter the packages retrieved from the Version Control System
 
 ___
 
@@ -3099,14 +3099,14 @@ apply_filters( 'upserv_filter_packages_info', array $info, string $file_content 
 ```
 
 **Description**
-Filter the information of the package retrieved from the Remote Repository Service to extend it with additional information.
+Filter the information of the package retrieved from the Version Control System to extend it with additional information.
 
 **Parameters**  
 `$info`
-> (array) the information of the package from the remote repository  
+> (array) the information of the package from the VCS  
 
 `$file_content`
-> (string) the content of the file used to filter the packages retrieved from the Remote Repository Service
+> (string) the content of the file used to filter the packages retrieved from the Version Control System
 
 ___
 ### upserv_filter_packages_filename
@@ -3116,11 +3116,11 @@ apply_filters( 'upserv_filter_packages_filename', string $file_name );
 ```
 
 **Description**
-Filter the name of the file used to filter the packages retrieved from the Remote Repository Service.
+Filter the name of the file used to filter the packages retrieved from the Version Control System.
 
 **Parameters**  
 `$file_name`
-> (string) the name of the file used to filter the packages retrieved from the Remote Repository Service
+> (string) the name of the file used to filter the packages retrieved from the Version Control System
 
 ___
 ### upserv_webhook_secret
@@ -3246,11 +3246,11 @@ apply_filters( 'upserv_webhook_response', array $response, int $http_response_co
 ```
 
 **Description**
-Filter the response data to send to the Remote Repository Service after handling the webhook request.
+Filter the response data to send to the Version Control System after handling the webhook request.
 
 **Parameters**
 `$response`
-> (array) the response data to send to the Remote Repository Service
+> (array) the response data to send to the Version Control System
 
 `$http_response_code`
 > (int) the HTTP response code
