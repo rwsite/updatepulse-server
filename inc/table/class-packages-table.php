@@ -116,7 +116,7 @@ class Packages_Table extends WP_List_Table {
 		list( $columns, $hidden ) = $this->get_column_info();
 
 		if ( ! empty( $records ) ) {
-			$date_format = get_option( 'date_format' ) . ' - H:i:s';
+			$date_format = 'Y-m-d H:i:s';
 
 			foreach ( $records as $record_key => $record ) {
 				upserv_get_admin_template(

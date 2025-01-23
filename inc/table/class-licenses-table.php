@@ -186,7 +186,7 @@ class Licenses_Table extends WP_List_Table {
 		list( $columns, $hidden ) = $this->get_column_info();
 
 		if ( ! empty( $records ) ) {
-			$date_format = get_option( 'date_format' );
+			$date_format = 'Y-m-d';
 
 			foreach ( $records as $record_key => $record ) {
 				$bulk_value = wp_json_encode( $record );
