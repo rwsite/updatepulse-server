@@ -925,17 +925,13 @@ class Update_Server {
 			'filename' => $local_filename,
 		);
 
-		if ( is_string( $this->credentials ) ) {
-			$auth_headers = $this->update_checker->get_vcs_api()->get_authorization_header();
+		if ( $this->credentials ) {
+			$auth_headers = $this->update_checker->get_vcs_api()->get_authorization_headers();
 
 			if ( $auth_headers ) {
-				$params['headers'] = array(
-					'Authorization' => $auth_headers,
-				);
+				$params['headers'] = $auth_headers;
 			}
 		}
-
-		php_log( $url );
 
 		$response = wp_safe_remote_get( $url, $params );
 

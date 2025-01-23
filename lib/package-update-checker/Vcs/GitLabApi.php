@@ -112,7 +112,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 *
 		 * @return Reference|null
 		 */
-		public function getLatestRelease() {
+		public function get_latest_release() {
 			$releases = $this->api( '/:id/releases', array( 'per_page' => $this->release_filter_max_releases ) );
 
 			if ( is_wp_error( $releases ) || empty( $releases ) || ! is_array( $releases ) ) {
@@ -279,9 +279,8 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 * @return mixed|\WP_Error
 		 */
 		protected function api( $url, $query_params = array() ) {
-			$base_url = $url;
-			$url      = $this->build_api_url( $url, $query_params );
-			$options  = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
+			$url     = $this->build_api_url( $url, $query_params );
+			$options = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
 
 			if ( $this->is_authentication_enabled() ) {
 				$options['headers'] = $this->get_authorization_headers();
@@ -304,7 +303,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 
 			$error = new \WP_Error(
 				'puc-gitlab-http-error',
-				sprintf( 'GitLab API error. URL: "%s",  HTTP status code: %d.', $base_url, $code )
+				sprintf( 'GitLab API error. URL: "%s",  HTTP status code: %d.', $url, $code )
 			);
 
 			do_action( 'puc_api_error', $error, $response, $url, $this->slug );
@@ -420,9 +419,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 * @return string
 		 */
 		public function get_authorization_headers() {
-			return array(
-				'Authorization' => 'Basic ' . base64_encode( $this->user_name . ':' . $this->access_token ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			);
+			return array( 'PRIVATE-TOKEN' => $this->access_token );
 		}
 	}
 

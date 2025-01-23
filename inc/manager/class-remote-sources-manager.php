@@ -238,13 +238,15 @@ class Remote_Sources_Manager {
 					$options   = array( 'timeout' => 3 );
 
 					if ( 'GitLab' === $service ) {
-						$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
-						$url    = sprintf(
-							'%1$s://%2$s/api/v4/groups/%3$s/?private_token=%4$s',
+						$options['headers'] = array(
+							'PRIVATE-TOKEN' => $credentials,
+						);
+						$scheme             = wp_parse_url( $url, PHP_URL_SCHEME );
+						$url                = sprintf(
+							'%1$s://%2$s/api/v4/groups/%3$s/',
 							$scheme,
 							$host,
-							$user_name,
-							$credentials
+							$user_name
 						);
 					} else {
 
