@@ -176,21 +176,24 @@ class Update_API {
 		$this->init_server( $slug );
 		$this->update_server->set_type( $type );
 
-		if ( ! upserv_is_package_whitelisted( $slug ) ) {
-			upserv_whitelist_package( $slug );
-		}
-
-		$meta            = upserv_get_package_metadata( $slug );
-		$meta['vcs']     = trailingslashit( $this->update_server->get_vcs_url() );
-		$meta['branch']  = $this->update_server->get_branch();
-		$meta['type']    = $type;
-		$meta['vcs_key'] = hash( 'sha256', trailingslashit( $meta['vcs'] ) . '|' . $meta['branch'] );
-		$meta['origin']  = 'vcs';
-
-		upserv_set_package_metadata( $slug, $meta );
-
 		if ( $force || $this->update_server->check_remote_package_update( $slug ) ) {
 			$result = $this->update_server->save_remote_package_to_local( $slug, $force );
+		}
+
+		if ( $result ) {
+
+			if ( ! upserv_is_package_whitelisted( $slug ) ) {
+				upserv_whitelist_package( $slug );
+			}
+
+			$meta            = upserv_get_package_metadata( $slug );
+			$meta['vcs']     = trailingslashit( $this->update_server->get_vcs_url() );
+			$meta['branch']  = $this->update_server->get_branch();
+			$meta['type']    = $type;
+			$meta['vcs_key'] = hash( 'sha256', trailingslashit( $meta['vcs'] ) . '|' . $meta['branch'] );
+			$meta['origin']  = 'vcs';
+
+			upserv_set_package_metadata( $slug, $meta );
 		}
 
 		return $result;
