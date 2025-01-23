@@ -338,7 +338,7 @@ class Webhook_API {
 				$hook = 'upserv_check_remote_' . $slug;
 
 				if ( $package_exists ) {
-					$params           = array( $slug, $type, true );
+					$params           = array( $slug, $type, false );
 					$result           = true;
 					$scheduled_action = as_next_scheduled_action( $hook, $params );
 					$timestamp        = is_int( $scheduled_action ) ? $scheduled_action : false;
