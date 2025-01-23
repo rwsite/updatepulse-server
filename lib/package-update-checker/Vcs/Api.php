@@ -342,14 +342,6 @@ if ( ! class_exists( Api::class, false ) ) :
 		}
 
 		/**
-		 * @param string $url
-		 * @return string
-		 */
-		public function sign_download_url( $url ) {
-			return $url;
-		}
-
-		/**
 		 * @param string $directory
 		 */
 		public function set_local_directory( $directory ) {

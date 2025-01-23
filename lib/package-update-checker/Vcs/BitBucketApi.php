@@ -2,31 +2,29 @@
 
 namespace Anyape\PackageUpdateChecker\Vcs;
 
-use Anyape\PackageUpdateChecker\OAuthSignature;
-
 if ( ! class_exists( BitBucketApi::class, false ) ) :
 
 	class BitBucketApi extends Api {
 		/**
-		 * @var OAuthSignature
-		 */
-		private $oauth = null;
-
-		/**
 		 * @var string
 		 */
-		private $username;
+		private $user_name;
 
 		/**
 		 * @var string
 		 */
 		private $repository;
 
-		public function __construct( $repository_url, $credentials = array() ) {
+		/**
+		 * @var string Bitbucket app password. Optional.
+		 */
+		protected $app_password;
+
+		public function __construct( $repository_url, $app_password ) {
 			$path = wp_parse_url( $repository_url, PHP_URL_PATH );
 
-			if ( preg_match( '@^/?(?P<username>[^/]+?)/(?P<repository>[^/#?&]+?)/?$@', $path, $matches ) ) {
-				$this->username   = $matches['username'];
+			if ( preg_match( '@^/?(?P<user_name>[^/]+?)/(?P<repository>[^/#?&]+?)/?$@', $path, $matches ) ) {
+				$this->user_name  = $matches['user_name'];
 				$this->repository = $matches['repository'];
 			} else {
 				throw new \InvalidArgumentException(
@@ -34,7 +32,7 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 				);
 			}
 
-			parent::__construct( $repository_url, $credentials );
+			parent::__construct( $repository_url, $app_password );
 		}
 
 		protected function get_update_detection_strategies( $config_branch ) {
@@ -166,7 +164,7 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 		protected function get_download_url( $ref ) {
 			return sprintf(
 				'https://bitbucket.org/%s/%s/get/%s.zip',
-				$this->username,
+				$this->user_name,
 				$this->repository,
 				$ref
 			);
@@ -214,26 +212,24 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 		 */
 		public function api( $url, $version = '2.0' ) {
 			$url             = ltrim( $url, '/' );
+			$options         = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
 			$is_src_resource = 0 === strpos( $url, 'src/' );
-
-			$url      = implode(
+			$url             = implode(
 				'/',
 				array(
 					'https://api.bitbucket.org',
 					$version,
 					'repositories',
-					$this->username,
+					$this->user_name,
 					$this->repository,
 					$url,
 				)
 			);
-			$base_url = $url;
 
-			if ( $this->oauth ) {
-				$url = $this->oauth->sign( $url, 'GET' );
+			if ( $this->is_authentication_enabled() ) {
+				$options['headers'] = array( 'Authorization' => $this->get_authorization_header() );
 			}
 
-			$options  = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
 			$response = wp_remote_get( $url, $options );
 
 			if ( is_wp_error( $response ) ) {
@@ -260,7 +256,7 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 
 			$error = new \WP_Error(
 				'puc-bitbucket-http-error',
-				sprintf( 'BitBucket API error. Base URL: "%s",  HTTP status code: %d.', $base_url, $code )
+				sprintf( 'BitBucket API error. Base URL: "%s",  HTTP status code: %d.', $url, $code )
 			);
 
 			do_action( 'puc_api_error', $error, $response, $url, $this->slug );
@@ -274,25 +270,16 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 		public function set_authentication( $credentials ) {
 			parent::set_authentication( $credentials );
 
-			if ( ! empty( $credentials ) && ! empty( $credentials['consumer_key'] ) ) {
-				$this->oauth = new OAuthSignature(
-					$credentials['consumer_key'],
-					$credentials['consumer_secret']
-				);
-			} else {
-				$this->oauth = null;
-			}
+			$this->app_password = is_string( $credentials ) ? $credentials : null;
 		}
 
-		public function sign_download_url( $url ) {
-			//Add authentication data to download URLs. Since OAuth signatures incorporate
-			//timestamps, we have to do this immediately before inserting the update. Otherwise,
-			//authentication could fail due to a stale timestamp.
-			if ( $this->oauth ) {
-				$url = $this->oauth->sign( $url );
-			}
-
-			return $url;
+		/**
+		 * Generate the value of the "Authorization" header.
+		 *
+		 * @return string
+		 */
+		protected function get_authorization_header() {
+			return 'Basic ' . base64_encode( $this->user_name . ':' . $this->app_password ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		}
 	}
 

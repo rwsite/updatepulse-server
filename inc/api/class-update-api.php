@@ -277,20 +277,11 @@ class Update_API {
 			$vcs_config  = upserv_get_package_vcs_config( $slug );
 			$url         = isset( $vcs_config['url'] ) ? $vcs_config['url'] : false;
 			$branch      = isset( $vcs_config['branch'] ) ? $vcs_config['branch'] : false;
-			$credentials = isset( $vcs_config['credentials'] ) ? explode( '|', $vcs_config['credentials'] ) : false;
+			$credentials = isset( $vcs_config['credentials'] ) ? $vcs_config['credentials'] : '';
 			$self_hosted = isset( $vcs_config['self_hosted'] ) ? $vcs_config['self_hosted'] : false;
 
 			if ( ! $url || ! $branch ) {
 				return;
-			}
-
-			if ( $credentials && 2 === count( $credentials ) ) {
-				$credentials = array(
-					'consumer_key'    => $credentials[0],
-					'consumer_secret' => $credentials[1],
-				);
-			} else {
-				$credentials = ! $credentials ? '' : $credentials[0];
 			}
 		}
 

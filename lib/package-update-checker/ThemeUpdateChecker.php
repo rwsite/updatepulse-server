@@ -64,7 +64,7 @@ if ( ! class_exists( ThemeUpdateChecker::class, false ) ) :
 				$info['version'] = empty( $remote_header['Version'] ) ? $update_source->version : $remote_header['Version'];
 			}
 
-			$info['download_url'] = $this->api->sign_download_url( $update_source->download_url );
+			$info['download_url'] = $update_source->download_url;
 			$info['type']         = 'Theme';
 
 			/**

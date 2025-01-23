@@ -67,7 +67,7 @@ if ( ! class_exists( GenericUpdateChecker::class, false ) ) :
 				}
 			}
 
-			$info['download_url'] = $this->api->sign_download_url( $update_source->download_url );
+			$info['download_url'] = $update_source->download_url;
 			$info['type']         = 'Generic';
 
 			/**

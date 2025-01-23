@@ -233,34 +233,29 @@ class Remote_Sources_Manager {
 					}
 				}
 
-				if ( 'BitBucket' === $service ) {
-					wp_send_json_error(
-						new WP_Error(
-							__METHOD__,
-							__( 'Error - Test VCS Access is not supported for Bitbucket. Please save your settings and try to register a package in the Overview page.', 'updatepulse-server' )
-						)
-					);
-				}
-
 				if ( preg_match( '@^/?(?P<username>[^/]+?)/?$@', $path, $matches ) ) {
 					$user_name = $matches['username'];
+					$options   = array( 'timeout' => 3 );
 
-					if ( 'GitHub' === $service ) {
-						$url                = 'https://api.github.com/user'; //esc_url( 'https://api.github.com/orgs/' . $user_name . '/repos' );
-						$options            = array( 'timeout' => 3 );
-						$options['headers'] = array(
-							'Authorization' => 'Basic '
-								. base64_encode( $user_name . ':' . $credentials ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-						);
-					} elseif ( 'GitLab' === $service ) {
-						$options = array( 'timeout' => 3 );
-						$scheme  = wp_parse_url( $url, PHP_URL_SCHEME );
-						$url     = sprintf(
+					if ( 'GitLab' === $service ) {
+						$scheme = wp_parse_url( $url, PHP_URL_SCHEME );
+						$url    = sprintf(
 							'%1$s://%2$s/api/v4/groups/%3$s/?private_token=%4$s',
 							$scheme,
 							$host,
 							$user_name,
 							$credentials
+						);
+					} else {
+
+						if ( 'BitBucket' === $service ) {
+							$url = 'https://api.bitbucket.org/2.0/user';
+						} elseif ( 'GitHub' === $service ) {
+							$url = 'https://api.github.com/user';
+						}
+
+						$options['headers'] = array(
+							'Authorization' => 'Basic ' . base64_encode( $user_name . ':' . $credentials ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 						);
 					}
 				}
@@ -301,12 +296,22 @@ class Remote_Sources_Manager {
 							$condition = $user_name === $body['path'];
 						}
 
+						if ( 'BitBucket' === $service ) {
+							$body      = json_decode( $body, true );
+							$condition = $user_name === $body['username'];
+						}
+
 						if ( $condition ) {
 							$result[] = __( 'Version Control System was reached sucessfully.', 'updatepulse-server' );
 						} elseif ( 'GitHub' === $service && 200 !== $code && 204 !== $code ) {
 							$result = new WP_Error(
 								__METHOD__,
 								__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' ) . "\n" . __( 'If you are using a fine-grained access token for an organisation, please check the provided token has the permissions to access members information.', 'updatepulse-server' )
+							);
+						} elseif ( 'BitBucket' === $service && 200 !== $code && 204 !== $code ) {
+							$result = new WP_Error(
+								__METHOD__,
+								__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' ) . "\n" . __( 'Please check the provided App Password has the "account" permission.', 'updatepulse-server' )
 							);
 						} else {
 							$result = new WP_Error(

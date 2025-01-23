@@ -126,16 +126,6 @@
 								'<code>token</code>'
 							);
 							?>
-							<br>
-							<?php
-							printf(
-								// translators: %s is <code>consumer_key|consumer_secret</code>
-								esc_html__( 'In the case of Bitbucket, the Consumer key and secret separated by a pipe (%s).', 'updatepulse-server' ),
-								'<code>consumer_key|consumer_secret</code>'
-							);
-							?>
-							<br>
-							<?php esc_html_e( 'IMPORTANT: when creating the consumer, "This is a private consumer" must be checked.', 'updatepulse-server' ); ?>
 						</p>
 					</td>
 				</tr>
@@ -170,8 +160,6 @@
 							<?php esc_html_e( 'Send a test request to the Version Control System.', 'updatepulse-server' ); ?>
 							<br/>
 							<?php esc_html_e( 'The request checks whether the service is reachable and if the request can be authenticated.', 'updatepulse-server' ); ?>
-							<br/>
-							<strong><?php esc_html_e( 'Tests are not supported for Bitbucket; if you use Bitbucket, save your settings & try to register a package in the "Packages Overview" tab.', 'updatepulse-server' ); ?></strong>
 						</p>
 					</td>
 				</tr>
