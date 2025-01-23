@@ -19,7 +19,6 @@ class API_Manager {
 			add_filter( 'upserv_admin_styles', array( $this, 'upserv_admin_styles' ), 10, 1 );
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 20, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 20, 2 );
-			add_filter( 'upserv_page_upserv_scripts_l10n', array( $this, 'upserv_page_upserv_scripts_l10n' ), 20, 2 );
 		}
 	}
 
@@ -39,81 +38,57 @@ class API_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$l10n = array(
+			'deleteApiKeyConfirm'           => array(
+				__( 'You are about to delete an API key.', 'updatepulse-server' ),
+				__( 'If you proceed, the remote systems using it will not be able to access the API anymore.', 'updatepulse-server' ),
+				"\n",
+				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
+			),
+			'deleteApiWebhookConfirm'       => array(
+				__( 'You are about to delete a Webhook.', 'updatepulse-server' ),
+				__( 'If you proceed, the Payload URL will not receive the configured events anymore.', 'updatepulse-server' ),
+				"\n",
+				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
+			),
+			'addWebhookNoLicenseApiConfirm' => array(
+				__( 'You are about to add a Webhook without License API Key ID.', 'updatepulse-server' ),
+				__( 'If you proceed, the Payload URL will receive events for ALL licenses.', 'updatepulse-server' ),
+				"\n",
+				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
+			),
+			'actionApiCountSingular'        => __( '1 action', 'updatepulse-server' ),
+			'actionApiCountSingularOther'   => __( '1 action (all records)', 'updatepulse-server' ),
+			// translators: %d is the number of actions
+			'actionApiCountPlural'          => __( '%d actions', 'updatepulse-server' ),
+			// translators: %d is the number of actions
+			'actionApiCountPluralOther'     => __( '%d actions (all records)', 'updatepulse-server' ),
+			'actionApiCountAll'             => __( 'All actions', 'updatepulse-server' ),
+			'actionApiCountAllOther'        => __( 'All actions (all records)', 'updatepulse-server' ),
+			'eventApiCountAll'              => __( 'All events', 'updatepulse-server' ),
+			// translators: %s is the type of events
+			'eventApiCountAllType'          => __( 'All %s events', 'updatepulse-server' ),
+			// translators: %s is the type of event
+			'eventApiCountTypeSingular'     => __( '1 %s event', 'updatepulse-server' ),
+			// translators: %1$d is the number of events, %s is the type of events
+			'eventApiCountTypePlural'       => __( '%1$d %2$s events', 'updatepulse-server' ),
+			'eventApiTypePackage'           => _x( 'package', 'UpdatePulse Server webhook event type', 'updatepulse-server' ),
+			'eventApiTypeLicense'           => _x( 'license', 'UpdatePulse Server webhook event type', 'updatepulse-server' ),
+			// translators: the separator between summaries; example: All package events, 3 license events
+			'apiSumSep'                     => _x( ', ', 'UpdatePulse Server separator between API summaries', 'updatepulse-server' ),
+		);
+
+		$l10n           = apply_filters( 'upserv_scripts_l10n', $l10n, 'api' );
 		$scripts['api'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'js/admin/api' . upserv_assets_suffix() . '.js',
 			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/api' . upserv_assets_suffix() . '.js',
 			'deps' => array( 'jquery' ),
+			'l10n' => array(
+				'values' => $l10n,
+			),
 		);
 
 		return $scripts;
-	}
-
-	public function upserv_page_upserv_scripts_l10n( $l10n ) {
-		$l10n['deleteApiKeyConfirm']           = array(
-			__( 'You are about to delete an API key.', 'updatepulse-server' ),
-			__( 'If you proceed, the remote systems using it will not be able to access the API anymore.', 'updatepulse-server' ),
-			"\n",
-			__( 'Are you sure you want to do this?', 'updatepulse-server' ),
-		);
-		$l10n['deleteApiWebhookConfirm']       = array(
-			__( 'You are about to delete a Webhook.', 'updatepulse-server' ),
-			__( 'If you proceed, the Payload URL will not receive the configured events anymore.', 'updatepulse-server' ),
-			"\n",
-			__( 'Are you sure you want to do this?', 'updatepulse-server' ),
-		);
-		$l10n['addWebhookNoLicenseApiConfirm'] = array(
-			__( 'You are about to add a Webhook without License API Key ID.', 'updatepulse-server' ),
-			__( 'If you proceed, the Payload URL will receive events for ALL licenses.', 'updatepulse-server' ),
-			"\n",
-			__( 'Are you sure you want to do this?', 'updatepulse-server' ),
-		);
-		$l10n['actionApiCountSingular']        = array(
-			__( '1 action', 'updatepulse-server' ),
-		);
-		$l10n['actionApiCountSingularOther']   = array(
-			__( '1 action (all records)', 'updatepulse-server' ),
-		);
-		$l10n['actionApiCountPlural']          = array(
-			// translators: %d is the number of actions
-			__( '%d actions', 'updatepulse-server' ),
-		);
-		$l10n['actionApiCountPluralOther']     = array(
-			// translators: %d is the number of actions
-			__( '%d actions (all records)', 'updatepulse-server' ),
-		);
-		$l10n['actionApiCountAll']             = array(
-			__( 'All actions', 'updatepulse-server' ),
-		);
-		$l10n['actionApiCountAllOther']        = array(
-			__( 'All actions (all records)', 'updatepulse-server' ),
-		);
-		$l10n['eventApiCountAll']              = array(
-			__( 'All events', 'updatepulse-server' ),
-		);
-		$l10n['eventApiCountAllType']          = array(
-			// translators: %s is the type of events
-			__( 'All %s events', 'updatepulse-server' ),
-		);
-		$l10n['eventApiCountTypeSingular']     = array(
-			// translators: %s is the type of event
-			__( '1 %s event', 'updatepulse-server' ),
-		);
-		$l10n['eventApiCountTypePlural']       = array(
-			// translators: %1$d is the number of events, %s is the type of events
-			__( '%1$d %2$s events', 'updatepulse-server' ),
-		);
-		$l10n['eventApiTypePackage']           = array(
-			_x( 'package', 'UpdatePulse Server webhook event type', 'updatepulse-server' ),
-		);
-		$l10n['eventApiTypeLicense']           = array(
-			_x( 'license', 'UpdatePulse Server webhook event type', 'updatepulse-server' ),
-		);
-		$l10n['apiSumSep']                     = array(
-			// translators: the separator between summaries; example: All package events, 3 license events
-			_x( ', ', 'UpdatePulse Server separator between API summaries', 'updatepulse-server' ),
-		);
-
-		return $l10n;
 	}
 
 	public function admin_menu() {

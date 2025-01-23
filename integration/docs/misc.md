@@ -31,7 +31,7 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 		* [upserv\_mu\_require](#upserv_mu_require)
 		* [upserv\_mu\_plugin\_registration\_classes](#upserv_mu_plugin_registration_classes)
 		* [upserv\_is\_api\_request](#upserv_is_api_request)
-		* [upserv\_page\_upserv\_scripts\_l10n](#upserv_page_upserv_scripts_l10n)
+		* [upserv\_scripts\_l10n](#upserv_scripts_l10n)
 		* [upserv\_nonce\_api\_payload](#upserv_nonce_api_payload)
 		* [upserv\_nonce\_api\_code](#upserv_nonce_api_code)
 		* [upserv\_nonce\_api\_response](#upserv_nonce_api_response)
@@ -755,10 +755,10 @@ Filter whether the current request must be treated as an API request.
 > By default, `true` if the value of `wp_cache_get( 'upserv_mu_doing_api', 'updatepulse-server' )` is truthy, or a recalculated value otherwise.
 
 ___
-### upserv_page_upserv_scripts_l10n
+### upserv_scripts_l10n
 
 ```php
-apply_filters( 'upserv_page_upserv_scripts_l10n', array $l10n );
+apply_filters( 'upserv_scripts_l10n', array $l10n, string $handle );
 ```
 
 **Description**  
@@ -767,6 +767,9 @@ Filter the internationalization strings passed to the frontend scripts.
 **Parameters**  
 `$l10n`
 > (array) the internationalization strings passed to the frontend scripts  
+
+`$handle`
+> (string) the handle of the script
 
 ___
 ### upserv_nonce_api_payload

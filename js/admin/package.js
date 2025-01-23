@@ -1,6 +1,14 @@
-/* global UPServAdminMain, console, UPServAdminMain_l10n */
+/* global UPServAdminPackage, console, UPServAdminPackage_l10n */
 jQuery(document).ready(function ($) {
 	var registrationLocked = false;
+
+	$('.upserv-delete-all-packages').on('click', function(e) {
+		var r = window.confirm(UPServAdminPackage_l10n.deletePackagesConfirm);
+
+		if (!r) {
+			e.preventDefault();
+		}
+	});
 
 	$('#upserv_register_package_slug').on('input', function () {
 
@@ -37,7 +45,7 @@ jQuery(document).ready(function ($) {
 		registrationLocked = true;
 
 		$.ajax({
-			url: UPServAdminMain.ajax_url,
+			url: UPServAdminPackage.ajax_url,
 			data: data,
 			type: 'POST',
 			success: function(response) {
@@ -61,10 +69,11 @@ jQuery(document).ready(function ($) {
 				}
 			},
 			error: function (jqXHR, textStatus) {
-				UPServAdminMain.debug && console.log(textStatus);
+				UPServAdminPackage.debug && console.log(textStatus);
 
 				registrationLocked = false;
 
+				window.alert(message);
 				button.removeAttr('disabled');
 				button.next().css('visibility', 'hidden');
 			}
@@ -119,25 +128,25 @@ jQuery(document).ready(function ($) {
 		) {
 
 			if ($.inArray(file.type, validFileFormats) === -1) {
-				window.alert(UPServAdminMain_l10n.invalidFileFormat);
+				window.alert(UPServAdminPackage_l10n.invalidFileFormat);
 
 				valid = false;
 			}
 
 			if (0 === file.size) {
-				window.alert(UPServAdminMain_l10n.invalidFileSize);
+				window.alert(UPServAdminPackage_l10n.invalidFileSize);
 
 				valid = false;
 			}
 
 			if (!regex.test(file.name)) {
-				window.alert(UPServAdminMain_l10n.invalidFileName);
+				window.alert(UPServAdminPackage_l10n.invalidFileName);
 
 				valid = false;
 			}
 
 		} else {
-			window.alert(UPServAdminMain_l10n.invalidFile);
+			window.alert(UPServAdminPackage_l10n.invalidFile);
 
 			valid = false;
 		}
@@ -148,7 +157,7 @@ jQuery(document).ready(function ($) {
 			data.append('nonce', $('#upserv_plugin_options_handler_nonce').val());
 
 			$.ajax({
-				url: UPServAdminMain.ajax_url,
+				url: UPServAdminPackage.ajax_url,
 				data: data,
 				type: 'POST',
 				cache: false,
@@ -172,7 +181,7 @@ jQuery(document).ready(function ($) {
 					}
 				},
 				error: function (jqXHR, textStatus) {
-					UPServAdminMain.debug && console.log(textStatus);
+					UPServAdminPackage.debug && console.log(textStatus);
 				}
 			});
 		} else {

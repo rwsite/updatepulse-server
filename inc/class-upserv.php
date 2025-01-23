@@ -68,6 +68,7 @@ class UPServ {
 				add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 99, 2 );
 				add_filter( 'action_scheduler_retention_period', array( $this, 'action_scheduler_retention_period' ), 10, 0 );
 				add_filter( 'upserv_get_admin_template_args', array( $this, 'upserv_get_admin_template_args' ), 10, 2 );
+				add_filter( 'upserv_scripts_l10n', array( $this, 'upserv_scripts_l10n' ), 10, 2 );
 			}
 
 			add_action( 'init', array( $this, 'load_textdomain' ), 10, 0 );
@@ -256,37 +257,6 @@ class UPServ {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
-		$l10n = array(
-			'invalidFileFormat' => array( __( 'Error: invalid file format.', 'updatepulse-server' ) ),
-			'invalidFileSize'   => array( __( 'Error: invalid file size.', 'updatepulse-server' ) ),
-			'invalidFileName'   => array( __( 'Error: invalid file name.', 'updatepulse-server' ) ),
-			'invalidFile'       => array( __( 'Error: invalid file', 'updatepulse-server' ) ),
-			'deleteRecord'      => array( __( 'Are you sure you want to delete this record?', 'updatepulse-server' ) ),
-		);
-
-		if ( upserv_get_option( 'use_vcs' ) ) {
-			$l10n['deletePackagesConfirm'] = array(
-				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
-				__( 'Packages registered with a VCS will be added again automatically whenever a client asks for updates, or, if configured, when its Webhook is called.', 'updatepulse-server' ),
-				__( 'All packages manually uploaded will be permanently deleted.', 'updatepulse-server' ),
-				"\n",
-				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
-			);
-		} else {
-			$l10n['deletePackagesConfirm'] = array(
-				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
-				__( 'All packages will be permanently deleted.\n\nAre you sure you want to do this?', 'updatepulse-server' ),
-				"\n",
-				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
-			);
-		}
-
-		$l10n = apply_filters( 'upserv_page_upserv_scripts_l10n', $l10n );
-
-		foreach ( $l10n as $key => $values ) {
-			$l10n[ $key ] = implode( "\n", $values );
-		}
-
 		$scripts['main'] = array(
 			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/main' . upserv_assets_suffix() . '.js',
 			'uri'    => UPSERV_PLUGIN_URL . 'js/admin/main' . upserv_assets_suffix() . '.js',
@@ -295,12 +265,23 @@ class UPServ {
 				'debug'    => (bool) ( constant( 'WP_DEBUG' ) ),
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 			),
-			'l10n'   => array(
-				'values' => $l10n,
-			),
 		);
 
 		return $scripts;
+	}
+
+	public function upserv_scripts_l10n( $l10n, $script ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+
+		foreach ( $l10n as $key => $values ) {
+
+			if ( ! is_array( $values ) ) {
+				continue;
+			}
+
+			$l10n[ $key ] = implode( "\n", $values );
+		}
+
+		return $l10n;
 	}
 
 	public function admin_enqueue_scripts( $hook ) {

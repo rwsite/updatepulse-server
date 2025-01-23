@@ -71,14 +71,6 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
-	$('.upserv-delete-all-packages').on('click', function(e) {
-		var r = window.confirm(UPServAdminMain_l10n.deletePackagesConfirm);
-
-		if (!r) {
-			e.preventDefault();
-		}
-	});
-
 	$('.ajax-trigger').on('click', function(e) {
 		e.preventDefault();
 

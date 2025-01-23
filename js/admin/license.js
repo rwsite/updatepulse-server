@@ -3,6 +3,14 @@ jQuery(document).ready(function ($) {
 	var editor = wp.codeEditor;
 	var initEditor = true;
 
+	$('.upserv-delete-all-licenses').on('click', function (e) {
+		var r = window.confirm(UPServAdminLicense_l10n.deleteLicensesConfirm);
+
+		if (!r) {
+			e.preventDefault();
+		}
+	});
+
 	$('#add_license_trigger').on('click', function() {
 		showLicensePanel($('#upserv_license_panel'), function() {
 			populateLicensePanel();
@@ -17,6 +25,7 @@ jQuery(document).ready(function ($) {
             }, 500);
 		});
 	});
+
 	$('.upserv-licenses-table .open-panel .edit a').on('click', function(e){
 		e.preventDefault();
 

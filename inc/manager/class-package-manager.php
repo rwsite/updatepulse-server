@@ -130,10 +130,43 @@ class Package_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$l10n = array(
+			'invalidFileFormat' => __( 'Error: invalid file format.', 'updatepulse-server' ),
+			'invalidFileSize'   => __( 'Error: invalid file size.', 'updatepulse-server' ),
+			'invalidFileName'   => __( 'Error: invalid file name.', 'updatepulse-server' ),
+			'invalidFile'       => __( 'Error: invalid file', 'updatepulse-server' ),
+			'deleteRecord'      => __( 'Are you sure you want to delete this record?', 'updatepulse-server' ),
+		);
+
+		if ( upserv_get_option( 'use_vcs' ) ) {
+			$l10n['deletePackagesConfirm'] = array(
+				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
+				__( 'Packages registered with a VCS will be added again automatically whenever a client asks for updates, or, if configured, when its Webhook is called.', 'updatepulse-server' ),
+				__( 'All packages manually uploaded will be permanently deleted.', 'updatepulse-server' ),
+				"\n",
+				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
+			);
+		} else {
+			$l10n['deletePackagesConfirm'] = array(
+				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
+				__( 'All packages will be permanently deleted.\n\nAre you sure you want to do this?', 'updatepulse-server' ),
+				"\n",
+				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
+			);
+		}
+
+		$l10n               = apply_filters( 'upserv_scripts_l10n', $l10n, 'package' );
 		$scripts['package'] = array(
-			'path' => UPSERV_PLUGIN_PATH . 'js/admin/package' . upserv_assets_suffix() . '.js',
-			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/package' . upserv_assets_suffix() . '.js',
-			'deps' => array( 'jquery' ),
+			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/package' . upserv_assets_suffix() . '.js',
+			'uri'    => UPSERV_PLUGIN_URL . 'js/admin/package' . upserv_assets_suffix() . '.js',
+			'deps'   => array( 'jquery' ),
+			'params' => array(
+				'debug'    => (bool) ( constant( 'WP_DEBUG' ) ),
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+			),
+			'l10n'   => array(
+				'values' => $l10n,
+			),
 		);
 
 		return $scripts;

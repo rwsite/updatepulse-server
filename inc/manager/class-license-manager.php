@@ -42,7 +42,6 @@ class License_Manager {
 			add_action( 'load-_page_upserv-page-licenses', array( $this, 'add_page_options' ), 10, 0 );
 
 			add_filter( 'set-screen-option', array( $this, 'set_page_options' ), 10, 3 );
-			add_filter( 'upserv_page_upserv_scripts_l10n', array( $this, 'upserv_page_upserv_scripts_l10n' ), 10, 1 );
 		}
 	}
 
@@ -160,13 +159,24 @@ class License_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$l10n['deleteLicensesConfirm'] = array(
+			__( 'You are about to delete all the licenses from this server.', 'updatepulse-server' ),
+			__( 'All the records will be permanently deleted.', 'updatepulse-server' ),
+			__( 'Packages requiring these licenses will not be able to get a successful response from this server.', 'updatepulse-server' ),
+			"\n",
+			__( 'Are you sure you want to do this?', 'updatepulse-server' ),
+		);
+
+		$l10n               = apply_filters( 'upserv_scripts_l10n', $l10n, 'license' );
 		$scripts['license'] = array(
 			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/license' . upserv_assets_suffix() . '.js',
 			'uri'    => UPSERV_PLUGIN_URL . 'js/admin/license' . upserv_assets_suffix() . '.js',
 			'deps'   => array( 'jquery', 'upserv-jq-validate-admin-script' ),
 			'params' => array(
-				'debug'       => (bool) ( constant( 'WP_DEBUG' ) ),
 				'cm_settings' => wp_enqueue_code_editor( array( 'type' => 'text/json' ) ),
+			),
+			'l10n'   => array(
+				'values' => $l10n,
 			),
 		);
 
@@ -194,18 +204,6 @@ class License_Manager {
 
 	public function set_page_options( $status, $option, $value ) {
 		return $value;
-	}
-
-	public function upserv_page_upserv_scripts_l10n( $l10n ) {
-		$l10n['deleteLicensesConfirm'] = array(
-			__( 'You are about to delete all the licenses from this server.', 'updatepulse-server' ),
-			__( 'All the records will be permanently deleted.', 'updatepulse-server' ),
-			__( 'Packages requiring these licenses will not be able to get a successful response from this server.', 'updatepulse-server' ),
-			"\n",
-			__( 'Are you sure you want to do this?', 'updatepulse-server' ),
-		);
-
-		return $l10n;
 	}
 
 	public function upserv_packages_table_columns( $columns ) {
