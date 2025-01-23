@@ -267,7 +267,7 @@ class Package_Manager {
 				) :
 				new WP_Error(
 					__METHOD__,
-					__( 'Error - could not get remote package. The package was found and is valid, but the download was aborted. Please check the package is satisfying custom the requirements for this server.', 'updatepulse-server' )
+					__( 'Error - could not get remote package. The package was found and is valid, but the download was aborted. Please check the package is satisfying the requirements for this server.', 'updatepulse-server' )
 				);
 
 			wp_cache_delete( 'upserv_download_remote_package_aborted', 'updatepulse-server' );

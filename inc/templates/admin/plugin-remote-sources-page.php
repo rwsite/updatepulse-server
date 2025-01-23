@@ -120,7 +120,7 @@
 							<?php esc_html_e( 'Credentials for non-publicly accessible repositories.', 'updatepulse-server' ); ?>
 							<br>
 							<!-- In the case of Github and Gitlab, a Personal Access Token; in the case of Bitckucket, an App Password.<br/>**WARNING: Keep these credentials secret, do not share them, and take care of renewing them before they expire!** -->
-							<?php esc_html_e( 'In the case of Github and Gitlab, an access token; in the case of Bitckucket, an App Password.', 'updatepulse-server' ); ?>
+							<?php esc_html_e( 'In the case of Github and Gitlab, a Personal Access Token (PAT); in the case of Bitckucket, an App Password.', 'updatepulse-server' ); ?>
 							<br>
 							<strong><?php esc_html_e( 'WARNING: Keep these credentials secret, do not share them, and take care of renewing them before they expire!', 'updatepulse-server' ); ?></strong>
 						</p>
@@ -133,12 +133,12 @@
 					<td>
 						<input type="checkbox" id="upserv_vcs_filter_packages" data-prop="filter_packages" name="upserv_vcs_filter_packages" value="1">
 						<p class="description">
-							<?php esc_html_e( 'Check this if you wish to filter the packages to download from the Version Control System so that only packages explicitly associated with this server are downloaded.', 'updatepulse-server' ); ?>
+							<?php esc_html_e( 'When checked, packages downloaded from the Version Control System are filtered to include only those explicitly associated with this server.', 'updatepulse-server' ); ?>
 							<br/>
 							<?php
 							printf(
 								// translators: %1$s is <code>updatepulse.json</code>, %2$s is <code>server</code>, %3$s is <code>https://sub.domain.tld/</code>
-								esc_html__( 'When checked, UpdatePulse Server will only download packages that have a file named %1$s in the root of the repository, with the %2$s value set to %3$s.', 'updatepulse-server' ),
+								esc_html__( 'In this case, UpdatePulse Server downloads only packages containing a file named %1$s in the root of the repository, with the %2$s value set to %3$s.', 'updatepulse-server' ),
 								'<code>' . esc_html( apply_filters( 'upserv_filter_packages_flag_file', 'updatepulse.json' ) ) . '</code>',
 								'<code>server</code>',
 								'<code>' . esc_url( trailingslashit( home_url() ) ) . '</code>',
@@ -167,8 +167,7 @@
 					<td>
 						<input type="checkbox" id="upserv_vcs_use_webhooks" data-prop="use_webhooks" name="upserv_vcs_use_webhooks" value="1">
 						<p class="description">
-							<?php esc_html_e( 'Check this if you wish for each repository of the Version Control System to call a Webhook when updates are pushed.', 'updatepulse-server' ); ?><br>
-							<?php esc_html_e( 'When checked, UpdatePulse Server will not regularly poll repositories for package version changes, but relies on events sent by the Version Control System to schedule a package download.', 'updatepulse-server' ); ?>
+							<?php esc_html_e( 'When checked, UpdatePulse Server does not regularly poll the repositories for package version changes, but relies on the Webhook payloads sent by the Version Control System to schedule a download in case the package does not exist or if a new version is available.', 'updatepulse-server' ); ?>
 							<br/>
 							<?php
 							printf(
