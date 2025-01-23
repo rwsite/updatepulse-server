@@ -8,9 +8,14 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 		public $debug_mode = null;
 		public $directory_name;
 		public $slug;
+		public $package_absolute_path = '';
+
 
 		protected $branch = 'main';
 		protected $api;
+		protected $ref;
+		protected $update_source;
+		protected $package_file;
 
 		public function trigger_error( $message, $error_type ) {
 
@@ -65,6 +70,78 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 		public function get_vcs_api() {
 			return $this->api;
 		}
+
+		public function request_info( $type = 'Generic' ) {
+
+			if ( function_exists( 'set_time_limit' ) ) {
+				@set_time_limit( 60 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			}
+
+			$this->api->set_local_directory( trailingslashit( $this->package_absolute_path ) );
+
+			$update_source = $this->api->choose_reference( $this->branch );
+
+			if ( $update_source ) {
+				$ref = $update_source->name;
+			} else {
+				//There's probably a network problem or an authentication error.
+				return new \WP_Error(
+					'puc-no-update-source',
+					'Could not retrieve version information from the repository for '
+					. $this->slug . '.'
+					. 'This usually means that the update checker either can\'t connect '
+					. 'to the repository or it\'s configured incorrectly.'
+				);
+			}
+
+			/**
+			 * Pre-filter the info that will be returned by the update checker.
+			 *
+			 * @param array $info The info that will be returned by the update checker.
+			 * @param YahnisElsts\PackageUpdateChecker\Vcs\API $api The API object that was used to fetch the info.
+			 * @param string $ref The tag or branch that was used to fetch the info.
+			 * @param YahnisElsts\PackageUpdateChecker\UpdateChecker $checker The update checker object calling this filter.
+			 */
+			$info = apply_filters(
+				'puc_request_info_pre_filter',
+				array( 'slug' => $this->slug ),
+				$this->api,
+				$ref,
+				$this
+			);
+			$info = is_array( $info ) ? $info : array();
+
+			$this->ref           = $ref;
+			$this->update_source = $update_source;
+
+			if ( isset( $info['abort_request'] ) && $info['abort_request'] ) {
+				return $info;
+			}
+
+			$file = $this->api->get_remote_file( basename( $this->package_file ), $this->ref );
+
+			if ( ! empty( $file ) ) {
+				$info['version'] = $this->get_version_from_package_file( $file );
+			}
+
+			$info['download_url'] = $this->update_source->download_url;
+			$info['type']         = $type;
+			$info['main_file']    = $this->package_file;
+
+			/**
+			 * Filter the info that will be returned by the update checker.
+			 *
+			 * @param array $info The info that will be returned by the update checker.
+			 * @param YahnisElsts\PackageUpdateChecker\Vcs\API $api The API object that was used to fetch the info.
+			 * @param string $ref The tag or branch that was used to fetch the info.
+			 * @param YahnisElsts\PackageUpdateChecker\UpdateChecker $checker The update checker object calling this filter.
+			 */
+			$info = apply_filters( 'puc_request_info_result', $info, $this->api, $this->ref, $this );
+
+			return $info;
+		}
+
+		abstract protected function get_version_from_package_file( $file );
 
 		/**
 		 * @return array Format: ['HeaderKey' => 'Header Name']
