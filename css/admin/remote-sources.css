@@ -64,18 +64,24 @@
 .upserv-wrap .vcs .item:not(.template) {
     line-height: 1.5em;
     padding: 1em 1em 0.5em;
-    min-width: 100px;
+    min-width: 120px;
     max-width: 170px;
 }
 
 .upserv-wrap .vcs .item code {
-    word-break: break-all;
-    white-space: initial;
+    word-break: keep-all;
+    white-space: nowrap;
     display: flex;
     margin: 0 0 0.5em 0;
-    gap: 0.75em;
-    padding-left: 0.75em;
+    gap: 0.5em;
+    padding-left: 0.5em;
     align-items: baseline;
+}
+
+.upserv-wrap .vcs .item code span {
+    text-overflow: ellipsis;
+    display: block;
+    overflow: hidden;
 }
 
 .upserv-wrap .vcs .item code i {

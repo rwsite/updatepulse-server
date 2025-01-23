@@ -34,8 +34,6 @@ class Zip_Package_Manager {
 	}
 
 	public static function zip_package( $source, $destination, $container_dir = '' ) {
-		global $wp_filesystem;
-
 		$zip = new ZipArchive();
 
 		if ( ! $zip->open( $destination, ZIPARCHIVE::CREATE ) ) {

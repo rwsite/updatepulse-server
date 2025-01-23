@@ -274,7 +274,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 			$options = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
 
 			if ( $this->is_authentication_enabled() ) {
-				$options['headers'] = array( 'Authorization' => $this->get_authorization_header() );
+				$options['headers'] = $this->get_authorization_headers();
 			}
 
 			$response = wp_remote_get( $url, $options );
@@ -463,7 +463,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 			$repo_api_base_url = $this->build_api_url( '/repos/:user/:repo/', array() );
 
 			if ( $this->is_authentication_enabled() && ( strpos( $url, $repo_api_base_url ) ) === 0 ) {
-				$request_args['headers']['Authorization'] = $this->get_authorization_header();
+				$request_args['headers'] = array_merge( $request_args['headers'], $this->get_authorization_headers() );
 			}
 
 			return $request_args;
@@ -496,8 +496,10 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		 *
 		 * @return string
 		 */
-		protected function get_authorization_header() {
-			return 'Basic ' . base64_encode( $this->user_name . ':' . $this->access_token ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		public function get_authorization_headers() {
+			return array(
+				'Authorization' => 'Basic ' . base64_encode( $this->user_name . ':' . $this->access_token ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			);
 		}
 	}
 

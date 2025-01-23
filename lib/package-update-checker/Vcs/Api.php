@@ -359,6 +359,15 @@ if ( ! class_exists( Api::class, false ) ) :
 		public function set_slug( $slug ) {
 			$this->slug = $slug;
 		}
+
+		/**
+		 * Generate the value of the "Authorization" header.
+		 *
+		 * @return string
+		 */
+		public function get_authorization_headers() {
+			return false;
+		}
 	}
 
 endif;

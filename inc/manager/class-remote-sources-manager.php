@@ -544,7 +544,7 @@ class Remote_Sources_Manager {
 				}
 			} elseif ( isset( $option_info['condition'] ) && 'boolean' === $option_info['condition'] ) {
 				$condition            = true;
-				$option_info['value'] = ( $option_info['value'] );
+				$option_info['value'] = (bool) $option_info['value'];
 			}
 
 			$condition = apply_filters(

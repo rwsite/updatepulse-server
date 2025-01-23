@@ -20,7 +20,7 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 		 */
 		protected $app_password;
 
-		public function __construct( $repository_url, $app_password ) {
+		public function __construct( $repository_url, $app_password = null ) {
 			$path = wp_parse_url( $repository_url, PHP_URL_PATH );
 
 			if ( preg_match( '@^/?(?P<user_name>[^/]+?)/(?P<repository>[^/#?&]+?)/?$@', $path, $matches ) ) {
@@ -227,7 +227,7 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 			);
 
 			if ( $this->is_authentication_enabled() ) {
-				$options['headers'] = array( 'Authorization' => $this->get_authorization_header() );
+				$options['headers'] = $this->get_authorization_headers();
 			}
 
 			$response = wp_remote_get( $url, $options );
@@ -278,8 +278,10 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 		 *
 		 * @return string
 		 */
-		protected function get_authorization_header() {
-			return 'Basic ' . base64_encode( $this->user_name . ':' . $this->app_password ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		public function get_authorization_headers() {
+			return array(
+				'Authorization' => 'Basic ' . base64_encode( $this->user_name . ':' . $this->app_password ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			);
 		}
 	}
 

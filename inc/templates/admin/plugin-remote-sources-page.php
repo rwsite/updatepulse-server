@@ -8,10 +8,10 @@
 		<table class="form-table package-source switch">
 			<tr>
 				<th>
-					<label for="use_vcs"><?php esc_html_e( 'Enable VCS', 'updatepulse-server' ); ?></label>
+					<label for="upserv_use_vcs"><?php esc_html_e( 'Enable VCS', 'updatepulse-server' ); ?></label>
 				</th>
 				<td>
-					<input type="checkbox" id="use_vcs" name="use_vcs" value="1" <?php checked( $options['use_vcs'], 1 ); ?>>
+					<input type="checkbox" id="upserv_use_vcs" name="upserv_use_vcs" value="1" <?php checked( $options['use_vcs'], 1 ); ?>>
 					<p class="description">
 						<?php esc_html_e( 'Enables this server to download plugins, themes and generic packages from a Version Control System before delivering updates.', 'updatepulse-server' ); ?>
 						<br>
@@ -119,13 +119,10 @@
 						<p class="description">
 							<?php esc_html_e( 'Credentials for non-publicly accessible repositories.', 'updatepulse-server' ); ?>
 							<br>
-							<?php
-							printf(
-								// translators: %s is <code>token</code>
-								esc_html__( 'In the case of Github and Gitlab, an access token (%s).', 'updatepulse-server' ),
-								'<code>token</code>'
-							);
-							?>
+							<!-- In the case of Github and Gitlab, a Personal Access Token; in the case of Bitckucket, an App Password.<br/>**WARNING: Keep these credentials secret, do not share them, and take care of renewing them before they expire!** -->
+							<?php esc_html_e( 'In the case of Github and Gitlab, an access token; in the case of Bitckucket, an App Password.', 'updatepulse-server' ); ?>
+							<br>
+							<strong><?php esc_html_e( 'WARNING: Keep these credentials secret, do not share them, and take care of renewing them before they expire!', 'updatepulse-server' ); ?></strong>
 						</p>
 					</td>
 				</tr>

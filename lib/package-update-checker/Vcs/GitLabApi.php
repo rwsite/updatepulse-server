@@ -147,10 +147,6 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 					return null;
 				}
 
-				if ( ! empty( $this->access_token ) ) {
-					$download_url = add_query_arg( 'private_token', $this->access_token, $download_url );
-				}
-
 				return new Reference(
 					array(
 						'name'         => $release->tag_name,
@@ -286,6 +282,11 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			$base_url = $url;
 			$url      = $this->build_api_url( $url, $query_params );
 			$options  = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
+
+			if ( $this->is_authentication_enabled() ) {
+				$options['headers'] = $this->get_authorization_headers();
+			}
+
 			$response = wp_remote_get( $url, $options );
 
 			if ( is_wp_error( $response ) ) {
@@ -332,10 +333,6 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			$url = substr( $url, 1 );
 			$url = sprintf( '%1$s://%2$s/api/v4/projects/%3$s', $this->repository_protocol, $this->repository_host, $url );
 
-			if ( ! empty( $this->access_token ) ) {
-				$query_params['private_token'] = $this->access_token;
-			}
-
 			if ( ! empty( $query_params ) ) {
 				$url = add_query_arg( $query_params, $url );
 			}
@@ -374,10 +371,6 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				rawurlencode( $this->user_name . '/' . $this->repository_name )
 			);
 			$url = add_query_arg( 'sha', rawurlencode( $ref ), $url );
-
-			if ( ! empty( $this->access_token ) ) {
-				$url = add_query_arg( 'private_token', $this->access_token, $url );
-			}
 
 			return $url;
 		}
@@ -419,6 +412,17 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			}
 
 			return null;
+		}
+
+		/**
+		 * Generate the value of the "Authorization" header.
+		 *
+		 * @return string
+		 */
+		public function get_authorization_headers() {
+			return array(
+				'Authorization' => 'Basic ' . base64_encode( $this->user_name . ':' . $this->access_token ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			);
 		}
 	}
 

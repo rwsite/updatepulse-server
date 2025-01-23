@@ -926,10 +926,16 @@ class Update_Server {
 		);
 
 		if ( is_string( $this->credentials ) ) {
-			$params['headers'] = array(
-				'Authorization' => 'token ' . $this->credentials,
-			);
+			$auth_headers = $this->update_checker->get_vcs_api()->get_authorization_header();
+
+			if ( $auth_headers ) {
+				$params['headers'] = array(
+					'Authorization' => $auth_headers,
+				);
+			}
 		}
+
+		php_log( $url );
 
 		$response = wp_safe_remote_get( $url, $params );
 
