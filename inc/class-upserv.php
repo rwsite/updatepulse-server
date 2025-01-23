@@ -588,15 +588,13 @@ class UPServ {
 					);
 
 					if ( isset( $values['params'] ) ) {
-						$var_prefix              = 'UPServAdmin';
 						$values['params_before'] = isset( $values['params_before'] ) ?
 							$values['params_before'] :
 							'before';
 
 						wp_add_inline_script(
 							'upserv-' . $key . $suffix,
-							'var '
-								. $var_prefix
+							'var UPServAdmin'
 								. ucfirst( str_replace( '-', '', ucwords( $key, '-' ) ) )
 								. ' = '
 								. wp_json_encode( $values['params'] ),
@@ -605,21 +603,18 @@ class UPServ {
 					}
 
 					if ( isset( $values['l10n'] ) ) {
-						$var_prefix               = 'UPServAdmin';
-						$values['l10n']['var']    = isset( $values['l10n']['var'] ) ?
-							$values['l10n']['var'] :
-							$var_prefix
-								. ucfirst( str_replace( '-', '', ucwords( $key, '-' ) ) )
-								. '_l10n';
-						$values['l10n']['values'] = isset( $values['l10n']['values'] ) ?
-							$values['l10n']['values'] :
-							array();
+						$vals = $values['l10n'];
+						$var  = 'UPServAdmin'
+							. ucfirst( str_replace( '-', '', ucwords( $key, '-' ) ) )
+							. '_l10n';
 
-						wp_localize_script(
-							'upserv-' . $key . $suffix,
-							$values['l10n']['var'],
-							$values['l10n']['values']
-						);
+						if ( isset( $values['l10n']['_var'] ) ) {
+							$var = $values['l10n']['_var'];
+
+							unset( $vals['_var'] );
+						}
+
+						wp_localize_script( 'upserv-' . $key . $suffix, $var, $vals );
 					}
 				}
 			}

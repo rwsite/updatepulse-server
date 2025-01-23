@@ -155,7 +155,6 @@ class Package_Manager {
 			);
 		}
 
-		$l10n               = apply_filters( 'upserv_scripts_l10n', $l10n, 'package' );
 		$scripts['package'] = array(
 			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/package' . upserv_assets_suffix() . '.js',
 			'uri'    => UPSERV_PLUGIN_URL . 'js/admin/package' . upserv_assets_suffix() . '.js',
@@ -164,9 +163,7 @@ class Package_Manager {
 				'debug'    => (bool) ( constant( 'WP_DEBUG' ) ),
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 			),
-			'l10n'   => array(
-				'values' => $l10n,
-			),
+			'l10n'   => apply_filters( 'upserv_scripts_l10n', $l10n, 'package' ),
 		);
 
 		return $scripts;

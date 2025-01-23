@@ -166,18 +166,14 @@ class License_Manager {
 			"\n",
 			__( 'Are you sure you want to do this?', 'updatepulse-server' ),
 		);
-
-		$l10n               = apply_filters( 'upserv_scripts_l10n', $l10n, 'license' );
-		$scripts['license'] = array(
+		$scripts['license']            = array(
 			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/license' . upserv_assets_suffix() . '.js',
 			'uri'    => UPSERV_PLUGIN_URL . 'js/admin/license' . upserv_assets_suffix() . '.js',
 			'deps'   => array( 'jquery', 'upserv-jq-validate-admin-script' ),
 			'params' => array(
 				'cm_settings' => wp_enqueue_code_editor( array( 'type' => 'text/json' ) ),
 			),
-			'l10n'   => array(
-				'values' => $l10n,
-			),
+			'l10n'   => apply_filters( 'upserv_scripts_l10n', $l10n, 'license' ),
 		);
 
 		wp_enqueue_script( 'wp-theme-plugin-editor' );

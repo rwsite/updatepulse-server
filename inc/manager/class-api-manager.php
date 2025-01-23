@@ -77,15 +77,11 @@ class API_Manager {
 			// translators: the separator between summaries; example: All package events, 3 license events
 			'apiSumSep'                     => _x( ', ', 'UpdatePulse Server separator between API summaries', 'updatepulse-server' ),
 		);
-
-		$l10n           = apply_filters( 'upserv_scripts_l10n', $l10n, 'api' );
 		$scripts['api'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'js/admin/api' . upserv_assets_suffix() . '.js',
 			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/api' . upserv_assets_suffix() . '.js',
 			'deps' => array( 'jquery' ),
-			'l10n' => array(
-				'values' => $l10n,
-			),
+			'l10n' => apply_filters( 'upserv_scripts_l10n', $l10n, 'api' ),
 		);
 
 		return $scripts;
