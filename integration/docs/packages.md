@@ -138,6 +138,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_pre\_filter\_packages\_info](#upserv_pre_filter_packages_info)
         * [upserv\_filter\_packages\_info](#upserv_filter_packages_info)
         * [upserv\_filter\_packages\_filename](#upserv_filter_packages_filename)
+        * [upserv\_webhook\_vcs\_url](#upserv_webhook_vcs_url)
         * [upserv\_webhook\_secret](#upserv_webhook_secret)
         * [upserv\_webhook\_signature](#upserv_webhook_signature)
         * [upserv\_webhook\_validate\_request](#upserv_webhook_validate_request)
@@ -3152,6 +3153,23 @@ Filter the name of the file used to filter the packages retrieved from the Versi
 **Parameters**  
 `$file_name`
 > (string) the name of the file used to filter the packages retrieved from the Version Control System
+
+___
+### upserv_webhook_vcs_url
+
+```php
+apply_filters( 'upserv_webhook_vcs_url', string $url, array $payload );
+```
+
+**Description**
+Filter the URL of the Version Control System extracted from the webhook payload.
+
+**Parameters**
+`$url`
+> (string) the URL of the Version Control System
+
+`$payload`
+> (array) the payload of the request
 
 ___
 ### upserv_webhook_secret

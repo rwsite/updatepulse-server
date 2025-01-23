@@ -505,8 +505,7 @@ class Webhook_API {
 			$url = $payload['repository']['links']['html']['href'];
 		}
 
-		// TODO: make it more robust to change by adding a filter here
-
+		$url        = apply_filters( 'upserv_webhook_vcs_url', $url, $payload );
 		$parsed_url = wp_parse_url( $url );
 
 		if ( ! isset( $parsed_url['path'] ) ) {
