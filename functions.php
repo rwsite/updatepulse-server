@@ -92,6 +92,66 @@ if ( ! function_exists( 'get_vcs_name' ) ) {
 }
 
 /*******************************************************************
+ * l10n functions
+ *******************************************************************/
+
+if ( ! function_exists( 'upserv_set_locale' ) ) {
+	function upserv_set_locale() {
+		$target = filter_input( INPUT_GET, 'lang', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$target = $target ? $target : filter_input( INPUT_POST, 'lang', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+		if ( ! $target || ! preg_match( '/^[a-z]{2,3}([-_][A-Z]{2})?$/', $target ) ) {
+			return new WP_Error(
+				'invalid_locale',
+				__( 'The requested locale is not valid.', 'updatepulse-server' )
+			);
+		}
+
+		if ( get_locale() === $target ) {
+			return new WP_Error(
+				'unchanged_locale',
+				__( 'The requested locale is the same as the current locale.', 'updatepulse-server' )
+			);
+		}
+
+		$langs  = array_merge( get_available_languages(), array_keys( wp_get_available_translations() ) );
+		$return = true;
+
+		if ( ! in_array( $target, $langs, true ) ) {
+
+			if ( ! wp_can_install_language_pack() ) {
+				$return = new WP_Error(
+					'cannot_install_language_pack',
+					__( 'WordPress cannot install language pack.', 'updatepulse-server' )
+				);
+			}
+
+			if ( $return && ! wp_download_language_pack( $target ) ) {
+				$return = new WP_Error(
+					'download_language_pack_failed',
+					__( 'Failed to download the requested locale language pack.', 'updatepulse-server' )
+				);
+			}
+		}
+
+		if ( is_wp_error( $return ) ) {
+			return $return;
+		}
+
+		switch_to_locale( $target );
+
+		return $return;
+	}
+}
+
+if ( ! function_exists( 'upserv_restore_locale' ) ) {
+	function upserv_restore_locale() {
+		return (bool) restore_previous_locale();
+	}
+}
+
+
+/*******************************************************************
  * Options functions
  *******************************************************************/
 
