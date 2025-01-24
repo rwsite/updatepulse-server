@@ -24,15 +24,16 @@ class Update_Server {
 
 	const LOCK_REMOTE_UPDATE_SEC = 10;
 
-	protected $package_directory;
-	protected $log_directory;
+	protected $package_dir;
+	protected $log_dir;
 	protected $cache;
 	protected $server_url;
 	protected $timezone;
-	protected $server_directory;
+	protected $server_dir;
 	protected $vcs_url;
 	protected $branch;
 	protected $credentials;
+	protected $vcs_type;
 	protected $self_hosted;
 	protected $update_checker;
 	protected $type;
@@ -40,18 +41,19 @@ class Update_Server {
 	protected $license_key;
 	protected $license_signature;
 
-	public function __construct( $server_url, $server_directory, $vcs_url, $branch, $credentials, $self_hosted ) {
-		$this->server_directory  = $this->normalize_file_path( untrailingslashit( $server_directory ) );
-		$this->server_url        = $server_url;
-		$this->package_directory = $server_directory . 'packages';
-		$this->log_directory     = $server_directory . 'logs';
-		$this->cache             = new Cache( $server_directory . 'cache' );
-		$this->timezone          = new DateTimeZone( wp_timezone_string() );
-		$this->server_directory  = $server_directory;
-		$this->self_hosted       = $self_hosted;
-		$this->vcs_url           = $vcs_url ? trailingslashit( $vcs_url ) : false;
-		$this->branch            = $branch;
-		$this->credentials       = $credentials;
+	public function __construct( $server_url, $server_dir, $vcs_url, $branch, $credentials, $vcs_type, $self_hosted ) {
+		$this->server_dir  = $this->normalize_file_path( untrailingslashit( $server_dir ) );
+		$this->server_url  = $server_url;
+		$this->package_dir = $server_dir . 'packages';
+		$this->log_dir     = $server_dir . 'logs';
+		$this->cache       = new Cache( $server_dir . 'cache' );
+		$this->timezone    = new DateTimeZone( wp_timezone_string() );
+		$this->server_dir  = $server_dir;
+		$this->vcs_type    = $vcs_type;
+		$this->self_hosted = $self_hosted;
+		$this->vcs_url     = $vcs_url ? trailingslashit( $vcs_url ) : false;
+		$this->branch      = $branch;
+		$this->credentials = $credentials;
 	}
 
 	/*******************************************************************
@@ -281,7 +283,7 @@ class Update_Server {
 
 		self::lock_update_from_remote( $slug );
 
-		$package_path = trailingslashit( $this->package_directory ) . $slug . '.zip';
+		$package_path = trailingslashit( $this->package_dir ) . $slug . '.zip';
 		$result       = false;
 		$type         = false;
 		$cache_key    = false;
@@ -493,7 +495,7 @@ class Update_Server {
 
 		$safe_slug     = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
 		$package       = false;
-		$filename      = trailingslashit( $this->package_directory ) . $safe_slug . '.zip';
+		$filename      = trailingslashit( $this->package_dir ) . $safe_slug . '.zip';
 		$save_to_local = apply_filters(
 			'upserv_save_remote_to_local',
 			! is_file( $filename ) || ! is_readable( $filename ),
@@ -631,7 +633,7 @@ class Update_Server {
 	 * @return string
 	 */
 	protected function get_log_file_name() {
-		$path  = $this->log_directory . '/request';
+		$path  = $this->log_dir . '/request';
 		$date  = new DateTime( 'now', $this->timezone );
 		$path .= '-' . $date->format( 'Y-m-d' );
 
@@ -795,106 +797,27 @@ class Update_Server {
 		return $is_locked;
 	}
 
-	protected static function build_update_checker(
-		$metadata_url,
-		$slug,
-		$file_name,
-		$type,
-		$package_container,
-		$self_hosted = false,
-	) {
-
-		if ( 'Plugin' !== $type && 'Theme' !== $type && 'Generic' !== $type ) {
-			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				sprintf(
-					'UpdatePulse does not support packages of type %s',
-					esc_html( $type )
-				),
-				E_USER_ERROR
-			);
-		}
-
-		$api_class = false;
-
-		if ( $self_hosted ) {
-			$api_class = 'GitLabApi';
-		} else {
-			$host                = wp_parse_url( $metadata_url, PHP_URL_HOST );
-			$path                = wp_parse_url( $metadata_url, PHP_URL_PATH );
-			$username_repo_regex = '@^/?([^/]+?)/([^/#?&]+?)/?$@';
-
-			if ( preg_match( $username_repo_regex, $path ) ) {
-				$known_services = array(
-					'github.com'    => 'GitHub',
-					'bitbucket.org' => 'BitBucket',
-					'gitlab.com'    => 'GitLab',
-				);
-
-				if ( isset( $known_services[ $host ] ) ) {
-					$api_class = $known_services[ $host ] . 'Api';
-				}
-			}
-		}
+	protected function build_update_checker( $slug, $package_filename ) {
+		$repo_url  = trailingslashit( $this->vcs_url ) . $slug;
+		$service   = upserv_get_vcs_name( $this->vcs_type, 'edit' );
+		$api_class = $service ? 'Anyape\PackageUpdateChecker\Vcs\\' . $service . 'Api' : false;
 
 		if ( ! $api_class ) {
-			trigger_error( //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				sprintf(
-					'UpdatePulse could not find a supported service for %s',
-					esc_html( $metadata_url )
-				),
-				E_USER_ERROR
-			);
+			return false;
 		}
 
-		$checker_class = 'Anyape\PackageUpdateChecker\\' . $type . 'UpdateChecker';
+		$checker_class = 'Anyape\PackageUpdateChecker\\' . $this->type . 'UpdateChecker';
 		$api_class     = 'Anyape\PackageUpdateChecker\Vcs\\' . $api_class;
-		$params        = array(
-			new $api_class( $metadata_url ),
-			$slug,
-			$package_container,
-		);
+		$params        = array( new $api_class( $repo_url ), $slug, $this->package_dir );
 
-		if ( $file_name ) {
-			$params[] = $file_name;
+		if ( $package_filename ) {
+			$params[] = $package_filename;
 		}
 
 		return new $checker_class( ...$params );
 	}
 
 	protected function init_update_checker( $slug ) {
-
-		if ( $this->update_checker ) {
-			return;
-		}
-
-		require_once UPSERV_PLUGIN_PATH . 'lib/package-update-checker/package-update-checker.php';
-
-		$package_file_name = null;
-
-		if ( 'Plugin' === $this->type ) {
-			$package_file_name = $slug;
-		} elseif ( 'Generic' === $this->type ) {
-			$package_file_name = 'updatepulse';
-		}
-
-		$this->update_checker = self::build_update_checker(
-			trailingslashit( $this->vcs_url ) . $slug,
-			$slug,
-			$package_file_name,
-			$this->type,
-			$this->package_directory,
-			$this->self_hosted
-		);
-
-		if ( $this->update_checker ) {
-
-			if ( $this->credentials ) {
-				$this->update_checker->set_authentication( $this->credentials );
-			}
-
-			$this->update_checker->set_branch( $this->branch );
-		}
-
 		$this->update_checker = apply_filters(
 			'upserv_update_checker',
 			$this->update_checker,
@@ -905,6 +828,31 @@ class Update_Server {
 			$this->credentials,
 			$this->self_hosted
 		);
+
+		if ( $this->update_checker ) {
+			return;
+		}
+
+		require_once UPSERV_PLUGIN_PATH . 'lib/package-update-checker/package-update-checker.php';
+
+		$package_filename = null;
+
+		if ( 'Plugin' === $this->type ) {
+			$package_filename = $slug;
+		} elseif ( 'Generic' === $this->type ) {
+			$package_filename = 'updatepulse';
+		}
+
+		$this->update_checker = $this->build_update_checker( $slug, $package_filename );
+
+		if ( $this->update_checker ) {
+
+			if ( $this->credentials ) {
+				$this->update_checker->set_authentication( $this->credentials );
+			}
+
+			$this->update_checker->set_branch( $this->branch );
+		}
 	}
 
 	protected function download_remote_package( $url, $timeout = 300 ) {

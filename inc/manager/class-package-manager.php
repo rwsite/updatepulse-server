@@ -459,21 +459,15 @@ class Package_Manager {
 		$vcs_options = array();
 
 		if ( ! empty( $vcs_configs ) ) {
+
 			foreach ( $vcs_configs as $key => $vcs_c ) {
-				$url    = untrailingslashit( $vcs_c['url'] );
-				$branch = $vcs_c['branch'];
-				$name   = __( 'Self-hosted', 'updatepulse-server' );
-
-				if ( false !== strpos( $url, 'github.com' ) ) {
-					$name = 'GitHub';
-				} elseif ( false !== strpos( $url, 'gitlab.com' ) ) {
-					$name = 'GitLab';
-				} elseif ( false !== strpos( $url, 'bitbucket.org' ) ) {
-					$name = 'Bitbucket';
-				}
-
-				$username            = substr( $url, strrpos( $url, '/' ) + 1 );
-				$name                = $name . ' - ' . $username . ' - ' . $branch;
+				$url                 = untrailingslashit( $vcs_c['url'] );
+				$branch              = $vcs_c['branch'];
+				$name                = $vcs_c['self_hosted'] ?
+					__( 'Self-hosted', 'updatepulse-server' ) :
+					upserv_get_vcs_name( $vcs_c['type'] );
+				$identifier          = substr( $url, strrpos( $url, '/' ) + 1 );
+				$name                = $name . ' - ' . $identifier . ' - ' . $branch;
 				$vcs_options[ $key ] = $name;
 			}
 		}
@@ -546,7 +540,7 @@ class Package_Manager {
 		);
 		$args          = apply_filters(
 			'upserv_server_constructor_args',
-			array( $url, Data_Manager::get_data_dir(), '', '', '', false ),
+			array( $url, Data_Manager::get_data_dir(), '', '', '', '', false ),
 			null,
 			$filter_args
 		);
@@ -749,47 +743,54 @@ class Package_Manager {
 	public function get_package_info( $slug ) {
 		$package_info = wp_cache_get( 'package_info_' . $slug, 'updatepulse-server' );
 
-		if ( false === $package_info ) {
-			do_action( 'upserv_get_package_info', $package_info, $slug );
-
-			if ( has_filter( 'upserv_package_manager_get_package_info' ) ) {
-				$package_info = apply_filters( 'upserv_package_manager_get_package_info', $package_info, $slug );
-			} else {
-				$package_directory = Data_Manager::get_data_dir( 'packages' );
-
-				if ( file_exists( $package_directory . $slug . '.zip' ) ) {
-					$package = $this->get_package(
-						$package_directory . $slug . '.zip',
-						$slug
-					);
-
-					if ( $package ) {
-						$package_info = $package->get_metadata();
-
-						if ( ! isset( $package_info['type'] ) ) {
-							$package_info['type'] = 'unknown';
-						}
-
-						$package_info['file_name']          = $package_info['slug'] . '.zip';
-						$package_info['file_path']          = $package_directory . $slug . '.zip';
-						$package_info['file_size']          = $package->get_file_size();
-						$package_info['file_last_modified'] = $package->get_last_modified();
-						$package_info['etag']               = hash_file( 'md5', $package_info['file_path'] );
-						$package_info['digests']            = array(
-							'sha1'   => hash_file( 'sha1', $package_info['file_path'] ),
-							'sha256' => hash_file( 'sha256', $package_info['file_path'] ),
-							'sha512' => hash_file( 'sha512', $package_info['file_path'] ),
-							'crc32'  => hash_file( 'crc32', $package_info['file_path'] ),
-							'crc32c' => hash_file( 'crc32c', $package_info['file_path'] ),
-						);
-					}
-				}
-			}
-
-			wp_cache_set( 'package_info_' . $slug, $package_info, 'updatepulse-server' );
+		if ( false !== $package_info ) {
+			return $package_info;
 		}
 
+		do_action( 'upserv_get_package_info', $package_info, $slug );
+
+		if ( has_filter( 'upserv_package_manager_get_package_info' ) ) {
+			$package_info = apply_filters( 'upserv_package_manager_get_package_info', $package_info, $slug );
+		} else {
+			$package_directory = Data_Manager::get_data_dir( 'packages' );
+
+			if ( file_exists( $package_directory . $slug . '.zip' ) ) {
+				$package = $this->get_package(
+					$package_directory . $slug . '.zip',
+					$slug
+				);
+
+				if ( $package ) {
+					$package_info = $package->get_metadata();
+
+					if ( ! isset( $package_info['type'] ) ) {
+						$package_info['type'] = 'unknown';
+					}
+
+					$file_path                          = $package_directory . $slug . '.zip';
+					$package_info['file_name']          = $slug . '.zip';
+					$package_info['file_path']          = $file_path;
+					$package_info['file_size']          = $package->get_file_size();
+					$package_info['file_last_modified'] = $package->get_last_modified();
+					$package_info['etag']               = hash_file( 'md5', $file_path );
+					$package_info['digests']            = array(
+						'sha1'   => hash_file( 'sha1', $file_path ),
+						'sha256' => hash_file( 'sha256', $file_path ),
+						'sha512' => hash_file( 'sha512', $file_path ),
+						'crc32'  => hash_file( 'crc32', $file_path ),
+						'crc32c' => hash_file( 'crc32c', $file_path ),
+					);
+				}
+			}
+		}
+
+		wp_cache_set( 'package_info_' . $slug, $package_info, 'updatepulse-server' );
+
 		$package_info = apply_filters( 'upserv_package_manager_package_info', $package_info, $slug );
+
+		if ( ! isset( $package_info['metadata'] ) ) {
+			$package_info['metadata'] = $this->get_package_metadata( $slug );
+		}
 
 		return $package_info;
 	}
@@ -797,80 +798,86 @@ class Package_Manager {
 	public function get_batch_package_info( $search = false ) {
 		$packages = wp_cache_get( 'packages', 'updatepulse-server' );
 
-		if ( false === $packages ) {
+		if ( false !== $packages ) {
+			return empty( $packages ) ? array() : $packages;
+		}
 
-			if ( has_filter( 'upserv_package_manager_get_batch_package_info' ) ) {
-				$packages = apply_filters( 'upserv_package_manager_get_batch_package_info', $packages, $search );
-			} else {
-				$package_directory = Data_Manager::get_data_dir( 'packages' );
-				$packages          = array();
+		if ( has_filter( 'upserv_package_manager_get_batch_package_info' ) ) {
+			$packages = apply_filters( 'upserv_package_manager_get_batch_package_info', $packages, $search );
 
-				if ( is_dir( $package_directory ) ) {
-
-					if ( ! Package_API::is_doing_api_request() ) {
-						$search = isset( $_REQUEST['s'] ) ? // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-							wp_unslash( trim( $_REQUEST['s'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-							$search;
-					}
-
-					$package_paths = glob( trailingslashit( $package_directory ) . '*.zip' );
-
-					if ( ! empty( $package_paths ) ) {
-
-						foreach ( $package_paths as $package_path ) {
-							$package = $this->get_package(
-								$package_path,
-								str_replace(
-									array( trailingslashit( $package_directory ), '.zip' ),
-									array( '', '' ),
-									$package_path
-								)
-							);
-
-							if ( $package ) {
-								$meta    = $package->get_metadata();
-								$include = true;
-
-								if ( $search ) {
-
-									if (
-										false === strpos(
-											strtolower( $meta['name'] ),
-											strtolower( $search )
-										) ||
-										false === strpos(
-											strtolower( $meta['slug'] ) . '.zip',
-											strtolower( $search )
-										)
-									) {
-										$include = false;
-									}
-								}
-
-								$include = apply_filters(
-									'upserv_batch_package_info_include',
-									$include,
-									$meta,
-									$search
-								);
-
-								if ( $include ) {
-									$idx                                    = $meta['slug'];
-									$packages[ $idx ]                       = $meta;
-									$packages[ $idx ]['file_name']          = $meta['slug'] . '.zip';
-									$packages[ $idx ]['file_size']          = $package->get_file_size();
-									$packages[ $idx ]['file_last_modified'] = $package->get_last_modified();
-								}
-							}
-						}
-					}
-				}
-
-				$packages = apply_filters( 'upserv_package_manager_batch_package_info', $packages, $search );
-			}
+			php_log( $packages );
 
 			wp_cache_set( 'packages', $packages, 'updatepulse-server' );
+
+			return empty( $packages ) ? array() : $packages;
 		}
+
+		$package_directory = Data_Manager::get_data_dir( 'packages' );
+		$packages          = array();
+
+		if ( is_dir( $package_directory ) && ! Package_API::is_doing_api_request() ) {
+			$search = isset( $_REQUEST['s'] ) ? // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				wp_unslash( trim( $_REQUEST['s'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$search;
+		}
+
+		$package_paths = is_dir( $package_directory ) ?
+			glob( trailingslashit( $package_directory ) . '*.zip' ) :
+			array();
+
+		if ( is_dir( $package_directory ) && ! empty( $package_paths ) ) {
+
+			foreach ( $package_paths as $package_path ) {
+				$package = $this->get_package(
+					$package_path,
+					str_replace(
+						array( trailingslashit( $package_directory ), '.zip' ),
+						array( '', '' ),
+						$package_path
+					)
+				);
+
+				if ( ! $package ) {
+					continue;
+				}
+
+				$meta    = $package->get_metadata();
+				$include = ! $search ? true : (
+					$search &&
+					(
+						false === strpos( strtolower( $meta['name'] ), strtolower( $search ) ) ||
+						false === strpos( strtolower( $meta['slug'] ) . '.zip', strtolower( $search ) )
+					)
+				);
+
+				if ( ! $include ) {
+					continue;
+				}
+
+				$slug                                    = $meta['slug'];
+				$file_path                               = $package_directory . $slug . '.zip';
+				$packages[ $slug ]                       = $meta;
+				$packages[ $slug ]['metadata']           = $this->get_package_metadata( $slug );
+				$packages[ $slug ]['file_name']          = $slug . '.zip';
+				$packages[ $slug ]['file_path']          = $package_directory . $slug . '.zip';
+				$packages[ $slug ]['file_size']          = $package->get_file_size();
+				$packages[ $slug ]['file_last_modified'] = $package->get_last_modified();
+				$packages[ $slug ]['etag']               = hash_file( 'md5', $file_path );
+				$packages[ $slug ]['digests']            = array(
+					'sha1'   => hash_file( 'sha1', $file_path ),
+					'sha256' => hash_file( 'sha256', $file_path ),
+					'sha512' => hash_file( 'sha512', $file_path ),
+					'crc32'  => hash_file( 'crc32', $file_path ),
+					'crc32c' => hash_file( 'crc32c', $file_path ),
+				);
+
+				wp_cache_set( 'package_info_' . $slug, $packages[ $slug ], 'updatepulse-server' );
+			}
+		}
+
+		$packages = apply_filters( 'upserv_package_manager_batch_package_info', $packages, $search );
+
+		wp_cache_set( 'packages', $packages, 'updatepulse-server' );
 
 		if ( empty( $packages ) ) {
 			$packages = array();

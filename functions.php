@@ -75,6 +75,22 @@ if ( ! function_exists( 'access_nested_array' ) ) {
 	}
 }
 
+if ( ! function_exists( 'get_vcs_name' ) ) {
+	function upserv_get_vcs_name( $type, $context = 'view' ) {
+
+		switch ( $type ) {
+			case 'github':
+				return 'view' === $context ? __( 'GitHub', 'updatepulse-server' ) : 'GitHub';
+			case 'gitlab':
+				return 'view' === $context ? __( 'GitLab', 'updatepulse-server' ) : 'GitLab';
+			case 'bitbucket':
+				return 'view' === $context ? __( 'Bitbucket', 'updatepulse-server' ) : 'Bitbucket';
+			default:
+				return 'view' === $context ? __( 'Undefined', 'updatepulse-server' ) : null;
+		}
+	}
+}
+
 /*******************************************************************
  * Options functions
  *******************************************************************/

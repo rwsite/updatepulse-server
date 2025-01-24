@@ -281,9 +281,10 @@ class Update_API {
 			$url         = isset( $vcs_config['url'] ) ? $vcs_config['url'] : false;
 			$branch      = isset( $vcs_config['branch'] ) ? $vcs_config['branch'] : false;
 			$credentials = isset( $vcs_config['credentials'] ) ? $vcs_config['credentials'] : '';
+			$vcs_type    = isset( $vcs_config['type'] ) ? $vcs_config['type'] : false;
 			$self_hosted = isset( $vcs_config['self_hosted'] ) ? $vcs_config['self_hosted'] : false;
 
-			if ( ! $url || ! $branch ) {
+			if ( ! $url || ! $branch || ! $vcs_type ) {
 				return;
 			}
 		}
@@ -310,6 +311,7 @@ class Update_API {
 				isset( $url ) ? $url : null,
 				isset( $branch ) ? $branch : null,
 				isset( $credentials ) ? $credentials : null,
+				isset( $vcs_type ) ? $vcs_type : null,
 				isset( $self_hosted ) ? $self_hosted : null,
 			),
 			$slug,

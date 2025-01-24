@@ -416,60 +416,7 @@ class Remote_Sources_Manager {
 				if ( ! is_array( $inputs ) ) {
 					$inputs = upserv_get_option( 'vcs' );
 				} else {
-					$filtered = array();
-					$index    = 0;
-
-					foreach ( $inputs as $id => $values ) {
-						$url    = filter_var( $values['url'], FILTER_VALIDATE_URL );
-						$url    = trailingslashit( $url );
-						$branch = filter_var( $values['branch'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-						$id     = hash( 'sha256', $url . '|' . $branch );
-
-						if ( ! preg_match( '@^https?://[^/]+/[^/]+/$@', $url ) || ! $branch ) {
-
-							if ( ! isset( $errors[ $option_name ] ) ) {
-								$errors[ $option_name ] = array();
-							}
-
-							$errors[ $option_name ][] = sprintf(
-								// translators: %d is the index of the item in the list
-								__( 'Invalid URL or Branch for item at index %d', 'updatepulse-server' ),
-								$index
-							);
-
-							continue;
-						}
-
-						$self_hosted       = intval( filter_var( $values['self_hosted'], FILTER_VALIDATE_BOOLEAN ) );
-						$credentials       = filter_var( $values['credentials'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-						$filter_packages   = intval( filter_var( $values['filter_packages'], FILTER_VALIDATE_BOOLEAN ) );
-						$check_frequency   = filter_var( $values['check_frequency'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-						$use_webhooks      = intval( filter_var( $values['use_webhooks'], FILTER_VALIDATE_BOOLEAN ) );
-						$check_delay       = intval( filter_var( $values['check_delay'], FILTER_VALIDATE_INT ) );
-						$webhook_secret    = filter_var( $values['webhook_secret'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-						$known_frequencies = wp_get_schedules();
-						$known_frequencies = array_keys( $known_frequencies );
-
-						if ( ! in_array( $check_frequency, $known_frequencies, true ) ) {
-							$check_frequency = 'daily';
-						}
-
-						$filtered[ $id ] = array(
-							'url'             => $url,
-							'branch'          => $branch,
-							'self_hosted'     => $self_hosted,
-							'credentials'     => $credentials,
-							'filter_packages' => $filter_packages,
-							'check_frequency' => $check_frequency,
-							'use_webhooks'    => $use_webhooks,
-							'check_delay'     => $check_delay,
-							'webhook_secret'  => $webhook_secret,
-						);
-
-						++$index;
-					}
-
-					$option_info['value'] = $filtered;
+					$option_info['value'] = $this->filter_json_input( $inputs, $option_name, $errors );
 				}
 			} elseif ( isset( $option_info['condition'] ) && 'boolean' === $option_info['condition'] ) {
 				$condition            = true;
@@ -592,6 +539,76 @@ class Remote_Sources_Manager {
 		do_action( 'upserv_remote_sources_options_updated', $result );
 
 		return $result;
+	}
+
+	protected function filter_json_input( $inputs, $option_name, &$errors ) {
+		$filtered    = array();
+		$index       = 0;
+		$error_array = array();
+
+		foreach ( $inputs as $id => $values ) {
+			$url    = filter_var( $values['url'], FILTER_VALIDATE_URL );
+			$url    = trailingslashit( $url );
+			$branch = filter_var( $values['branch'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$id     = hash( 'sha256', $url . '|' . $branch );
+
+			if ( ! preg_match( '@^https?://[^/]+/[^/]+/$@', $url ) || ! $branch ) {
+				$error_array[] = sprintf(
+					// translators: %d is the index of the item in the list
+					__( 'Invalid URL or Branch for item at index %d', 'updatepulse-server' ),
+					$index
+				);
+
+				continue;
+			}
+
+			$type = filter_var( $values['type'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+
+			if ( ! $type || 'undefined' === $type ) {
+				$error_array[] = sprintf(
+					// translators: %d is the index of the item in the list
+					__( 'Undefined VCS Type for item at index %d', 'updatepulse-server' ),
+					$index
+				);
+
+				continue;
+			}
+
+			$self_hosted       = intval( filter_var( $values['self_hosted'], FILTER_VALIDATE_BOOLEAN ) );
+			$credentials       = filter_var( $values['credentials'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$filter_packages   = intval( filter_var( $values['filter_packages'], FILTER_VALIDATE_BOOLEAN ) );
+			$check_frequency   = filter_var( $values['check_frequency'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$use_webhooks      = intval( filter_var( $values['use_webhooks'], FILTER_VALIDATE_BOOLEAN ) );
+			$check_delay       = intval( filter_var( $values['check_delay'], FILTER_VALIDATE_INT ) );
+			$webhook_secret    = filter_var( $values['webhook_secret'], FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$known_frequencies = wp_get_schedules();
+			$known_frequencies = array_keys( $known_frequencies );
+
+			if ( ! in_array( $check_frequency, $known_frequencies, true ) ) {
+				$check_frequency = 'daily';
+			}
+
+			$filtered[ $id ] = array(
+				'url'             => $url,
+				'branch'          => $branch,
+				'type'            => $type,
+				'self_hosted'     => $self_hosted,
+				'credentials'     => $credentials,
+				'filter_packages' => $filter_packages,
+				'check_frequency' => $check_frequency,
+				'use_webhooks'    => $use_webhooks,
+				'check_delay'     => $check_delay,
+				'webhook_secret'  => $webhook_secret,
+			);
+
+			++$index;
+		}
+
+		if ( ! empty( $error_array ) ) {
+			$errors[ $option_name ] = implode( '<br>', $error_array );
+		}
+
+		return $filtered;
 	}
 
 	protected function get_submitted_options() {
