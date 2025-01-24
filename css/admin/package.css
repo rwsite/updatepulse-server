@@ -5,3 +5,25 @@
     flex-wrap: wrap;
     justify-content: flex-start;
 }
+
+.upserv-wrap .col_origin .item {
+    max-width: 160px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25em 0.05em;
+}
+
+.upserv-wrap .col_origin .item code span {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.upserv-wrap .col_origin .item code {
+    word-break: keep-all;
+    white-space: nowrap;
+    display: inline-flex;
+    gap: 0.5em;
+    padding-left: 0.5em;
+    align-items: baseline;
+    max-width: calc(160px - 1em);
+}

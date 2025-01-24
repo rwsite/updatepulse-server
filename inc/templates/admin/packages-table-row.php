@@ -64,15 +64,35 @@
 				<?php elseif ( 'col_file_size' === $column_name ) : ?>
 					<?php echo esc_html( size_format( $record[ $key ] ) ); ?>
 				<?php elseif ( 'col_file_last_modified' === $column_name ) : ?>
-					<?php
-					echo esc_html(
-						wp_date(
-							$date_format,
-							$record[ $key ],
-							new DateTimeZone( wp_timezone_string() )
-						)
-					);
-					?>
+					<?php echo esc_html( wp_date( $date_format, $record[ $key ], $time_zone ) ); ?><br />
+					<?php echo esc_html( wp_date( $time_format, $record[ $key ], $time_zone ) ); ?>
+				<?php elseif ( 'col_origin' === $column_name ) : ?>
+				<div class="item">
+					<?php if ( 'manual' === $record['metadata'][ $key ] ) : ?>
+						<code>
+							<i class="fa-solid fa-hand"></i><span class="manual">
+								<?php esc_html_e( 'Manual', 'updatepulse-server' ); ?>
+							</span>
+						</code>
+					<?php elseif ( 'vcs' === $record['metadata'][ $key ] ) : ?>
+						<code>
+							<i class="<?php echo esc_attr( $record['vcs']['class'] ); ?>"></i><span class="identifier">
+								<?php echo esc_html( $record['vcs']['identifier'] ); ?>
+							</span>
+						</code>
+						<code>
+							<i class="fa-solid fa-code-branch"></i> <span class="branch">
+								<?php echo esc_html( $record['vcs']['branch'] ); ?>
+							</span>
+						</code>
+					<?php else : ?>
+						<code>
+							<i class="fa-solid fa-question"></i><span class="manual">
+								<?php esc_html_e( 'Unknown', 'updatepulse-server' ); ?>
+							</span>
+						</code>
+					<?php endif; ?>
+				</div>
 				<?php else : ?>
 					<?php do_action( 'upserv_packages_table_cell', $column_name, $record, $record_key ); ?>
 				<?php endif; ?>

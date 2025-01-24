@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use WP_List_Table;
+use DateTimeZone;
 
 class Packages_Table extends WP_List_Table {
 
@@ -46,6 +47,7 @@ class Packages_Table extends WP_List_Table {
 				'col_file_name'          => __( 'File Name', 'updatepulse-server' ),
 				'col_file_size'          => __( 'Size', 'updatepulse-server' ),
 				'col_file_last_modified' => __( 'Last Modified ', 'updatepulse-server' ),
+				'col_origin'             => __( 'Origin', 'updatepulse-server' ),
 			)
 		);
 
@@ -66,6 +68,7 @@ class Packages_Table extends WP_List_Table {
 				'col_file_name'          => array( 'file_name', false ),
 				'col_file_size'          => array( 'file_size', false ),
 				'col_file_last_modified' => array( 'file_last_modified', false ),
+				'col_origin'             => array( 'origin', false ),
 			)
 		);
 
@@ -116,9 +119,33 @@ class Packages_Table extends WP_List_Table {
 		list( $columns, $hidden ) = $this->get_column_info();
 
 		if ( ! empty( $records ) ) {
-			$date_format = 'Y-m-d H:i:s';
+			$date_format = 'Y-m-d';
+			$time_format = 'H:i:s';
+			$time_zone   = new DateTimeZone( wp_timezone_string() );
 
 			foreach ( $records as $record_key => $record ) {
+
+				if (
+					isset(
+						$record['metadata']['vcs_key'],
+						$record['metadata']['origin'],
+						$record['metadata']['vcs']
+					) &&
+					'vcs' === $record['metadata']['origin']
+				) {
+					$url           = untrailingslashit( $record['metadata']['vcs'] );
+					$vcs_config    = upserv_get_option( 'vcs/' . $record['metadata']['vcs_key'] );
+					$record['vcs'] = empty( $vcs_config ) ? array() : array(
+						'identifier' => substr( $url, strrpos( $url, '/' ) + 1 ),
+						'branch'     => $vcs_config['branch'],
+						'class'      => $this->get_vcs_class( $vcs_config ),
+					);
+				}
+
+				if ( ! isset( $record['metadata']['origin'] ) ) {
+					$record['metadata']['origin'] = 'unknown';
+				}
+
 				upserv_get_admin_template(
 					'packages-table-row.php',
 					array(
@@ -129,6 +156,8 @@ class Packages_Table extends WP_List_Table {
 						'record_key'  => $record_key,
 						'record'      => $record,
 						'date_format' => $date_format,
+						'time_format' => $time_format,
+						'time_zone'   => $time_zone,
 					)
 				);
 			}
@@ -199,5 +228,17 @@ class Packages_Table extends WP_List_Table {
 		);
 
 		return $actions;
+	}
+	protected function get_vcs_class( $vcs_config ) {
+		switch ( $vcs_config['type'] ) {
+			case 'github':
+				return 'fa-brands fa-github';
+			case 'gitlab':
+				return $vcs_config['self_hosted'] ? 'fa-brands fa-square-gitlab' : 'fa-brands fa-gitlab';
+			case 'bitbucket':
+				return 'fa-brands fa-bitbucket';
+			default:
+				return 'fa-code-commit';
+		}
 	}
 }

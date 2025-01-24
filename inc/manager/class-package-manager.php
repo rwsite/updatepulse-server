@@ -804,9 +804,6 @@ class Package_Manager {
 
 		if ( has_filter( 'upserv_package_manager_get_batch_package_info' ) ) {
 			$packages = apply_filters( 'upserv_package_manager_get_batch_package_info', $packages, $search );
-
-			php_log( $packages );
-
 			wp_cache_set( 'packages', $packages, 'updatepulse-server' );
 
 			return empty( $packages ) ? array() : $packages;
