@@ -9,11 +9,6 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		use ReleaseFilteringFeature;
 
 		/**
-		 * @var string GitLab username.
-		 */
-		protected $user_name;
-
-		/**
 		 * @var string GitLab server host.
 		 */
 		protected $repository_host;
@@ -22,11 +17,6 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 * @var string Protocol used by this GitLab server: "http" or "https".
 		 */
 		protected $repository_protocol = 'https';
-
-		/**
-		 * @var string GitLab repository name.
-		 */
-		protected $repository_name;
 
 		/**
 		 * @var string GitLab authentication token. Optional.
@@ -105,6 +95,30 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			}
 
 			parent::__construct( $repository_url, $access_token );
+		}
+
+		/**
+		 * Check if the VCS is accessible.
+		 *
+		 * @return bool|\WP_Error
+		 */
+		public static function test( $url, $access_token = null ) {
+			$instance = new self( $url . 'bogus/', $access_token );
+			$endpoint = sprintf(
+				'%1$s://%2$s/api/v4/groups/%3$s',
+				$instance->repository_protocol,
+				$instance->repository_host,
+				rawurlencode( $instance->user_name )
+			);
+			$response = $instance->api( $endpoint, array(), true );
+
+			php_log( $response );
+
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			return $response && isset( $response->path ) && $instance->user_name === $response->path;
 		}
 
 		/**
@@ -278,8 +292,12 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 * @param array $query_params
 		 * @return mixed|\WP_Error
 		 */
-		protected function api( $url, $query_params = array() ) {
-			$url     = $this->build_api_url( $url, $query_params );
+		protected function api( $url, $query_params = array(), $override_url = false ) {
+
+			if ( ! $override_url ) {
+				$url = $this->build_api_url( $url, $query_params );
+			}
+
 			$options = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
 
 			if ( $this->is_authentication_enabled() ) {
@@ -299,6 +317,13 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 
 			if ( 200 === $code ) {
 				return json_decode( $body );
+			}
+
+			if ( $override_url ) {
+				$response       = json_decode( $body );
+				$response->code = $code;
+
+				return $response;
 			}
 
 			$error = new \WP_Error(

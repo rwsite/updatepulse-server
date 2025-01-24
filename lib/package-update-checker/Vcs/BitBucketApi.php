@@ -2,19 +2,9 @@
 
 namespace Anyape\PackageUpdateChecker\Vcs;
 
-if ( ! class_exists( BitBucketApi::class, false ) ) :
+if ( ! class_exists( BitbucketApi::class, false ) ) :
 
-	class BitBucketApi extends Api {
-		/**
-		 * @var string
-		 */
-		private $user_name;
-
-		/**
-		 * @var string
-		 */
-		private $repository;
-
+	class BitbucketApi extends Api {
 		/**
 		 * @var string Bitbucket app password. Optional.
 		 */
@@ -24,15 +14,43 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 			$path = wp_parse_url( $repository_url, PHP_URL_PATH );
 
 			if ( preg_match( '@^/?(?P<user_name>[^/]+?)/(?P<repository>[^/#?&]+?)/?$@', $path, $matches ) ) {
-				$this->user_name  = $matches['user_name'];
-				$this->repository = $matches['repository'];
+				$this->user_name       = $matches['user_name'];
+				$this->repository_name = $matches['repository'];
 			} else {
 				throw new \InvalidArgumentException(
-					esc_html( 'Invalid BitBucket repository URL: "' . $repository_url . '"' )
+					esc_html( 'Invalid Bitbucket repository URL: "' . $repository_url . '"' )
 				);
 			}
 
 			parent::__construct( $repository_url, $app_password );
+		}
+
+		/**
+		 * Check if the VCS is accessible.
+		 *
+		 * @return bool|\WP_Error
+		 */
+		public static function test( $url, $app_password = null ) {
+			$instance = new self( $url . 'bogus/', $app_password );
+			$endpoint = 'https://api.bitbucket.org/2.0/user';
+			$response = $instance->api( $endpoint, '2.0', true );
+
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			if ( $response && isset( $response->username ) && $instance->user_name === $response->username ) {
+				return true;
+			}
+
+			if ( $response && isset( $response->code ) && 403 === $response->code ) {
+				return 'missing_privileges';
+			}
+
+			return new \WP_Error(
+				'puc-bitbucket-http-error',
+				sprintf( 'Bitbucket API error. Base URL: "%s",  HTTP status code: %d.', $url, $response->code )
+			);
 		}
 
 		protected function get_update_detection_strategies( $config_branch ) {
@@ -165,7 +183,7 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 			return sprintf(
 				'https://bitbucket.org/%s/%s/get/%s.zip',
 				$this->user_name,
-				$this->repository,
+				$this->repository_name,
 				$ref
 			);
 		}
@@ -204,27 +222,30 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 		}
 
 		/**
-		 * Perform a BitBucket API 2.0 request.
+		 * Perform a Bitbucket API 2.0 request.
 		 *
 		 * @param string $url
 		 * @param string $version
 		 * @return mixed|\WP_Error
 		 */
-		public function api( $url, $version = '2.0' ) {
+		public function api( $url, $version = '2.0', $override_url = false ) {
 			$url             = ltrim( $url, '/' );
 			$options         = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
 			$is_src_resource = 0 === strpos( $url, 'src/' );
-			$url             = implode(
-				'/',
-				array(
-					'https://api.bitbucket.org',
-					$version,
-					'repositories',
-					$this->user_name,
-					$this->repository,
-					$url,
-				)
-			);
+
+			if ( ! $override_url ) {
+				$url = implode(
+					'/',
+					array(
+						'https://api.bitbucket.org',
+						$version,
+						'repositories',
+						$this->user_name,
+						$this->repository_name,
+						$url,
+					)
+				);
+			}
 
 			if ( $this->is_authentication_enabled() ) {
 				$options['headers'] = $this->get_authorization_headers();
@@ -254,9 +275,16 @@ if ( ! class_exists( BitBucketApi::class, false ) ) :
 				return $document;
 			}
 
+			if ( $override_url ) {
+				$response       = json_decode( $body );
+				$response->code = $code;
+
+				return $response;
+			}
+
 			$error = new \WP_Error(
 				'puc-bitbucket-http-error',
-				sprintf( 'BitBucket API error. Base URL: "%s",  HTTP status code: %d.', $url, $code )
+				sprintf( 'Bitbucket API error. Base URL: "%s",  HTTP status code: %d.', $url, $code )
 			);
 
 			do_action( 'puc_api_error', $error, $response, $url, $this->slug );

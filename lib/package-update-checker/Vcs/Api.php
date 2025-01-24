@@ -51,6 +51,16 @@ if ( ! class_exists( Api::class, false ) ) :
 		protected $repository_url = '';
 
 		/**
+		 * @var string GitHub repository name.
+		 */
+		protected $repository_name;
+
+		/**
+		 * @var string
+		 */
+		protected $user_name;
+
+		/**
 		 * @var mixed Authentication details for private repositories. Format depends on service.
 		 */
 		protected $credentials = null;
@@ -334,7 +344,7 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @param $credentials
 		 */
 		public function set_authentication( $credentials ) {
-			$this->credentials = $credentials;
+			$this->credentials = $credentials ? $credentials : null;
 		}
 
 		public function is_authentication_enabled() {

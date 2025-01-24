@@ -11,20 +11,6 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		use ReleaseFilteringFeature;
 
 		/**
-		 * @var string GitHub username.
-		 */
-		protected $user_name;
-		/**
-		 * @var string GitHub repository name.
-		 */
-		protected $repository_name;
-
-		/**
-		 * @var string Either a fully qualified repository URL, or just "user/repo-name".
-		 */
-		protected $repository_url;
-
-		/**
 		 * @var string GitHub authentication token. Optional.
 		 */
 		protected $access_token;
@@ -47,6 +33,48 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 			}
 
 			parent::__construct( $repository_url, $access_token );
+		}
+
+		/**
+		 * Check if the VCS is accessible.
+		 *
+		 * @return bool|\WP_Error
+		 */
+		public static function test( $url, $access_token = null ) {
+			$instance = new self( $url . 'bogus/', $access_token );
+			$endpoint = 'https://api.github.com/user';
+			$response = $instance->api( $endpoint, array(), true );
+
+			if ( is_wp_error( $response ) ) {
+				return false;
+			}
+
+			if ( isset( $response->html_url ) && $response->html_url === $url ) {
+				return true;
+			}
+
+			$endpoint = 'https://api.github.com/orgs/'
+				. rawurlencode( $instance->user_name )
+				. '/members/'
+				. rawurlencode( $response->login );
+			$response = $instance->api( $endpoint, array(), true );
+
+			if ( is_wp_error( $response ) ) {
+				return false;
+			}
+
+			$error = new \WP_Error(
+				'puc-github-http-error',
+				sprintf( 'GitHub API error. Base URL: "%s",  HTTP status code: %d.', $url, $response->code )
+			);
+
+			do_action( 'puc_api_error', $error, $response, $url, $instance->slug );
+
+			if ( 204 !== $response->code ) {
+				return 'failed_org_check';
+			}
+
+			return true;
 		}
 
 		/**
@@ -267,9 +295,12 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		 * @param array $query_params
 		 * @return mixed|\WP_Error
 		 */
-		protected function api( $url, $query_params = array() ) {
+		protected function api( $url, $query_params = array(), $override_url = false ) {
 			$base_url = $url;
-			$url      = $this->build_api_url( $url, $query_params );
+
+			if ( ! $override_url ) {
+				$url = $this->build_api_url( $url, $query_params );
+			}
 
 			$options = array( 'timeout' => wp_doing_cron() ? 10 : 3 );
 
@@ -281,6 +312,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 
 			if ( is_wp_error( $response ) ) {
 				do_action( 'puc_api_error', $response, null, $url, $this->slug );
+
 				return $response;
 			}
 
@@ -288,9 +320,19 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 			$body = wp_remote_retrieve_body( $response );
 
 			if ( 200 === $code ) {
-				$document = json_decode( $body );
+				return json_decode( $body );
+			}
 
-				return $document;
+			if ( $override_url ) {
+				$response = json_decode( $body );
+
+				if ( ! is_object( $response ) ) {
+					$response = new \StdClass();
+				}
+
+				$response->code = $code;
+
+				return $response;
 			}
 
 			$error = new \WP_Error(

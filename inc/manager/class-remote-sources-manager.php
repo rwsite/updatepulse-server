@@ -204,136 +204,63 @@ class Remote_Sources_Manager {
 	}
 
 	public function vcs_test() {
-		$result = array();
+		$result = false;
 
-		if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
-			$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
-
-			if ( $data ) {
-				$url         = $data['upserv_vcs_url'];
-				$self_hosted = $data['upserv_vcs_self_hosted'];
-				$credentials = $data['upserv_vcs_credentials'];
-				$options     = array();
-				$service     = false;
-				$host        = wp_parse_url( $url, PHP_URL_HOST );
-				$path        = wp_parse_url( $url, PHP_URL_PATH );
-				$user_name   = false;
-
-				if ( 'true' === $self_hosted ) {
-					$service = 'GitLab';
-				} else {
-					$services = array(
-						'github.com'    => 'GitHub',
-						'bitbucket.org' => 'BitBucket',
-						'gitlab.com'    => 'GitLab',
-					);
-
-					if ( isset( $services[ $host ] ) ) {
-						$service = $services[ $host ];
-					}
-				}
-
-				if ( preg_match( '@^/?(?P<username>[^/]+?)/?$@', $path, $matches ) ) {
-					$user_name = $matches['username'];
-					$options   = array( 'timeout' => 3 );
-
-					if ( 'GitLab' === $service ) {
-						$options['headers'] = array(
-							'PRIVATE-TOKEN' => $credentials,
-						);
-						$scheme             = wp_parse_url( $url, PHP_URL_SCHEME );
-						$url                = sprintf(
-							'%1$s://%2$s/api/v4/groups/%3$s/',
-							$scheme,
-							$host,
-							$user_name
-						);
-					} else {
-
-						if ( 'BitBucket' === $service ) {
-							$url = 'https://api.bitbucket.org/2.0/user';
-						} elseif ( 'GitHub' === $service ) {
-							$url = 'https://api.github.com/user';
-						}
-
-						$options['headers'] = array(
-							'Authorization' => 'Basic ' . base64_encode( $user_name . ':' . $credentials ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-						);
-					}
-				}
-
-				$response = wp_remote_get( $url, $options );
-
-				if ( is_wp_error( $response ) ) {
-					$result = $response;
-				} else {
-					$code = wp_remote_retrieve_response_code( $response );
-					$body = wp_remote_retrieve_body( $response );
-
-					if ( 200 === $code ) {
-						$condition = false;
-
-						if ( 'GitHub' === $service ) {
-							$body      = json_decode( $body, true );
-							$condition = trailingslashit(
-								$data['upserv_vcs_url']
-							) === trailingslashit(
-								$body['html_url']
-							);
-
-							if ( ! $condition ) {
-								$login    = $body['login'];
-								$url      = esc_url( 'https://api.github.com/orgs/' . $user_name . '/members/' . $login );
-								$response = wp_remote_get( $url, $options );
-
-								if ( ! is_wp_error( $response ) ) {
-									$code      = wp_remote_retrieve_response_code( $response );
-									$condition = 204 === $code;
-								}
-							}
-						}
-
-						if ( 'GitLab' === $service ) {
-							$body      = json_decode( $body, true );
-							$condition = $user_name === $body['path'];
-						}
-
-						if ( 'BitBucket' === $service ) {
-							$body      = json_decode( $body, true );
-							$condition = $user_name === $body['username'];
-						}
-
-						if ( $condition ) {
-							$result[] = __( 'Version Control System was reached sucessfully.', 'updatepulse-server' );
-						} elseif ( 'GitHub' === $service && 200 !== $code && 204 !== $code ) {
-							$result = new WP_Error(
-								__METHOD__,
-								__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' ) . "\n" . __( 'If you are using a fine-grained access token for an organisation, please check the provided token has the permissions to access members information.', 'updatepulse-server' )
-							);
-						} elseif ( 'BitBucket' === $service && 200 !== $code && 204 !== $code ) {
-							$result = new WP_Error(
-								__METHOD__,
-								__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' ) . "\n" . __( 'Please check the provided App Password has the "account" permission.', 'updatepulse-server' )
-							);
-						} else {
-							$result = new WP_Error(
-								__METHOD__,
-								__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' )
-							);
-						}
-					} else {
-						$result = new WP_Error(
-							__METHOD__,
-							__( 'Error - Please check the provided Version Control System Credentials.', 'updatepulse-server' )
-						);
-					}
-				}
-			} else {
-				$result = new WP_Error(
+		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
+			wp_send_json_error(
+				new WP_Error(
 					__METHOD__,
 					__( 'Error - Received invalid data; please reload the page and try again.', 'updatepulse-server' )
-				);
-			}
+				)
+			);
+		}
+
+		$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
+
+		if ( ! $data ) {
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - Received invalid data; please reload the page and try again.', 'updatepulse-server' )
+				)
+			);
+		}
+
+		require_once UPSERV_PLUGIN_PATH . 'lib/package-update-checker/package-update-checker.php';
+
+		$url         = $data['upserv_vcs_url'];
+		$credentials = $data['upserv_vcs_credentials'];
+		$vcs_type    = $data['upserv_vcs_type'];
+		$service     = upserv_get_vcs_name( $vcs_type, 'edit' );
+		$api_class   = $service ? 'Anyape\PackageUpdateChecker\Vcs\\' . $service . 'Api' : false;
+		$test_result = $api_class::test( $url, $credentials );
+
+		if ( true === $test_result ) {
+			$result = array( __( 'Version Control System was reached sucessfully.', 'updatepulse-server' ) );
+		} elseif ( false === $test_result ) {
+			$result = new WP_Error(
+				__METHOD__,
+				__( 'Error - Please check the provided Version Control System Credentials.', 'updatepulse-server' )
+			);
+		} elseif ( 'failed_org_check' === $test_result ) {
+			$result = new WP_Error(
+				__METHOD__,
+				__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' )
+					. "\n"
+					. __( 'If you are using a fine-grained access token for an organisation, please check the provided token has the permissions to access members information.', 'updatepulse-server' )
+			);
+		} elseif ( 'missing_privileges' === $test_result ) {
+			$result = new WP_Error(
+				__METHOD__,
+				__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' )
+					. "\n"
+					. __( 'Please also check the provided credentials have access to account information and repositories.', 'updatepulse-server' )
+			);
+		} else {
+			$result = new WP_Error(
+				__METHOD__,
+				__( 'Error - Please check the provided Version Control System URL.', 'updatepulse-server' )
+			);
 		}
 
 		if ( ! is_wp_error( $result ) ) {
