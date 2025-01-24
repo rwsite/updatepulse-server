@@ -133,7 +133,7 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 				<?php
 				printf(
 					// translators: %s is <code>another-plugin-or-theme-slug</code>
-					esc_html__( 'The "Licensed With" header is used to link packages together (for example, in the case of an extension to a main plugin the user already has a license for, if this header is present in the extension, the license check will be made against the main plugin). It must be the slug of another plugin or theme that is already present in your UpdatePulse Server.', 'updatepulse-server' ),
+					esc_html__( 'The "Licensed With" header is used to link packages together (for example, in the case of an extension to a main plugin the user already has a license for, if this header is present in the extension, the license check is made against the main plugin). It must be the slug of another plugin or theme that is already present in your UpdatePulse Server.', 'updatepulse-server' ),
 					'<code>another-plugin-or-theme-slug</code>'
 				);
 				?>

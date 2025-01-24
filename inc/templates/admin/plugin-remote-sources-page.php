@@ -195,7 +195,7 @@
 					<td>
 						<input type="number" min="0" id="upserv_vcs_check_delay" data-prop="check_delay" value="">
 						<p class="description">
-							<?php esc_html_e( 'Delay in minutes after which UpdatePulse Server will poll the Version Control System for package updates when the Webhook has been called.', 'updatepulse-server' ); ?><br>
+							<?php esc_html_e( 'Delay in minutes after which UpdatePulse Server must poll the Version Control System for package updates when the Webhook has been called.', 'updatepulse-server' ); ?><br>
 							<?php esc_html_e( 'Leave at 0 to schedule a package update during the cron run happening immediately after the Webhook was called.', 'updatepulse-server' ); ?>
 						</p>
 					</td>
@@ -209,7 +209,7 @@
 						<p class="description">
 							<?php esc_html_e( 'Preferably a random string, the secret string included in the request by the Version Control System when calling the Webhook.', 'updatepulse-server' ); ?>
 							<br>
-							<strong><?php esc_html_e( 'WARNING: Changing this value will invalidate all the existing Webhooks set up in the Version Control System.', 'updatepulse-server' ); ?></strong>
+							<strong><?php esc_html_e( 'WARNING: Changing this value WILL invalidate ALL the existing Webhooks set up in the Version Control System.', 'updatepulse-server' ); ?></strong>
 							<br>
 							<?php esc_html_e( 'After changing this setting, make sure to update the Webhooks secrets in the Version Control System.', 'updatepulse-server' ); ?></strong>
 						</p>
@@ -226,7 +226,7 @@
 							<?php endforeach; ?>
 						</select>
 						<p class="description">
-							<?php esc_html_e( 'How often UpdatePulse Server will poll the Version Control System for package updates - checking too often may slow down the server (recommended "Once Daily").', 'updatepulse-server' ); ?>
+							<?php esc_html_e( 'How often UpdatePulse Server must poll the Version Control System for package updates - checking too often may slow down the server (recommended "Once Daily").', 'updatepulse-server' ); ?>
 						</p>
 					</td>
 				</tr>

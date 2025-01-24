@@ -667,7 +667,6 @@ class Update_Server {
 
 		//preg_replace_callback will return NULL if the input contains invalid Unicode sequences,
 		//so only enable the Unicode flag if the input encoding looks valid.
-		/** @noinspection PhpComposerExtensionStubsInspection */
 		if ( function_exists( 'mb_check_encoding' ) && mb_check_encoding( $value, 'UTF-8' ) ) {
 			$regex = $regex . 'u';
 		}

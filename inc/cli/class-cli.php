@@ -125,11 +125,11 @@ class CLI extends WP_CLI_Command {
 	 *
 	 * [--vcs_url=<vcs_url>]
 	 * : The URL of a VCS configured in UpdatePulse Server.
-	 * If provided along with a valid branch, the package will be downloaded from the VCS, and associated with that VCS.
+	 * If provided along with a valid branch, the package is downloaded from the VCS, and associated with that VCS.
 	 *
 	 * [--branch=<branch>]
 	 * : The branch as provided in a VCS configured in UpdatePulse Server.
-	 * If provided along with a valid VCS URL, the package will be downloaded from the VCS, and associated with that VCS.
+	 * If provided along with a valid VCS URL, the package is downloaded from the VCS, and associated with that VCS.
 	 *
 	 * ## EXAMPLES
 	 *

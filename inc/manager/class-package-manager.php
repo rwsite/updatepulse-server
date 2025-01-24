@@ -141,7 +141,8 @@ class Package_Manager {
 		if ( upserv_get_option( 'use_vcs' ) ) {
 			$l10n['deletePackagesConfirm'] = array(
 				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
-				__( 'Packages registered with a VCS will be added again automatically whenever a client asks for updates, or, if configured, when its Webhook is called.', 'updatepulse-server' ),
+				__( 'If a Webhook is configured, the packages will be re-downloaded from the VCS when it is triggered.', 'updatepulse-server' ),
+				__( 'Other packages provided by the VCS will need to be registered again.', 'updatepulse-server' ),
 				__( 'All packages manually uploaded will be permanently deleted.', 'updatepulse-server' ),
 				"\n",
 				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
@@ -149,7 +150,7 @@ class Package_Manager {
 		} else {
 			$l10n['deletePackagesConfirm'] = array(
 				__( 'You are about to delete all the packages from this server.', 'updatepulse-server' ),
-				__( 'All packages will be permanently deleted.\n\nAre you sure you want to do this?', 'updatepulse-server' ),
+				__( 'All packages will be permanently deleted.', 'updatepulse-server' ),
 				"\n",
 				__( 'Are you sure you want to do this?', 'updatepulse-server' ),
 			);

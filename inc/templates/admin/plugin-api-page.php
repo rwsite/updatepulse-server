@@ -187,9 +187,9 @@
 							);
 							?>
 							<br>
-							<span class="show-if-license hidden"><br><?php esc_html_e( 'Use the License Key ID field to filter the License events sent to the payload URLs: if provided, only the events affecting license keys owned by the License Key ID will be broacasted to the Payload URL.', 'updatepulse-server' ); ?></span>
+							<span class="show-if-license hidden"><br><?php esc_html_e( 'Use the License Key ID field to filter the License events sent to the payload URLs: if provided, only the events affecting license keys owned by the License Key ID are broacasted to the Payload URL.', 'updatepulse-server' ); ?></span>
 							<br>
-							<strong class="show-if-license hidden"><?php esc_html_e( 'CAUTION: In case a License Key ID is not provided, events will be broacasted for all the licenses, leading to the potential leak of private data!', 'updatepulse-server' ); ?><br></strong>
+							<strong class="show-if-license hidden"><?php esc_html_e( 'CAUTION: In case a License Key ID is not provided, events WILL be broacasted for ALL the licenses, leading to the potential leak of private data!', 'updatepulse-server' ); ?><br></strong>
 							<br>
 							<strong><?php esc_html_e( 'CAUTION: Only add URLs from trusted sources!', 'updatepulse-server' ); ?></strong>
 						</p>
