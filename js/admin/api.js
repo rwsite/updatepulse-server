@@ -13,6 +13,14 @@ jQuery(document).ready(function ($) {
         return hexString;
     }
 
+    $('#upserv_modal_api_details').on('open', function (e, handler) {
+		var info = JSON.parse($(handler.data('selector')).val());
+		var modal = $(this);
+
+		modal.find('h2').text(handler.data('title'));
+		modal.find('pre').text(JSON.stringify(info, null, 2));
+	});
+
     $('.webhook-multiple').each(function (idx, el) {
         el = $(el);
 
@@ -173,6 +181,8 @@ jQuery(document).ready(function ($) {
             } else {
                 itemsContainer.classList.remove('empty');
             }
+
+            el.find('.webhook-values').val(JSON.stringify(data));
         }
 
         urlNew.on('input', validateInput);
@@ -332,6 +342,8 @@ jQuery(document).ready(function ($) {
             } else {
                 itemsContainer.classList.remove('empty');
             }
+
+            el.find('.api-key-values').val(JSON.stringify(data));
         }
 
         idNew.on('input', validateInput);

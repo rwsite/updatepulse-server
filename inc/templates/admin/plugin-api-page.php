@@ -7,8 +7,8 @@
 		<h3><?php esc_html_e( 'Package API', 'updatepulse-server' ); ?></h3>
 		<table class="form-table">
 			<tr>
-				<th>
-					<label for="upserv_package_private_api_keys"><?php esc_html_e( 'Private API Keys', 'updatepulse-server' ); ?></label>
+				<th class="inline">
+					<label for="upserv_package_private_api_keys"><?php esc_html_e( 'Private API Keys', 'updatepulse-server' ); ?><br><small><a href="#" class="upserv-modal-open-handle" data-modal_id="upserv_modal_api_details" data-title="<?php esc_html_e( 'Package Private API Keys', 'updatepulse-server' ); ?>" data-selector="#upserv_package_private_api_keys"><?php esc_html_e( 'Details', 'updatepulse-server' ); ?></a></small></label>
 				</th>
 			</tr>
 			<tr>
@@ -51,9 +51,11 @@
 				</td>
 			</tr>
 			<tr>
-				<th>
+				<th class="inline">
 					<label for="upserv_package_private_api_ip_whitelist"><?php esc_html_e( 'IP Whitelist', 'updatepulse-server' ); ?></label>
 				</th>
+			</tr>
+			<tr>
 				<td>
 					<textarea class="ip-whitelist" id="upserv_package_private_api_ip_whitelist" name="upserv_package_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", $options['package_private_api_ip_whitelist'] ) ); ?></textarea>
 					<p class="description">
@@ -63,12 +65,15 @@
 				</td>
 			</tr>
 		</table>
+		<p class="submit">
+			<input type="submit" name="upserv_options_save" value="<?php esc_attr_e( 'Save', 'updatepulse-server' ); ?>" class="button button-primary" />
+		</p>
 		<hr>
 		<h3><?php esc_html_e( 'License API', 'updatepulse-server' ); ?></h3>
 		<table class="form-table">
 			<tr>
-				<th>
-					<label for="upserv_license_private_api_keys"><?php esc_html_e( 'Private API Keys', 'updatepulse-server' ); ?></label>
+				<th class="inline">
+					<label for="upserv_license_private_api_keys"><?php esc_html_e( 'Private API Keys', 'updatepulse-server' ); ?><br><small><a href="#" class="upserv-modal-open-handle" data-modal_id="upserv_modal_api_details" data-title="<?php esc_html_e( 'License Private API Keys', 'updatepulse-server' ); ?>" data-selector="#upserv_license_private_api_keys"><?php esc_html_e( 'Details', 'updatepulse-server' ); ?></a></small></label>
 				</th>
 			</tr>
 			<tr>
@@ -114,9 +119,11 @@
 				</td>
 			</tr>
 			<tr>
-				<th>
+				<th class="inline">
 					<label for="upserv_license_private_api_ip_whitelist"><?php esc_html_e( 'IP Whitelist', 'updatepulse-server' ); ?></label>
 				</th>
+			</tr>
+			<tr>
 				<td>
 					<textarea class="ip-whitelist" id="upserv_license_private_api_ip_whitelist" name="upserv_license_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", $options['license_private_api_ip_whitelist'] ) ); ?></textarea>
 					<p class="description">
@@ -126,11 +133,14 @@
 				</td>
 			</tr>
 		</table>
+		<p class="submit">
+			<input type="submit" name="upserv_options_save" value="<?php esc_attr_e( 'Save', 'updatepulse-server' ); ?>" class="button button-primary" />
+		</p>
 		<hr>
-		<h3><?php esc_html_e( 'Webhooks', 'updatepulse-server' ); ?></h3>
+		<h3><?php esc_html_e( 'Webhooks', 'updatepulse-server' ); ?><br><small><a href="#" class="upserv-modal-open-handle" data-modal_id="upserv_modal_api_details" data-title="<?php esc_html_e( 'Webhooks', 'updatepulse-server' ); ?>" data-selector="#upserv_webhooks"><?php esc_html_e( 'Details', 'updatepulse-server' ); ?></a></small></h3>
 		<table class="form-table">
 			<tr>
-				<td>
+				<td style="padding-top: 0;">
 					<div class="webhook-multiple">
 						<div class="webhook-items empty">
 						</div>
@@ -197,10 +207,20 @@
 				</td>
 			</tr>
 		</table>
-		<hr>
 		<?php wp_nonce_field( 'upserv_plugin_options', 'upserv_plugin_options_handler_nonce' ); ?>
 		<p class="submit">
 			<input type="submit" name="upserv_options_save" value="<?php esc_attr_e( 'Save', 'updatepulse-server' ); ?>" class="button button-primary" />
 		</p>
 	</form>
+</div>
+<div id="upserv_modal_api_details" data-selector="" class='upserv-modal upserv-modal-api-details hidden'>
+	<div class='upserv-modal-content'>
+		<div class='upserv-modal-header'>
+			<span class='upserv-modal-close'>&times;</span>
+			<h2></h2>
+		</div>
+		<div class='upserv-modal-body'>
+			<pre></pre>
+		</div>
+	</div>
 </div>

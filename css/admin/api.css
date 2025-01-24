@@ -1,4 +1,15 @@
-.api-keys-items button,.webhook-items button {
+#upserv-api-settings small {
+    font-weight: normal;
+    font-size: 12px;
+}
+
+.form-table th.inline{
+    padding: 0;
+    width: 100%;
+}
+
+.api-keys-items button,
+.webhook-items button {
     width: 24px;
     height: 24px;
     border: none;
