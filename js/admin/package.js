@@ -81,7 +81,6 @@ jQuery(document).ready(function ($) {
 
 				registrationLocked = false;
 
-				window.alert(message);
 				button.removeAttr('disabled');
 				button.next().css('visibility', 'hidden');
 			}
