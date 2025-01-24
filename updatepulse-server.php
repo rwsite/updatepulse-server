@@ -124,6 +124,8 @@ function upserv_run() {
 		wp_cache_add_non_persistent_groups( 'updatepulse-server' );
 	}
 
+	do_action( 'upserv_mu_ready' );
+
 	require_once UPSERV_PLUGIN_PATH . 'functions.php';
 
 	$license_api_request  = upserv_is_doing_license_api_request();

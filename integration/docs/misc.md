@@ -22,6 +22,8 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
 		* [upserv\_fire\_webhook](#upserv_fire_webhook)
 	* [Actions](#actions)
 		* [upserv\_mu\_optimizer\_ready](#upserv_mu_optimizer_ready)
+		* [upserv\_mu\_ready](#upserv_mu_ready)
+		* [upserv\_ready](#upserv_ready)
 		* [upserv\_no\_api\_includes](#upserv_no_api_includes)
 		* [upserv\_no\_priority\_api\_includes](#upserv_no_priority_api_includes)
 		* [upserv\_api\_options\_updated](#upserv_api_options_updated)
@@ -630,6 +632,30 @@ Must be subscribed to in another MU plugin before or within the `muplugins_loade
 
 `$removed_hooks`
 > (array|bool) the hooks removed by the optimizer (`false` if `$doing_api` is not truthy)
+
+### upserv_mu_ready
+
+```php
+do_action( 'upserv_mu_ready' );
+```
+
+**Description**
+Fired when UpdatePulse Server is starting up, after the Must Used Plugins have been loaded.
+
+___
+### upserv_ready
+
+```php
+do_action( 'upserv_ready', $objects );
+```
+
+**Description**
+Fired when UpdatePulse Server is fully loaded.
+
+**Parameters**
+`$objects`
+> (array) an array of objects representing the plugin's main classes. Particularly useful to deregister hooks or filters.  
+
 ___
 ### upserv_no_api_includes
 
