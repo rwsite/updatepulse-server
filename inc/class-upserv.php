@@ -467,7 +467,7 @@ class UPServ {
 			foreach ( $notice as $key => $message ) {
 				echo '
 				<li id="upserv_option_error_item_' . esc_attr( $key ) . '">'
-					. esc_html( $message ) .
+					. wp_kses_post( $message ) .
 				'</li>';
 			}
 
