@@ -361,6 +361,10 @@ class License_API {
 					$raw_result = $result;
 				}
 			}
+		} elseif ( is_array( $license ) && ! empty( $license ) && isset( $license[0] ) ) {
+			$license[]  = __( 'This is an unexpected error. Please contact support.', 'updatepulse-server' );
+			$result     = array( 'message' => implode( '<br>', $license ) );
+			$raw_result = $result;
 		} else {
 			$result['license_key'] = isset( $license_data['license_key'] ) ?
 				$license_data['license_key'] :
@@ -466,6 +470,10 @@ class License_API {
 					$raw_result = $result;
 				}
 			}
+		} elseif ( is_array( $license ) && ! empty( $license ) && isset( $license[0] ) ) {
+			$license[]  = __( 'This is an unexpected error. Please contact support.', 'updatepulse-server' );
+			$result     = array( 'message' => implode( '<br>', $license ) );
+			$raw_result = $result;
 		} else {
 			$result['license_key'] = isset( $license_data['license_key'] ) ?
 				$license_data['license_key'] :
@@ -912,77 +920,79 @@ class License_API {
 	protected function handle_api_request() {
 		global $wp;
 
-		if ( isset( $wp->query_vars['action'] ) ) {
-			$method = $wp->query_vars['action'];
+		if ( ! isset( $wp->query_vars['action'] ) ) {
+			return;
+		}
 
-			$this->init_server();
+		$method = $wp->query_vars['action'];
 
-			if ( filter_input( INPUT_GET, 'action' ) && ! $this->is_api_public( $method ) ) {
-				$this->http_response_code = 405;
-				$response                 = array(
-					'message' => __( 'Unauthorized GET method.', 'updatepulse-server' ),
-				);
-			} else {
-				$malformed_request = false;
+		$this->init_server();
 
-				if ( 'browse' === $wp->query_vars['action'] ) {
+		if ( filter_input( INPUT_GET, 'action' ) && ! $this->is_api_public( $method ) ) {
+			$this->http_response_code = 405;
+			$response                 = array(
+				'message' => __( 'Unauthorized GET method.', 'updatepulse-server' ),
+			);
+		} else {
+			$malformed_request = false;
 
-					if ( isset( $wp->query_vars['browse_query'] ) ) {
-						$payload = $wp->query_vars['browse_query'];
-					} else {
-						$malformed_request = true;
-					}
+			if ( 'browse' === $wp->query_vars['action'] ) {
+
+				if ( isset( $wp->query_vars['browse_query'] ) ) {
+					$payload = $wp->query_vars['browse_query'];
 				} else {
-					$payload = $wp->query_vars;
-
-					unset( $payload['id'] );
+					$malformed_request = true;
 				}
+			} else {
+				$payload = $wp->query_vars;
 
-				if ( ! $malformed_request ) {
-					$authorized = apply_filters(
-						'upserv_license_api_request_authorized',
+				unset( $payload['id'] );
+			}
+
+			if ( ! $malformed_request ) {
+				$authorized = apply_filters(
+					'upserv_license_api_request_authorized',
+					(
+						$this->is_api_public( $method ) ||
 						(
-							$this->is_api_public( $method ) ||
-							(
-								$this->authorize_ip() &&
-								$this->authorize_private( $method, $payload )
-							)
-						),
-						$method,
-						$payload
-					);
+							$this->authorize_ip() &&
+							$this->authorize_private( $method, $payload )
+						)
+					),
+					$method,
+					$payload
+				);
 
-					if ( $authorized ) {
-						do_action( 'upserv_license_api_request', $method, $payload );
+				if ( $authorized ) {
+					do_action( 'upserv_license_api_request', $method, $payload );
 
-						if ( method_exists( $this, $method ) ) {
-							$response = $this->$method( $payload );
+					if ( method_exists( $this, $method ) ) {
+						$response = $this->$method( $payload );
 
-							if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
-								$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
-							}
-						} else {
-							$this->http_response_code = 400;
-							$response                 = array(
-								'message' => __( 'License API action not found.', 'updatepulse-server' ),
-							);
+						if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
+							$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
 						}
 					} else {
-						$this->http_response_code = 403;
+						$this->http_response_code = 400;
 						$response                 = array(
-							'message' => __( 'Unauthorized access', 'updatepulse-server' ),
+							'message' => __( 'License API action not found.', 'updatepulse-server' ),
 						);
 					}
 				} else {
-					$this->http_response_code = 400;
+					$this->http_response_code = 403;
 					$response                 = array(
-						'message' => __( 'Malformed request.', 'updatepulse-server' ),
+						'message' => __( 'Unauthorized access', 'updatepulse-server' ),
 					);
 				}
+			} else {
+				$this->http_response_code = 400;
+				$response                 = array(
+					'message' => __( 'Malformed request.', 'updatepulse-server' ),
+				);
 			}
-
-			wp_send_json( $response, $this->http_response_code );
 		}
+
+		wp_send_json( $response, $this->http_response_code );
 	}
 
 	protected function authorize_ip() {
