@@ -48,7 +48,8 @@
 					<span class="github hidden"><i class="fa-brands fa-github"></i><?php esc_html_e( 'Github', 'updatepulse-server' ); ?></span>
 					<span class="bitbucket hidden"><i class="fa-brands fa-bitbucket"></i><?php esc_html_e( 'Bitbucket', 'updatepulse-server' ); ?></span>
 					<span class="gitlab hidden"><i class="fa-brands fa-gitlab"></i><?php esc_html_e( 'Gitlab', 'updatepulse-server' ); ?></span>
-					<span class="self-hosted hidden"><i class="fa-brands fa-square-gitlab"></i><?php esc_html_e( 'Self-hosted', 'updatepulse-server' ); ?></span>
+					<span class="self-hosted-gitlab hidden"><i class="fa-brands fa-square-gitlab"></i><?php esc_html_e( 'Self-hosted', 'updatepulse-server' ); ?></span>
+					<span class="self-hosted-undefined hidden"><i class="fa-solid fa-question"></i><?php esc_html_e( 'Unknown', 'updatepulse-server' ); ?></span>
 				</div>
 				<div class="info hidden">
 					<code><i class="fa-solid fa-code"></i> <span class="identifier"></span></code>
@@ -63,14 +64,14 @@
 						<label for="upserv_vcs_url"><?php esc_html_e( 'VCS URL', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="regular-text vcs-setting" type="text" id="upserv_vcs_url" data-prop="url" name="upserv_vcs_url" value=""> <button class="button remove" id="upserv_remove_vcs"><?php esc_html_e( 'Remove', 'updatepulse-server' ); ?></button>
+						<input class="regular-text vcs-setting" type="text" id="upserv_vcs_url" data-prop="url" value=""> <button class="button remove" id="upserv_remove_vcs"><?php esc_html_e( 'Remove', 'updatepulse-server' ); ?></button>
 						<p class="description">
 							<?php esc_html_e( 'The URL of the Version Control System where packages are hosted.', 'updatepulse-server' ); ?>
 							<br>
 							<?php
 							printf(
 								// translators: %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://version-control-system.tld</code>
-								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the user name in case of BitBucket, is a group in case of Gitlab (no support for Gitlab subgroups), and where %3$s may be a self-hosted instance of Gitlab.', 'updatepulse-server' ),
+								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the user name in case of Bitbucket, is a group in case of Gitlab (no support for Gitlab subgroups), and where %3$s may be a self-hosted instance of Gitlab.', 'updatepulse-server' ),
 								'<code>https://version-control-system.tld/identifier/</code>',
 								'<code>identifier</code>',
 								'<code>https://version-control-system.tld</code>'
@@ -86,14 +87,15 @@
 							);
 							?>
 						</p>
+						<input type="hidden" class="vcs-setting" id="upserv_vcs_type" data-prop="type" value="undefined">
 					</td>
 				</tr>
-				<tr>
+				<tr class="self-hosted">
 					<th>
-						<label for="upserv_vcs_self_hosted"><?php esc_html_e( 'Self-hosted VCS', 'updatepulse-server' ); ?></label>
+						<label for="upserv_vcs_self_hosted"><?php esc_html_e( 'Self-hosted Gitlab', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="vcs-setting" type="checkbox" id="upserv_vcs_self_hosted" data-prop="self_hosted" name="upserv_vcs_self_hosted" value="1">
+						<input class="vcs-setting" type="checkbox" id="upserv_vcs_self_hosted_gitlab" data-prop="self_hosted" value="gitlab">
 						<p class="description">
 							<?php esc_html_e( 'Check this only if the Version Control System is a self-hosted instance of Gitlab.', 'updatepulse-server' ); ?>
 						</p>
@@ -104,7 +106,7 @@
 						<label for="upserv_vcs_branch"><?php esc_html_e( 'Packages Branch Name', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="vcs-setting regular-text" type="text" id="upserv_vcs_branch" data-prop="branch" name="upserv_vcs_branch" value="">
+						<input class="vcs-setting regular-text" type="text" id="upserv_vcs_branch" data-prop="branch" value="">
 						<p class="description">
 							<?php esc_html_e( 'The branch to download when getting remote packages from the Version Control System.', 'updatepulse-server' ); ?>
 						</p>
@@ -115,7 +117,7 @@
 						<label for="upserv_vcs_credentials"><?php esc_html_e( 'VCS Credentials', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="vcs-setting regular-text secret" type="password" autocomplete="new-password" id="upserv_vcs_credentials" data-prop="credentials" name="upserv_vcs_credentials" value="">
+						<input class="vcs-setting regular-text secret" type="password" autocomplete="new-password" id="upserv_vcs_credentials" data-prop="credentials" value="">
 						<p class="description">
 							<?php esc_html_e( 'Credentials for non-publicly accessible repositories.', 'updatepulse-server' ); ?>
 							<br>
@@ -131,7 +133,7 @@
 						<label for="upserv_vcs_filter_packages"><?php esc_html_e( 'Filter Packages', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input type="checkbox" id="upserv_vcs_filter_packages" data-prop="filter_packages" name="upserv_vcs_filter_packages" value="1">
+						<input type="checkbox" id="upserv_vcs_filter_packages" data-prop="filter_packages" value="1">
 						<p class="description">
 							<?php esc_html_e( 'When checked, packages downloaded from the Version Control System are filtered to include only those explicitly associated with this server.', 'updatepulse-server' ); ?>
 							<br/>
@@ -165,7 +167,7 @@
 						<label for="upserv_vcs_use_webhooks"><?php esc_html_e( 'Use Webhooks', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input type="checkbox" id="upserv_vcs_use_webhooks" data-prop="use_webhooks" name="upserv_vcs_use_webhooks" value="1">
+						<input type="checkbox" id="upserv_vcs_use_webhooks" data-prop="use_webhooks" value="1">
 						<p class="description">
 							<?php esc_html_e( 'When checked, UpdatePulse Server does not regularly poll the repositories for package version changes, but relies on the Webhook payloads sent by the Version Control System to schedule a download in case the package does not exist or if a new version is available.', 'updatepulse-server' ); ?>
 							<br/>
@@ -191,7 +193,7 @@
 						<label for="upserv_vcs_check_delay"><?php esc_html_e( 'Remote Download Delay', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input type="number" min="0" id="upserv_vcs_check_delay" data-prop="check_delay" name="upserv_vcs_check_delay" value="">
+						<input type="number" min="0" id="upserv_vcs_check_delay" data-prop="check_delay" value="">
 						<p class="description">
 							<?php esc_html_e( 'Delay in minutes after which UpdatePulse Server will poll the Version Control System for package updates when the Webhook has been called.', 'updatepulse-server' ); ?><br>
 							<?php esc_html_e( 'Leave at 0 to schedule a package update during the cron run happening immediately after the Webhook was called.', 'updatepulse-server' ); ?>
@@ -203,7 +205,7 @@
 						<label for="upserv_vcs_webhook_secret"><?php esc_html_e( 'VCS Webhook Secret', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="regular-text secret" type="password" autocomplete="new-password" id="upserv_vcs_webhook_secret" data-prop="webhook_secret" name="upserv_vcs_webhook_secret" value="">
+						<input class="regular-text secret" type="password" autocomplete="new-password" id="upserv_vcs_webhook_secret" data-prop="webhook_secret" value="">
 						<p class="description">
 							<?php esc_html_e( 'Preferably a random string, the secret string included in the request by the Version Control System when calling the Webhook.', 'updatepulse-server' ); ?>
 							<br>
@@ -218,7 +220,7 @@
 						<label for="upserv_vcs_check_frequency"><?php esc_html_e( 'Remote update check frequency', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<select name="upserv_vcs_check_frequency" id="upserv_vcs_check_frequency" data-prop="check_frequency">
+						<select id="upserv_vcs_check_frequency" data-prop="check_frequency">
 							<?php foreach ( $schedules as $display => $schedule ) : ?>
 								<option value="<?php echo esc_attr( $schedule['slug'] ); ?>"><?php echo esc_html( $display ); ?></option>
 							<?php endforeach; ?>
@@ -263,14 +265,14 @@
 						<label for="upserv_add_vcs_url"><?php esc_html_e( 'VCS URL', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="regular-text vcs-setting" type="text" id="upserv_add_vcs_url" data-prop="url" name="upserv_add_vcs_url" value="">
+						<input class="regular-text" type="text" id="upserv_add_vcs_url" data-prop="url" value="">
 						<p class="description">
 							<?php esc_html_e( 'The URL of the Version Control System where packages are hosted.', 'updatepulse-server' ); ?>
 							<br>
 							<?php
 							printf(
 								// translators: %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://version-control-system.tld</code>
-								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the user name in case of BitBucket, is a group in case of Gitlab (no support for Gitlab subgroups), and where %3$s may be a self-hosted instance of Gitlab.', 'updatepulse-server' ),
+								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the user name in case of Bitbucket, is a group in case of Gitlab (no support for Gitlab subgroups), and where %3$s may be a self-hosted instance of Gitlab.', 'updatepulse-server' ),
 								'<code>https://version-control-system.tld/identifier/</code>',
 								'<code>identifier</code>',
 								'<code>https://version-control-system.tld</code>'
@@ -293,7 +295,7 @@
 						<label for="upserv_add_vcs_branch"><?php esc_html_e( 'Packages Branch Name', 'updatepulse-server' ); ?></label>
 					</th>
 					<td>
-						<input class="vcs-setting regular-text" type="text" id="upserv_add_vcs_branch" data-prop="branch" name="upserv_add_vcs_branch" value="">
+						<input class="regular-text" type="text" id="upserv_add_vcs_branch" data-prop="branch" value="">
 						<p class="description">
 							<?php esc_html_e( 'The branch to download when getting remote packages from the Version Control System.', 'updatepulse-server' ); ?>
 						</p>

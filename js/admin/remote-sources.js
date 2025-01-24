@@ -5,8 +5,8 @@ jQuery(document).ready(function ($) {
     }
 
     var form = $('.form-container.package-source');
-    var inputElements = form.find('input[type="checkbox"], input[type="text"], input[type="number"], input[type="password"], select');
-    var inputTextElements = form.find('input[type="text"], input[type="number"], input[type="password"]');
+    var inputElements = form.find('input[type="checkbox"][data-prop], input[type="text"][data-prop], input[type="number"][data-prop], input[type="password"][data-prop], input[type="hidden"][data-prop], select[data-prop]');
+    var inputTextElements = form.find('input[type="text"][data-prop], input[type="number"][data-prop], input[type="password"][data-prop]');
     var data = JSON.parse($('#upserv_vcs').val());
     var init = function () {
         $.each(data, function (id) {
@@ -48,10 +48,6 @@ jQuery(document).ready(function ($) {
             var elem = $(this);
             var prop = elem.data('prop');
 
-            if (!prop) {
-                return;
-            }
-
             if (elem.is('input[type="checkbox"]')) {
                 data[id][prop] = 0;
             } else if (elem.is('select')) {
@@ -70,7 +66,6 @@ jQuery(document).ready(function ($) {
     var addItem = function (id) {
         var item = $('.vcs .item.template').clone();
         var itemData = data[id];
-        var service = itemData.url.match(/https?:\/\/([^\/]+)\//);
         var identifier = itemData.url.split('/').filter(function (part) {
             return part.length > 0;
         }).pop();
@@ -84,20 +79,8 @@ jQuery(document).ready(function ($) {
         item.find('.hidden').removeClass('hidden');
         item.attr('id', id);
         item.find('.service span').addClass('hidden');
-
-        if (service && service[1] === 'github.com') {
-            item.find('.service .github').removeClass('hidden');
-        } else if (service && service[1] === 'gitlab.com') {
-            item.find('.service .gitlab').removeClass('hidden');
-        } else if (service && service[1] === 'bitbucket.org') {
-            item.find('.service .bitbucket').removeClass('hidden');
-        } else {
-            data[id].self_hosted = true;
-
-            item.find('.service .self-hosted').removeClass('hidden');
-        }
-
         item.insertBefore($('.vcs .item.template'));
+        updateService(id);
     };
     var remove = function (id) {
         delete data[id];
@@ -154,6 +137,8 @@ jQuery(document).ready(function ($) {
 
         $('#' + id).find('.branch').text(data[id].branch);
         $('#' + id).find('.identifier').text(identifier);
+        updateSelfHosted(elem);
+        updateService(id);
         updateRepositories();
     };
     var updateRepositories = function () {
@@ -161,6 +146,47 @@ jQuery(document).ready(function ($) {
     };
     var disableForm = function (disable) {
         inputElements.prop('disabled', disable);
+    };
+    var updateSelfHosted = function (elem) {
+
+        if (elem.closest('.self-hosted').length === 0) {
+            return;
+        }
+
+        var id = $('.vcs .item.selected').attr('id');
+        var checked = elem.prop('checked')
+
+        $('.self-hosted').prop('checked', false);
+        elem.prop('checked', checked);
+
+        data[id].type = checked ? elem.val() : 'undefined';
+    };
+    var updateService = function (id) {
+        var service = data[id].url.match(/https?:\/\/([^\/]+)\//);
+        var item = $('#' + id);
+
+        item.find('.service span').addClass('hidden');
+        form.find('.self-hosted').addClass('hidden');
+
+        if (service && service[1] === 'github.com') {
+            data[id].type = 'github';
+            data[id].self_hosted = false;
+            item.find('.service .github').removeClass('hidden');
+        } else if (service && service[1] === 'gitlab.com') {
+            data[id].type = 'gitlab';
+            data[id].self_hosted = false;
+            item.find('.service .gitlab').removeClass('hidden');
+        } else if (service && service[1] === 'bitbucket.org') {
+            data[id].type = 'bitbucket';
+            data[id].self_hosted = false;
+            item.find('.service .bitbucket').removeClass('hidden');
+        } else {
+            data[id].type = data[id].type ? data[id].type : 'undefined';
+            data[id].self_hosted = true;
+
+            item.find('.service .self-hosted-' + data[id].type ).removeClass('hidden');
+            form.find('.self-hosted').removeClass('hidden');
+        }
     };
 
     inputElements.on('change', function (e) {
