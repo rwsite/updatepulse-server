@@ -908,10 +908,7 @@ class Package_Manager {
 		if ( has_filter( 'upserv_whitelist_package_data' ) ) {
 			$data = apply_filters( 'upserv_whitelist_package_data', $data, $package_slug );
 		} else {
-			$data['whitelisted']['local'] = array(
-				true,
-				time(),
-			);
+			$data['whitelisted']['local'] = array( true, time() );
 		}
 
 		$result = $this->set_package_metadata( $package_slug, $data );
@@ -931,10 +928,7 @@ class Package_Manager {
 		if ( has_filter( 'upserv_unwhitelist_package_data' ) ) {
 			$data = apply_filters( 'upserv_unwhitelist_package_data', $data, $package_slug );
 		} else {
-			$data['whitelisted']['local'] = array(
-				false,
-				time(),
-			);
+			$data['whitelisted']['local'] = array( false, time() );
 		}
 
 		$result = $this->set_package_metadata( $package_slug, $data );
@@ -948,12 +942,7 @@ class Package_Manager {
 		$data = wp_cache_get( 'package_metadata_' . $package_slug, 'updatepulse-server' );
 
 		if ( $data ) {
-
-			if ( ! $json_encode ) {
-				$data = json_decode( $data, true );
-			}
-
-			return $data;
+			return ! $json_encode ? json_decode( $data, true ) : $data;
 		}
 
 		$dir       = upserv_get_data_dir( 'metadata' );
