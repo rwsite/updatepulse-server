@@ -198,3 +198,14 @@
 		</p>
 	</form>
 </div>
+<div id="upserv_modal_license_details" class='upserv-modal upserv-modal-license-details hidden'>
+	<div class='upserv-modal-content'>
+		<div class='upserv-modal-header'>
+			<span class='upserv-modal-close'>&times;</span>
+			<h2></h2>
+		</div>
+		<div class='upserv-modal-body'>
+			<pre></pre>
+		</div>
+	</div>
+</div>

@@ -11,6 +11,16 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
+	$('#upserv_modal_license_details').on('open', function (e, handler) {
+		var info  = JSON.parse(handler.closest('tr').find('input[name="license_data[]"]').val());
+		var modal = $(this);
+
+		info.data = JSON.parse(info.data);
+
+		modal.find('h2').text(info.name + ' v' + info.version);
+		modal.find('pre').text(JSON.stringify(info, null, 2));
+	});
+
 	$('#add_license_trigger').on('click', function() {
 		showLicensePanel($('#upserv_license_panel'), function() {
 			populateLicensePanel();
