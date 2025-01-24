@@ -17,7 +17,7 @@ jQuery(document).ready(function ($) {
 
 		info.data = JSON.parse(info.data);
 
-		modal.find('h2').text(info.name + ' v' + info.version);
+		modal.find('h2').html(info.license_key + '<br>' + info.package_slug + ' - ' + info.owner_name + ' (' + info.email + ')');
 		modal.find('pre').text(JSON.stringify(info, null, 2));
 	});
 

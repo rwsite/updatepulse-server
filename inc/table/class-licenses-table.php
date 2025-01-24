@@ -263,4 +263,12 @@ class Licenses_Table extends WP_List_Table {
 
 		return $actions;
 	}
+
+	protected function get_table_classes() {
+		$mode = get_user_setting( 'posts_list_mode', 'list' );
+
+		$mode_class = esc_attr( 'table-view-' . $mode );
+
+		return array( 'widefat', 'striped', $mode_class, $this->_args['plural'] );
+	}
 }
