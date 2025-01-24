@@ -7,7 +7,7 @@
 }
 
 .upserv-wrap .col_origin .item {
-    max-width: 160px;
+    max-width: 175px;
     display: flex;
     flex-wrap: wrap;
     gap: 0.25em 0.05em;
@@ -25,5 +25,5 @@
     gap: 0.5em;
     padding-left: 0.5em;
     align-items: baseline;
-    max-width: calc(160px - 1em);
+    max-width: calc(175px - 1em);
 }

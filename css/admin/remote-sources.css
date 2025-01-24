@@ -8,9 +8,10 @@
     margin-top: 2em;
 }
 
-.upserv-wrap .item.template {
+.upserv-wrap .vcs .item.template {
     max-width: 100px;
     text-align: center;
+    justify-content: center;
 }
 
 .upserv-wrap .vcs .item.template .placeholder {
@@ -37,7 +38,7 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 .upserv-wrap .vcs .item:hover,
@@ -65,13 +66,13 @@
     line-height: 1.5em;
     padding: 1em 1em 0.5em;
     min-width: 120px;
-    max-width: 170px;
+    max-width: 175px;
 }
 
 .upserv-wrap .vcs .item code {
     word-break: keep-all;
     white-space: nowrap;
-    display: flex;
+    display: inline-flex;
     margin: 0 0 0.5em 0;
     gap: 0.5em;
     padding-left: 0.5em;
