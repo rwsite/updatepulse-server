@@ -807,7 +807,6 @@ class Update_Server {
 		}
 
 		$checker_class = 'Anyape\PackageUpdateChecker\\' . $this->type . 'UpdateChecker';
-		$api_class     = 'Anyape\PackageUpdateChecker\Vcs\\' . $api_class;
 		$params        = array( new $api_class( $repo_url ), $slug, $this->package_dir );
 
 		if ( $package_filename ) {
