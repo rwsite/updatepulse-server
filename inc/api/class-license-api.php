@@ -282,6 +282,11 @@ class License_API {
 	public function activate( $license_data ) {
 		$license      = null;
 		$license_data = apply_filters( 'upserv_activate_license_dirty_payload', $license_data );
+
+		if ( isset( $license_data['allowed_domains'] ) && ! is_array( $license_data['allowed_domains'] ) ) {
+			$license_data['allowed_domains'] = array( $license_data['allowed_domains'] );
+		}
+
 		$request_slug = isset( $license_data['package_slug'] ) ? $license_data['package_slug'] : false;
 		$result       = array();
 		$raw_result   = array();
@@ -290,16 +295,11 @@ class License_API {
 
 		do_action( 'upserv_pre_activate_license', $license );
 
-		if ( isset( $license_data['allowed_domains'] ) ) {
-
-			if (
-				is_array( $license_data['allowed_domains'] ) &&
-				1 === count( $license_data['allowed_domains'] )
-			) {
-				$domain = $license_data['allowed_domains'][0];
-			} elseif ( is_string( $license_data['allowed_domains'] ) ) {
-				$domain = $license_data['allowed_domains'];
-			}
+		if ( isset( $license_data['allowed_domains'] ) &&
+			is_array( $license_data['allowed_domains'] ) &&
+			1 === count( $license_data['allowed_domains'] )
+		) {
+			$domain = $license_data['allowed_domains'][0];
 		}
 
 		if (
@@ -382,6 +382,11 @@ class License_API {
 	public function deactivate( $license_data ) {
 		$license      = null;
 		$license_data = apply_filters( 'upserv_deactivate_license_dirty_payload', $license_data );
+
+		if ( isset( $license_data['allowed_domains'] ) && ! is_array( $license_data['allowed_domains'] ) ) {
+			$license_data['allowed_domains'] = array( $license_data['allowed_domains'] );
+		}
+
 		$request_slug = isset( $license_data['package_slug'] ) ? $license_data['package_slug'] : false;
 		$license      = $this->license_server->read_license( $license_data );
 		$result       = array();
@@ -390,16 +395,11 @@ class License_API {
 
 		do_action( 'upserv_pre_deactivate_license', $license );
 
-		if ( isset( $license_data['allowed_domains'] ) ) {
-
-			if (
-				is_array( $license_data['allowed_domains'] ) &&
-				1 === count( $license_data['allowed_domains'] )
-			) {
-				$domain = $license_data['allowed_domains'][0];
-			} elseif ( is_string( $license_data['allowed_domains'] ) ) {
-				$domain = $license_data['allowed_domains'];
-			}
+		if ( isset( $license_data['allowed_domains'] ) &&
+			is_array( $license_data['allowed_domains'] ) &&
+			1 === count( $license_data['allowed_domains'] )
+		) {
+			$domain = $license_data['allowed_domains'][0];
 		}
 
 		if (

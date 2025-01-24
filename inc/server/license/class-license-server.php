@@ -194,7 +194,7 @@ class License_Server {
 			);
 
 			if ( false !== $result ) {
-				$return = $this->read_license( $payload );
+				$return = $this->read_license( $where );
 			} else {
 				$return = array();
 
