@@ -111,9 +111,6 @@
 .upserv-modal-body pre {
     max-height: 70vh;
     overflow: scroll;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
     background: #eee;
     padding: 2em;
 }

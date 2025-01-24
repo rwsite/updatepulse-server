@@ -1,10 +1,9 @@
 <?php if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 } ?>
-<tr>
+<tr id="<?php echo esc_attr( $record_key ); ?>">
 	<?php
-	$actions = array();
-
+	$actions      = array();
 	$query_string = '?page=%s&action=%s&packages=%s&linknonce=%s';
 	$args         = array(
 		$_REQUEST['page'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -18,15 +17,19 @@
 		$query_string .= '&s=%s';
 	}
 
-	$args[]              = __( 'Download', 'updatepulse-server' );
-	$actions['download'] = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
-
+	$actions['details']         = '<a href="#" class="upserv-modal-open-handle" '
+		. 'data-modal_id="upserv_modal_package_details" '
+		. 'data-info="' . esc_attr( $record['info'] ) . '">'
+		. __( 'Details', 'updatepulse-server' )
+		. '</a>';
+	$args[]                     = __( 'Download', 'updatepulse-server' );
+	$actions['download']        = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
 	$args[1]                    = 'delete';
 	$args[ count( $args ) - 1 ] = __( 'Delete' );
 	$actions['delete']          = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
-
-	$actions = apply_filters( 'upserv_packages_table_row_actions', $actions, $args, $query_string, $record_key );
-	$actions = $table->row_actions( $actions );
+	$actions                    = $table->row_actions(
+		apply_filters( 'upserv_packages_table_row_actions', $actions, $args, $query_string, $record_key )
+	);
 	?>
 	<?php foreach ( $columns as $column_name => $column_display_name ) : ?>
 		<?php

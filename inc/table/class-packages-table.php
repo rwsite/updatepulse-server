@@ -136,6 +136,7 @@ class Packages_Table extends WP_List_Table {
 					$url           = untrailingslashit( $record['metadata']['vcs'] );
 					$vcs_config    = upserv_get_option( 'vcs/' . $record['metadata']['vcs_key'] );
 					$record['vcs'] = empty( $vcs_config ) ? array() : array(
+						'url'        => $url,
 						'identifier' => substr( $url, strrpos( $url, '/' ) + 1 ),
 						'branch'     => $vcs_config['branch'],
 						'class'      => $this->get_vcs_class( $vcs_config ),
@@ -145,6 +146,26 @@ class Packages_Table extends WP_List_Table {
 				if ( ! isset( $record['metadata']['origin'] ) ) {
 					$record['metadata']['origin'] = 'unknown';
 				}
+
+				$info           = $record;
+				$unset_metadata = array( 'previous', 'branch', 'vcs_key', 'vcs', 'whitelist' );
+
+				foreach ( $unset_metadata as $key ) {
+					unset( $info['metadata'][ $key ] );
+				}
+
+				if ( isset( $info['vcs'] ) ) {
+					$info['vcs']['type']        = $vcs_config['type'];
+					$info['vcs']['self_hosted'] = $vcs_config['self_hosted'];
+
+					unset( $info['vcs']['class'] );
+				}
+
+				$record['info'] = wp_json_encode(
+					$info,
+					// unescape all chars
+					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+				);
 
 				upserv_get_admin_template(
 					'packages-table-row.php',

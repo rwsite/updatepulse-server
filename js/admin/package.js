@@ -10,6 +10,14 @@ jQuery(document).ready(function ($) {
 		}
 	});
 
+	$('#upserv_modal_package_details').on('open', function (e, handler) {
+		var info = handler.data('info');
+		var modal = $(this);
+
+		modal.find('h2').text(info.name + ' v' + info.version);
+		modal.find('pre').text(JSON.stringify(info, null, 2));
+	});
+
 	$('#upserv_register_package_slug').on('input', function () {
 
 		if (0 < $(this).val().length && !registrationLocked && 0 < $('#upserv_vcs_select').val().length) {
