@@ -66,9 +66,8 @@
 				?>
 			</li>
 		</ul>
-	</div>
+		<hr>
 	<?php endif; ?>
-	<div class="help-content">
 		<h2><?php esc_html_e( 'Providing updates - packages requirements', 'updatepulse-server' ); ?></h2>
 		<p>
 			<?php esc_html_e( 'To link your packages to UpdatePulse Server, and optionally to prevent users from getting updates of your packages without a license, your packages need to include some extra code.', 'updatepulse-server' ); ?><br><br>

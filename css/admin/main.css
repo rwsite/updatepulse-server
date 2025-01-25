@@ -8,14 +8,29 @@
     font-size: 1.25em;
 }
 
-.upserv-add-packages .spinner {
-    float: none;
-    vertical-align: top;
-    background-size: 20px 20px;
-    margin: 0 5px;
-    height: 28px;
-    width: 28px;
-    background-position: center center;
+.upserv-wrap .form-table,
+.upserv-wrap .help-content {
+  max-width: 50rem; /* 800px if the base font size is 16px */
+   /* Allows for fluid width on smaller screens */
+  margin: 0 auto 0 0; /* Centers the container */
+  padding: 1rem; /* Adds breathing room inside the container */
+  box-sizing: border-box; /* Includes padding in the width calculation */
+}
+
+/* Adjustments for larger screens */
+@media (min-width: 1200px) {
+  .upserv-wrap .form-table,
+  .upserv-wrap .help-content {
+    max-width: 60rem; /* 960px for larger screens */
+  }
+}
+
+/* Adjustments for very small screens */
+@media (max-width: 480px) {
+  .upserv-wrap .form-table,
+  .upserv-wrap .help-content {
+    padding: 0.5rem; /* Reduce padding on tiny screens */
+  }
 }
 
 .upserv-remove-icon::before {

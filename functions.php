@@ -97,8 +97,8 @@ if ( ! function_exists( 'get_vcs_name' ) ) {
 
 if ( ! function_exists( 'upserv_set_locale' ) ) {
 	function upserv_set_locale() {
-		$target = filter_input( INPUT_GET, 'lang', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$target = $target ? $target : filter_input( INPUT_POST, 'lang', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$target = filter_input( INPUT_GET, 'locale', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$target = $target ? $target : filter_input( INPUT_POST, 'locale', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( ! $target || ! preg_match( '/^[a-z]{2,3}([-_][A-Z]{2})?$/', $target ) ) {
 			return new WP_Error(

@@ -1,3 +1,13 @@
+.upserv-add-packages .spinner {
+    float: none;
+    vertical-align: top;
+    background-size: 20px 20px;
+    margin: 0 5px;
+    height: 28px;
+    width: 28px;
+    background-position: center center;
+}
+
 .upserv-wrap .register-package-container {
     display: flex;
     align-items: center;

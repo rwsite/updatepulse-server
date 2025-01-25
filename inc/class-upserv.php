@@ -326,7 +326,6 @@ class UPServ {
 
 	public function add_action_links( $links ) {
 		$link = array(
-			'<a href="' . admin_url( 'admin.php?page=upserv-page' ) . '">' . __( 'Packages Overview', 'updatepulse-server' ) . '</a>',
 			'<a href="' . admin_url( 'admin.php?page=upserv-page-help' ) . '">' . __( 'Help', 'updatepulse-server' ) . '</a>',
 		);
 
