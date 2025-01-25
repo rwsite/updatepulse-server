@@ -658,9 +658,18 @@ Values format in case of a generic package:
 }
 ```
 
-Response `$data` - **failure** (`400` response code):
+Response `$data` - **failure** (`404` response code - package not found):
 ```json
-false
+{
+    "message": "Package not found."
+}
+```
+
+Response `$data` - **failure** (`400` response code - other cases ; `message` may vary):
+```json
+{
+    "message": "Package could not be edited - invalid parameters."
+}
 ```
 
 ___
@@ -809,12 +818,16 @@ Values format in case of a generic package:
 
 Response `$data` - **failure** (`409` response code - the package already exists on the file system):
 ```json
-false
+{
+    "message": "Package already exists"
+}
 ```
 
-Response `$data` - **failure** (`400` response code - other cases):
+Response `$data` - **failure** (`400` response code - other cases ; `message` may vary):
 ```json
-false
+{
+    "message": "Package could not be added - invalid parameters"
+}
 ```
 
 ___

@@ -6,6 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use WP_Error;
+use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
+use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Server\Update\Cache;
+use Anyape\UpdatePulse\Server\Server\Update\Package;
+use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
+
 class Package_API {
 
 	protected $http_response_code = 200;
@@ -89,20 +96,32 @@ class Package_API {
 	public function edit( $package_id, $type ) {
 		$result = false;
 		$config = self::get_config();
+		$exists = upserv_get_package_info( $package_id, false );
 
-		if ( $config['use_vcs'] ) {
-			$result = upserv_download_remote_package( $package_id, $type );
-			$result = $result ? upserv_get_package_info( $package_id, false ) : $result;
-			$result = apply_filters( 'upserv_package_edit', $result, $package_id, $type );
+		if ( ! empty( $exists ) ) {
 
-			if ( $result ) {
-				do_action( 'upserv_did_edit_package', $result );
+			if ( $this->has_file() ) {
+				$result = $this->get_file( $package_id, $type );
+			} elseif ( $config['use_vcs'] ) {
+				$result = $this->download_file( $package_id, $type );
 			}
+
+			$result = $result && ! is_wp_error( $result ) ? upserv_get_package_info( $package_id, false ) : $result;
 		}
 
-		if ( ! $result ) {
+		$result = apply_filters( 'upserv_package_edit', $result, $package_id, $type );
+
+		if ( empty( $exists ) ) {
+			$this->http_response_code = 404;
+			$result                   = (object) array( 'message' => __( 'Package not found', 'updatepulse-server' ) );
+		} elseif ( is_wp_error( $result ) ) {
 			$this->http_response_code = 400;
-			$result                   = (object) array();
+			$result                   = (object) array( 'message' => $result->get_error_message() );
+		} elseif ( ! $result ) {
+			$this->http_response_code = 400;
+			$result                   = (object) array( 'message' => __( 'Package could not be edited - invalid parameters', 'updatepulse-server' ) );
+		} else {
+			do_action( 'upserv_did_edit_package', $result );
 		}
 
 		return $result;
@@ -111,38 +130,32 @@ class Package_API {
 	public function add( $package_id, $type ) {
 		$result = false;
 		$config = self::get_config();
+		$exists = upserv_get_package_info( $package_id, false );
 
-		if ( ! $config['use_vcs'] ) {
-			$this->http_response_code = 400;
+		if ( empty( $exists ) ) {
 
-			return (object) array();
-		}
-
-		$result = upserv_get_package_info( $package_id, false );
-
-		if ( ! empty( $result ) ) {
-			$result = false;
-		} else {
-			$vcs_url = filter_input( INPUT_POST, 'vcs_url', FILTER_SANITIZE_URL );
-			$branch  = filter_input( INPUT_POST, 'branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-
-			if ( $vcs_url ) {
-				$branch = $branch ? $branch : 'main';
-				$result = upserv_download_remote_package( $package_id, $type, $vcs_url, $branch );
-			} else {
-				$result = upserv_download_remote_package( $package_id, $type );
+			if ( $this->has_file() ) {
+				$result = $this->get_file( $package_id, $type );
+			} elseif ( $config['use_vcs'] ) {
+				$result = $this->download_file( $package_id, $type );
 			}
 
-			$result = $result ? upserv_get_package_info( $package_id, false ) : $result;
+			$result = $result && ! is_wp_error( $result ) ? upserv_get_package_info( $package_id, false ) : $result;
 		}
 
 		$result = apply_filters( 'upserv_package_add', $result, $package_id, $type );
 
-		if ( $result ) {
-			do_action( 'upserv_did_add_package', $result );
-		} else {
+		if ( ! empty( $exists ) ) {
 			$this->http_response_code = 409;
-			$result                   = (object) array();
+			$result                   = (object) array( 'message' => __( 'Package already exists', 'updatepulse-server' ) );
+		} elseif ( is_wp_error( $result ) ) {
+			$this->http_response_code = 400;
+			$result                   = (object) array( 'message' => $result->get_error_message() );
+		} elseif ( ! $result ) {
+			$this->http_response_code = 400;
+			$result                   = (object) array( 'message' => __( 'Package could not be added - invalid parameters', 'updatepulse-server' ) );
+		} else {
+			do_action( 'upserv_did_add_package', $result );
 		}
 
 		return $result;
@@ -489,6 +502,136 @@ class Package_API {
 	/*******************************************************************
 	 * Protected methods
 	 *******************************************************************/
+
+	protected function has_file() {
+		return isset( $_FILES['file'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	}
+
+	protected function get_file( $package_id, $type ) {
+
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$uploaded_file  = $_FILES['file']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$local_filename = $uploaded_file['tmp_name'];
+		$content_md5    = isset( $_SERVER['HTTP_CONTENT_MD5'] ) ? $_SERVER['HTTP_CONTENT_MD5'] : false;
+		$file_hash      = isset( $_SERVER['HTTP_FILE_HASH'] ) ? $_SERVER['HTTP_FILE_HASH'] : false;
+
+		if ( $content_md5 ) {
+			$md5_check = verify_file_md5( $tmpfname, $content_md5 );
+
+			if ( is_wp_error( $md5_check ) ) {
+				wp_delete_file( $local_filename );
+
+				return new WP_Error(
+					'invalid_md5',
+					__( 'The provided file does not match the provided MD5 checksum', 'updatepulse-server' )
+				);
+			}
+		}
+
+		if ( $file_hash ) {
+			$hash_check = hash_file( 'sha256', $local_filename ) === $file_hash;
+
+			if ( is_wp_error( $hash_check ) ) {
+				wp_delete_file( $local_filename );
+
+				return new WP_Error(
+					'invalid_hash',
+					__( 'The provided file does not match the provided hash', 'updatepulse-server' )
+				);
+			}
+		}
+
+		$zip_check = wp_check_filetype( $uploaded_file['name'], array( 'zip' => 'application/zip' ) );
+
+		if ( 'zip' !== $zip_check['ext'] ) {
+			wp_delete_file( $local_filename );
+
+			return new WP_Error(
+				'invalid_file_type',
+				__( 'The provided file is not a valid ZIP file', 'updatepulse-server' )
+			);
+		}
+
+		$package_manager = new Zip_Package_Manager(
+			$package_id,
+			$local_filename,
+			Data_Manager::get_data_dir( 'tmp' ),
+			Data_Manager::get_data_dir( 'packages' )
+		);
+
+		$package = null;
+
+		try {
+			$result    = $package_manager->clean_package();
+			$cache     = new Cache( Data_Manager::get_data_dir( 'cache' ) );
+			$file_path = Data_Manager::get_data_dir( 'packages' ) . $package_id . '.zip';
+			$package   = Package::from_archive( $file_path, $package_id, $cache );
+		} catch ( Invalid_Package_Exception ) {
+			wp_delete_file( $local_filename );
+			wp_delete_file( Data_Manager::get_data_dir( 'tmp' ) . $package_id . '.zip' );
+			wp_delete_file( Data_Manager::get_data_dir( 'packages' ) . $package_id . '.zip' );
+
+			return new WP_Error(
+				'invalid_package',
+				__( 'The provided file is not a valid package', 'updatepulse-server' )
+			);
+		}
+
+		$vcs_url      = filter_input( INPUT_POST, 'vcs_url', FILTER_SANITIZE_URL );
+		$branch       = filter_input( INPUT_POST, 'branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$meta         = upserv_get_package_metadata( $package_id );
+		$meta['type'] = $type;
+
+		if ( $vcs_url ) {
+			$branch          = $branch ? $branch : 'main';
+			$vcs_configs     = upserv_get_option( 'vcs', array() );
+			$meta['vcs_key'] = hash( 'sha256', trailingslashit( $vcs_url ) . '|' . $branch );
+			$meta['origin']  = 'vcs';
+			$meta['branch']  = $branch;
+			$meta['vcs']     = trailingslashit( $vcs_url );
+
+			if ( isset( $vcs_configs[ $meta['vcs_key'] ] ) ) {
+				upserv_set_package_metadata( $package_id, $meta );
+			} else {
+				wp_delete_file( $package->get_filename() );
+
+				$result = new WP_Error(
+					'invalid_vcs',
+					__( 'The provided VCS information is not valid', 'updatepulse-server' )
+				);
+			}
+		} else {
+			$meta['origin'] = 'manual';
+
+			upserv_set_package_metadata( $package_id, $meta );
+		}
+
+		if ( ! is_wp_error( $result ) ) {
+			upserv_whitelist_package( $package_id );
+		}
+
+		do_action( 'upserv_saved_remote_package_to_local', ! is_wp_error( $result ), $type, $package_id );
+
+		return $result;
+	}
+
+	protected function download_file( $package_id, $type ) {
+		$vcs_url = filter_input( INPUT_POST, 'vcs_url', FILTER_SANITIZE_URL );
+		$branch  = filter_input( INPUT_POST, 'branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$result  = false;
+
+		if ( $vcs_url ) {
+			$branch = $branch ? $branch : 'main';
+			$result = upserv_download_remote_package( $package_id, $type, $vcs_url, $branch );
+		} else {
+			$result = upserv_download_remote_package( $package_id, $type );
+		}
+
+		return $result;
+	}
 
 	protected function authorize_public() {
 		$nonce = filter_input( INPUT_GET, 'token', FILTER_UNSAFE_RAW );
