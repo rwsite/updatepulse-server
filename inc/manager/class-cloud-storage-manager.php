@@ -541,25 +541,29 @@ class Cloud_Storage_Manager {
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$filename          = trailingslashit( $package_directory ) . $slug . '.zip';
 
-		try {
+		if ( ! $local_ready ) {
 
-			if ( $local_ready ) {
-				$args = array(
-					self::$cloud_storage::inputFile( $filename ),
-					$config['storage_unit'],
-					self::$virtual_dir . '/' . $slug . '.zip',
-					PhpS3::ACL_PRIVATE,
-					array(
-						'updatepulse-digests-sha1'   => hash_file( 'sha1', $filename ),
-						'updatepulse-digests-sha256' => hash_file( 'sha256', $filename ),
-						'updatepulse-digests-sha512' => hash_file( 'sha512', $filename ),
-						'updatepulse-digests-crc32'  => hash_file( 'crc32', $filename ),
-						'updatepulse-digests-crc32c' => hash_file( 'crc32c', $filename ),
-					),
-				);
-
-				self::$cloud_storage->putObject( ...$args );
+			if ( is_file( $filename ) ) {
+				wp_delete_file( $filename );
 			}
+
+			return;
+		}
+
+		try {
+			self::$cloud_storage->putObject(
+				self::$cloud_storage::inputFile( $filename ),
+				$config['storage_unit'],
+				self::$virtual_dir . '/' . $slug . '.zip',
+				PhpS3::ACL_PRIVATE,
+				array(
+					'updatepulse-digests-sha1'   => hash_file( 'sha1', $filename ),
+					'updatepulse-digests-sha256' => hash_file( 'sha256', $filename ),
+					'updatepulse-digests-sha512' => hash_file( 'sha512', $filename ),
+					'updatepulse-digests-crc32'  => hash_file( 'crc32', $filename ),
+					'updatepulse-digests-crc32c' => hash_file( 'crc32c', $filename ),
+				)
+			);
 		} catch ( PhpS3Exception $e ) {
 			php_log(
 				array(
