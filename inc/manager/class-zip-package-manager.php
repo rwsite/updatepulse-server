@@ -82,7 +82,7 @@ class Zip_Package_Manager {
 			}
 		}
 
-		return $zip->close();
+		return $zip->close() && file_exists( $destination );
 	}
 
 	public function clean_package() {
@@ -200,7 +200,10 @@ class Zip_Package_Manager {
 			if ( ( 1 === count( $content ) && is_dir( $maybe_directory ) ) ) {
 				$directory = $maybe_directory;
 
-				$wp_filesystem->move( $directory, $temp_path . $this->package_slug, true );
+				if ( $directory !== $temp_path . $this->package_slug ) {
+					$wp_filesystem->move( $directory, $temp_path . $this->package_slug );
+				}
+
 				$wp_filesystem->chmod( $temp_path, false, true );
 
 				do_action( 'upserv_before_remote_package_zip', $this->package_slug, $temp_path, $archive_path );

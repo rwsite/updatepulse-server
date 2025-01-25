@@ -789,7 +789,7 @@ class Package_Manager {
 
 		$package_info = apply_filters( 'upserv_package_manager_package_info', $package_info, $slug );
 
-		if ( ! isset( $package_info['metadata'] ) ) {
+		if ( is_array( $package_info ) && ! isset( $package_info['metadata'] ) ) {
 			$package_info['metadata'] = $this->get_package_metadata( $slug );
 		}
 
