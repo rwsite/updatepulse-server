@@ -508,45 +508,30 @@ class Package_API {
 	}
 
 	protected function get_file( $package_id, $type ) {
-
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
 		$uploaded_file  = $_FILES['file']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$local_filename = $uploaded_file['tmp_name'];
-		$content_md5    = isset( $_SERVER['HTTP_CONTENT_MD5'] ) ? $_SERVER['HTTP_CONTENT_MD5'] : false;
 		$file_hash      = isset( $_SERVER['HTTP_FILE_HASH'] ) ? $_SERVER['HTTP_FILE_HASH'] : false;
 
-		if ( $content_md5 ) {
-			$md5_check = verify_file_md5( $tmpfname, $content_md5 );
+		if ( hash_file( 'sha256', $local_filename ) !== $file_hash ) {
+			wp_delete_file( $local_filename );
 
-			if ( is_wp_error( $md5_check ) ) {
-				wp_delete_file( $local_filename );
-
-				return new WP_Error(
-					'invalid_md5',
-					__( 'The provided file does not match the provided MD5 checksum', 'updatepulse-server' )
-				);
-			}
+			return new WP_Error(
+				'invalid_hash',
+				__( 'The provided file does not match the provided hash', 'updatepulse-server' )
+			);
 		}
 
-		if ( $file_hash ) {
-			$hash_check = hash_file( 'sha256', $local_filename ) === $file_hash;
+		$zip_check   = wp_check_filetype( $uploaded_file['name'], array( 'zip' => 'application/zip' ) );
+		$bytes       = filesize( $local_filename ) > 4 ?
+			file_get_contents( $local_filename, false, null, 0, 4 ) : // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			false;
+		$bytes_check = $bytes ? '504b0304' === bin2hex( $bytes ) : false;
 
-			if ( is_wp_error( $hash_check ) ) {
-				wp_delete_file( $local_filename );
-
-				return new WP_Error(
-					'invalid_hash',
-					__( 'The provided file does not match the provided hash', 'updatepulse-server' )
-				);
-			}
-		}
-
-		$zip_check = wp_check_filetype( $uploaded_file['name'], array( 'zip' => 'application/zip' ) );
-
-		if ( 'zip' !== $zip_check['ext'] ) {
+		if (
+			! $bytes_check ||
+			'zip' !== $zip_check['ext'] ||
+			'application/zip' !== mime_content_type( $local_filename )
+		) {
 			wp_delete_file( $local_filename );
 
 			return new WP_Error(
@@ -563,6 +548,7 @@ class Package_API {
 		);
 
 		$package = null;
+		$result  = false;
 
 		try {
 			$result    = $package_manager->clean_package();
@@ -574,6 +560,10 @@ class Package_API {
 			wp_delete_file( Data_Manager::get_data_dir( 'tmp' ) . $package_id . '.zip' );
 			wp_delete_file( Data_Manager::get_data_dir( 'packages' ) . $package_id . '.zip' );
 
+			$result = false;
+		}
+
+		if ( ! $result ) {
 			return new WP_Error(
 				'invalid_package',
 				__( 'The provided file is not a valid package', 'updatepulse-server' )
@@ -598,7 +588,7 @@ class Package_API {
 			} else {
 				wp_delete_file( $package->get_filename() );
 
-				$result = new WP_Error(
+				return new WP_Error(
 					'invalid_vcs',
 					__( 'The provided VCS information is not valid', 'updatepulse-server' )
 				);
@@ -609,11 +599,8 @@ class Package_API {
 			upserv_set_package_metadata( $package_id, $meta );
 		}
 
-		if ( ! is_wp_error( $result ) ) {
-			upserv_whitelist_package( $package_id );
-		}
-
-		do_action( 'upserv_saved_remote_package_to_local', ! is_wp_error( $result ), $type, $package_id );
+		upserv_whitelist_package( $package_id );
+		do_action( 'upserv_saved_remote_package_to_local', true, $type, $package_id );
 
 		return $result;
 	}
@@ -708,6 +695,7 @@ class Package_API {
 			) {
 				$this->http_response_code = 405;
 				$response                 = array(
+					'code'    => 'method_not_allowed',
 					'message' => __( 'Unauthorized GET method', 'updatepulse-server' ),
 				);
 			} else {
@@ -756,12 +744,14 @@ class Package_API {
 					} else {
 						$this->http_response_code = 400;
 						$response                 = array(
+							'code'    => 'action_not_found',
 							'message' => __( 'Package API action not found', 'updatepulse-server' ),
 						);
 					}
 				} else {
 					$this->http_response_code = 403;
 					$response                 = array(
+						'code'    => 'unauthorized',
 						'message' => __( 'Unauthorized access', 'updatepulse-server' ),
 					);
 				}
