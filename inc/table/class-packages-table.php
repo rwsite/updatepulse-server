@@ -122,6 +122,7 @@ class Packages_Table extends WP_List_Table {
 			$date_format = 'Y-m-d';
 			$time_format = 'H:i:s';
 			$time_zone   = new DateTimeZone( wp_timezone_string() );
+			$primary     = $this->get_primary_column_name();
 
 			foreach ( $records as $record_key => $record ) {
 
@@ -179,6 +180,7 @@ class Packages_Table extends WP_List_Table {
 						'date_format' => $date_format,
 						'time_format' => $time_format,
 						'time_zone'   => $time_zone,
+						'primary'     => $primary,
 					)
 				);
 			}

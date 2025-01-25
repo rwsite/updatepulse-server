@@ -34,21 +34,22 @@
 	<?php foreach ( $columns as $column_name => $column_display_name ) : ?>
 		<?php
 		$key   = str_replace( 'col_', '', $column_name );
-		$class = $column_name . ' column-' . $column_name;
+		$class = $column_name
+			. ' column-'
+			. $column_name
+			. ( $primary === $column_name ? ' has-row-actions column-primary' : '' );
 		$style = '';
 
 		if ( in_array( $column_name, $hidden, true ) ) {
 			$style = 'display:none;';
 		}
-
-		$attributes = $class . $style;
 		?>
 		<?php if ( 'cb' === $column_name ) : ?>
 			<th scope="row" class="check-column">
 				<input type="checkbox" name="packages[]" id="cb-select-<?php echo esc_attr( $record_key ); ?>" value="<?php echo esc_attr( $record_key ); ?>" />
 			</th>
 		<?php else : ?>
-			<td class="<?php echo esc_attr( $class ); ?>" style="<?php echo esc_attr( $style ); ?>">
+			<td class="<?php echo esc_attr( $class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-colname="<?php echo esc_attr( $column_display_name ); ?>">
 				<?php if ( 'col_name' === $column_name ) : ?>
 					<?php echo esc_html( $record[ $key ] ); ?>
 					<?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

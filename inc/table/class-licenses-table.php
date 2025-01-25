@@ -36,7 +36,6 @@ class Licenses_Table extends WP_List_Table {
 	public function get_columns() {
 		return array(
 			'cb'               => '<input type="checkbox" />',
-			'col_id'           => __( 'ID', 'updatepulse-server' ),
 			'col_license_key'  => __( 'License Key', 'updatepulse-server' ),
 			'col_email'        => __( 'Registered Email', 'updatepulse-server' ),
 			'col_status'       => __( 'Status', 'updatepulse-server' ),
@@ -44,6 +43,7 @@ class Licenses_Table extends WP_List_Table {
 			'col_package_slug' => __( 'Package Slug', 'updatepulse-server' ),
 			'col_date_created' => __( 'Creation Date', 'updatepulse-server' ),
 			'col_date_expiry'  => __( 'Expiry Date', 'updatepulse-server' ),
+			'col_id'           => __( 'ID', 'updatepulse-server' ),
 		);
 	}
 
@@ -53,13 +53,13 @@ class Licenses_Table extends WP_List_Table {
 
 	public function get_sortable_columns() {
 		return array(
-			'col_id'           => array( 'id', false ),
 			'col_status'       => array( 'status', false ),
 			'col_package_type' => array( 'package_type', false ),
 			'col_package_slug' => array( 'package_slug', false ),
 			'col_email'        => array( 'email', false ),
 			'col_date_created' => array( 'date_created', false ),
 			'col_date_expiry'  => array( 'date_expiry', false ),
+			'col_id'           => array( 'id', false ),
 		);
 	}
 
@@ -187,6 +187,7 @@ class Licenses_Table extends WP_List_Table {
 
 		if ( ! empty( $records ) ) {
 			$date_format = 'Y-m-d';
+			$primary     = $this->get_primary_column_name();
 
 			foreach ( $records as $record_key => $record ) {
 				$bulk_value = wp_json_encode( $record );
@@ -202,6 +203,7 @@ class Licenses_Table extends WP_List_Table {
 						'record_key'  => $record_key,
 						'record'      => $record,
 						'date_format' => $date_format,
+						'primary'     => $primary,
 					)
 				);
 			}
