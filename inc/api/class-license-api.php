@@ -112,11 +112,14 @@ class License_API {
 
 		if ( ! is_array( $result ) ) {
 			$this->http_response_code = 400;
-			$result                   = array( 'message' => $result );
+			$result                   = array(
+				'code'    => 'invalid_json',
+				'message' => $result,
+			);
 		} elseif ( empty( $result ) ) {
 			$this->http_response_code = 404;
 			$result                   = array(
-				'count'   => 0,
+				'code'    => 'licenses_not_found',
 				'message' => __( 'Licenses not found.', 'updatepulse-server' ),
 			);
 		} else {
@@ -148,14 +151,21 @@ class License_API {
 
 			if ( isset( $result['license_not_found'] ) ) {
 				$this->http_response_code = 404;
+				$result                   = array(
+					'code'    => 'license_not_found',
+					'message' => __( 'License not found.', 'updatepulse-server' ),
+				);
 			} else {
 				$this->http_response_code = 400;
+				$result                   = array(
+					'code'    => 'invalid_license_data',
+					'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+				);
 			}
-
-			$result = array();
 		} elseif ( ! isset( $result->license_key ) ) {
 			$this->http_response_code = 404;
 			$result                   = array(
+				'code'    => 'license_not_found',
 				'message' => __( 'License not found.', 'updatepulse-server' ),
 			);
 		}
@@ -184,12 +194,21 @@ class License_API {
 
 			if ( isset( $result['license_not_found'] ) ) {
 				$this->http_response_code = 404;
+				$result                   = array(
+					'code'    => 'license_not_found',
+					'message' => __( 'License not found.', 'updatepulse-server' ),
+				);
 			} else {
 				$this->http_response_code = 400;
+				$result                   = array(
+					'code'    => 'invalid_license_data',
+					'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+				);
 			}
 		} elseif ( ! isset( $result->license_key ) ) {
 			$this->http_response_code = 404;
 			$result                   = array(
+				'code'    => 'license_not_found',
 				'message' => __( 'License not found.', 'updatepulse-server' ),
 			);
 		}
@@ -211,6 +230,10 @@ class License_API {
 			$result->key     = $result->license_key;
 		} else {
 			$this->http_response_code = 400;
+			$result                   = array(
+				'code'    => 'invalid_license_data',
+				'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+			);
 		}
 
 		return (object) $result;
@@ -223,12 +246,21 @@ class License_API {
 
 			if ( isset( $license['license_not_found'] ) ) {
 				$this->http_response_code = 404;
+				$result                   = array(
+					'code'    => 'license_not_found',
+					'message' => __( 'License not found.', 'updatepulse-server' ),
+				);
 			} else {
 				$this->http_response_code = 400;
+				$result                   = array(
+					'code'    => 'invalid_license_data',
+					'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+				);
 			}
 		} elseif ( ! isset( $result->license_key ) ) {
 			$this->http_response_code = 404;
 			$result                   = array(
+				'code'    => 'license_not_found',
 				'message' => __( 'License not found.', 'updatepulse-server' ),
 			);
 		}
@@ -378,6 +410,7 @@ class License_API {
 
 		if ( ! is_object( $result ) ) {
 			$this->http_response_code = 400;
+			$result['code']           = 'invalid_license_data';
 		}
 
 		return (object) $result;
@@ -487,6 +520,7 @@ class License_API {
 
 		if ( ! is_object( $result ) ) {
 			$this->http_response_code = 400;
+			$result['code']           = 'invalid_license_data';
 		}
 
 		return (object) $result;
@@ -931,6 +965,7 @@ class License_API {
 		if ( filter_input( INPUT_GET, 'action' ) && ! $this->is_api_public( $method ) ) {
 			$this->http_response_code = 405;
 			$response                 = array(
+				'code'    => 'method_not_allowed',
 				'message' => __( 'Unauthorized GET method.', 'updatepulse-server' ),
 			);
 		} else {
@@ -975,18 +1010,21 @@ class License_API {
 					} else {
 						$this->http_response_code = 400;
 						$response                 = array(
+							'code'    => 'action_not_found',
 							'message' => __( 'License API action not found.', 'updatepulse-server' ),
 						);
 					}
 				} else {
 					$this->http_response_code = 403;
 					$response                 = array(
+						'code'    => 'unauthorized',
 						'message' => __( 'Unauthorized access', 'updatepulse-server' ),
 					);
 				}
 			} else {
 				$this->http_response_code = 400;
 				$response                 = array(
+					'code'    => 'malformed_request',
 					'message' => __( 'Malformed request.', 'updatepulse-server' ),
 				);
 			}

@@ -62,7 +62,10 @@ class Package_API {
 
 		if ( isset( $result['count'] ) && 0 === $result['count'] ) {
 			$this->http_response_code = 404;
-			$result                   = (object) array();
+			$result                   = (object) array(
+				'code'    => 'no_packages_found',
+				'message' => __( 'No packages found', 'updatepulse-server' ),
+			);
 		}
 
 		return $result;
@@ -87,7 +90,10 @@ class Package_API {
 
 		if ( ! $result ) {
 			$this->http_response_code = 404;
-			$result                   = (object) array();
+			$result                   = (object) array(
+				'code'    => 'package_not_found',
+				'message' => __( 'Package not found', 'updatepulse-server' ),
+			);
 		}
 
 		return $result;
@@ -113,13 +119,22 @@ class Package_API {
 
 		if ( empty( $exists ) ) {
 			$this->http_response_code = 404;
-			$result                   = (object) array( 'message' => __( 'Package not found', 'updatepulse-server' ) );
+			$result                   = (object) array(
+				'code'    => 'package_not_found',
+				'message' => __( 'Package not found', 'updatepulse-server' ),
+			);
 		} elseif ( is_wp_error( $result ) ) {
 			$this->http_response_code = 400;
-			$result                   = (object) array( 'message' => $result->get_error_message() );
+			$result                   = (object) array(
+				'code'    => $result->get_error_code(),
+				'message' => $result->get_error_message(),
+			);
 		} elseif ( ! $result ) {
 			$this->http_response_code = 400;
-			$result                   = (object) array( 'message' => __( 'Package could not be edited - invalid parameters', 'updatepulse-server' ) );
+			$result                   = (object) array(
+				'code'    => 'invalid_parameters',
+				'message' => __( 'Package could not be edited - invalid parameters', 'updatepulse-server' ),
+			);
 		} else {
 			do_action( 'upserv_did_edit_package', $result );
 		}
@@ -147,13 +162,22 @@ class Package_API {
 
 		if ( ! empty( $exists ) ) {
 			$this->http_response_code = 409;
-			$result                   = (object) array( 'message' => __( 'Package already exists', 'updatepulse-server' ) );
+			$result                   = (object) array(
+				'code'    => 'package_exists',
+				'message' => __( 'Package already exists', 'updatepulse-server' ),
+			);
 		} elseif ( is_wp_error( $result ) ) {
 			$this->http_response_code = 400;
-			$result                   = (object) array( 'message' => $result->get_error_message() );
+			$result                   = (object) array(
+				'code'    => $result->get_error_code(),
+				'message' => $result->get_error_message(),
+			);
 		} elseif ( ! $result ) {
 			$this->http_response_code = 400;
-			$result                   = (object) array( 'message' => __( 'Package could not be added - invalid parameters', 'updatepulse-server' ) );
+			$result                   = (object) array(
+				'code'    => 'invalid_parameters',
+				'message' => __( 'Package could not be added - invalid parameters', 'updatepulse-server' ),
+			);
 		} else {
 			do_action( 'upserv_did_add_package', $result );
 		}
@@ -171,7 +195,10 @@ class Package_API {
 			do_action( 'upserv_did_delete_package', $result, $package_id, $type );
 		} else {
 			$this->http_response_code = 404;
-			$result                   = (object) array();
+			$result                   = (object) array(
+				'code'    => 'package_not_found',
+				'message' => __( 'Package not found', 'updatepulse-server' ),
+			);
 		}
 
 		return $result;
@@ -233,7 +260,10 @@ class Package_API {
 			do_action( 'upserv_did_signed_url_package', $result );
 		} else {
 			$this->http_response_code = 404;
-			$result                   = (object) array();
+			$result                   = (object) array(
+				'code'    => 'package_not_found',
+				'message' => __( 'Package not found', 'updatepulse-server' ),
+			);
 		}
 
 		return $result;
