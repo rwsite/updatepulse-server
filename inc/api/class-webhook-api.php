@@ -380,6 +380,7 @@ class Webhook_API {
 						);
 					} else {
 						$this->http_response_code = 400;
+						$response['code']         = 'schedule_failed';
 						$response['message']      = sprintf(
 						/* translators: %s: package ID */
 							__( 'Failed to sechedule download for package %s.', 'updatepulse-server' ),
@@ -400,6 +401,7 @@ class Webhook_API {
 						);
 					} else {
 						$this->http_response_code = 400;
+						$response['code']         = 'download_failed';
 						$response['message']      = sprintf(
 						/* translators: %s: package ID */
 							__( 'Failed to download package %s.', 'updatepulse-server' ),
@@ -420,6 +422,7 @@ class Webhook_API {
 		} elseif ( $vcs_config ) {
 			$this->http_response_code = 403;
 			$response                 = array(
+				'code'    => 'unauthorized',
 				'message' => __( 'Invalid request signature', 'updatepulse-server' ),
 			);
 
