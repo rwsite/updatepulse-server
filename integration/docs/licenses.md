@@ -184,10 +184,14 @@ Code `200` - **success**:
 }
 ```
 
-Response `$data` - **failure** (in case of invalid `license_key`):
+Code `400` - **failure** (in case of invalid `license_key`):
 ```json
 {
-    "license_key": "example-license",
+    "code": "invalid_license_key",
+    "message": "The provided license key is invalid.",
+    "data": {
+        "license_key": "example-license"
+    }
 }
 ```
 
@@ -225,33 +229,63 @@ Code `200` - **success**:
 }
 ```
 
-Response `$data` - **failure** (in case of invalid `license_key`):
+Code `400` - **failure** (in case of invalid `license_key`):
 ```json
 {
-    "license_key": "example-license"
+    "code": "invalid_license_key",
+    "message": "The provided license key is invalid.",
+    "data": {
+        "license_key": "example-license"
+    }
 }
 ```
 
-Response `$data` - **failure** (in case of illegal status - illegal statuses for activation/deactivation are `"on-hold"`, `"expired"` and `"blocked"`):
+Code `403` - **failure** (in case of illegal status - illegal statuses for activation/deactivation are `"on-hold"`, `"expired"` and `"blocked"`):
 ```json
 {
-    "status": "expired"
+    "code": "illegal_license_status",
+    "message": "The license cannot be activated due to its current status.",
+    "data": {
+        "status": "expired"
+    }
 }
 ```
 
-Response `$data` - **failure** (in case of already activated for `allowed_domains`):
+Code `409` - **failure** (in case of already activated for `allowed_domains`):
+
 ```json
 {
-    "allowed_domains": [
-        "example.com"
-    ]
+    "code": "license_already_activated",
+    "message": "The license is already activated for the specified domain(s).",
+    "data": {
+        "allowed_domains": [
+            "example.com"
+        ]
+    }
 }
 ```
 
-Response `$data` - **failure** (in case of no more domains allowed for activation):
+Code `422` - **failure** (in case of no more domains allowed for activation):
 ```json
 {
-    "max_allowed_domains": "2"
+    "code": "max_domains_reached",
+    "message": "The license has reached the maximum allowed activations for domains.",
+    "data": {
+        "max_allowed_domains": 2
+    }
+}
+```
+
+Code `500` - **failure** (in case of unexpected error):
+```json
+{
+    "code": "unexpected_error",
+    "message": "An unexpected error occurred while processing the request.",
+    "data": {
+        "errors": [
+            ...
+        ]
+    }
 }
 ```
 
@@ -267,7 +301,7 @@ $payload = array(
 );
 ```
 
-Response `$data` - **success** (in case some domains are still activated):
+Code `200` - **success** (in case some domains are still activated):
 ```json
 {
     "id": "99",
@@ -287,21 +321,7 @@ Response `$data` - **success** (in case some domains are still activated):
 }
 ```
 
-Response `$data` - **failure** (in case of invalid `license_key`):
-```json
-{
-    "license_key": "example-license"
-}
-```
-
-Response `$data` - **failure** (in case of illegal status - illegal statuses for activation/deactivation are `"on-hold"`, `"expired"` and `"blocked"`):
-```json
-{
-    "status": "expired"
-}
-```
-
-Response `$data` - **success** (in case all domains have been deactivated):
+Code `200` - **success** (in case all domains have been deactivated):
 ```json
 {
     "id": "99",
@@ -319,12 +339,62 @@ Response `$data` - **success** (in case all domains have been deactivated):
 }
 ```
 
-Response `$data` - **failure** (in case of already deactivated for `allowed_domains`):
+Code `400` - **failure** (in case of invalid `license_key`):
 ```json
 {
-    "allowed_domains": [
-        "example.com"
-    ]
+    "code": "invalid_license_key",
+    "message": "The provided license key is invalid.",
+    "data": {
+        "license_key": "example-license"
+    }
+}
+```
+
+Code `403` - **failure** (in case of illegal status - illegal statuses for activation/deactivation are `"on-hold"`, `"expired"` and `"blocked"`):
+```json
+{
+    "code": "illegal_license_status",
+    "message": "The license cannot be deactivated due to its current status.",
+    "data": {
+        "status": "expired"
+    }
+}
+```
+
+Code `403` - **failure** (in case of too early deactivation):
+```json
+{
+    "code": "too_early_deactivation",
+    "message": "The license cannot be deactivated before the specified date.",
+    "data": {
+        "next_deactivate": "999999999"
+    }
+}
+```
+
+Code `409` - **failure** (in case of already deactivated for `allowed_domains`):
+```json
+{
+    "code": "license_already_deactivated",
+    "message": "The license is already deactivated for the specified domain.",
+    "data": {
+        "allowed_domains": [
+            "example.com"
+        ]
+    }
+}
+```
+
+Code `500` - **failure** (in case of unexpected error):
+```json
+{
+    "code": "unexpected_error",
+    "message": "An unexpected error occurred while processing the request.",
+    "data": {
+        "errors": [
+            ...
+        ]
+    }
 }
 ```
 
@@ -724,7 +794,6 @@ Code `200` - **success**:
 }
 ```
 
-<!-- Response `$data` - **failure** (`404` response code - license not found): -->
 Code `404` - **failure** - license not found:
 ```json
 {

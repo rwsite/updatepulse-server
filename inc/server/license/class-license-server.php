@@ -203,9 +203,8 @@ class License_Server {
 			if ( false !== $result ) {
 				$return = $this->read_license( $where );
 			} else {
-				$return = array();
-
 				php_log( 'License update failed - database update error.' );
+				throw new Exception( esc_html__( 'License update failed - database update error.', 'updatepulse-server' ) );
 			}
 		}
 
@@ -240,9 +239,8 @@ class License_Server {
 			if ( false !== $result ) {
 				$return = $this->read_license( $payload );
 			} else {
-				$return = array();
-
 				php_log( 'License creation failed - database insertion error.' );
+				throw new Exception( esc_html__( 'License creation failed - database insertion error.', 'updatepulse-server' ) );
 			}
 		}
 
@@ -256,7 +254,7 @@ class License_Server {
 		$payload    = apply_filters( 'upserv_delete_license_payload', $payload );
 		$validation = ( isset( $payload['id'] ) && ! empty( $payload['id'] ) );
 		$validation = $validation || ( isset( $payload['license_key'] ) && ! empty( $payload['license_key'] ) );
-		$return     = array();
+		$return     = $validation;
 
 		if ( true === $validation ) {
 			global $wpdb;
@@ -273,9 +271,8 @@ class License_Server {
 			if ( false !== $result ) {
 				$return = $license;
 			} else {
-				$return = array();
-
 				php_log( 'License removal failed - database deletion error.' );
+				throw new Exception( esc_html__( 'License removal failed - database deletion error.', 'updatepulse-server' ) );
 			}
 		}
 

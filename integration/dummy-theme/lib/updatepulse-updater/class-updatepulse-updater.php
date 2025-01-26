@@ -815,79 +815,93 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 				return $license_data;
 			}
 
-			if ( ! isset( $license_data->id ) ) {
-				$license_data = $this->handle_license_errors( $license_data, $query_type );
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				$license_data = $this->handle_license_errors( $license_data );
 			}
 
 			return $license_data;
 		}
 
-		protected function handle_license_errors( $license_data, $query_type = null ) {
-			$license_data->clear_key = false;
-			$timezone                = new DateTimeZone( wp_timezone_string() );
+		protected function handle_license_errors( $license_data ) {
+			$timezone   = new DateTimeZone( wp_timezone_string() );
+			$return     = array( 'clear_key' => false );
+			$error_code = ( isset( $license_data->code ) ) ? $license_data->code : 'unknown';
+			$error_data = ( isset( $license_data->data ) ) ? $license_data->data : (object) array();
 
-			if ( 'activate' === $query_type ) {
+			switch ( $error_code ) {
+				case 'license_already_activated':
+					$return['message'] = __( 'The license is already in use for this domain.', 'updatepulse-updater' );
 
-				if ( isset( $license_data->allowed_domains ) ) {
-					$license_data->message = __( 'The license is already in use for this domain.', 'updatepulse-updater' );
-				} elseif ( isset( $license_data->max_allowed_domains ) ) {
-					$license_data->clear_key = true;
-					$license_data->message   = __( 'The license has reached the maximum number of activations and cannot be activated for this domain.', 'updatepulse-updater' );
-				}
-			} elseif ( 'deactivate' === $query_type ) {
+					break;
+				case 'max_domains_reached':
+					$return['clear_key'] = true;
+					$return['message']   = __( 'The license has reached the maximum number of activations and cannot be activated for this domain.', 'updatepulse-updater' );
 
-				if ( isset( $license_data->allowed_domains ) ) {
-					$license_data->clear_key = true;
-					$license_data->message   = __( 'The license is already inactive for this domain.', 'updatepulse-updater' );
-				} elseif ( isset( $license_data->next_deactivate ) ) {
-					$license_data->message = __( 'The license may not be deactivated yet.', 'updatepulse-updater' );
-				}
+					break;
+				case 'license_already_deactivated':
+					$return['clear_key'] = true;
+					$return['message']   = __( 'The license is already inactive for this domain.', 'updatepulse-updater' );
+
+					break;
+				case 'too_early_deactivation':
+					$return['message'] = __( 'The license may not be deactivated yet.', 'updatepulse-updater' );
+
+					break;
+				case 'illegal_license_status':
+					$status = ( isset( $error_data->status ) ) ? $error_data->status : 'unknown';
+
+					if ( 'blocked' === $status ) {
+						$return['message'] = __( 'The license is blocked and cannot be updated anymore. Please use another license key.', 'updatepulse-updater' );
+					} elseif ( 'pending' === $status ) {
+						$return['clear_key'] = true;
+						$return['message']   = __( 'The license has not been activated and its status is still pending. Please try again or use another license key.', 'updatepulse-updater' );
+					} elseif ( 'invalid' === $status ) {
+						$return['clear_key'] = true;
+						$return['message']   = __( 'The provided license key is invalid. Please use another license key.', 'updatepulse-updater' );
+					} elseif ( 'expired' === $status ) {
+
+						if ( isset( $error_data->date_expiry ) ) {
+							$date = new DateTime( 'now', $timezone );
+
+							$date->setTimestamp( intval( $license_data->date_expiry ) );
+
+							$return['message'] = sprintf(
+								// translators: the license expiry date
+								__( 'The license expired on %s and needs to be renewed to be updated.', 'updatepulse-updater' ),
+								$date->format( get_option( 'date_format' ) )
+							);
+						} else {
+							$return['message'] = __( 'The license expired and needs to be renewed to be updated.', 'updatepulse-updater' );
+						}
+					}
+
+					break;
+				case 'invalid_license_key':
+					$return['clear_key'] = true;
+					$return['message']   = __( 'The provided license key does not appear to be valid. Please use another license key.', 'updatepulse-updater' );
+
+					break;
+				case 'invalid_license':
+					if ( 'Plugin' === $this->type ) {
+						$return['message'] = __( 'An active license is required to update the plugin. Please provide a valid license key in Plugins > Installed Plugins.', 'updatepulse-updater' );
+					} else {
+						$return['message'] = __( 'An active license is required to update the theme. Please provide a valid license key in Appearence > Theme License.', 'updatepulse-updater' );
+					}
+
+					break;
+				case 'license_error':
+					$return['message']  = __( 'An unexpected error has occured.', 'updatepulse-updater' );
+					$return['message'] .= '<br>' . $error_data->message;
+
+					break;
+				case 'unexpected_error':
+				default:
+					$return['message'] = __( 'An unexpected error has occured. Please try again. If the problem persists, please contact support.', 'updatepulse-updater' );
+
+					break;
 			}
 
-			if ( isset( $license_data->status ) && 'expired' === $license_data->status ) {
-
-				if ( isset( $license_data->date_expiry ) ) {
-					$date = new DateTime( 'now', $timezone );
-
-					$date->setTimestamp( intval( $license_data->date_expiry ) );
-
-					$license_data->message = sprintf(
-						// translators: the license expiry date
-						__( 'The license expired on %s and needs to be renewed to be updated.', 'updatepulse-updater' ),
-						$date->format( get_option( 'date_format' ) )
-					);
-				} else {
-					$license_data->message = __( 'The license expired and needs to be renewed to be updated.', 'updatepulse-updater' );
-				}
-			} elseif ( isset( $license_data->status ) && 'blocked' === $license_data->status ) {
-				$license_data->message = __( 'The license is blocked and cannot be updated anymore. Please use another license key.', 'updatepulse-updater' );
-			} elseif ( isset( $license_data->status ) && 'pending' === $license_data->status ) {
-				$license_data->clear_key = true;
-				$license_data->message   = __( 'The license has not been activated and its status is still pending. Please try again or use another license key.', 'updatepulse-updater' );
-			} elseif ( isset( $license_data->status ) && 'invalid' === $license_data->status ) {
-				$license_data->clear_key = true;
-				$license_data->message   = __( 'The provided license key is invalid. Please use another license key.', 'updatepulse-updater' );
-			} elseif ( isset( $license_data->license_key ) ) {
-				$license_data->clear_key = true;
-				$license_data->message   = __( 'The provided license key does not appear to be valid. Please use another license key.', 'updatepulse-updater' );
-			} elseif ( 1 === count( (array) $license_data ) ) {
-
-				if ( 'Plugin' === $this->type ) {
-					$license_data->message = __( 'An active license is required to update the plugin. Please provide a valid license key in Plugins > Installed Plugins.', 'updatepulse-updater' );
-				} else {
-					$license_data->message = __( 'An active license is required to update the theme. Please provide a valid license key in Appearence > Theme License.', 'updatepulse-updater' );
-				}
-			} elseif ( ! isset( $license_data->message ) || empty( $license_data->message ) ) {
-				$license_data->clear_key = true;
-
-				if ( 'Plugin' === $this->type ) {
-					$license_data->message = __( 'An unexpected error has occured. Please try again. If the problem persists, please contact the author of the plugin.', 'updatepulse-updater' );
-				} else {
-					$license_data->message = __( 'An unexpected error has occured. Please try again. If the problem persists, please contact the author of the theme.', 'updatepulse-updater' );
-				}
-			}
-
-			return $license_data;
+			return (object) $return;
 		}
 
 		protected function get_license_form() {

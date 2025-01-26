@@ -1022,47 +1022,33 @@ class Update_Server {
 
 	protected function get_license_error( $license ) {
 
-		if ( ! $license ) {
-			$error = (object) array();
-
-			return $error;
-		}
-
-		if ( ! is_object( $license ) ) {
+		if ( is_wp_error( $license ) ) {
 			$error = (object) array(
-				'license_key' => $this->license_key,
+				'code'    => 'license_error',
+				'message' => implode( '<br>', $license->get_error_messages() ),
+				'data'    => (object) array(
+					'license' => $license,
+				),
 			);
-
-			return $error;
+		} elseif ( is_object( $license ) && 'activated' !== $license->status ) {
+			$error = (object) array(
+				'code'    => 'illegal_license_status',
+				'message' => 'The license cannot be used for the requested action.',
+				'data'    => (object) array(
+					'license' => $license,
+				),
+			);
+		} else {
+			$error = (object) array(
+				'code'    => 'invalid_license',
+				'message' => 'The license key or signature is invalid.',
+				'data'    => (object) array(
+					'license' => $license,
+				),
+			);
 		}
 
-		switch ( $license->status ) {
-			case 'blocked':
-				$error = (object) array(
-					'status' => 'blocked',
-				);
-
-				return $error;
-			case 'expired':
-				$error = (object) array(
-					'status'      => 'expired',
-					'date_expiry' => $license->date_expiry,
-				);
-
-				return $error;
-			case 'pending':
-				$error = (object) array(
-					'status' => 'pending',
-				);
-
-				return $error;
-			default:
-				$error = (object) array(
-					'status' => 'invalid',
-				);
-
-				return $error;
-		}
+		return $error;
 	}
 
 	protected function verify_license_exists( $slug, $type, $license_key ) {
