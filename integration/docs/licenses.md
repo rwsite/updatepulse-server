@@ -4,69 +4,69 @@
 UpdatePulse Server provides an API and offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin when managing licenses.
 
 * [UpdatePulse Server - Licenses - Developer documentation](#updatepulse-server---licenses---developer-documentation)
-	* [The License Query](#the-license-query)
-	* [API](#api)
-		* [Public API](#public-api)
-			* [check](#check)
-			* [activate](#activate)
-			* [deactivate](#deactivate)
-		* [Private API](#private-api)
-			* [browse](#browse)
-			* [read](#read)
-			* [edit](#edit)
-			* [add](#add)
-			* [delete](#delete)
-	* [Functions](#functions)
-		* [upserv\_is\_doing\_license\_api\_request](#upserv_is_doing_license_api_request)
-		* [upserv\_browse\_licenses](#upserv_browse_licenses)
-		* [upserv\_read\_license](#upserv_read_license)
-		* [upserv\_edit\_license](#upserv_edit_license)
-		* [upserv\_add\_license](#upserv_add_license)
-		* [upserv\_delete\_license](#upserv_delete_license)
-		* [upserv\_check\_license](#upserv_check_license)
-		* [upserv\_activate\_license](#upserv_activate_license)
-		* [upserv\_deactivate\_license](#upserv_deactivate_license)
-	* [Actions](#actions)
-		* [upserv\_registered\_license\_schedule](#upserv_registered_license_schedule)
-		* [upserv\_cleared\_license\_schedule](#upserv_cleared_license_schedule)
-		* [upserv\_scheduled\_license\_event](#upserv_scheduled_license_event)
-		* [upserv\_browse\_licenses](#upserv_browse_licenses-1)
-		* [upserv\_did\_browse\_licenses](#upserv_did_browse_licenses)
-		* [upserv\_did\_read\_license](#upserv_did_read_license)
-		* [upserv\_did\_edit\_license](#upserv_did_edit_license)
-		* [upserv\_did\_add\_license](#upserv_did_add_license)
-		* [upserv\_did\_delete\_license](#upserv_did_delete_license)
-		* [upserv\_did\_check\_license](#upserv_did_check_license)
-		* [upserv\_pre\_activate\_license](#upserv_pre_activate_license)
-		* [upserv\_did\_activate\_license](#upserv_did_activate_license)
-		* [upserv\_pre\_deactivate\_license](#upserv_pre_deactivate_license)
-		* [upserv\_did\_deactivate\_license](#upserv_did_deactivate_license)
-		* [upserv\_license\_api\_request](#upserv_license_api_request)
-	* [Filters](#filters)
-		* [upserv\_license\_valid](#upserv_license_valid)
-		* [upserv\_license\_server](#upserv_license_server)
-		* [upserv\_license\_api\_config](#upserv_license_api_config)
-		* [upserv\_submitted\_licenses\_config](#upserv_submitted_licenses_config)
-		* [upserv\_check\_license\_result](#upserv_check_license_result)
-		* [upserv\_activate\_license\_result](#upserv_activate_license_result)
-		* [upserv\_deactivate\_license\_result](#upserv_deactivate_license_result)
-		* [upserv\_activate\_license\_next\_deactivate](#upserv_activate_license_next_deactivate)
-		* [upserv\_deactivate\_license\_next\_deactivate](#upserv_deactivate_license_next_deactivate)
-		* [upserv\_check\_license\_dirty\_payload](#upserv_check_license_dirty_payload)
-		* [upserv\_activate\_license\_dirty\_payload](#upserv_activate_license_dirty_payload)
-		* [upserv\_deactivate\_license\_dirty\_payload](#upserv_deactivate_license_dirty_payload)
-		* [upserv\_activate\_license\_payload](#upserv_activate_license_payload)
-		* [upserv\_deactivate\_license\_payload](#upserv_deactivate_license_payload)
-		* [upserv\_browse\_licenses\_payload](#upserv_browse_licenses_payload)
-		* [upserv\_read\_license\_payload](#upserv_read_license_payload)
-		* [upserv\_edit\_license\_payload](#upserv_edit_license_payload)
-		* [upserv\_add\_license\_payload](#upserv_add_license_payload)
-		* [upserv\_delete\_license\_payload](#upserv_delete_license_payload)
-		* [upserv\_license\_public\_api\_actions](#upserv_license_public_api_actions)
-		* [upserv\_license\_api\_request\_authorized](#upserv_license_api_request_authorized)
-		* [upserv\_license\_bypass\_signature](#upserv_license_bypass_signature)
-		* [upserv\_api\_license\_actions](#upserv_api_license_actions)
-		* [upserv\_api\_license\_actions](#upserv_api_license_actions-1)
+    * [The License Query](#the-license-query)
+    * [API](#api)
+        * [Public API](#public-api)
+            * [check](#check)
+            * [activate](#activate)
+            * [deactivate](#deactivate)
+        * [Private API](#private-api)
+            * [browse](#browse)
+            * [read](#read)
+            * [edit](#edit)
+            * [add](#add)
+            * [delete](#delete)
+    * [Functions](#functions)
+        * [upserv\_is\_doing\_license\_api\_request](#upserv_is_doing_license_api_request)
+        * [upserv\_browse\_licenses](#upserv_browse_licenses)
+        * [upserv\_read\_license](#upserv_read_license)
+        * [upserv\_edit\_license](#upserv_edit_license)
+        * [upserv\_add\_license](#upserv_add_license)
+        * [upserv\_delete\_license](#upserv_delete_license)
+        * [upserv\_check\_license](#upserv_check_license)
+        * [upserv\_activate\_license](#upserv_activate_license)
+        * [upserv\_deactivate\_license](#upserv_deactivate_license)
+    * [Actions](#actions)
+        * [upserv\_registered\_license\_schedule](#upserv_registered_license_schedule)
+        * [upserv\_cleared\_license\_schedule](#upserv_cleared_license_schedule)
+        * [upserv\_scheduled\_license\_event](#upserv_scheduled_license_event)
+        * [upserv\_browse\_licenses](#upserv_browse_licenses-1)
+        * [upserv\_did\_browse\_licenses](#upserv_did_browse_licenses)
+        * [upserv\_did\_read\_license](#upserv_did_read_license)
+        * [upserv\_did\_edit\_license](#upserv_did_edit_license)
+        * [upserv\_did\_add\_license](#upserv_did_add_license)
+        * [upserv\_did\_delete\_license](#upserv_did_delete_license)
+        * [upserv\_did\_check\_license](#upserv_did_check_license)
+        * [upserv\_pre\_activate\_license](#upserv_pre_activate_license)
+        * [upserv\_did\_activate\_license](#upserv_did_activate_license)
+        * [upserv\_pre\_deactivate\_license](#upserv_pre_deactivate_license)
+        * [upserv\_did\_deactivate\_license](#upserv_did_deactivate_license)
+        * [upserv\_license\_api\_request](#upserv_license_api_request)
+    * [Filters](#filters)
+        * [upserv\_license\_valid](#upserv_license_valid)
+        * [upserv\_license\_server](#upserv_license_server)
+        * [upserv\_license\_api\_config](#upserv_license_api_config)
+        * [upserv\_submitted\_licenses\_config](#upserv_submitted_licenses_config)
+        * [upserv\_check\_license\_result](#upserv_check_license_result)
+        * [upserv\_activate\_license\_result](#upserv_activate_license_result)
+        * [upserv\_deactivate\_license\_result](#upserv_deactivate_license_result)
+        * [upserv\_activate\_license\_next\_deactivate](#upserv_activate_license_next_deactivate)
+        * [upserv\_deactivate\_license\_next\_deactivate](#upserv_deactivate_license_next_deactivate)
+        * [upserv\_check\_license\_dirty\_payload](#upserv_check_license_dirty_payload)
+        * [upserv\_activate\_license\_dirty\_payload](#upserv_activate_license_dirty_payload)
+        * [upserv\_deactivate\_license\_dirty\_payload](#upserv_deactivate_license_dirty_payload)
+        * [upserv\_activate\_license\_payload](#upserv_activate_license_payload)
+        * [upserv\_deactivate\_license\_payload](#upserv_deactivate_license_payload)
+        * [upserv\_browse\_licenses\_payload](#upserv_browse_licenses_payload)
+        * [upserv\_read\_license\_payload](#upserv_read_license_payload)
+        * [upserv\_edit\_license\_payload](#upserv_edit_license_payload)
+        * [upserv\_add\_license\_payload](#upserv_add_license_payload)
+        * [upserv\_delete\_license\_payload](#upserv_delete_license_payload)
+        * [upserv\_license\_public\_api\_actions](#upserv_license_public_api_actions)
+        * [upserv\_license\_api\_request\_authorized](#upserv_license_api_request_authorized)
+        * [upserv\_license\_bypass\_signature](#upserv_license_bypass_signature)
+        * [upserv\_api\_license\_actions](#upserv_api_license_actions)
+        * [upserv\_api\_license\_actions](#upserv_api_license_actions-1)
 
 ___
 ## The License Query
@@ -75,23 +75,23 @@ The License Query is an associative array. It is used to browse the license reco
 
 ```php
 $license_query = array(
-	'relationship' => 'AND',          // Relationship of the criteria when provided - 'AND or 'OR' - default 'AND' (optional)
-	'limit'        => '10',           // Limit the number of results; set to any negative value for no limit - default 999 (optional)
-	'offset'       => '0',            // Results offset - default 0 (optional)
-	'order_by'     => 'date_created', // Order of the license records returned - default 'date_created' (optional)
-	'criteria'     => array(          // Criteria to filter the license records - accepts multiple values - if omitted, the result is not filtered (optional)
-		array(
-			'field'    => 'field',    // Field to filter by - see the list of accepted license fields below (required)
-			'value'    => 'value',    // Value of the field to filter by - format depends on the operator (required)
-			'operator' => 'operator'  // Comparison operator - see the list of accepted operators below (required)
-		),
-		array(
-			'field'    => 'field',    // Field to filter by - see the list of accepted license fields below (required)
-			'value'    => 'value',    // Value of the field to filter by - format depends on the operator (required)
-			'operator' => 'operator'  // Comparison operator - see the list of accepted operators below (required)
-		),
-		...                           // More criteria...
-	),
+    'relationship' => 'AND',          // Relationship of the criteria when provided - 'AND or 'OR' - default 'AND' (optional)
+    'limit'        => '10',           // Limit the number of results; set to any negative value for no limit - default 999 (optional)
+    'offset'       => '0',            // Results offset - default 0 (optional)
+    'order_by'     => 'date_created', // Order of the license records returned - default 'date_created' (optional)
+    'criteria'     => array(          // Criteria to filter the license records - accepts multiple values - if omitted, the result is not filtered (optional)
+        array(
+            'field'    => 'field',    // Field to filter by - see the list of accepted license fields below (required)
+            'value'    => 'value',    // Value of the field to filter by - format depends on the operator (required)
+            'operator' => 'operator'  // Comparison operator - see the list of accepted operators below (required)
+        ),
+        array(
+            'field'    => 'field',    // Field to filter by - see the list of accepted license fields below (required)
+            'value'    => 'value',    // Value of the field to filter by - format depends on the operator (required)
+            'operator' => 'operator'  // Comparison operator - see the list of accepted operators below (required)
+        ),
+        ...                           // More criteria...
+    ),
 );
 ```
 
@@ -106,44 +106,47 @@ ___
 
 The License API is accessible via `POST` and `GET` requests on the `/updatepulse-server-license-api/` endpoint for both the Public and Private API, and via `POST` only for the Private API. It accepts form-data payloads (arrays, basically). This documentation page uses `wp_remote_post`, but `wp_remote_get` would work as well for the Public API.
 
-In case the API is accessed with an invalid `action` parameter, the following response is returned (message's language depending on available translations), with HTTP response code set to `400`:
+In case the API is accessed with an invalid `action` parameter, the following response is returned (message's language depending on available translations):
 
-Response `$data` - malformed request:
+Code `400` - invalid action:
 ```json
 {
-	"message": "License API action not found"
+    "code": "action_not_found",
+    "message": "License API action not found."
 }
 ```
 
-The description of the API further below is using the following code as reference, where `$params` are the parameters passed to the API (other parameters can be adjusted, they are just WordPress' default) and `$data` is the JSON response:
+The description of the API further below is using the following code as reference, where `$payload` is the body sent to the API, `$headers` are the headers sent to the API, and `$response` is the response received from the API:
 
 ```php
 $url      = 'https://domain.tld/updatepulse-server-license-api/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
+$payload  = array(
+    'action'    => $action, // Action to perform when calling the License API (required)
+    'api_token' => 'token', // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+);
+$headers  = array(
+    'X-UpdatePulse-Token' => 'token', // The authentication token (optional - must provided via `api_token` in the body if absent)
+);
 $response = wp_remote_post(
-	$url,
-	array(
-		'method'      => 'POST',
-		'timeout'     => 45,
-		'redirection' => 5,
-		'httpversion' => '1.0',
-		'blocking'    => true,
-		'headers'     => array(),
-		'body'        => $params,
-		'cookies'     => array(),
-	);
+    $url,
+    array(
+        'headers' => $headers,
+        'body'    => $payload,
+        // other parameters...
+    );
 );
 
 if ( is_wp_error( $response ) ) {
-	printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
+    printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
 } else {
-	$data         = wp_remote_retrieve_body( $response );
-	$decoded_data = json_decode( $data );
+    $data         = wp_remote_retrieve_body( $response );
+    $decoded_data = json_decode( $data );
 
-	if ( '200' === $response['response']['code'] ) {
-		// Handle success with $decoded_data
-	} else {
-		// Handle failure with $decoded_data
-	}
+    if ( 200 === intval( $response['response']['code'] ) ) {
+        // Handle success with $decoded_data
+    } else {
+        // Handle failure with $decoded_data
+    }
 }
 ```
 
@@ -158,33 +161,33 @@ ___
 #### check
 
 ```php
-$params = array(
-	'action'      => 'check',           // Action to perform when calling the License API (required)
-	'license_key' => 'example-license', // The key of the license to check (required)
+$payload = array(
+    'action'      => 'check',           // Action to perform when calling the License API (required)
+    'license_key' => 'example-license', // The key of the license to check (required)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
-	"id": "99",
-	"license_key": "example-license",
-	"max_allowed_domains": "2",
-	"status": "activated",
-	"date_created": "2099-12-01",
-	"date_renewed": "2099-12-15",
-	"date_expiry": "2099-12-31",
-	"package_slug": "example-package",
-	"package_type": "plugin",
-	"used_allowed_domains": "1",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license",
+    "max_allowed_domains": "2",
+    "status": "activated",
+    "date_created": "2099-12-01",
+    "date_renewed": "2099-12-15",
+    "date_expiry": "2099-12-31",
+    "package_slug": "example-package",
+    "package_type": "plugin",
+    "used_allowed_domains": "1",
+    "time_elapsed": "0.034"
 }
 ```
 
 Response `$data` - **failure** (in case of invalid `license_key`):
 ```json
 {
-	"license_key": "example-license",
+    "license_key": "example-license",
 }
 ```
 
@@ -192,63 +195,63 @@ ___
 #### activate
 
 ```php
-$params = array(
-	'action'          => 'activate',        // Action to perform when calling the License API (required)
-	'license_key'     => 'example-license', // The key of the license to activate for the provided domain (required)
-	'allowed_domains' => 'example.com',     // Domain name for which the license needs to be activated (required)
-	'package_slug'    => 'example-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
+$payload = array(
+    'action'          => 'activate',        // Action to perform when calling the License API (required)
+    'license_key'     => 'example-license', // The key of the license to activate for the provided domain (required)
+    'allowed_domains' => 'example.com',     // Domain name for which the license needs to be activated (required)
+    'package_slug'    => 'example-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
-	"id": "99",
-	"license_key": "example-license",
-	"max_allowed_domains": "2",
-	"allowed_domains": [
-		"domain1.example.com",
-		"example.com"
-	],
-	"status": "activated",
-	"txn_id": "#111111111",
-	"date_created": "2099-12-01",
-	"date_renewed": "2099-12-15",
-	"date_expiry": "2099-12-31",
-	"package_slug": "example-package",
-	"package_type": "plugin",
-	"license_signature": "some_complex_encrypted_string-some_complex_hmac",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license",
+    "max_allowed_domains": "2",
+    "allowed_domains": [
+        "domain1.example.com",
+        "example.com"
+    ],
+    "status": "activated",
+    "txn_id": "#111111111",
+    "date_created": "2099-12-01",
+    "date_renewed": "2099-12-15",
+    "date_expiry": "2099-12-31",
+    "package_slug": "example-package",
+    "package_type": "plugin",
+    "license_signature": "some_complex_encrypted_string-some_complex_hmac",
+    "time_elapsed": "0.034"
 }
 ```
 
 Response `$data` - **failure** (in case of invalid `license_key`):
 ```json
 {
-	"license_key": "example-license"
+    "license_key": "example-license"
 }
 ```
 
 Response `$data` - **failure** (in case of illegal status - illegal statuses for activation/deactivation are `"on-hold"`, `"expired"` and `"blocked"`):
 ```json
 {
-	"status": "expired"
+    "status": "expired"
 }
 ```
 
 Response `$data` - **failure** (in case of already activated for `allowed_domains`):
 ```json
 {
-	"allowed_domains": [
-		"example.com"
-	]
+    "allowed_domains": [
+        "example.com"
+    ]
 }
 ```
 
 Response `$data` - **failure** (in case of no more domains allowed for activation):
 ```json
 {
-	"max_allowed_domains": "2"
+    "max_allowed_domains": "2"
 }
 ```
 
@@ -256,72 +259,72 @@ ___
 #### deactivate
 
 ```php
-$params = array(
-	'action'          => 'deactivate',           // Action to perform when calling the License API (required)
-	'license_key'     => 'example-license',      // The key of the license to activate for the provided domain (required)
-	'allowed_domains' => array( 'example.com' ), // Domain name for which the license needs to be deactivated - can be a string (required)
-	'package_slug'    => 'example-package',      // The package slug - only alphanumeric characters and dashes are allowed (required)
+$payload = array(
+    'action'          => 'deactivate',           // Action to perform when calling the License API (required)
+    'license_key'     => 'example-license',      // The key of the license to activate for the provided domain (required)
+    'allowed_domains' => array( 'example.com' ), // Domain name for which the license needs to be deactivated - can be a string (required)
+    'package_slug'    => 'example-package',      // The package slug - only alphanumeric characters and dashes are allowed (required)
 );
 ```
 
 Response `$data` - **success** (in case some domains are still activated):
 ```json
 {
-	"id": "99",
-	"license_key": "example-license",
-	"max_allowed_domains": "2",
-	"allowed_domains": [
-		"domain1.example.com",
-	],
-	"status": "activated",
-	"txn_id": "#111111111",
-	"date_created": "2099-12-01",
-	"date_renewed": "2099-12-15",
-	"date_expiry": "2099-12-31",
-	"package_slug": "example-package",
-	"package_type": "plugin",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license",
+    "max_allowed_domains": "2",
+    "allowed_domains": [
+        "domain1.example.com",
+    ],
+    "status": "activated",
+    "txn_id": "#111111111",
+    "date_created": "2099-12-01",
+    "date_renewed": "2099-12-15",
+    "date_expiry": "2099-12-31",
+    "package_slug": "example-package",
+    "package_type": "plugin",
+    "time_elapsed": "0.034"
 }
 ```
 
 Response `$data` - **failure** (in case of invalid `license_key`):
 ```json
 {
-	"license_key": "example-license"
+    "license_key": "example-license"
 }
 ```
 
 Response `$data` - **failure** (in case of illegal status - illegal statuses for activation/deactivation are `"on-hold"`, `"expired"` and `"blocked"`):
 ```json
 {
-	"status": "expired"
+    "status": "expired"
 }
 ```
 
 Response `$data` - **success** (in case all domains have been deactivated):
 ```json
 {
-	"id": "99",
-	"license_key": "example-license",
-	"max_allowed_domains": "2",
-	"allowed_domains": [],
-	"status": "deactivated",
-	"txn_id": "#111111111",
-	"date_created": "2099-12-01",
-	"date_renewed": "2099-12-15",
-	"date_expiry": "2099-12-31",
-	"package_slug": "example-package",
-	"package_type": "plugin",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license",
+    "max_allowed_domains": "2",
+    "allowed_domains": [],
+    "status": "deactivated",
+    "txn_id": "#111111111",
+    "date_created": "2099-12-01",
+    "date_renewed": "2099-12-15",
+    "date_expiry": "2099-12-31",
+    "package_slug": "example-package",
+    "package_type": "plugin",
+    "time_elapsed": "0.034"
 }
 ```
 
 Response `$data` - **failure** (in case of already deactivated for `allowed_domains`):
 ```json
 {
-	"allowed_domains": [
-		"example.com"
-	]
+    "allowed_domains": [
+        "example.com"
+    ]
 }
 ```
 
@@ -339,34 +342,40 @@ $url        = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.
 $api_key_id = getenv( 'UPSERV_LICENSE_API_KEY_ID' );          // This exampe assumes the API Key ID is stored in environment variables
 $api_key    = getenv( 'UPSERV_LICENSE_API_KEY' );             // This exampe assumes the API Key is stored in environment variables
 $payload    = array(
-	'api' => 'license', // The target API (required - must be `'license'` to access the license Private API)
+    'api' => 'license', // The target API (required - must be `'license'` to access the license Private API)
 );
 $cred_sign  = upserv_build_nonce_api_signature( $api_key_id, $api_key, time(), $payload );
 
 $payload['api_credentials'] = $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-UpdatePulse-API-Credentials header is absent)
 $payload['api_signature']   = $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case X-UpdatePulse-API-Signature header is absent)
 
-$response   = wp_remote_post(
-	$url,
-	array(
-		'headers' => array(
-			'X-UpdatePulse-API-Credentials' => $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case `api_credentials` is absent from the body)
-			'X-UpdatePulse-API-Signature'   => $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case `api_signature` is absent from the body)
-		),
-		'body'    => $payload
-	);
+$response = wp_remote_post(
+    $url,
+    array(
+        'headers' => array(
+            'X-UpdatePulse-API-Credentials' => $cred_sign['credentials'], // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case `api_credentials` is absent from the body)
+            'X-UpdatePulse-API-Signature'   => $cred_sign['signature'],   // The signature built using the Private API Key (optional - must be provided in case `api_signature` is absent from the body)
+        ),
+        'body'    => $payload
+    );
 );
 
 if ( is_wp_error( $response ) ) {
-	printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
+    printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
 } else {
-	$data = wp_remote_retrieve_body( $response );
+    $data = wp_remote_retrieve_body( $response );
 
-	if ( '200' === $response['response']['code'] ) {
-		error_log( $data );
-	} else {
-		// Handle failure with $data
-	}
+    if ( '200' === $response['response']['code'] ) {
+        $data       = json_decode( $data, true );
+        $api_token  = $data['nonce'];
+        $single_use = (bool) $data['true_nonce'];
+        $expiry     = $data['expiry'];
+        $data       = $data['data'];
+        
+        // Handle success with $api_token, $single_use, $expiry, $data, for example byt storing the token and implementing a mechanism to renew it when it expires
+    } else {
+        // Handle failure with $data
+    }
 }
 ```
 
@@ -388,21 +397,23 @@ In the above example, the `$data` variable looks like:
 }
 ```
 Once an authentication token has been obtained, it needs to be provided to API actions, either via the `api_token` parameter, or by passing a `X-UpdatePulse-Token` header (recommended - it is then found in `$_SERVER['HTTP_X_UPDATEPULSE_TOKEN']` in PHP).  
-In case the token is invalid, all the actions of the Private API return the same response (message's language depending on available translations), with HTTP response code set to `403`:
+In case the token is invalid, all the actions of the Private API return the same response (message's language depending on available translations):
 
-Response `$data` - forbidden access:
+Code `403` - forbidden:
 ```json
 {
-	"message": "Unauthorized access"
+    "code": "unauthorized",
+    "message": "Unauthorized access"
 }
 ```
 
-In case the Private API is accessed via the `GET` method, all the actions return the same response (message's language depending on available translations), with HTTP response code set to `405`:
+In case the Private API is accessed via the `GET` method, all the actions return the same response (message's language depending on available translations):
 
-Response `$data` - unauthorized method:
+Code `405` - unauthorized method:
 ```json
 {
-	"message": "Unauthorized GET method"
+    "code": "method_not_allowed",
+    "message": "Unauthorized GET method"
 }
 ```
 ___
@@ -411,159 +422,199 @@ ___
 See [The License Query](#the-license-query) for more information on the `$license_query` parameter
 
 ```php
-$params = array(
-	'action'       => 'browse',                         // Action to perform when calling the License API (required)
-	'browse_query' => wp_json_encode( $license_query ), // A JSON representation of a License Query (required)
-	'api_token'    => 'token',                          // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+$payload = array(
+    'action'       => 'browse',                         // Action to perform when calling the License API (required)
+    'browse_query' => wp_json_encode( $license_query ), // A JSON representation of a License Query (required)
+    'api_token'    => 'token',                          // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
-	"example-license": {
-		"id": "99",
-		"license_key": "example-license",
-		"max_allowed_domains": "2",
-		"allowed_domains": [
-			"domain1.example.com",
-		],
-		"status": "deactivated",
-		"owner_name": "Test Owner",
-		"email": "test@test.com",
-		"company_name": "Test Company",
-		"txn_id": "#111111111",
-		"date_created": "2099-12-01",
-		"date_renewed": "2099-12-15",
-		"date_expiry": "2099-12-31",
-		"package_slug": "example-package",
-		"package_type": "plugin",
-		"data": {
-			"api_owner": "private_key_id"
-		},
-		"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-		"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa"
-	},
-	"another-license": {
-		...
-	},
-	"count": 2,
-	"time_elapsed": "0.021"
+    "example-license": {
+        "id": "99",
+        "license_key": "example-license",
+        "max_allowed_domains": "2",
+        "allowed_domains": [
+            "domain1.example.com",
+        ],
+        "status": "deactivated",
+        "owner_name": "Test Owner",
+        "email": "test@test.com",
+        "company_name": "Test Company",
+        "txn_id": "#111111111",
+        "date_created": "2099-12-01",
+        "date_renewed": "2099-12-15",
+        "date_expiry": "2099-12-31",
+        "package_slug": "example-package",
+        "package_type": "plugin",
+        "data": {
+            "api_owner": "private_key_id"
+        },
+        "hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
+        "crypto_key":"9999999999999999ccbbaaaaaaaaaaaa"
+    },
+    "another-license": {
+        ...
+    },
+    "count": 2,
+    "time_elapsed": "0.021"
 }
 ```
 
-Response `$data` - **failure** (in case of malformed License Query - same as no result):
-```php
-{}
+Code `404` - **failure** - license not found:
+```json
+{
+    "code": "licenses_not_found",
+    "message": "Licenses not found."
+}
+```
+
+Code `400` - **failure** - invalid JSON in the `browse_query`; `message` varies depending on the error:
+```json
+{
+    "code": "invalid_json",
+    "Message": "JSON parse error - [error details]"
+}
+```
+
+Code `400` - **failure** - invalid criteria in the `browse_query`; `message` varies depending on the error:
+```json
+{
+    "code": "invalid_license_query",
+    "Message": "Invalid license query - [error details]"
+}
 ```
 
 ___
 #### read
 
 ```php
-$params = array(
-	'action'       => 'read',            // Action to perform when calling the License API (required)
-	'license_key'  => 'example-license', // The key of the license to read
-	'api_token'    => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+$payload = array(
+    'action'       => 'read',            // Action to perform when calling the License API (required)
+    'license_key'  => 'example-license', // The key of the license to read
+    'api_token'    => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
-	"id": "99",
-	"license_key": "example-license",
-	"max_allowed_domains": "2",
-	"allowed_domains": [
-		"domain1.example.com",
-	],
-	"status": "deactivated",
-	"owner_name": "Test Owner",
-	"email": "test@test.com",
-	"company_name": "Test Company",
-	"txn_id": "#111111111",
-	"date_created": "2099-12-01",
-	"date_renewed": "2099-12-15",
-	"date_expiry": "2099-12-31",
-	"package_slug": "example-package",
-	"package_type": "plugin",
-	"data": {
-		"api_owner": "private_key_id"
-	},
-	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license",
+    "max_allowed_domains": "2",
+    "allowed_domains": [
+        "domain1.example.com",
+    ],
+    "status": "deactivated",
+    "owner_name": "Test Owner",
+    "email": "test@test.com",
+    "company_name": "Test Company",
+    "txn_id": "#111111111",
+    "date_created": "2099-12-01",
+    "date_renewed": "2099-12-15",
+    "date_expiry": "2099-12-31",
+    "package_slug": "example-package",
+    "package_type": "plugin",
+    "data": {
+        "api_owner": "private_key_id"
+    },
+    "hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
+    "crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+    "time_elapsed": "0.034"
 }
 ```
 
-Response `$data` - **failure**:
+Code `404` - **failure** - license not found:
 ```json
-{}
+{
+    "code": "license_not_found",
+    "message": "License not found."
+}
+```
+
+Code `400` - **failure** - missing `license_key`:
+```json
+{
+    "code": "invalid_license_data",
+    "message": "Invalid license data."
+}
 ```
 
 ___
 #### edit
 
 ```php
-$params = array(
-	'action'              => 'edit',                // Action to perform when calling the License API (required)
-	'license_key'         => 'example-license-new', // The key of the license to edit (required - used to identify the record to edit)
-	'max_allowed_domains' => '99',                  // The maximum number of domains allowed to use the license - minimum 1 (required)
-	'allowed_domains'     => array(                 // Domains currently allowed to use the license (optional)
-		'different1.example.com',
-		'different2.example.com',
-	),
-	'status'              => 'blocked',           // The status of the license - one of pending, activated, deactivated, on-hold, blocked, expired (required)
-	'owner_name'          => 'Another Owner',     // The full name of the owner of the license (optional)
-	'email'               => 'test-new@test.com', // The email registered with the license (required)
-	'company_name'        => 'New Company',       // The company of the owner of the license (optional)
-	'txn_id'              => '#999999999',        // If applicable, the transaction identifier associated to the purchase of the license (optional)
-	'date_created'        => '3099-12-01',        // Creation date of the license - YYYY-MM-DD  (required)
-	'date_renewed'        => '3099-12-015',       // Date of the last time the license was renewed -\n YYYY-MM-DD (optional)
-	'date_expiry'         => '3099-12-31',        // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
-	'package_slug'        => 'new-package',       // The package slug - only alphanumeric characters and dashes are allowed (required)
-	'package_type'        => 'theme',             // Type of package the license is for - one of plugin, theme, generic (required)
-	'api_token'           => 'token',             // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+$payload = array(
+    'action'              => 'edit',                // Action to perform when calling the License API (required)
+    'license_key'         => 'example-license-new', // The key of the license to edit (required - used to identify the record to edit)
+    'max_allowed_domains' => '99',                  // The maximum number of domains allowed to use the license - minimum 1 (required)
+    'allowed_domains'     => array(                 // Domains currently allowed to use the license (optional)
+        'different1.example.com',
+        'different2.example.com',
+    ),
+    'status'              => 'blocked',           // The status of the license - one of pending, activated, deactivated, on-hold, blocked, expired (required)
+    'owner_name'          => 'Another Owner',     // The full name of the owner of the license (optional)
+    'email'               => 'test-new@test.com', // The email registered with the license (required)
+    'company_name'        => 'New Company',       // The company of the owner of the license (optional)
+    'txn_id'              => '#999999999',        // If applicable, the transaction identifier associated to the purchase of the license (optional)
+    'date_created'        => '3099-12-01',        // Creation date of the license - YYYY-MM-DD  (required)
+    'date_renewed'        => '3099-12-015',       // Date of the last time the license was renewed -\n YYYY-MM-DD (optional)
+    'date_expiry'         => '3099-12-31',        // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
+    'package_slug'        => 'new-package',       // The package slug - only alphanumeric characters and dashes are allowed (required)
+    'package_type'        => 'theme',             // Type of package the license is for - one of plugin, theme, generic (required)
+    'api_token'           => 'token',             // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
-	"id": "99",
-	"license_key": "example-license-new",
-	"max_allowed_domains": "99",
-	"allowed_domains": [
-		"different1.example.com",
-		"different2.example.com"
-	],
-	"status": "blocked",
-	"owner_name": "Another Owner",
-	"email": "test-new@test.com",
-	"company_name": "New Company",
-	"txn_id": "#999999999",
-	"date_created": "3099-12-01",
-	"date_renewed": "3099-12-15",
-	"date_expiry": "3099-12-31",
-	"package_slug": "new-package",
-	"package_type": "theme",
-	"data": {
-		"api_owner": "private_key_id"
-	},
-	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license-new",
+    "max_allowed_domains": "99",
+    "allowed_domains": [
+        "different1.example.com",
+        "different2.example.com"
+    ],
+    "status": "blocked",
+    "owner_name": "Another Owner",
+    "email": "test-new@test.com",
+    "company_name": "New Company",
+    "txn_id": "#999999999",
+    "date_created": "3099-12-01",
+    "date_renewed": "3099-12-15",
+    "date_expiry": "3099-12-31",
+    "package_slug": "new-package",
+    "package_type": "theme",
+    "data": {
+        "api_owner": "private_key_id"
+    },
+    "hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
+    "crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+    "time_elapsed": "0.034"
 }
 ```
 
-Response `$data` - **failure** (in case the fields do not match the requirements):
+Code `404` - **failure** - license not found:
 ```json
 {
-	"errors": [
-		"error message 1",
-		"error message 2",
-		...
-	]
+    "code": "license_not_found",
+    "message": "License not found."
+}
+```
+
+Code `400` - **failure** - invalid payload:
+```json
+{
+    "code": "invalid_license_data",
+    "errors": [
+        "error message 1",
+        "error message 2",
+        ...
+    ],
+    "message": "Invalid license data."
 }
 ```
 
@@ -571,64 +622,66 @@ ___
 #### add
 
 ```php
-$params = array(
-	'action'              => 'add',             // Action to perform when calling the License API (required)
-	'license_key'         => 'example-license', // The key of the license to add (required)
-	'max_allowed_domains' => '2',               // The maximum number of domains allowed to use the license - minimum 1 (required)
-	'allowed_domains'     => array(             // Domains currently allowed to use the license (optional)
-		'domain1.example.com',
-		'domain2.example.com',
-	),
-	'status'              => 'pending',         // The status of the license - one of pending, activated, deactivated, on-hold, blocked, expired (required)
-	'owner_name'          => 'Test Owner',      // The full name of the owner of the license (optional)
-	'email'               => 'test@test.com',   // The email registered with the license (required)
-	'company_name'        => 'Test Company',    // The company of the owner of the license (optional)
-	'txn_id'              => '#111111111',      // If applicable, the transaction identifier associated to the purchase of the license (optional)
-	'date_created'        => '2099-12-01',      // Creation date of the license - YYYY-MM-DD  (required)
-	'date_renewed'        => '2099-12-015',     // Date of the last time the license was renewed -\n YYYY-MM-DD (optional)
-	'date_expiry'         => '2099-12-31',      // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
-	'package_slug'        => 'example-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
-	'package_type'        => 'plugin',          // Type of package the license is for - one of plugin, theme, generic (required)
-	'api_token'           => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+$payload = array(
+    'action'              => 'add',             // Action to perform when calling the License API (required)
+    'license_key'         => 'example-license', // The key of the license to add (required)
+    'max_allowed_domains' => '2',               // The maximum number of domains allowed to use the license - minimum 1 (required)
+    'allowed_domains'     => array(             // Domains currently allowed to use the license (optional)
+        'domain1.example.com',
+        'domain2.example.com',
+    ),
+    'status'              => 'pending',         // The status of the license - one of pending, activated, deactivated, on-hold, blocked, expired (required)
+    'owner_name'          => 'Test Owner',      // The full name of the owner of the license (optional)
+    'email'               => 'test@test.com',   // The email registered with the license (required)
+    'company_name'        => 'Test Company',    // The company of the owner of the license (optional)
+    'txn_id'              => '#111111111',      // If applicable, the transaction identifier associated to the purchase of the license (optional)
+    'date_created'        => '2099-12-01',      // Creation date of the license - YYYY-MM-DD  (required)
+    'date_renewed'        => '2099-12-015',     // Date of the last time the license was renewed -\n YYYY-MM-DD (optional)
+    'date_expiry'         => '2099-12-31',      // Expiry date of the license - YYY-MM-DD - if omitted, no expiry (optional)
+    'package_slug'        => 'example-package', // The package slug - only alphanumeric characters and dashes are allowed (required)
+    'package_type'        => 'plugin',          // Type of package the license is for - one of plugin, theme, generic (required)
+    'api_token'           => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
-	"id": "99",
-	"license_key": "example-license",
-	"max_allowed_domains": "2",
-	"allowed_domains": [
-		"domain1.example.com",
-	],
-	"status": "deactivated",
-	"owner_name": "Test Owner",
-	"email": "test@test.com",
-	"company_name": "Test Company",
-	"txn_id": "#111111111",
-	"date_created": "2099-12-01",
-	"date_renewed": "2099-12-15",
-	"date_expiry": "2099-12-31",
-	"package_slug": "example-package",
-	"package_type": "plugin",
-	"data": {
-		"api_owner": "private_key_id"
-	},
-	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license",
+    "max_allowed_domains": "2",
+    "allowed_domains": [
+        "domain1.example.com",
+    ],
+    "status": "deactivated",
+    "owner_name": "Test Owner",
+    "email": "test@test.com",
+    "company_name": "Test Company",
+    "txn_id": "#111111111",
+    "date_created": "2099-12-01",
+    "date_renewed": "2099-12-15",
+    "date_expiry": "2099-12-31",
+    "package_slug": "example-package",
+    "package_type": "plugin",
+    "data": {
+        "api_owner": "private_key_id"
+    },
+    "hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
+    "crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+    "time_elapsed": "0.034"
 }
 ```
 
-Response `$data` - **failure** (in case the fields do not match the requirements):
+Code `400` - **failure** - invalid payload:
 ```json
 {
-	"errors": [
-		"error message 1",
-		"error message 2",
-		...
-	]
+    "code": "invalid_license_data",
+    "errors": [
+        "error message 1",
+        "error message 2",
+        ...
+    ],
+    "message": "Invalid license data."
 }
 ```
 
@@ -636,44 +689,56 @@ ___
 #### delete
 
 ```php
-$params = array(
-	'action'       => 'delete',          // Action to perform when calling the License API (required)
-	'license_key'  => 'example-license', // The key of the license to delete
-	'api_token'    => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+$payload = array(
+    'action'       => 'delete',          // Action to perform when calling the License API (required)
+    'license_key'  => 'example-license', // The key of the license to delete
+    'api_token'    => 'token',           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
-	"id": "99",
-	"license_key": "example-license",
-	"max_allowed_domains": "2",
-	"allowed_domains": [
-		"domain1.example.com",
-	],
-	"status": "deactivated",
-	"owner_name": "Test Owner",
-	"email": "test@test.com",
-	"company_name": "Test Company",
-	"txn_id": "#111111111",
-	"date_created": "2099-12-01",
-	"date_renewed": "2099-12-15",
-	"date_expiry": "2099-12-31",
-	"package_slug": "example-package",
-	"package_type": "plugin",
-	"data": {
-		"api_owner": "private_key_id"
-	},
-	"hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
-	"crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
-	"time_elapsed": "0.034"
+    "id": "99",
+    "license_key": "example-license",
+    "max_allowed_domains": "2",
+    "allowed_domains": [
+        "domain1.example.com",
+    ],
+    "status": "deactivated",
+    "owner_name": "Test Owner",
+    "email": "test@test.com",
+    "company_name": "Test Company",
+    "txn_id": "#111111111",
+    "date_created": "2099-12-01",
+    "date_renewed": "2099-12-15",
+    "date_expiry": "2099-12-31",
+    "package_slug": "example-package",
+    "package_type": "plugin",
+    "data": {
+        "api_owner": "private_key_id"
+    },
+    "hmac_key":"aaaaaaaaaaaaccbb9999999999999999",
+    "crypto_key":"9999999999999999ccbbaaaaaaaaaaaa",
+    "time_elapsed": "0.034"
 }
 ```
 
-Response `$data` - **failure**:
+<!-- Response `$data` - **failure** (`404` response code - license not found): -->
+Code `404` - **failure** - license not found:
 ```json
-{}
+{
+    "code": "license_not_found",
+    "message": "License not found."
+}
+```
+
+Code `400` - **failure** - missing `license_key`:
+```json
+{
+    "code": "invalid_license_data",
+    "message": "Invalid license data."
+}
 ```
 
 ___
@@ -741,7 +806,7 @@ Add a license record.
 
 **Parameters**  
 `$payload`
-> (array) See `$params` for the License API action [add](#add)
+> (array) See `$payload` for the License API action [add](#add)
 
 **Return value**
 > (mixed) An object in case of success (see the response of the License API action [add](#add) - the object is the decoded value of the JSON string) or an array of errors otherwise
@@ -758,7 +823,7 @@ Add a license.
 
 **Parameters**  
 `$payload`
-> (array) See `$params` for the License API action [add](#add)
+> (array) See `$payload` for the License API action [add](#add)
 
 **Return value**
 > (mixed) An object in case of success (see the response of the License API action [add](#add) - the object is the decoded value of the JSON string) or an array of errors otherwise
@@ -774,8 +839,8 @@ upserv_delete_license( array $payload );
 Delete a license record.
 
 **Parameters**  
-$payload
-> (array) See `$params` for the License API action [delete](#delete)
+`$payload`
+> (array) See `$payload` for the License API action [delete](#delete)
 
 **Return value**
 > (mixed) An object in case of success (see the response of the License API action [delete](#delete) - the object is the decoded value of the JSON string) or an empty array otherwise

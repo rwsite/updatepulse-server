@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+use WP_Error;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
 
 class License_API {
@@ -91,26 +92,32 @@ class License_API {
 
 				break;
 			case JSON_ERROR_DEPTH:
-				$result = 'JSON parse error - Maximum stack depth exceeded';
+				$result = 'JSON parse error - Maximum stack depth exceeded.';
 				break;
 			case JSON_ERROR_STATE_MISMATCH:
-				$result = 'JSON parse error - Underflow or the modes mismatch';
+				$result = 'JSON parse error - Underflow or the modes mismatch.';
 				break;
 			case JSON_ERROR_CTRL_CHAR:
-				$result = 'JSON parse error - Unexpected control character found';
+				$result = 'JSON parse error - Unexpected control character found.';
 				break;
 			case JSON_ERROR_SYNTAX:
-				$result = 'JSON parse error - Syntax error, malformed JSON';
+				$result = 'JSON parse error - Syntax error, malformed JSON.';
 				break;
 			case JSON_ERROR_UTF8:
-				$result = 'JSON parse error - Malformed UTF-8 characters, possibly incorrectly encoded';
+				$result = 'JSON parse error - Malformed UTF-8 characters, possibly incorrectly encoded.';
 				break;
 			default:
-				$result = 'JSON parse error - Unknown error';
+				$result = 'JSON parse error - Unknown error.';
 				break;
 		}
 
-		if ( ! is_array( $result ) ) {
+		if ( $result instanceof WP_Error ) {
+			$this->http_response_code = 400;
+			$result                   = array(
+				'code'    => $result->get_error_code(),
+				'message' => $result->get_error_message(),
+			);
+		} elseif ( ! is_array( $result ) ) {
 			$this->http_response_code = 400;
 			$result                   = array(
 				'code'    => 'invalid_json',
@@ -192,16 +199,31 @@ class License_API {
 
 		if ( ! is_object( $result ) ) {
 
-			if ( isset( $result['license_not_found'] ) ) {
+			if ( ! is_array( $result ) ) {
+				$this->http_response_code = 400;
+				$result                   = array(
+					'code'    => 'invalid_license_data',
+					'errors'  => array( __( 'Unknown error.', 'updatepulse-server' ) ),
+					'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+				);
+			} elseif ( isset( $result['license_not_found'] ) ) {
 				$this->http_response_code = 404;
 				$result                   = array(
 					'code'    => 'license_not_found',
 					'message' => __( 'License not found.', 'updatepulse-server' ),
 				);
+			} elseif ( ! empty( $result ) ) {
+				$this->http_response_code = 400;
+				$result                   = array(
+					'code'    => 'invalid_license_data',
+					'errors'  => array_values( $result ),
+					'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+				);
 			} else {
 				$this->http_response_code = 400;
 				$result                   = array(
 					'code'    => 'invalid_license_data',
+					'errors'  => array( __( 'Unknown error.', 'updatepulse-server' ) ),
 					'message' => __( 'Invalid license data.', 'updatepulse-server' ),
 				);
 			}
@@ -228,10 +250,25 @@ class License_API {
 			$result->result  = 'success';
 			$result->message = 'License successfully created';
 			$result->key     = $result->license_key;
+		} elseif ( ! is_array( $result ) ) {
+			$this->http_response_code = 400;
+			$result                   = array(
+				'code'    => 'invalid_license_data',
+				'errors'  => array( __( 'Unknown error.', 'updatepulse-server' ) ),
+				'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+			);
+		} elseif ( ! empty( $result ) ) {
+			$this->http_response_code = 400;
+			$result                   = array(
+				'code'    => 'invalid_license_data',
+				'errors'  => array_values( $result ),
+				'message' => __( 'Invalid license data.', 'updatepulse-server' ),
+			);
 		} else {
 			$this->http_response_code = 400;
 			$result                   = array(
 				'code'    => 'invalid_license_data',
+				'errors'  => array( __( 'Unknown error.', 'updatepulse-server' ) ),
 				'message' => __( 'Invalid license data.', 'updatepulse-server' ),
 			);
 		}
@@ -1018,7 +1055,7 @@ class License_API {
 					$this->http_response_code = 403;
 					$response                 = array(
 						'code'    => 'unauthorized',
-						'message' => __( 'Unauthorized access', 'updatepulse-server' ),
+						'message' => __( 'Unauthorized access.', 'updatepulse-server' ),
 					);
 				}
 			} else {

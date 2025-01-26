@@ -4,51 +4,54 @@
 UpdatePulse Server provides an API and offers a series of functions, actions and filters for developers to use in their own plugins and themes to modify the behavior of the plugin. Below is the documentation to interface with miscellaneous aspects of UpdatePulse Server. 
 
 * [UpdatePulse Server - Miscellaneous - Developer documentation](#updatepulse-server---miscellaneous---developer-documentation)
-	* [Nonce API](#nonce-api)
-	* [WP CLI](#wp-cli)
-	* [Consuming Webhooks](#consuming-webhooks)
-	* [Functions](#functions)
-		* [upserv\_is\_doing\_api\_request](#upserv_is_doing_api_request)
-		* [upserv\_is\_doing\_webhook\_api\_request](#upserv_is_doing_webhook_api_request)
-		* [upserv\_init\_nonce\_auth](#upserv_init_nonce_auth)
-		* [upserv\_create\_nonce](#upserv_create_nonce)
-		* [upserv\_get\_nonce\_expiry](#upserv_get_nonce_expiry)
-		* [upserv\_get\_nonce\_data](#upserv_get_nonce_data)
-		* [upserv\_validate\_nonce](#upserv_validate_nonce)
-		* [upserv\_delete\_nonce](#upserv_delete_nonce)
-		* [upserv\_clear\_nonce](#upserv_clear_nonce)
-		* [upserv\_build\_nonce\_api\_signature](#upserv_build_nonce_api_signature)
-		* [upserv\_schedule\_webhook](#upserv_schedule_webhook)
-		* [upserv\_fire\_webhook](#upserv_fire_webhook)
-	* [Actions](#actions)
-		* [upserv\_mu\_optimizer\_ready](#upserv_mu_optimizer_ready)
-		* [upserv\_mu\_ready](#upserv_mu_ready)
-		* [upserv\_ready](#upserv_ready)
-		* [upserv\_no\_api\_includes](#upserv_no_api_includes)
-		* [upserv\_no\_priority\_api\_includes](#upserv_no_priority_api_includes)
-		* [upserv\_api\_options\_updated](#upserv_api_options_updated)
-	* [Filters](#filters)
-		* [upserv\_mu\_optimizer\_active\_plugins](#upserv_mu_optimizer_active_plugins)
-		* [upserv\_mu\_optimizer\_doing\_api\_request](#upserv_mu_optimizer_doing_api_request)
-		* [upserv\_mu\_require](#upserv_mu_require)
-		* [upserv\_mu\_plugin\_registration\_classes](#upserv_mu_plugin_registration_classes)
-		* [upserv\_is\_api\_request](#upserv_is_api_request)
-		* [upserv\_scripts\_l10n](#upserv_scripts_l10n)
-		* [upserv\_nonce\_api\_payload](#upserv_nonce_api_payload)
-		* [upserv\_nonce\_api\_code](#upserv_nonce_api_code)
-		* [upserv\_nonce\_api\_response](#upserv_nonce_api_response)
-		* [upserv\_created\_nonce](#upserv_created_nonce)
-		* [upserv\_clear\_nonces\_query](#upserv_clear_nonces_query)
-		* [upserv\_clear\_nonces\_query\_args](#upserv_clear_nonces_query_args)
-		* [upserv\_expire\_nonce](#upserv_expire_nonce)
-		* [upserv\_delete\_nonce](#upserv_delete_nonce-1)
-		* [upserv\_fetch\_nonce](#upserv_fetch_nonce)
-		* [upserv\_nonce\_authorize](#upserv_nonce_authorize)
-		* [upserv\_api\_option\_update](#upserv_api_option_update)
-		* [upserv\_api\_option\_save\_value](#upserv_api_option_save_value)
-		* [upserv\_api\_webhook\_events](#upserv_api_webhook_events)
-		* [upserv\_webhook\_fire](#upserv_webhook_fire)
-		* [upserv\_schedule\_webhook\_is\_instant](#upserv_schedule_webhook_is_instant)
+    * [Nonce API](#nonce-api)
+        * [Acquiring a reusable token or a true nonce - payload](#acquiring-a-reusable-token-or-a-true-nonce---payload)
+        * [Responses](#responses)
+        * [Building API credentials and API signature](#building-api-credentials-and-api-signature)
+    * [WP CLI](#wp-cli)
+    * [Consuming Webhooks](#consuming-webhooks)
+    * [Functions](#functions)
+        * [upserv\_is\_doing\_api\_request](#upserv_is_doing_api_request)
+        * [upserv\_is\_doing\_webhook\_api\_request](#upserv_is_doing_webhook_api_request)
+        * [upserv\_init\_nonce\_auth](#upserv_init_nonce_auth)
+        * [upserv\_create\_nonce](#upserv_create_nonce)
+        * [upserv\_get\_nonce\_expiry](#upserv_get_nonce_expiry)
+        * [upserv\_get\_nonce\_data](#upserv_get_nonce_data)
+        * [upserv\_validate\_nonce](#upserv_validate_nonce)
+        * [upserv\_delete\_nonce](#upserv_delete_nonce)
+        * [upserv\_clear\_nonce](#upserv_clear_nonce)
+        * [upserv\_build\_nonce\_api\_signature](#upserv_build_nonce_api_signature)
+        * [upserv\_schedule\_webhook](#upserv_schedule_webhook)
+        * [upserv\_fire\_webhook](#upserv_fire_webhook)
+    * [Actions](#actions)
+        * [upserv\_mu\_optimizer\_ready](#upserv_mu_optimizer_ready)
+        * [upserv\_mu\_ready](#upserv_mu_ready)
+        * [upserv\_ready](#upserv_ready)
+        * [upserv\_no\_api\_includes](#upserv_no_api_includes)
+        * [upserv\_no\_priority\_api\_includes](#upserv_no_priority_api_includes)
+        * [upserv\_api\_options\_updated](#upserv_api_options_updated)
+    * [Filters](#filters)
+        * [upserv\_mu\_optimizer\_active\_plugins](#upserv_mu_optimizer_active_plugins)
+        * [upserv\_mu\_optimizer\_doing\_api\_request](#upserv_mu_optimizer_doing_api_request)
+        * [upserv\_mu\_require](#upserv_mu_require)
+        * [upserv\_mu\_plugin\_registration\_classes](#upserv_mu_plugin_registration_classes)
+        * [upserv\_is\_api\_request](#upserv_is_api_request)
+        * [upserv\_scripts\_l10n](#upserv_scripts_l10n)
+        * [upserv\_nonce\_api\_payload](#upserv_nonce_api_payload)
+        * [upserv\_nonce\_api\_code](#upserv_nonce_api_code)
+        * [upserv\_nonce\_api\_response](#upserv_nonce_api_response)
+        * [upserv\_created\_nonce](#upserv_created_nonce)
+        * [upserv\_clear\_nonces\_query](#upserv_clear_nonces_query)
+        * [upserv\_clear\_nonces\_query\_args](#upserv_clear_nonces_query_args)
+        * [upserv\_expire\_nonce](#upserv_expire_nonce)
+        * [upserv\_delete\_nonce](#upserv_delete_nonce-1)
+        * [upserv\_fetch\_nonce](#upserv_fetch_nonce)
+        * [upserv\_nonce\_authorize](#upserv_nonce_authorize)
+        * [upserv\_api\_option\_update](#upserv_api_option_update)
+        * [upserv\_api\_option\_save\_value](#upserv_api_option_save_value)
+        * [upserv\_api\_webhook\_events](#upserv_api_webhook_events)
+        * [upserv\_webhook\_fire](#upserv_webhook_fire)
+        * [upserv\_schedule\_webhook\_is\_instant](#upserv_schedule_webhook_is_instant)
 
 ___
 ## Nonce API
@@ -66,127 +69,173 @@ In case the Private API Key is invalid, the API will return the following respon
 Response `$data` - forbidden access:
 ```json
 {
-	"message": "Unauthorized access"
+    "message": "Unauthorized access"
 }
 ```
 
-The description of the API below is using the following code as reference, where `$params` are the parameters passed to the API (other parameters can be adjusted, they are just WordPress' default) and `$data` is the JSON response:
+The description of the API below is using the following code as reference, where `$payload` is the body sent to the API, `$headers` are the headers sent to the API, and `$response` is the response received from the API:
 
 ```php
-$url = 'https://domain.tld/updatepulse-server-nonce/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
-$url = 'https://domain.tld/updatepulse-server-token/'; // Replace domain.tld with the domain where UpdatePulse Server is installed.
-
+$url      = 'https://domain.tld/updatepulse-server-nonce/'; // Receive a true nonce. Replace domain.tld with the domain where UpdatePulse Server is installed.
+$url      = 'https://domain.tld/updatepulse-server-token/'; // Receive a resuable token. Replace domain.tld with the domain where UpdatePulse Server is installed.
+$headers  = array(
+    'X-UpdatePulse-API-Signature' => $signature,     // The signature built using the Private API Key (optional - must be provided in case `api_signature` is absent from the payload)
+    'X-UpdatePulse-API-Credentials' => $credentials, // The credentials acting as public key `timestamp|key_id` (optional - must be provided in case `api_credentials` is absent from the payload)
+);
 $response = wp_remote_post(
-	$url,
-	array(
-		'method'      => 'POST',
-		'timeout'     => 45,
-		'redirection' => 5,
-		'httpversion' => '1.0',
-		'blocking'    => true,
-		'headers'     => array(),
-		'body'        => $params,
-		'cookies'     => array(),
-	);
+    $url,
+    array(
+        'headers' => $headers,
+        'body'    => $payload,
+        // other parameters...
+    );
 );
 
 if ( is_wp_error( $response ) ) {
-	printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
+    printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $response->get_error_message() ) );
 } else {
-	$data         = wp_remote_retrieve_body( $response );
-	$decoded_data = json_decode( $data );
+    $data         = wp_remote_retrieve_body( $response );
+    $decoded_data = json_decode( $data );
 
-	if ( 200 === $response['response']['code'] ) {
-		// Handle success with $decoded_data
-	} else {
-		// Handle failure with $decoded_data
-	}
+    if ( 200 === intval( $response['response']['code'] ) ) {
+        // Handle success with $decoded_data
+    } else {
+        // Handle failure with $decoded_data
+    }
 }
 ```
-
-Payload to acquire a reusable token or a true nonce; please note that **boolean values are NOT supported**: if the payload needs to include such value type, developers are invited to use the string `'true'`/`'false'`, or the integers `1`/`0` :
+### Acquiring a reusable token or a true nonce - payload
 
 ```php
 $payload = array(
-	'expiry_length' => 999,               // The expiry length in seconds (optional - default value to UPServ_Nonce::DEFAULT_EXPIRY_LENGTH - 30 seconds)
-	'data' => array(                      // Data to store along the token or true nonce (optional)
-		'permanent' => false,             // set to a truthy value to create a nonce that never expires
-		'key1'      => 'value1',          // custom data
-		'key2'      => array(             // custom data can be as nested as needed
-			'subkey1'   => 'subval1',
-			'subkey2'   => 'subval2'
-			'bool_key1' => 'true',
-			'bool_key2' => 'false',
-			'bool_key3' => 1,
-			'bool_key4' => 0,
-		),
-	),
-	'api_credentials' => '9999999999|private_key_id', // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-UpdatePulse-API-Credentials header is absent)
-	'api_signature'   => 'complex_signature',         // The signature built using the Private API Key (optional - must be provided in case X-UpdatePulse-API-Signature header is absent)
-	'api'             => 'api_name',                  // The target API (required if requesting a nonce for the existing APIs; one of `'package'` or `'license'`)
+    'expiry_length' => 999,               // The expiry length in seconds (optional - default value to UPServ_Nonce::DEFAULT_EXPIRY_LENGTH - 30 seconds)
+    'data' => array(                      // Data to store along the token or true nonce (optional)
+        'permanent' => 1,                 // set to a truthy value to create a nonce that never expires
+        'key1'      => 'value1',          // custom data
+        'key2'      => array(             // custom data can be as nested as needed
+            'subkey1'   => 'subval1',
+            'subkey2'   => 'subval2'
+            'bool_key1' => 'true',
+            'bool_key2' => 'false',
+            'bool_key3' => 1,
+            'bool_key4' => 0,
+        ),
+    ),
+    'api_credentials' => '9999999999|private_key_id', // The credentials acting as public key `timestamp|key_id`, where `timestamp` is a past timestamp no older than 1 minutes, and `key_id` is the ID corresponding to the Private API Key (optional - must be provided in case X-UpdatePulse-API-Credentials header is absent)
+    'api_signature'   => 'complex_signature',         // The signature built using the Private API Key (optional - must be provided in case X-UpdatePulse-API-Signature header is absent)
+    'api'             => 'api_name',                  // The target API (required if requesting a nonce for the existing APIs; one of `'package'` or `'license'`)
 );
 ```
 
-Response `$data` - **success**:
+Please note that **boolean values are NOT supported in the `data` array**: if the payload needs to include such value type, developers must use values from the following table:
+
+| Value | Type | Boolean value |
+| --- | --- | --- |
+| `1` | integer | `true` |
+| `0` | integer | `false` |
+| `'1'` | string | `true` |
+| `'0'` | string | `false` |
+| `'true'` | string | `true` |
+| `'false'` | string | `false` |
+| `'on'` | string | `true` |
+| `'off'` | string | `false` |
+| `'yes'` | string | `true` |
+| `'no'` | string | `false` |
+| `''` | string | `false` |
+
+### Responses
+
+Code `200` - **success**:
 ```json
 {
-	"nonce": "nonce_value",
-	"true_nonce": true|false,
-	"expiry": 9999999999,
-	"data": {
-		"key1": "value1",
-		"key2": "value2",
-		"key3": {
-			"subkey1": "subval1",
-			"subkey2": "subval2"
-		},
-	}
+    "nonce": "nonce_value",
+    "true_nonce": true|false,
+    "expiry": 9999999999,
+    "data": {
+        "permanent": 1,
+        "key1": "value1",
+        "key2": {
+            "subkey1": "subval1",
+            "subkey2": "subval2",
+            "bool_key1": "true",
+            "bool_key2": "false",
+            "bool_key3": 1,
+            "bool_key4": 0
+        }
+    }
 }
 ```
 
-Building API credentials and API signature - developers may use this function in their own project:
+Code `400` - **failure** - invalid action:
+```json
+{
+    "code": "action_not_found",
+    "message": "Malformed request"
+}
+```
+
+Code `403` - **failure** - forbidden:
+```json
+{
+    "code": "unauthorized",
+    "message": "Unauthorized access."
+}
+```
+
+Code `500` - **failure** - nonce insert error:
+```json
+{
+    "code": "internal_error",
+    "message": "Internal Error - nonce insert error"
+}
+```
+
+
+### Building API credentials and API signature
+
+Production-ready PHP example:
 
 ```php
 if ( ! function_exists( 'upserv_build_nonce_api_signature' ) ) {
-	/**
-	* Build credentials and signature for UpdatePulse Server Nonce API
-	*
-	* @param string $api_key_id The ID of the Private API Key
-	* @param string $api_key The Private API Key - will not be sent over the Internet
-	* @param int    $timestamp The timestamp used to limit the validity of the signature (validity is MINUTE_IN_SECONDS)
-	* @param int    $payload The payload to acquire a reusable token or a true nonce 
-	* @return array An array with keys `credentials` and `signature`
-	*/
-	function upserv_build_nonce_api_signature( $api_key_id, $api_key, $timestamp, $payload ) {
-		unset( $payload['api_signature'] );
-		unset( $payload['api_credentials'] );
+    /**
+    * Build credentials and signature for UpdatePulse Server Nonce API
+    *
+    * @param string $api_key_id The ID of the Private API Key
+    * @param string $api_key The Private API Key - will not be sent over the Internet
+    * @param int    $timestamp The timestamp used to limit the validity of the signature (validity is MINUTE_IN_SECONDS)
+    * @param int    $payload The payload to acquire a reusable token or a true nonce 
+    * @return array An array with keys `credentials` and `signature`
+    */
+    function upserv_build_nonce_api_signature( $api_key_id, $api_key, $timestamp, $payload ) {
+        unset( $payload['api_signature'] );
+        unset( $payload['api_credentials'] );
 
-		( function ( &$arr ) {
-			$recur_ksort = function ( &$arr ) use ( &$recur_ksort ) {
+        ( function ( &$arr ) {
+            $recur_ksort = function ( &$arr ) use ( &$recur_ksort ) {
 
-				foreach ( $arr as &$value ) {
+                foreach ( $arr as &$value ) {
 
-					if ( is_array( $value ) ) {
-						$recur_ksort( $value );
-					}
-				}
+                    if ( is_array( $value ) ) {
+                        $recur_ksort( $value );
+                    }
+                }
 
-				ksort( $arr );
-			};
+                ksort( $arr );
+            };
 
-			$recur_ksort( $arr );
-		} )( $payload );
+            $recur_ksort( $arr );
+        } )( $payload );
 
-		$str         = base64_encode( $api_key_id . json_encode( $payload, JSON_NUMERIC_CHECK ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode, WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		$credentials = $timestamp . '/' . $api_key_id;
-		$time_key    = hash_hmac( 'sha256', $timestamp, $api_key, true );
-		$signature   = hash_hmac( 'sha256', $str, $time_key );
+        $str         = base64_encode( $api_key_id . json_encode( $payload, JSON_NUMERIC_CHECK ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode, WordPress.WP.AlternativeFunctions.json_encode_json_encode
+        $credentials = $timestamp . '/' . $api_key_id;
+        $time_key    = hash_hmac( 'sha256', $timestamp, $api_key, true );
+        $signature   = hash_hmac( 'sha256', $str, $time_key );
 
-		return array(
-			'credentials' => $credentials,
-			'signature'   => $signature,
-		);
-	}
+        return array(
+            'credentials' => $credentials,
+            'signature'   => $signature,
+        );
+    }
 }
 
 // Usage
@@ -296,56 +345,56 @@ Domain Path: /languages
  * Also note that we only check for the actually secure `sha256` signature.
  */
 add_action( 'plugins_loaded', function() {
-	global $wp_filesystem;
-	
-	// We assume the secret is stored in environment variables
-	$secret = getenv( 'UPDATEPULSE_HOOK_SECRET' );
+    global $wp_filesystem;
+    
+    // We assume the secret is stored in environment variables
+    $secret = getenv( 'UPDATEPULSE_HOOK_SECRET' );
 
-	if ( empty( $wp_filesystem ) ) {
-		require_once ABSPATH . '/wp-admin/includes/file.php';
+    if ( empty( $wp_filesystem ) ) {
+        require_once ABSPATH . '/wp-admin/includes/file.php';
 
-		WP_Filesystem();
-	}
-	
-	$payload = $wp_filesystem->get_contents( 'php://input' );
-	$json    = json_decode( $payload );
-	
-	if ( $json && isset( $json->event ) ) {
-		// Get the signature from headers
-		$sign = isset( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ?
-			$_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] :
-			false;
+        WP_Filesystem();
+    }
+    
+    $payload = $wp_filesystem->get_contents( 'php://input' );
+    $json    = json_decode( $payload );
+    
+    if ( $json && isset( $json->event ) ) {
+        // Get the signature from headers
+        $sign = isset( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ?
+            $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] :
+            false;
 
-		if ( $sign ) {
-			// Check our payload against the signature
-			$sign_parts = explode( '=', $sign );
-			$sign       = 2 === count( $sign_parts ) ? end( $sign_parts ) : false;
-			$algo       = ( $sign ) ? reset( $sign_parts ) : false;
-			$valid      = $sign && hash_equals( hash_hmac( $algo, $payload, $secret ), $sign );
-			
-			if ( $valid ) {
-				error_log( 'The payload was successfully authenticated.' );
-				// Log the headers and the body of the request
-				// Typically, at this stage the client would use the consumed payload
-				error_log(
-					print_r(
-						array(
-							'headers' => array(
-								'X-UpdatePulse-Action'        => $_SERVER['HTTP_X_UPDATEPULSE_ACTION'],
-								'X-UpdatePulse-Signature-256' => $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'],
-							),
-							'body' => $payload,
-						),
-						true
-					)
-				);
-			} else {
-				error_log( 'The payload could not be authenticated.' );
-			}
-		} else {
-			error_log( 'Signature not found.' );
-		}
-	}
+        if ( $sign ) {
+            // Check our payload against the signature
+            $sign_parts = explode( '=', $sign );
+            $sign       = 2 === count( $sign_parts ) ? end( $sign_parts ) : false;
+            $algo       = ( $sign ) ? reset( $sign_parts ) : false;
+            $valid      = $sign && hash_equals( hash_hmac( $algo, $payload, $secret ), $sign );
+            
+            if ( $valid ) {
+                error_log( 'The payload was successfully authenticated.' );
+                // Log the headers and the body of the request
+                // Typically, at this stage the client would use the consumed payload
+                error_log(
+                    print_r(
+                        array(
+                            'headers' => array(
+                                'X-UpdatePulse-Action'        => $_SERVER['HTTP_X_UPDATEPULSE_ACTION'],
+                                'X-UpdatePulse-Signature-256' => $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'],
+                            ),
+                            'body' => $payload,
+                        ),
+                        true
+                    )
+                );
+            } else {
+                error_log( 'The payload could not be authenticated.' );
+            }
+        } else {
+            error_log( 'Signature not found.' );
+        }
+    }
 }, 10, 0 );
 
 ```
@@ -395,14 +444,14 @@ Set the private keys to check against when requesting nonces via the `updatepuls
 > (array) the private keys with the following format:  
 ```php
 $private_keys = array(
-	'api_key_id_1' => array(
-		'key' => 'api_key_1',
-		// ... other values are ignored
-	),
-	'api_key_id_2' => array(
-		'key' => 'api_key_2',
-		// ... other values are ignored
-	),
+    'api_key_id_1' => array(
+        'key' => 'api_key_1',
+        // ... other values are ignored
+    ),
+    'api_key_id_2' => array(
+        'key' => 'api_key_2',
+        // ... other values are ignored
+    ),
 );
 ```
 
@@ -436,10 +485,10 @@ Creates a cryptographic token - allows creation of tokens that are true one-time
 > (bool|string|array) `false` in case of failure; the cryptographic token string if `$return_type` is set to `UPServ_Nonce::NONCE_ONLY`; an array of information if `$return_type` is set to `UPServ_Nonce::NONCE_INFO_ARRAY` with the following format:
 ```php
 array(
-	'nonce'      => 'some_value',	// cryptographic token
-	'true_nonce' => true,			// whether the nonce is one-time-use
-	'expiry'     => 9999,			// the expiry timestamp
-	'data'       => array(),		// custom data saved along with the nonce
+    'nonce'      => 'some_value',	// cryptographic token
+    'true_nonce' => true,			// whether the nonce is one-time-use
+    'expiry'     => 9999,			// the expiry timestamp
+    'data'       => array(),		// custom data saved along with the nonce
 );
 ```
 
@@ -566,9 +615,9 @@ Schedule an event notification to be sent to registered Webhook URLs at next cro
 > (array) the data used to schedule the notification with the following format:  
 ```php
 $payload = array(
-	'event'       => 'event_name',                                // required - the name of the event that triggered the notification
-	'description' => 'A description of what the event is about.', // optional - Description of the notification
-	'content'     => 'The data of the payload',                   // required - the data to be consumed by the recipient
+    'event'       => 'event_name',                                // required - the name of the event that triggered the notification
+    'description' => 'A description of what the event is about.', // optional - Description of the notification
+    'content'     => 'The data of the payload',                   // required - the data to be consumed by the recipient
 );
 ```
 
@@ -713,10 +762,10 @@ Must be subscribed to in another MU plugin before or within the `muplugins_loade
 > Example:
 ```php
 array(
-	'updatepulse-server/updatepulse-server.php', // default value
-	'plugin-slug/plugin-file.php',
-	'other-plugin-slug/other-plugin-file.php',
-	'plugin-folder/plugin-file.php',
+    'updatepulse-server/updatepulse-server.php', // default value
+    'plugin-slug/plugin-file.php',
+    'other-plugin-slug/other-plugin-file.php',
+    'plugin-folder/plugin-file.php',
 );
 ```
 ___

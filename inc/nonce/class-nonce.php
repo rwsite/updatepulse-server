@@ -70,52 +70,59 @@ class Nonce {
 	public static function parse_request() {
 		global $wp;
 
-		if ( isset( $wp->query_vars['__upserv_nonce_api'] ) ) {
-			$response = __( 'Malformed request', 'updatepulse-server' );
-			$code     = 400;
+		if ( ! isset( $wp->query_vars['__upserv_nonce_api'] ) ) {
+			return;
+		}
 
-			if ( ! self::authorize() ) {
-				$response = array(
-					'message' => __( 'Unauthorized access', 'updatepulse-server' ),
-				);
-				$code     = 403;
-			} elseif ( isset( $wp->query_vars['action'] ) ) {
-				$method  = $wp->query_vars['action'];
-				$payload = $wp->query_vars;
+		$code     = 400;
+		$response = array(
+			'code'    => 'action_not_found',
+			'message' => __( 'Malformed request', 'updatepulse-server' ),
+		);
 
-				unset( $payload['action'] );
+		if ( ! self::authorize() ) {
+			$code     = 403;
+			$response = array(
+				'code'    => 'unauthorized',
+				'message' => __( 'Unauthorized access.', 'updatepulse-server' ),
+			);
+		} elseif ( isset( $wp->query_vars['action'] ) ) {
+			$method  = $wp->query_vars['action'];
+			$payload = $wp->query_vars;
 
-				$payload = apply_filters( 'upserv_nonce_api_payload', $payload, $method );
+			unset( $payload['action'] );
 
-				if (
-					is_string( $wp->query_vars['action'] ) &&
-					method_exists(
-						get_class(),
-						'generate_' . $wp->query_vars['action'] . '_api_response'
-					)
-				) {
-					$method   = 'generate_' . $wp->query_vars['action'] . '_api_response';
-					$response = self::$method( $payload );
+			$payload = apply_filters( 'upserv_nonce_api_payload', $payload, $method );
 
-					if ( $response ) {
-						$code                     = 200;
-						$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
-					} else {
-						$response = array(
-							'message' => __( 'Internal Error - nonce insert error', 'updatepulse-server' ),
-						);
-						$code     = 500;
+			if (
+				is_string( $wp->query_vars['action'] ) &&
+				method_exists(
+					get_class(),
+					'generate_' . $wp->query_vars['action'] . '_api_response'
+				)
+			) {
+				$method   = 'generate_' . $wp->query_vars['action'] . '_api_response';
+				$response = self::$method( $payload );
 
-						php_log( __METHOD__ . ' wpdb::insert error' );
-					}
+				if ( $response ) {
+					$code                     = 200;
+					$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+				} else {
+					$code     = 500;
+					$response = array(
+						'code'    => 'internal_error',
+						'message' => __( 'Internal Error - nonce insert error', 'updatepulse-server' ),
+					);
+
+					php_log( __METHOD__ . ' wpdb::insert error' );
 				}
 			}
-
-			$code     = apply_filters( 'upserv_nonce_api_code', $code, $wp->query_vars );
-			$response = apply_filters( 'upserv_nonce_api_response', $response, $code, $wp->query_vars );
-
-			wp_send_json( $response, $code );
 		}
+
+		$code     = apply_filters( 'upserv_nonce_api_code', $code, $wp->query_vars );
+		$response = apply_filters( 'upserv_nonce_api_response', $response, $code, $wp->query_vars );
+
+		wp_send_json( $response, $code );
 	}
 
 	public static function query_vars( $query_vars ) {
@@ -231,11 +238,18 @@ class Nonce {
 			$store = false;
 		}
 
-		$expiry = isset( $data['permanent'] ) && $data['permanent'] ? 0 : time() + abs( intval( $expiry_length ) );
+		$permanent = false;
+
+		if ( isset( $data['permanent'] ) ) {
+			$data['permanent'] = filter_var( $data['permanent'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+			$permanent         = (bool) $data['permanent'];
+		}
+
+		$expiry = $permanent ? 0 : time() + abs( intval( $expiry_length ) );
 		$data   = $data ? wp_json_encode( $data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE ) : '{}';
 
 		if ( $store ) {
-			$result = self::store_nonce( $nonce, $true_nonce, $expiry, $data );
+			$result = self::store_nonce( $nonce, (bool) $true_nonce, $expiry, $data );
 		} else {
 			$result = array(
 				'nonce'      => $nonce,
@@ -380,6 +394,7 @@ class Nonce {
 	protected static function fetch_nonce( $value ) {
 		global $wpdb;
 
+		$nonce = null;
 		$table = $wpdb->prefix . 'upserv_nonce';
 		$row   = $wpdb->get_row(
 			$wpdb->prepare(
@@ -387,47 +402,27 @@ class Nonce {
 				$value
 			)
 		);
-		$nonce = null;
 
-		if ( $row ) {
-			$data = is_string( $row->data ) ? json_decode( $row->data, true ) : array();
+		if ( ! $row ) {
+			return $nonce;
+		}
 
-			if ( ! is_array( $data ) ) {
-				$data = array();
-			}
+		$data      = is_string( $row->data ) ? json_decode( $row->data, true ) : array();
+		$permanent = false;
 
-			if (
-				$row->expiry < time() &&
-				! (
-					isset( $data['permanent'] ) &&
-					$data['permanent']
-				)
-			) {
-				$row->nonce = apply_filters(
-					'upserv_expire_nonce',
-					null,
-					$row->nonce,
-					$row->true_nonce,
-					$row->expiry,
-					$data,
-					$row
-				);
-			}
-			$delete_nonce = apply_filters(
-				'upserv_delete_nonce',
-				$row->true_nonce || null === $row->nonce,
-				$row->true_nonce,
-				$row->expiry,
-				$data,
-				$row
-			);
+		if ( ! is_array( $data ) ) {
+			$data = array();
+		}
 
-			if ( $delete_nonce ) {
-				self::delete_nonce( $value );
-			}
+		if ( isset( $data['permanent'] ) ) {
+			$data['permanent'] = filter_var( $data['permanent'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+			$permanent         = (bool) $data['permanent'];
+		}
 
-			$nonce = apply_filters(
-				'upserv_fetch_nonce',
+		if ( $row->expiry < time() && ! $permanent ) {
+			$row->nonce = apply_filters(
+				'upserv_expire_nonce',
+				null,
 				$row->nonce,
 				$row->true_nonce,
 				$row->expiry,
@@ -435,6 +430,21 @@ class Nonce {
 				$row
 			);
 		}
+
+		$delete_nonce = apply_filters(
+			'upserv_delete_nonce',
+			$row->true_nonce || null === $row->nonce,
+			$row->true_nonce,
+			$row->expiry,
+			$data,
+			$row
+		);
+
+		if ( $delete_nonce ) {
+			self::delete_nonce( $value );
+		}
+
+		$nonce = apply_filters( 'upserv_fetch_nonce', $row->nonce, $row->true_nonce, $row->expiry, $data, $row );
 
 		return $nonce;
 	}

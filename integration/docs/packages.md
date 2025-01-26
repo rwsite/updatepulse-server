@@ -160,31 +160,33 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
 
 The Package API is accessible via POST and GET requests on the `/updatepulse-server-package-api/` endpoint for both the Public and Private API, and via POST only for the Private API. It accepts form-data payloads (arrays, basically). This documentation page uses `wp_remote_post`, but `wp_remote_get` would work as well for the Public API.
 
-In case the API is accessed with an invalid `action` parameter, the following response is returned (message's language depending on available translations), with HTTP response code set to `400`:
+In case the API is accessed with an invalid `action` parameter, the following response is returned (message's language depending on available translations):
 
-Response `$data` - malformed request:
+Code `400` - invalid action:
 ```json
 {
-    "message": "Package API action not found"
+    "code": "action_not_found",
+    "message": "Package API action not found."
 }
 ```
 
-The description of the API further below is using the following code as reference, where `$params` are the parameters passed to the API (other parameters can be adjusted, they are just WordPress' default) and `$data` is the JSON response:
+The description of the API further below is using the following code as reference, where `$payload` is the body sent to the API, `$headers` are the headers sent to the API, and `$response` is the response received from the API:
 
 ```php
-$url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme. generic), and package-slug with the slug of the package  
-
+$url      = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme. generic), and package-slug with the slug of the package  
+$payload  = array(
+    'action'    => $action, // Action to perform when calling the Package API (required)
+    'api_token' => 'token', // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+);
+$headers  = array(
+    'X-UpdatePulse-Token' => 'token', // The authentication token (optional - must provided via `api_token` in the body if absent)
+);
 $response = wp_remote_post(
     $url,
     array(
-        'method'      => 'POST',
-        'timeout'     => 45,
-        'redirection' => 5,
-        'httpversion' => '1.0',
-        'blocking'    => true,
-        'headers'     => array(),
-        'body'        => $params,
-        'cookies'     => array(),
+        'headers' => $headers,
+        'body'    => $payload,
+        // other parameters...
     );
 );
 
@@ -194,10 +196,62 @@ if ( is_wp_error( $response ) ) {
     $data         = wp_remote_retrieve_body( $response );
     $decoded_data = json_decode( $data );
 
-    if ( '200' === $response['response']['code'] ) {
+    if ( 200 === intval( $response['response']['code'] ) ) {
         // Handle success with $decoded_data
     } else {
         // Handle failure with $decoded_data
+    }
+}
+```
+
+Note that in case the body needs to include a file (such as in the case of [add](#add) or [edit](#edit) actions of the [Private API](#private-api)), it is not possible to reliably use `wp_remote_post`.
+Also note the presence of the `'FILE_HASH'` header - it is **required** when uploading a file and is used to verify the integrity of the file.
+In these cases, the examples below use the following code as reference:
+
+```php
+$url      = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme. generic), and package-slug with the slug of the package  
+$payload  = array(
+    'file'   => new CURLFile(  // The file to upload
+        $file_path,
+        mime_content_type( $file_path ),
+        $file_name
+    ),
+    'action'    => $action,    // Action to perform when calling the Package API (required)
+    'api_token' => 'token',    // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+);
+$headers  = array(
+    'X-UpdatePulse-Token: ' . $token,                  // The authentication token
+    'FILE_HASH: ' . hash_file( 'sha256', $file_path ), // The hash of the file
+);
+
+$ch = curl_init();
+
+curl_setopt_array(
+    $ch,
+    array(
+        CURLOPT_URL            => $url,
+        CURLOPT_POST           => true,
+        CURLOPT_HTTPHEADER     => $headers,
+        CURLOPT_POSTFIELDS     => $payload,
+        // other CURLOPT_* options can be set here
+    )
+);
+
+$response_body = curl_exec( $ch );
+$response_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+$curl_error    = curl_error( $ch );
+
+curl_close( $ch );
+
+if ( ! empty( $curl_error ) ) {
+    printf( esc_html__( 'Something went wrong: %s', 'text-domain' ), esc_html( $curl_error ) );
+} else {
+    $data = json_decode( $response_body, true );
+
+    if ( 200 === intval( $response_code ) ) {
+        // Handle success with $data
+    } else {
+        // Handle failure with $data
     }
 }
 ```
@@ -214,7 +268,7 @@ It provides a single operations: `download`.
 The URL can also be built manually, with a token can also be acquired with the following required parameters:
 
 ```php
-$params = array(
+$payload = array(
     'data' => array(
         'package_slug' => 'package-slug', // The slug of the package  
         'type'         => 'package-type', // The type of package (plugin, theme, generic)
@@ -235,7 +289,7 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 ```
 
 ```php
-$params = array(
+$payload = array(
     'action' => 'download',    // Action to perform when calling the Package API (required)
     'token'  => 'nonce_value', // The authorization token (required)
 );
@@ -246,9 +300,10 @@ Response - **success**:
 [filestream]
 ```
 
-Response `$data` - **failure** (`404` response code - no result):
+Code `404` - **failure** (no result):
 ```json
 {
+    "code": "package_not_found",
     "message": "Package not found."
 }
 ```
@@ -291,7 +346,13 @@ if ( is_wp_error( $response ) ) {
     $data = wp_remote_retrieve_body( $response );
 
     if ( '200' === $response['response']['code'] ) {
-        error_log( $data );
+        $data       = json_decode( $data, true );
+        $api_token  = $data['nonce'];
+        $single_use = (bool) $data['true_nonce'];
+        $expiry     = $data['expiry'];
+        $data       = $data['data'];
+        
+        // Handle success with $api_token, $single_use, $expiry, $data, for example byt storing the token and implementing a mechanism to renew it when it expires
     } else {
         // Handle failure with $data
     }
@@ -316,20 +377,23 @@ In the above example, the `$data` variable looks like:
 }
 ```
 Once an authentication token has been obtained, it needs to be provided to API actions, either via the `api_token` parameter, or by passing a `X-UpdatePulse-Token` header (recommended - it is then found in `$_SERVER['HTTP_X_UPDATEPULSE_TOKEN']` in PHP).  
-In case the token is invalid, all the actions of the Private API return the same response (message's language depending on available translations), with HTTP response code set to `403`:
+In case the token is invalid, all the actions of the Private API return the same response (message's language depending on available translations):
 
-Response `$data` - forbidden access:
+Code `403` - forbidden:
 ```json
 {
-    "message": "Unauthorized access"
+    "code": "unauthorized",
+    "message": "Unauthorized access."
 }
 ```
-In case the Private API is accessed via the `GET` method, all the actions return the same response (message's language depending on available translations), with HTTP response code set to `405`:
+In case the Private API is accessed via the `GET` method, all the actions return the same response (message's language depending on available translations):
 
-Response `$data` - unauthorized method:
+Code `405` - unauthorized method:
+
 ```json
 {
-    "message": "Unauthorized GET method"
+    "code": "method_not_allowed",
+    "message": "Unauthorized GET method."
 }
 ```
 ___
@@ -342,16 +406,16 @@ $url = 'https://domain.tld/updatepulse-server-package-api/'; // Replace domain.t
 ```
 
 ```php
-$params = array(
+$payload = array(
     'action'       => 'browse',         // Action to perform when calling the Package API (required)
     'browse_query' => wp_json_encode(   
         array( 'search' => 'keyword' )
     ),                                 // the JSON representation of an array with a single key 'search' with the value being the keyword used to search in package's slug and package's name (optional - case insensitive)
-    'api_auth_key' => 'secret',        // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+    'api_token'    => 'token',         // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
     "theme-slug": {
@@ -369,10 +433,12 @@ Response `$data` - **success**:
 }
 ```
 
-Response `$data` - **failure** (`404` response code - no result):
+Code `404` - **failure** (no result):
+
 ```json
 {
-    "count": 0
+    "code": "no_packages_found",
+    "message": "No packages found."
 }
 ```
 
@@ -386,13 +452,13 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 ```
 
 ```php
-$params = array(
-    'action'       => 'read',   // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+$payload = array(
+    'action'    => 'read',  // Action to perform when calling the Package API (required)
+    'api_token' => 'token', // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 
 Values format in case of a plugin package:
 ```json
@@ -513,31 +579,50 @@ Values format in case of a generic package:
 }
 ```
 
-Response `$data` - **failure** (`404` response code - no result):
+Code `404` - **failure** (no result):
+
 ```json
-false
+{
+    "code": "package_not_found",
+    "message": "Package not found."
+}
 ```
 
 ___
 #### edit
 
-The `edit` operation downloads the package from the Version Control System.  
+The `edit` operation replaces a package on the file system.
 The operation fails if:
-- the "Enable VCS" option is not active
-- the package does not exist in the Version Control System associated with the package
+- the package does not exist on the file system
+- a file is provided in the request, but the file is not a valid package file
+- *not* using a VCS, and no package file is provided in the request
+- a file is provided in the request, but the hash provided in the headers does not match the hash of the file
+- VCS information is provided, but the VCS information is invalid
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
 ```
 
 ```php
-$params = array(
-    'action'       => 'edit',   // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+// In addition to already set headers, headers must include the hash of the file if a package file is provided
+$headers = array_merge( $headers, array( 'FILE_HASH' => hash_file( 'sha256', $file_path ) ) );
+```
+
+```php
+$payload = array(
+    'action'    => 'edit',                            // Action to perform when calling the Package API (required)
+    'api_token' => 'token',                           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+    'vcs_url'   => 'https://vcs-url.tld/identifier/', // The URL of a VCS configured in UpdatePulse Server. If provided along with a valid branch, and a file is not provided, the package will be downloaded from the VCS. The replaced package file will also be associated with that VCS. (optional - default `false`)
+    'branch'    => 'main',                            // The branch of the VCS to download the package from. If provided along with a valid VCS URL, and a file is not provided, the package will be downloaded from the VCS. The replaced package file will also be associated with that VCS. (optional - default `main`)
+    'file'      => new CURLFile(                      // The package file to upload (optional)
+        $file_path,
+        mime_content_type( $file_path ),
+        $file_name
+    ),
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 
 Values format in case of a plugin package:
 ```json
@@ -658,16 +743,45 @@ Values format in case of a generic package:
 }
 ```
 
-Response `$data` - **failure** (`404` response code - package not found):
+Code `404` - **failure** (no result):
+
 ```json
 {
+    "code": "package_not_found",
     "message": "Package not found."
 }
 ```
 
-Response `$data` - **failure** (`400` response code - other cases ; `message` may vary):
+Code `400` - **failure** (invalid file hash):
+
 ```json
 {
+    "code": "invalid_hash",
+    "message": "The provided file does not match the provided hash."
+}
+```
+
+Code `400` - **failure** (invalid file type):
+
+```json
+{
+    "code": "invalid_file_type",
+    "message": "The provided file is not a valid ZIP file."
+}
+```
+
+Code `400` - **failure** (invalid package):
+```json
+{
+    "code": "invalid_package",
+    "message": "The provided file is not a valid package."
+}
+```
+
+Code `400` - **failure** (invalid parameters):
+```json
+{
+    "code": "invalid_parameters",
     "message": "Package could not be edited - invalid parameters."
 }
 ```
@@ -675,28 +789,39 @@ Response `$data` - **failure** (`400` response code - other cases ; `message` ma
 ___
 #### add
 
-The `add` operation downloads the package from the Version Control System if it does not exist on the file system.  
-The operation fails if:
-- the "Enable VCS" option is not active
-- the package does not exist in the Version Control System, or if 
-- the package already exists on the file system
-- the provided VCS-related parameters do not correspond to a VCS already configured in UpdatePulse Server
+The `add` operation adds a package to the file system.
+- the package exist on the file system
+- a file is provided in the request, but the file is not a valid package file
+- *not* using a VCS, and no package file is provided in the request
+- a file is provided in the request, but the hash provided in the headers does not match the hash of the file
+- VCS information is provided, but the VCS information is invalid
 
 ```php
 $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-slug/'; // Replace domain.tld with the domain where UpdatePulse Server is installed, package-type with the type of package (plugin, theme, generic), and package-slug with the slug of the package  
 ```
 
 ```php
-$params = array(
-    'action'       => 'add',                             // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret',                          // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
-    'vcs_url'      => 'https://vcs-url.tld/identifier/', // The URL of a VCS configured in UpdatePulse Server. If provided along with a valid branch, the package will be downloaded from the VCS, and associated with that VCS. (optional - default `false`)
-    'branch'       => 'main',                            // The branch of the VCS to download the package from. If provided along with a valid VCS URL, the package will be downloaded from the VCS, and associated with that VCS. (optional - default `main`)
+// In addition to already set headers, headers must include the hash of the file if a package file is provided
+$headers = array(
+    'FILE_HASH' => hash_file( 'sha256', $file_path ),
 );
 ```
 
-Response `$data` - **success**:
+```php
+$payload = array(
+    'action'    => 'add',                             // Action to perform when calling the Package API (required)
+    'api_token' => 'token',                           // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
+    'vcs_url'   => 'https://vcs-url.tld/identifier/', // The URL of a VCS configured in UpdatePulse Server. If provided along with a valid branch, and a file is not provided, the package will be downloaded from the VCS. The added package file will also be associated with that VCS. (optional - default `false`)
+    'branch'    => 'main',                            // The branch of the VCS to download the package from. If provided along with a valid VCS URL, and a file is not provided, the package will be downloaded from the VCS. The added package file will also be associated with that VCS. (optional - default `main`)
+    'file'      => new CURLFile(                      // The package file to upload (optional)
+        $file_path,
+        mime_content_type( $file_path ),
+        $file_name
+    ),
+);
+```
 
+Code `200` - **success**:
 
 Values format in case of a plugin package:
 ```json
@@ -816,17 +941,43 @@ Values format in case of a generic package:
 }
 ```
 
-Response `$data` - **failure** (`409` response code - the package already exists on the file system):
+Code `409` - **failure** (package exists):
 ```json
 {
-    "message": "Package already exists"
+    "code": "package_exists",
+    "message": "Package already exists."
 }
 ```
 
-Response `$data` - **failure** (`400` response code - other cases ; `message` may vary):
+Code `400` - **failure** (invalid file hash):
 ```json
 {
-    "message": "Package could not be added - invalid parameters"
+    "code": "invalid_hash",
+    "message": "The provided file does not match the provided hash."
+}
+```
+
+Code `400` - **failure** (invalid file type):
+```json
+{
+    "code": "invalid_file_type",
+    "message": "The provided file is not a valid ZIP file."
+}
+```
+
+Code `400` - **failure** (invalid package):
+```json
+{
+    "code": "invalid_package",
+    "message": "The provided file is not a valid package."
+}
+```
+
+Code `400` - **failure** (invalid parameters):
+```json
+{
+    "code": "invalid_parameters",
+    "message": "Package could not be added - invalid parameters."
 }
 ```
 
@@ -840,20 +991,24 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 ```
 
 ```php
-$params = array(
-    'action'       => 'delete', // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret', // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+$payload = array(
+    'action'    => 'delete', // Action to perform when calling the Package API (required)
+    'api_token' => 'token',  // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 true
 ```
 
-Response `$data` - **failure** (`404` response code):
+Code `404` - **failure** (no result):
+
 ```json
-false
+{
+    "code": "package_not_found",
+    "message": "Package not found."
+}
 ```
 ___
 #### signed_url
@@ -865,13 +1020,13 @@ $url = 'https://domain.tld/updatepulse-server-package-api/package-type/package-s
 ```
 
 ```php
-$params = array(
-    'action'       => 'signed_url', // Action to perform when calling the Package API (required)
-    'api_auth_key' => 'secret',     // The Private API Authentication Key (optional - must be provided via X-UpdatePulse-Private-Package-API-Key headers if absent)
+$payload = array(
+    'action'    => 'signed_url', // Action to perform when calling the Package API (required)
+    'api_token' => 'token',      // The authentication token (optional - must provided via X-UpdatePulse-Token header if absent)
 );
 ```
 
-Response `$data` - **success**:
+Code `200` - **success**:
 ```json
 {
     "url": "https://domain.tld/updatepulse-server-package-api/package-type/package-slug/?token=nonce_value&action=download",
@@ -881,10 +1036,12 @@ Response `$data` - **success**:
 }
 ```
 
-Response `$data` - **failure** (`404` response code):
+Code `404` - **failure** (no result):
+
 ```json
 {
-    "message": "Package not found"
+    "code": "package_not_found",
+    "message": "Package not found."
 }
 ```
 
@@ -1068,7 +1225,7 @@ If `$vcs_url` and `$branch` are provided, the plugin will attempt to get an exis
 > (string) the branch as provided in a VCS configured in UpdatePulse Server; default to `'main'`
 
 **Return value**
-> (bool) `true` if the plugin package was successfully downloaded, `false` otherwise
+> (bool|WP_Error) `WP_Error` if provided VCS information is invalid, `true` if the package was successfully downloaded, `false` otherwise
 
 ___
 ### upserv_get_package_vcs_config

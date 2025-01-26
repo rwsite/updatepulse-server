@@ -390,7 +390,10 @@ if ( ! function_exists( 'upserv_download_remote_package' ) ) {
 			if ( isset( $vcs_configs[ $meta['vcs_key'] ] ) ) {
 				upserv_set_package_metadata( $slug, $meta );
 			} else {
-				return false;
+				return new WP_Error(
+					'invalid_vcs',
+					__( 'The provided VCS information is not valid', 'updatepulse-server' )
+				);
 			}
 		}
 

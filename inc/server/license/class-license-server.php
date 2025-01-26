@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Exception;
 use DateTime;
 use DateTimeZone;
+use WP_Error;
 use Anyape\Crypto\Crypto;
 
 class License_Server {
@@ -77,10 +78,16 @@ class License_Server {
 	public function browse_licenses( $payload ) {
 		global $wpdb;
 
-		$prepare_args   = array();
-		$payload        = apply_filters( 'upserv_browse_licenses_payload', $payload );
-		$browsing_query = $this->build_browsing_query( $payload );
-		$sql            = "SELECT * FROM {$wpdb->prefix}upserv_licenses WHERE 1 = 1 ";
+		$prepare_args = array();
+		$payload      = apply_filters( 'upserv_browse_licenses_payload', $payload );
+
+		try {
+			$browsing_query = $this->build_browsing_query( $payload );
+		} catch ( Exception $e ) {
+			return new WP_Error( 'invalid_license_query', 'Invalid license query - ' . $e->getMessage() );
+		}
+
+		$sql = "SELECT * FROM {$wpdb->prefix}upserv_licenses WHERE 1 = 1 ";
 
 		foreach ( $browsing_query['criteria'] as $crit ) {
 			$sql .= $browsing_query['relationship'] . ' ' . $crit['field'] . ' ';
@@ -478,7 +485,21 @@ class License_Server {
 	 *******************************************************************/
 
 	protected function build_browsing_query( $payload ) {
-		$payload         = array_intersect_key( $payload, self::$browsing_query );
+		$original = $payload;
+		$payload  = array_intersect_key( $payload, self::$browsing_query );
+		$invalid  = array_diff_key( $original, $payload );
+
+		if ( ! empty( $invalid ) ) {
+			$keys    = implode( ', ', array_keys( $invalid ) );
+			$message = sprintf(
+				// translators: %s is a comma-separated list of valid keys.
+				__( 'Invalid keys. The following values are valid: %s' ),
+				$keys
+			);
+
+			throw new Exception( esc_html( $message ) );
+		}
+
 		$payload         = array_merge( self::$browsing_query, $payload );
 		$faulty_criteria = array(
 			'operator' => '=',
@@ -488,27 +509,37 @@ class License_Server {
 
 		if ( empty( $payload['relationship'] ) ) {
 			$payload['relationship'] = self::$browsing_query['relationship'];
-		} else {
-			$payload['relationship'] = strtoupper( $payload['relationship'] );
-
-			if ( 'AND' !== $payload['relationship'] || 'OR' !== $payload['relationship'] ) {
-				$payload['relationship'] = self::$browsing_query['relationship'];
-			}
+		} elseif ( 'AND' !== $payload['relationship'] && 'OR' !== $payload['relationship'] ) {
+			throw new Exception( esc_html__( 'Invalid relationship operator. Only "AND" and "OR" are allowed.' ) );
 		}
 
-		if ( ! is_numeric( $payload['limit'] ) ) {
-			$payload['limit'] = self::$browsing_query['limit'];
-		} else {
-			$payload['limit'] = intval( $payload['limit'] );
+		if ( ! is_numeric( $payload['limit'] ) && ! empty( $payload['limit'] ) && 0 !== $payload['limit'] ) {
+			throw new Exception( esc_html__( 'The limit must be an integer.' ) );
 		}
 
-		if ( ! is_numeric( $payload['offset'] ) ) {
-			$payload['offset'] = self::$browsing_query['offset'];
-		} else {
-			$payload['offset'] = abs( intval( $payload['offset'] ) );
+		$payload['limit'] = intval( $payload['limit'] );
+
+		if ( ! is_numeric( $payload['offset'] ) && ! empty( $payload['offset'] ) || 0 > $payload['offset'] ) {
+			throw new Exception( esc_html__( 'The offset must be a positive integer.' ) );
 		}
 
-		if ( ! in_array( $payload['order_by'], array_keys( self::$license_definition ), true ) ) {
+		$payload['offset'] = intval( $payload['offset'] );
+
+		if (
+			isset( $payload['order_by'] ) &&
+			! in_array( $payload['order_by'], array_keys( self::$license_definition ), true )
+		) {
+			$keys    = implode( ', ', array_keys( self::$license_definition ) );
+			$message = sprintf(
+				// translators: %s is a comma-separated list of valid fields.
+				__( 'Invalid order_by field. The following values are valid: %s' ),
+				$keys
+			);
+
+			throw new Exception( esc_html( $message ) );
+		}
+
+		if ( ! isset( $payload['order_by'] ) ) {
 			$payload['order_by'] = 'date_created';
 		}
 
@@ -516,53 +547,83 @@ class License_Server {
 			$payload['criteria'] = self::$browsing_query['criteria'];
 		}
 
-		if ( isset( $payload['criteria'] ) && ! empty( $payload['criteria'] ) ) {
+		if ( ! isset( $payload['criteria'] ) || empty( $payload['criteria'] ) ) {
+			return $payload;
+		}
 
-			foreach ( $payload['criteria'] as $index => $crit ) {
-				$crit = array_intersect_key( $crit, $faulty_criteria );
+		foreach ( $payload['criteria'] as $index => $crit ) {
+			$crit = array_intersect_key( $crit, $faulty_criteria );
 
-				if (
-					! isset( $crit['operator'], $crit['value'], $crit['field'] ) ||
-					empty( $crit['operator'] ) || empty( $crit['value'] ) || empty( $crit['field'] )
-				) {
-					$crit = $faulty_criteria;
-				}
+			if (
+				! isset( $crit['operator'], $crit['value'], $crit['field'] ) ||
+				empty( $crit['operator'] ) || empty( $crit['value'] ) || empty( $crit['field'] )
+			) {
+				$allowed_operators = implode( ', ', self::$browsing_operators );
+				$message           = sprintf(
+					// translators: %s is a comma-separated list of valid operators.
+					__( 'Invalid criteria. The following keys are required: operator, value, field. The following values are valid for the operator: %s' ),
+					$allowed_operators
+				);
 
-				if ( ! in_array( $crit['operator'], self::$browsing_operators, true ) ) {
-					$crit = $faulty_criteria;
-				}
-
-				if ( ! in_array( $crit['field'], array_keys( self::$license_definition ), true ) ) {
-					$crit = $faulty_criteria;
-				}
-
-				if (
-					( 'BETWEEN' === $crit['operator'] || 'NOT BETWEEN' === $crit['operator'] ) &&
-					( ! is_array( $crit['value'] ) || 2 !== count( $crit['value'] ) )
-				) {
-					$crit = $faulty_criteria;
-				} elseif (
-					( 'IN' === $crit['operator'] || 'NOT IN' === $crit['operator'] ) &&
-					! is_array( $crit['value'] )
-				) {
-					$crit['value'] = array( $crit['value'] );
-				} elseif (
-					( 'IN' === $crit['operator'] || 'NOT IN' === $crit['operator'] ) &&
-					empty( $crit['value'] )
-				) {
-					$crit = $faulty_criteria;
-				} elseif (
-					! (
-						( 'BETWEEN' === $crit['operator'] || 'NOT BETWEEN' === $crit['operator'] ) ||
-						( 'IN' === $crit['operator'] || 'NOT IN' === $crit['operator'] )
-					) &&
-					is_array( $crit['value'] )
-				) {
-					$crit = $faulty_criteria;
-				}
-
-				$payload['criteria'][ $index ] = $crit;
+				throw new Exception( esc_html( $message ) );
 			}
+
+			if ( ! in_array( $crit['operator'], self::$browsing_operators, true ) ) {
+				$allowed_operators = implode( ', ', self::$browsing_operators );
+				$message           = sprintf(
+					// translators: %s is a comma-separated list of valid operators.
+					__( 'Invalid operator. The following values are valid: %s' ),
+					$allowed_operators
+				);
+
+				throw new Exception( esc_html( $message ) );
+			}
+
+			if ( ! in_array( $crit['field'], array_keys( self::$license_definition ), true ) ) {
+				$keys    = implode( ', ', array_keys( self::$license_definition ) );
+				$message = sprintf(
+					// translators: %s is a comma-separated list of valid fields.
+					__( 'Invalid field. The following values are valid: %s' ),
+					$keys
+				);
+
+				throw new Exception( esc_html( $message ) );
+			}
+
+			if (
+				( 'BETWEEN' === $crit['operator'] || 'NOT BETWEEN' === $crit['operator'] ) &&
+				( ! is_array( $crit['value'] ) || 2 !== count( $crit['value'] ) )
+			) {
+				$message = __( 'The value for the BETWEEN operator must be an array with two elements.', 'updatepulse-server' );
+
+				throw new Exception( esc_html( $message ) );
+			} elseif (
+				( 'IN' === $crit['operator'] || 'NOT IN' === $crit['operator'] ) &&
+				! is_array( $crit['value'] )
+			) {
+				$message = __( 'The value for the IN and NOT IN operators must be an array.', 'updatepulse-server' );
+
+				throw new Exception( esc_html( $message ) );
+			} elseif (
+				( 'IN' === $crit['operator'] || 'NOT IN' === $crit['operator'] ) &&
+				empty( $crit['value'] )
+			) {
+				$message = __( 'The value for the IN and NOT IN operators must not be empty.', 'updatepulse-server' );
+
+				throw new Exception( esc_html( $message ) );
+			} elseif (
+				! (
+					( 'BETWEEN' === $crit['operator'] || 'NOT BETWEEN' === $crit['operator'] ) ||
+					( 'IN' === $crit['operator'] || 'NOT IN' === $crit['operator'] )
+				) &&
+				! is_scalar( $crit['value'] )
+			) {
+				$message = __( 'The value must be a scalar for all operators except BETWEEN, NOT BETWEEN, IN, and NOT IN operators.', 'updatepulse-server' );
+
+				throw new Exception( esc_html( $message ) );
+			}
+
+			$payload['criteria'][ $index ] = $crit;
 		}
 
 		return $payload;
