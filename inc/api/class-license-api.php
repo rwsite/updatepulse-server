@@ -308,197 +308,49 @@ class License_API {
 
 	public function check( $license_data ) {
 		$license_data = apply_filters( 'upserv_check_license_dirty_payload', $license_data );
-		$result       = $this->license_server->read_license( $license_data );
+		$license      = $this->license_server->read_license( $license_data );
 		$raw_result   = array();
 
-		if ( is_object( $result ) ) {
-			$num_allowed_domains = 0;
-			$raw_result          = clone $result;
+		if ( is_object( $license ) ) {
+			$raw_result = clone $license;
 
-			if ( isset( $result->allowed_domains ) && is_array( $result->allowed_domains ) ) {
-				$num_allowed_domains = count( $result->allowed_domains );
-			}
-
-			$result->num_allowed_domains = $num_allowed_domains;
-
-			unset( $result->allowed_domains );
-			unset( $result->hmac_key );
-			unset( $result->crypto_key );
-			unset( $result->data );
-			unset( $result->owner_name );
-			unset( $result->email );
-			unset( $result->company_name );
-			unset( $result->txn_id );
+			$this->sanitize_license_result( $license );
 		} else {
-			$result     = array(
-				'license_key' => isset( $license_data['license_key'] ) ?
-					$license_data['license_key'] :
-					false,
-			);
-			$raw_result = $result;
+			$raw_result = $license;
+			$result     = null;
 		}
 
-		$result = apply_filters( 'upserv_check_license_result', $result, $license_data );
+		$result = apply_filters( 'upserv_check_license_result', $license, $license_data );
 
 		do_action( 'upserv_did_check_license', $raw_result );
 
 		if ( ! is_object( $result ) ) {
-			$this->http_response_code = 400;
-			$result                   = array(
-				'code'    => 'invalid_license_key',
-				'message' => __( 'The provided license key is invalid.', 'updatepulse-server' ),
-				'data'    => $result,
-			);
+			$this->handle_invalid_license( $result, $license_data );
 		}
 
 		return (object) $result;
 	}
 
 	public function activate( $license_data ) {
-		$license      = null;
 		$license_data = apply_filters( 'upserv_activate_license_dirty_payload', $license_data );
 
-		if ( isset( $license_data['allowed_domains'] ) && ! is_array( $license_data['allowed_domains'] ) ) {
-			$license_data['allowed_domains'] = array( $license_data['allowed_domains'] );
-		}
+		$this->normalize_allowed_domains( $license_data );
 
 		$request_slug = isset( $license_data['package_slug'] ) ? $license_data['package_slug'] : false;
-		$result       = array();
-		$raw_result   = array();
 		$license      = $this->license_server->read_license( $license_data );
-		$domain       = false;
+		$domain       = $this->extract_domain_from_license_data( $license_data );
 
 		do_action( 'upserv_pre_activate_license', $license );
 
-		if ( isset( $license_data['allowed_domains'] ) &&
-			is_array( $license_data['allowed_domains'] ) &&
-			1 === count( $license_data['allowed_domains'] )
-		) {
-			$domain = $license_data['allowed_domains'][0];
+		if ( $this->is_valid_license_for_state_transition( $license, $request_slug, $domain ) ) {
+			$result = $this->handle_license_activation( $license, $domain );
+		} else {
+			$result = $this->handle_invalid_license( $license, $license_data );
 		}
 
-		if (
-			is_object( $license ) &&
-			$domain &&
-			isset( $license->package_slug ) &&
-			$request_slug === $license->package_slug
-		) {
-			$domain_count = count( $license->allowed_domains ) + 1;
-
-			if ( in_array( $license->status, array( 'expired', 'blocked', 'on-hold' ), true ) ) {
-				$this->http_response_code = 403;
-				$result                   = array(
-					'code'    => 'illegal_license_status',
-					'message' => __( 'The license cannot be activated due to its current status.', 'updatepulse-server' ),
-					'data'    => array(
-						'status' => $license->status,
-					),
-				);
-
-				if ( 'expired' === $license->status ) {
-					$result['data']['date_expiry'] = $license->date_expiry;
-				}
-			} elseif ( $domain_count > abs( intval( $license->max_allowed_domains ) ) ) {
-				$this->http_response_code = 422;
-				$result                   = array(
-					'code'    => 'max_domains_reached',
-					'message' => __( 'The license has reached the maximum allowed activations for domains.', 'updatepulse-server' ),
-					'data'    => array(
-						'max_allowed_domains' => $license->max_allowed_domains,
-					),
-				);
-			} elseif (
-				'activated' === $license->status &&
-				! empty( array_intersect( array( $domain ), $license->allowed_domains ) )
-			) {
-				$this->http_response_code = 409;
-				$result                   = array(
-					'code'    => 'license_already_activated',
-					'message' => __( 'The license is already activated for the specified domain.', 'updatepulse-server' ),
-					'data'    => array(
-						'domain' => $domain,
-					),
-				);
-			}
-
-			if ( empty( $result ) ) {
-				$data = isset( $license->data ) ? $license->data : array();
-
-				if ( ! isset( $data['next_deactivate'] ) || time() > $data['next_deactivate'] ) {
-					$data['next_deactivate'] = apply_filters(
-						'upserv_activate_license_next_deactivate',
-						time(),
-						$license
-					);
-				}
-
-				$payload = array(
-					'id'              => $license->id,
-					'status'          => 'activated',
-					'allowed_domains' => array_unique(
-						array_merge( array( $domain ), $license->allowed_domains )
-					),
-					'data'            => $data,
-				);
-
-				try {
-					$result = $this->license_server->edit_license(
-						apply_filters( 'upserv_activate_license_payload', $payload )
-					);
-				} catch ( Exception $e ) {
-					$license = array( $e->getMessage() );
-				}
-
-				if ( is_object( $result ) ) {
-					$result->license_signature = $this->license_server->generate_license_signature(
-						$license,
-						$domain
-					);
-					$raw_result                = clone $result;
-					$result->next_deactivate   = $data['next_deactivate'];
-
-					unset( $result->hmac_key );
-					unset( $result->crypto_key );
-					unset( $result->data );
-					unset( $result->owner_name );
-					unset( $result->email );
-					unset( $result->company_name );
-				} else {
-					$result = null;
-				}
-			}
-		}
-
-		if ( is_array( $license ) ) {
-
-			if ( empty( $license ) || ! isset( $license[0] ) ) {
-				$license = array( __( 'Unknown error.', 'updatepulse-server' ) );
-			}
-
-			$raw_result               = $license;
-			$this->http_response_code = 500;
-			$result                   = array(
-				'code'    => 'unexpected_error',
-				'message' => __( 'This is an unexpected error. Please contact support.', 'updatepulse-server' ),
-				'data'    => array(
-					'error' => $license,
-				),
-			);
-		} elseif ( empty( $result ) ) {
-			$raw_result               = $result;
-			$this->http_response_code = 400;
-			$result                   = array(
-				'code'    => 'invalid_license_key',
-				'message' => __( 'The provided license key is invalid.', 'updatepulse-server' ),
-				'data'    => array(
-					'license_key' => isset( $license_data['license_key'] ) ?
-						$license_data['license_key'] :
-						false,
-				),
-			);
-		}
-
-		$result = apply_filters( 'upserv_activate_license_result', $result, $license_data, $license );
+		$raw_result = isset( $result['raw_result'] ) ? $result['raw_result'] : $result;
+		$result     = isset( $result['result'] ) ? $result['result'] : $result;
+		$result     = apply_filters( 'upserv_activate_license_result', $result, $license_data, $license );
 
 		do_action( 'upserv_did_activate_license', $raw_result, $license_data );
 
@@ -506,152 +358,25 @@ class License_API {
 	}
 
 	public function deactivate( $license_data ) {
-		$license      = null;
 		$license_data = apply_filters( 'upserv_deactivate_license_dirty_payload', $license_data );
 
-		if ( isset( $license_data['allowed_domains'] ) && ! is_array( $license_data['allowed_domains'] ) ) {
-			$license_data['allowed_domains'] = array( $license_data['allowed_domains'] );
-		}
+		$this->normalize_allowed_domains( $license_data );
 
 		$request_slug = isset( $license_data['package_slug'] ) ? $license_data['package_slug'] : false;
 		$license      = $this->license_server->read_license( $license_data );
-		$result       = array();
-		$raw_result   = array();
-		$domain       = false;
+		$domain       = $this->extract_domain_from_license_data( $license_data );
 
 		do_action( 'upserv_pre_deactivate_license', $license );
 
-		if ( isset( $license_data['allowed_domains'] ) &&
-			is_array( $license_data['allowed_domains'] ) &&
-			1 === count( $license_data['allowed_domains'] )
-		) {
-			$domain = $license_data['allowed_domains'][0];
+		if ( $this->is_valid_license_for_state_transition( $license, $request_slug, $domain ) ) {
+			$result = $this->handle_license_deactivation( $license, $domain );
+		} else {
+			$result = $this->handle_invalid_license( $license, $license_data );
 		}
 
-		if (
-			is_object( $license ) &&
-			$domain &&
-			isset( $license->package_slug ) &&
-			$request_slug === $license->package_slug
-		) {
-
-			if ( in_array( $license->status, array( 'expired', 'blocked', 'on-hold' ), true ) ) {
-				$this->http_response_code = 403;
-				$result                   = array(
-					'code'    => 'illegal_license_status',
-					'message' => __( 'The license cannot be deactivated due to its current status.' ),
-					'data'    => array(
-						'status' => $license->status,
-					),
-				);
-
-				if ( 'expired' === $license->status ) {
-					$result['data']['date_expiry'] = $license->date_expiry;
-				}
-			} elseif (
-				'deactivated' === $license->status ||
-				empty( array_intersect( array( $domain ), $license->allowed_domains ) )
-			) {
-				$this->http_response_code = 409;
-				$result                   = array(
-					'code'    => 'license_already_deactivated',
-					'message' => __( 'The license is already deactivated for the specified domain.', 'updatepulse-server' ),
-					'data'    => array(
-						'domain' => $domain,
-					),
-				);
-			} elseif (
-				isset( $license->data, $license->data['next_deactivate'] ) &&
-				$license->data['next_deactivate'] > time()
-			) {
-				$this->http_response_code = 403;
-				$result                   = array(
-					'code'    => 'too_early_deactivation',
-					'message' => __( 'The license cannot be deactivated before the specified date.', 'updatepulse-server' ),
-					'data'    => array(
-						'next_deactivate' => $license->data['next_deactivate'],
-					),
-				);
-			}
-
-			if ( empty( $result ) ) {
-				$data                    = isset( $license->data ) ? $license->data : array();
-				$data['next_deactivate'] = apply_filters(
-					'upserv_deactivate_license_next_deactivate',
-					(bool) ( constant( 'WP_DEBUG' ) ) ?
-						time() + MINUTE_IN_SECONDS :
-						time() + MONTH_IN_SECONDS,
-					$license
-				);
-				$allowed_domains         = array_diff(
-					$license->allowed_domains,
-					array( $domain )
-				);
-				$payload                 = array(
-					'id'              => $license->id,
-					'status'          => empty( $allowed_domains ) ? 'deactivated' : $license->status,
-					'allowed_domains' => $allowed_domains,
-					'data'            => $data,
-				);
-
-				try {
-					$result = $this->license_server->edit_license(
-						apply_filters( 'upserv_activate_license_payload', $payload )
-					);
-				} catch ( Exception $e ) {
-					$license = array( $e->getMessage() );
-				}
-
-				if ( is_object( $result ) ) {
-					$result->license_signature = $this->license_server->generate_license_signature(
-						$license,
-						$domain
-					);
-					$raw_result                = clone $result;
-					$result->next_deactivate   = $data['next_deactivate'];
-
-					unset( $result->hmac_key );
-					unset( $result->crypto_key );
-					unset( $result->data );
-					unset( $result->owner_name );
-					unset( $result->email );
-					unset( $result->company_name );
-				} else {
-					$result = null;
-				}
-			}
-		}
-
-		if ( is_array( $license ) ) {
-
-			if ( empty( $license ) || ! isset( $license[0] ) ) {
-				$license = array( __( 'Unknown error.', 'updatepulse-server' ) );
-			}
-
-			$raw_result               = $license;
-			$this->http_response_code = 500;
-			$result                   = array(
-				'code'    => 'unexpected_error',
-				'message' => __( 'This is an unexpected error. Please contact support.', 'updatepulse-server' ),
-				'data'    => array(
-					'error' => $license,
-				),
-			);
-		} elseif ( empty( $result ) ) {
-			$raw_result               = $result;
-			$this->http_response_code = 400;
-			$result                   = array(
-				'code'    => 'invalid_license_key',
-				'message' => __( 'The provided license key is invalid.', 'updatepulse-server' ),
-				'data'    => array(
-					'license_key' => isset( $license_data['license_key'] ) ?
-						$license_data['license_key'] :
-						false,
-				),
-			);
-		}
-
-		$result = apply_filters( 'upserv_deactivate_license_result', $result, $license_data, $license );
+		$raw_result = isset( $result['raw_result'] ) ? $result['raw_result'] : $result;
+		$result     = isset( $result['result'] ) ? $result['result'] : $result;
+		$result     = apply_filters( 'upserv_deactivate_license_result', $result, $license_data, $license );
 
 		do_action( 'upserv_did_deactivate_license', $raw_result, $license_data );
 
@@ -1005,6 +730,265 @@ class License_API {
 	/*******************************************************************
 	 * Protected methods
 	 *******************************************************************/
+
+	protected function sanitize_license_result( &$result ) {
+		$num_allowed_domains         = (
+				isset( $result->allowed_domains ) &&
+				is_array( $result->allowed_domains )
+			) ? count( $result->allowed_domains ) : 0;
+		$result->num_allowed_domains = $num_allowed_domains;
+		$properties_to_unset         = array(
+			'allowed_domains',
+			'hmac_key',
+			'crypto_key',
+			'data',
+			'owner_name',
+			'email',
+			'company_name',
+			'txn_id',
+		);
+
+		foreach ( $properties_to_unset as $property ) {
+			unset( $result->$property );
+		}
+	}
+
+	protected function prepare_error_response( $code, $message, $data = array() ) {
+		return array(
+			'code'    => $code,
+			'message' => $message,
+			'data'    => $data,
+		);
+	}
+
+	protected function normalize_allowed_domains( &$license_data ) {
+
+		if ( isset( $license_data['allowed_domains'] ) && ! is_array( $license_data['allowed_domains'] ) ) {
+			$license_data['allowed_domains'] = array( $license_data['allowed_domains'] );
+		}
+	}
+
+	protected function extract_domain_from_license_data( $license_data ) {
+
+		if (
+			isset( $license_data['allowed_domains'] ) &&
+			is_array( $license_data['allowed_domains'] ) &&
+			1 === count( $license_data['allowed_domains'] )
+		) {
+			return $license_data['allowed_domains'][0];
+		}
+
+		return false;
+	}
+
+	protected function is_valid_license_for_state_transition( $license, $request_slug, $domain ) {
+		return (
+			is_object( $license ) &&
+			$domain &&
+			isset( $license->package_slug ) &&
+			$request_slug === $license->package_slug
+		);
+	}
+
+	protected function handle_license_activation( $license, $domain ) {
+		$domain_count = count( $license->allowed_domains ) + 1;
+
+		if ( in_array( $license->status, array( 'expired', 'blocked', 'on-hold' ), true ) ) {
+			$this->http_response_code = 403;
+
+			return $this->prepare_illegal_status_response( $license );
+		} elseif ( $domain_count > abs( intval( $license->max_allowed_domains ) ) ) {
+			$this->http_response_code = 422;
+
+			return $this->prepare_max_domains_response( $license );
+		} elseif ( 'activated' === $license->status && in_array( $domain, $license->allowed_domains, true ) ) {
+			$this->http_response_code = 409;
+
+			return $this->prepare_already_activated_response( $domain );
+		}
+
+		return $this->process_license_activation( $license, $domain );
+	}
+
+	protected function prepare_illegal_status_response( $license ) {
+		$response = array(
+			'code'    => 'illegal_license_status',
+			'message' => __( 'The license cannot be activated due to its current status.', 'updatepulse-server' ),
+			'data'    => array(
+				'status' => $license->status,
+			),
+		);
+
+		if ( 'expired' === $license->status ) {
+			$response['data']['date_expiry'] = $license->date_expiry;
+		}
+
+		return $response;
+	}
+
+	protected function prepare_max_domains_response( $license ) {
+		return array(
+			'code'    => 'max_domains_reached',
+			'message' => __( 'The license has reached the maximum allowed activations for domains.', 'updatepulse-server' ),
+			'data'    => array(
+				'max_allowed_domains' => $license->max_allowed_domains,
+			),
+		);
+	}
+
+	protected function prepare_already_activated_response( $domain ) {
+		return array(
+			'code'    => 'license_already_activated',
+			'message' => __( 'The license is already activated for the specified domain.', 'updatepulse-server' ),
+			'data'    => array(
+				'domain' => $domain,
+			),
+		);
+	}
+
+	protected function process_license_activation( $license, $domain ) {
+		$data = isset( $license->data ) ? $license->data : array();
+
+		if ( ! isset( $data['next_deactivate'] ) || time() > $data['next_deactivate'] ) {
+			$data['next_deactivate'] = apply_filters( 'upserv_activate_license_next_deactivate', time(), $license );
+		}
+
+		$payload = array(
+			'id'              => $license->id,
+			'status'          => 'activated',
+			'allowed_domains' => array_unique( array_merge( array( $domain ), $license->allowed_domains ) ),
+			'data'            => $data,
+		);
+
+		try {
+			$result = $this->license_server->edit_license( apply_filters( 'upserv_activate_license_payload', $payload ) );
+		} catch ( Exception $e ) {
+			return array( $e->getMessage() );
+		}
+
+		if ( is_object( $result ) ) {
+			$result->license_signature = $this->license_server->generate_license_signature( $license, $domain );
+			$raw_result                = clone $result;
+			$result->next_deactivate   = $data['next_deactivate'];
+
+			$this->sanitize_license_result( $result );
+
+			return array(
+				'result'     => $result,
+				'raw_result' => $raw_result,
+			);
+		}
+
+		return null;
+	}
+
+	protected function handle_license_deactivation( $license, $domain ) {
+
+		if ( in_array( $license->status, array( 'expired', 'blocked', 'on-hold' ), true ) ) {
+			$this->http_response_code = 403;
+
+			return $this->prepare_illegal_status_response( $license );
+		} elseif ( 'deactivated' === $license->status || ! in_array( $domain, $license->allowed_domains, true ) ) {
+			$this->http_response_code = 409;
+
+			return $this->prepare_already_deactivated_response( $domain );
+		} elseif (
+			isset( $license->data, $license->data['next_deactivate'] ) &&
+			$license->data['next_deactivate'] > time()
+		) {
+			$this->http_response_code = 403;
+
+			return $this->prepare_too_early_deactivation_response( $license );
+		}
+
+		return $this->process_license_deactivation( $license, $domain );
+	}
+
+	protected function prepare_already_deactivated_response( $domain ) {
+		return array(
+			'code'    => 'license_already_deactivated',
+			'message' => __( 'The license is already deactivated for the specified domain.', 'updatepulse-server' ),
+			'data'    => array(
+				'domain' => $domain,
+			),
+		);
+	}
+
+	protected function prepare_too_early_deactivation_response( $license ) {
+		return array(
+			'code'    => 'too_early_deactivation',
+			'message' => __( 'The license cannot be deactivated before the specified date.', 'updatepulse-server' ),
+			'data'    => array(
+				'next_deactivate' => $license->data['next_deactivate'],
+			),
+		);
+	}
+
+	protected function process_license_deactivation( $license, $domain ) {
+		$data                    = isset( $license->data ) ? $license->data : array();
+		$data['next_deactivate'] = apply_filters(
+			'upserv_deactivate_license_next_deactivate',
+			(bool) ( constant( 'WP_DEBUG' ) ) ? time() + MINUTE_IN_SECONDS : time() + MONTH_IN_SECONDS,
+			$license
+		);
+
+		$allowed_domains = array_diff( $license->allowed_domains, array( $domain ) );
+		$payload         = array(
+			'id'              => $license->id,
+			'status'          => empty( $allowed_domains ) ? 'deactivated' : $license->status,
+			'allowed_domains' => $allowed_domains,
+			'data'            => $data,
+		);
+
+		try {
+			$result = $this->license_server->edit_license(
+				apply_filters( 'upserv_activate_license_payload', $payload )
+			);
+		} catch ( Exception $e ) {
+			return array( $e->getMessage() );
+		}
+
+		if ( is_object( $result ) ) {
+			$result->license_signature = $this->license_server->generate_license_signature( $license, $domain );
+			$raw_result                = clone $result;
+			$result->next_deactivate   = $data['next_deactivate'];
+
+			$this->sanitize_license_result( $result );
+
+			return array(
+				'result'     => $result,
+				'raw_result' => $raw_result,
+			);
+		}
+
+		return null;
+	}
+
+	protected function handle_invalid_license( $license, $license_data ) {
+
+		if ( is_array( $license ) ) {
+
+			if ( empty( $license ) || ! isset( $license[0] ) ) {
+				$license = array( __( 'Unknown error.', 'updatepulse-server' ) );
+			}
+
+			$this->http_response_code = 500;
+
+			return $this->prepare_error_response(
+				'unexpected_error',
+				__( 'This is an unexpected error. Please contact support.', 'updatepulse-server' ),
+				array( 'error' => $license )
+			);
+		} else {
+			$this->http_response_code = 400;
+
+			return $this->prepare_error_response(
+				'invalid_license_key',
+				__( 'The provided license key is invalid.', 'updatepulse-server' ),
+				array( 'license_key' => $license_data['license_key'] ? $license_data['license_key'] : false )
+			);
+		}
+	}
 
 	protected function authorize_private( $action, $payload ) {
 		$token   = false;

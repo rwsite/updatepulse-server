@@ -1174,7 +1174,7 @@ Fired during client license API request.
 
 **Parameters**  
 `$result`
-> (mixed) the result of the operation - a license record object, an associative array with the illegal status, an associative array with the domain already active for the license record, or an associative array with the maximum number of domains reached for the license record
+> (mixed) the result of the operation - a license record object, or an array with error information
 
 `$payload`
 > (array) the payload of the request  
@@ -1207,7 +1207,7 @@ Fired during client license API request.
 
 **Parameters**  
 `$result`
-> (mixed) the result of the operation - a license record object, an associative array with the illegal status, or an associative array with the domain already inactive for the license record
+> (mixed) the result of the operation - a license record object, or an array with error information
 
 `$payload`
 > (array) the payload of the request  
@@ -1335,7 +1335,7 @@ Fired during client license API request.
 
 **Parameters**  
 `$result`
-> (mixed) the result of the operation - a license record object, an associative array with the illegal status, an associative array with the domain already active for the license record, or an associative array with the maximum number of domains reached for the license record
+> (mixed) the result of the operation - a license record object, or an array with error information
 
 **Parameters**  
 `$payload`
@@ -1358,7 +1358,7 @@ Fired during client license API request.
 
 **Parameters**  
 `$result`
-> (mixed) the result of the operation - a license record object, an associative array with the illegal status, or an associative array with the domain already inactive for the license record
+> (mixed) the result of the operation - a license record object, or an array with error information
 
 **Parameters**  
 `$payload`
