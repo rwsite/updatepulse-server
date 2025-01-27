@@ -344,6 +344,11 @@ class License_API {
 
 		if ( ! is_object( $result ) ) {
 			$this->http_response_code = 400;
+			$result                   = array(
+				'code'    => 'invalid_license_key',
+				'message' => __( 'The provided license key is invalid.', 'updatepulse-server' ),
+				'data'    => $result,
+			);
 		}
 
 		return (object) $result;
