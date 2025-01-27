@@ -479,7 +479,7 @@ class License_API {
 		if ( ! is_object( $result ) ) {
 			$description = sprintf(
 				// translators: %s is operation slug
-				esc_html__( 'An error occured for License operation `%s` on UpdatePulse Server.' ),
+				esc_html__( 'An error occured for License operation `%s` on UpdatePulse Server.', 'updatepulse-server' ),
 				$event
 			);
 			$content = array(
@@ -498,23 +498,23 @@ class License_API {
 			switch ( $event ) {
 				case 'license_edit':
 					// translators: %s is the license key
-					$format = esc_html__( 'The license `%s` has been edited on UpdatePulse Server' );
+					$format = esc_html__( 'The license `%s` has been edited on UpdatePulse Server', 'updatepulse-server' );
 					break;
 				case 'license_add':
 					// translators: %s is the license key
-					$format = esc_html__( 'The license `%s` has been added on UpdatePulse Server' );
+					$format = esc_html__( 'The license `%s` has been added on UpdatePulse Server', 'updatepulse-server' );
 					break;
 				case 'license_delete':
 					// translators: %s is the license key
-					$format = esc_html__( 'The license `%s` has been deleted on UpdatePulse Server' );
+					$format = esc_html__( 'The license `%s` has been deleted on UpdatePulse Server', 'updatepulse-server' );
 					break;
 				case 'license_activate':
 					// translators: %s is the license key
-					$format = esc_html__( 'The license `%s` has been activated on UpdatePulse Server' );
+					$format = esc_html__( 'The license `%s` has been activated on UpdatePulse Server', 'updatepulse-server' );
 					break;
 				case 'license_deactivate':
 					// translators: %s is the license key
-					$format = esc_html__( 'The license `%s` has been deactivated on UpdatePulse Server' );
+					$format = esc_html__( 'The license `%s` has been deactivated on UpdatePulse Server', 'updatepulse-server' );
 					break;
 				default:
 					return;

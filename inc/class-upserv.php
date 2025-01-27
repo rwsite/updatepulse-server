@@ -339,7 +339,7 @@ class UPServ {
 	public function upserv_get_admin_template_args( $args, $template_name ) {
 
 		if ( preg_match( '/^plugin-.*-page\.php$/', $template_name ) ) {
-			$args['header'] = $this->display_settings_header( wp_cache_get( 'settings_notice', 'upserv' ) );
+			$args['header'] = $this->display_settings_header( wp_cache_get( 'settings_notice', 'updatepulse-server' ) );
 		}
 
 		return $args;

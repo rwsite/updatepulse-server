@@ -256,7 +256,7 @@
 	<div class='upserv-modal-content'>
 		<div class='upserv-modal-header'>
 			<span class='upserv-modal-close'>&times;</span>
-			<h2><?php esc_html_e( 'Add a Remote Source', 'upserv' ); ?><span></span></h2>
+			<h2><?php esc_html_e( 'Add a Remote Source', 'updatepulse-server' ); ?><span></span></h2>
 		</div>
 		<div class='upserv-modal-body'>
 			<table class="form-table form-settings">

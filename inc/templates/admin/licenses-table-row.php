@@ -22,7 +22,7 @@
 					. 'data-modal_id="upserv_modal_license_details">'
 					. __( 'Details', 'updatepulse-server' )
 					. '</a>',
-				'edit'    => '<a href="#">' . __( 'Edit', 'updatepulse-server' ) . '</a>',
+				'edit'    => '<a href="#">' . __( 'Edit' ) . '</a>',
 				'delete'  => sprintf(
 					'<a href="?page=%s&action=%s&license_data=%s&linknonce=%s">%s</a>',
 					$_REQUEST['page'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended

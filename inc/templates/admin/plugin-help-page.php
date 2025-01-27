@@ -16,13 +16,13 @@
 						// translators: %1$s is <strong>Register a package using a VCS</strong>, %2$s is <a href="admin.php?page=upserv-page">Packages Overview</a>
 						esc_html__( '[simple] using the %1$s feature in %2$s', 'updatepulse-server' ),
 						'<strong>' . esc_html__( 'Register a package using a VCS', 'updatepulse-server' ) . '</strong>',
-						'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page' ) ) . '">' . esc_html__( 'Packages Overview' ) . '</a>'
+						'<a href="' . esc_url( admin_url( 'admin.php?page=upserv-page' ) ) . '">' . esc_html__( 'Packages Overview', 'updatepulse-server' ) . '</a>'
 					);
 				?>
 			</li>
 			<li>
 				<?php
-					esc_html_e( '[simple] triggering a webhook from a VCS already added to UpdatePulse Server' );
+					esc_html_e( '[simple] triggering a webhook from a VCS already added to UpdatePulse Server', 'updatepulse-server' );
 				?>
 				<br>
 				<?php

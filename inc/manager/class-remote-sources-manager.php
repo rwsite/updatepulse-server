@@ -355,7 +355,7 @@ class Remote_Sources_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'updatepulse-server' );
 
 		$registered_schedules = wp_get_schedules();
 		$schedules            = array();

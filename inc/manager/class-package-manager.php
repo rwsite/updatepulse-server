@@ -424,7 +424,7 @@ class Package_Manager {
 			$payload = array(
 				'event'       => 'package_deleted',
 				// translators: %1$s is the package type, %2$s is the package slug
-				'description' => sprintf( esc_html__( 'The package of type `%1$s` and slug `%2$s` has been deleted on UpdatePulse Server' ), $package_info['type'], $package_slug ),
+				'description' => sprintf( esc_html__( 'The package of type `%1$s` and slug `%2$s` has been deleted on UpdatePulse Server', 'updatepulse-server' ), $package_info['type'], $package_slug ),
 				'content'     => $package_info,
 			);
 
@@ -453,7 +453,7 @@ class Package_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'updatepulse-server' );
 
 		$use_vcs     = upserv_get_option( 'use_vcs', 0 );
 		$vcs_configs = upserv_get_option( 'vcs', array() );

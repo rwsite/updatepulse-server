@@ -119,7 +119,7 @@ class API_Manager {
 			wp_die( __( 'Sorry, you are not allowed to access this page.' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'upserv' );
+		wp_cache_set( 'settings_notice', $this->plugin_options_handler(), 'updatepulse-server' );
 
 		$options = array(
 			'package_private_api_keys'         => wp_json_encode(

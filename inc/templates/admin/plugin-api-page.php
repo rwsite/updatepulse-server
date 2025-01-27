@@ -17,7 +17,7 @@
 						<div class="api-keys-items empty">
 						</div>
 						<div class="add-controls">
-							<input type="text" class="new-api-key-item-id" placeholder="<?php esc_attr_e( 'Package Key ID' ); ?>">
+							<input type="text" class="new-api-key-item-id" placeholder="<?php esc_attr_e( 'Package Key ID', 'updatepulse-server' ); ?>">
 							<div class="event-types">
 								<div class="event-container all">
 									<label><input type="checkbox" data-api-action="all"> <?php esc_html_e( 'Grant access to all the package actions', 'updatepulse-server' ); ?> <code>(all)</code></label>
@@ -59,8 +59,8 @@
 				<td>
 					<textarea class="ip-whitelist" id="upserv_package_private_api_ip_whitelist" name="upserv_package_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", $options['package_private_api_ip_whitelist'] ) ); ?></textarea>
 					<p class="description">
-						<?php esc_html_e( 'List of IP addresses and/or CIDRs of remote sites authorized to use the Private API (one IP address or CIDR per line).', 'wprus' ); ?> <br/>
-						<?php esc_html_e( 'Leave blank to allow any IP address (not recommended).', 'wprus' ); ?>
+						<?php esc_html_e( 'List of IP addresses and/or CIDRs of remote sites authorized to use the Private API (one IP address or CIDR per line).', 'updatepulse-server' ); ?> <br/>
+						<?php esc_html_e( 'Leave blank to allow any IP address (not recommended).', 'updatepulse-server' ); ?>
 					</p>
 				</td>
 			</tr>
@@ -98,7 +98,7 @@
 									<label><input type="checkbox" data-api-action="other"> <?php esc_html_e( 'Also grant access to affect other records (all records)', 'updatepulse-server' ); ?> <code>(other)</code></label>
 								</div>
 							</div>
-							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a License API Key' ); ?></button>
+							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a License API Key', 'updatepulse-server' ); ?></button>
 						</div>
 						<input type="hidden" class="api-key-values" id="upserv_license_private_api_keys" name="upserv_license_private_api_keys" value="<?php echo esc_attr( $options['license_private_api_keys'] ); ?>">
 					</div>
@@ -127,8 +127,8 @@
 				<td>
 					<textarea class="ip-whitelist" id="upserv_license_private_api_ip_whitelist" name="upserv_license_private_api_ip_whitelist"><?php echo esc_html( implode( "\n", $options['license_private_api_ip_whitelist'] ) ); ?></textarea>
 					<p class="description">
-						<?php esc_html_e( 'List of IP addresses and/or CIDRs of remote sites authorized to use the Private API (one IP address or CIDR per line).', 'wprus' ); ?> <br/>
-						<?php esc_html_e( 'Leave blank to allow any IP address (not recommended).', 'wprus' ); ?>
+						<?php esc_html_e( 'List of IP addresses and/or CIDRs of remote sites authorized to use the Private API (one IP address or CIDR per line).', 'updatepulse-server' ); ?> <br/>
+						<?php esc_html_e( 'Leave blank to allow any IP address (not recommended).', 'updatepulse-server' ); ?>
 					</p>
 				</td>
 			</tr>
@@ -145,7 +145,7 @@
 						<div class="webhook-items empty">
 						</div>
 						<div class="add-controls">
-							<input type="text" class="new-webhook-item-url" placeholder="<?php esc_attr_e( 'Payload URL' ); ?>">
+							<input type="text" class="new-webhook-item-url" placeholder="<?php esc_attr_e( 'Payload URL', 'updatepulse-server' ); ?>">
 							<input type="text" class="new-webhook-item-secret" placeholder="<?php echo esc_attr( 'secret-key' ); ?>" value="<?php echo esc_attr( bin2hex( openssl_random_pseudo_bytes( 8 ) ) ); ?>">
 							<input type="text" class="show-if-license new-webhook-item-license_api_key hidden" placeholder="<?php echo esc_attr( 'License Key ID (UPDATEPULSE_L_...)' ); ?>">
 							<div class="event-types">

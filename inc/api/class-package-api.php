@@ -325,7 +325,7 @@ class Package_API {
 		$payload = array(
 			'event'       => 'package_updated',
 			// translators: %1$s is the package type, %2$s is the pakage slug
-			'description' => sprintf( esc_html__( 'The package of type `%1$s` and slug `%2$s` has been updated on UpdatePulse Server' ), $package_type, $package_slug ),
+			'description' => sprintf( esc_html__( 'The package of type `%1$s` and slug `%2$s` has been updated on UpdatePulse Server', 'updatepulse-server' ), $package_type, $package_slug ),
 			'content'     => upserv_get_package_info( $package_slug, false ),
 		);
 
@@ -350,7 +350,7 @@ class Package_API {
 			$payload = array(
 				'event'       => 'package_deleted',
 				// translators: %1$s is the package type, %2$s is the package slug
-				'description' => sprintf( esc_html__( 'The package of type `%1$s` and slug `%2$s` has been deleted on UpdatePulse Server' ), $package_type, $package_slug ),
+				'description' => sprintf( esc_html__( 'The package of type `%1$s` and slug `%2$s` has been deleted on UpdatePulse Server', 'updatepulse-server' ), $package_type, $package_slug ),
 				'content'     => $package_info,
 			);
 
@@ -362,7 +362,7 @@ class Package_API {
 		$payload = array(
 			'event'       => 'package_downloaded',
 			// translators: %s is the package slug
-			'description' => sprintf( esc_html__( 'The package of `%s` has been securely downloaded from UpdatePulse Server' ), $package_slug ),
+			'description' => sprintf( esc_html__( 'The package of `%s` has been securely downloaded from UpdatePulse Server', 'updatepulse-server' ), $package_slug ),
 			'content'     => upserv_get_package_info( $package_slug, false ),
 		);
 

@@ -490,7 +490,7 @@ class License_Server {
 			$keys    = implode( ', ', array_keys( $invalid ) );
 			$message = sprintf(
 				// translators: %s is a comma-separated list of valid keys.
-				__( 'Invalid keys. The following values are valid: %s' ),
+				__( 'Invalid keys. The following values are valid: %s', 'updatepulse-server' ),
 				$keys
 			);
 
@@ -507,17 +507,17 @@ class License_Server {
 		if ( empty( $payload['relationship'] ) ) {
 			$payload['relationship'] = self::$browsing_query['relationship'];
 		} elseif ( 'AND' !== $payload['relationship'] && 'OR' !== $payload['relationship'] ) {
-			throw new Exception( esc_html__( 'Invalid relationship operator. Only "AND" and "OR" are allowed.' ) );
+			throw new Exception( esc_html__( 'Invalid relationship operator. Only "AND" and "OR" are allowed.', 'updatepulse-server' ) );
 		}
 
 		if ( ! is_numeric( $payload['limit'] ) && ! empty( $payload['limit'] ) && 0 !== $payload['limit'] ) {
-			throw new Exception( esc_html__( 'The limit must be an integer.' ) );
+			throw new Exception( esc_html__( 'The limit must be an integer.', 'updatepulse-server' ) );
 		}
 
 		$payload['limit'] = intval( $payload['limit'] );
 
 		if ( ! is_numeric( $payload['offset'] ) && ! empty( $payload['offset'] ) || 0 > $payload['offset'] ) {
-			throw new Exception( esc_html__( 'The offset must be a positive integer.' ) );
+			throw new Exception( esc_html__( 'The offset must be a positive integer.', 'updatepulse-server' ) );
 		}
 
 		$payload['offset'] = intval( $payload['offset'] );
@@ -529,7 +529,7 @@ class License_Server {
 			$keys    = implode( ', ', array_keys( self::$license_definition ) );
 			$message = sprintf(
 				// translators: %s is a comma-separated list of valid fields.
-				__( 'Invalid order_by field. The following values are valid: %s' ),
+				__( 'Invalid order_by field. The following values are valid: %s', 'updatepulse-server' ),
 				$keys
 			);
 
@@ -558,7 +558,7 @@ class License_Server {
 				$allowed_operators = implode( ', ', self::$browsing_operators );
 				$message           = sprintf(
 					// translators: %s is a comma-separated list of valid operators.
-					__( 'Invalid criteria. The following keys are required: operator, value, field. The following values are valid for the operator: %s' ),
+					__( 'Invalid criteria. The following keys are required: operator, value, field. The following values are valid for the operator: %s', 'updatepulse-server' ),
 					$allowed_operators
 				);
 
@@ -569,7 +569,7 @@ class License_Server {
 				$allowed_operators = implode( ', ', self::$browsing_operators );
 				$message           = sprintf(
 					// translators: %s is a comma-separated list of valid operators.
-					__( 'Invalid operator. The following values are valid: %s' ),
+					__( 'Invalid operator. The following values are valid: %s', 'updatepulse-server' ),
 					$allowed_operators
 				);
 
@@ -580,7 +580,7 @@ class License_Server {
 				$keys    = implode( ', ', array_keys( self::$license_definition ) );
 				$message = sprintf(
 					// translators: %s is a comma-separated list of valid fields.
-					__( 'Invalid field. The following values are valid: %s' ),
+					__( 'Invalid field. The following values are valid: %s', 'updatepulse-server' ),
 					$keys
 				);
 

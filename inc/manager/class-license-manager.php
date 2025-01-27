@@ -284,7 +284,7 @@ class License_Manager {
 			}
 		}
 
-		wp_cache_set( 'settings_notice', $notices, 'upserv' );
+		wp_cache_set( 'settings_notice', $notices, 'updatepulse-server' );
 		upserv_get_admin_template(
 			'plugin-licenses-page.php',
 			array(

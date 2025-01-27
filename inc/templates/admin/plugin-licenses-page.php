@@ -31,7 +31,7 @@
 									<select id="upserv_license_package_type">
 										<option value="plugin"><?php esc_html_e( 'Plugin' ); ?></option>
 										<option value="theme"><?php esc_html_e( 'Theme' ); ?></option>
-										<option value="generic"><?php esc_html_e( 'Generic' ); ?></option>
+										<option value="generic"><?php esc_html_e( 'Generic', 'updatepulse-server' ); ?></option>
 									</select>
 								</td>
 							</tr>
