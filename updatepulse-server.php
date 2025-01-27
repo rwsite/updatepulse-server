@@ -6,6 +6,7 @@ Description: Run your own update server.
 Version: 2.0
 Author: Alexandre Froger
 Author URI: https://froger.me/
+License: GPLv2 or later
 Text Domain: updatepulse-server
 Domain Path: /languages
 */
