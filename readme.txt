@@ -1,24 +1,29 @@
 === UpdatePulse Server ===
 Contributors: frogerme
 Tags: plugins, themes, updates, license
-Requires at least: 4.9.5
-Tested up to: 6.3
-Stable tag: trunk
-Requires PHP: 7.0
+Requires at least: 6.7
+Tested up to: 6.7.1
+Stable tag: 2.0
+Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Run your own update server for plugins and themes.
+Run your own update server for plugins, themes or any other software: manage packages & licenses, and provide updates to your users.
 
 == Description ==
 
-UpdatePulse Server allows developers to provide updates for plugins and themes packages not hosted on wordpress.org. It is useful to provide updates for plugins or themes not compliant with the GPLv2 (or later).
-Packages may be either uploaded directly, or hosted in a Remote Repository, public or private. It supports Bitbucket, Github and Gitlab, as well as self-hosted installations of Gitlab.
-Package updates may require a license, and licenses can be managed through an API or a user interface within UpdatePulse Server.
+UpdatePulse Server allows developers to provide updates for plugins and themes packages they developped but choose not to hosted on wordpress.org, or any other software.
+Some example use cases:
+- provide updates for commercial plugins or themes with a license key
+- provide updates for plugin or themes not compliant with the GPLv2 (or later)
+- provide updates for a desktop software that integrates with UpdatePulse Server's update and license API
+
+Packages may be either uploaded directly, or downloaded automatically from configured Version Control Systems, public or private.
+Package updates may require a license ; both package and licenses can be managed through an API or a user interface within UpdatePulse Server.
 
 == Important notes ==
 
-This plugin is for developers only.
+The target audience of this plugin is developers, not end-users.
 
 Zip PHP extension is required (use ZipArchive, no fallback to PclZip).
 
@@ -30,14 +35,15 @@ Make sure to read the full documentation and the content of the "Help" tab under
 
 This plugin adds the following major features to WordPress:
 
-* **UpdatePulse Server admin page:** to manage the list of packages and configure the plugin.
-* **Package management:** to manage update packages, showing a listing with Package Name, Version, Type, File Name, Size, Last Modified and License Status; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages.
-* **Add Packages:** Upload update packages from a local machine to the server, or download them to the server from a Remote Repository.
-* **General settings:** for archive files download size, cache, and logs, with force clean.
-* **Packages licensing:** Prevent plugins and themes installed on remote WordPress installation from being updated without a valid license. Licenses are generated automatically by default and the values are unguessable (it is recommended to keep the default). When checking the validity of licenses an extra license signature is also checked to prevent the use of a license on more than the configured allowed domains.
-* **Packages remote source:** UpdatePulse Server can act as a proxy and will help you to connect your clients with your plugins and themes kept on a Remote Repository, so that they are always up to date. Supports Bitbucket, Github and Gitlab, as well as self-hosted installations of Gitlab. Packages will not be installed on your server, only transferred to the clients whenever they request them.
+* **Package management:** to manage update packages, showing a listing with Package Name, Version, Type, File Name, Size, Last Modified and License Status; includes bulk operations to delete and download, and the ability to delete all the packages.
+* **Add Packages:** Upload update packages from a local machine to the server, or download them to the server from a Version Control System.
+* **Version Control Systems:** Instead of manually uploading packages, use Version Control Systems to host packages, and download them to UpdatePulse Server automatically. Supports Bitbucket, Github and Gitlab, as well as self-hosted installations of Gitlab.
+* **Cloud Storage**: Instead of storing packages on the file system where UpdatePulse Server is installed, they can be stored on a cloud storage service, as long as it is compatible with Amazon S3's API. Examples: Amazon S3, Cloudflare R2, Backblaze B2, MinIO, and many more!
+* **UpdatePulse Server does not** install executable code from the Version Control System onto your installation of WordPress, and **does not** track your activity. It is designed to only store packages and licenses, and to provide updates when they are requested.
+* **Licenses:** manage licenses with License Key, Registered Email, Status, Package Type, Package Slug, Creation Date, and Expiry Date; add and edit them with a form, or use the API for more control. Licenses prevent packages from being updated without a valid license. Licenses Keys are generated automatically by default and the values are unguessable (it is recommended to keep the default). When checking the validity of licenses, an extra license signature is also checked to prevent the use of a license on more than the configured allowed domains.
+* **API:** UpdatePulse Server provides APIs to manage packages and licenses. The APIs keys are secured with a system of tokens: the API keys are never shared over the network, acquiring a token requires signed payloads, and the tokens have a limited lifetime. For more details about tokens and security, see [the Nonce API documentation](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md#nonce-api).
 
-To connect their plugins or themes and UpdatePulse Server, developers can find integration examples in the `updatepulse-server/integration` directory.
+To connect their plugins or themes and UpdatePulse Server, developers can find integration examples in the `updatepulse-server/integration` directory - theme and plugin examples rely heavily on the popular [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) by [Yahnis Elsts](https://github.com/YahnisElsts).
 
 In addition, a [Must Use Plugin](https://codex.wordpress.org/Must_Use_Plugins) developers can add to the WordPress installation running UpdatePulse Server is available in `updatepulse-server/optimisation/upserv-endpoint-optimizer.php`.
 
