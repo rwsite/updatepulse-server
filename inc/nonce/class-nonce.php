@@ -276,13 +276,19 @@ class Nonce {
 	public static function get_nonce_expiry( $nonce ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'upserv_nonce';
-		$row   = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$nonce
-			)
-		);
+		$row = wp_cache_get( 'nonce_' . $nonce, 'updatepulse-server', false, $found );
+
+		if ( ! $found ) {
+			$table = $wpdb->prefix . 'upserv_nonce';
+			$row   = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$nonce
+				)
+			);
+
+			wp_cache_set( 'nonce_' . $nonce, $row, 'updatepulse-server' );
+		}
 
 		if ( ! $row ) {
 			$nonce_expiry = 0;
@@ -296,13 +302,19 @@ class Nonce {
 	public static function get_nonce_data( $nonce ) {
 		global $wpdb;
 
-		$table = $wpdb->prefix . 'upserv_nonce';
-		$row   = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$nonce
-			)
-		);
+		$row = wp_cache_get( 'nonce_' . $nonce, 'updatepulse-server', false, $found );
+
+		if ( ! $found ) {
+			$table = $wpdb->prefix . 'upserv_nonce';
+			$row   = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$nonce
+				)
+			);
+
+			wp_cache_set( 'nonce_' . $nonce, $row, 'updatepulse-server' );
+		}
 
 		if ( ! $row ) {
 			$data = array();
@@ -332,6 +344,8 @@ class Nonce {
 		$table  = $wpdb->prefix . 'upserv_nonce';
 		$where  = array( 'nonce' => $value );
 		$result = $wpdb->delete( $table, $where );
+
+		wp_cache_delete( 'nonce_' . $value, 'updatepulse-server' );
 
 		return (bool) $result;
 	}
@@ -395,13 +409,20 @@ class Nonce {
 		global $wpdb;
 
 		$nonce = null;
-		$table = $wpdb->prefix . 'upserv_nonce';
-		$row   = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$value
-			)
-		);
+
+		$row = wp_cache_get( 'nonce_' . $value, 'updatepulse-server', false, $found );
+
+		if ( ! $found ) {
+			$table = $wpdb->prefix . 'upserv_nonce';
+			$row   = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$value
+				)
+			);
+
+			wp_cache_set( 'nonce_' . $value, $row, 'updatepulse-server' );
+		}
 
 		if ( ! $row ) {
 			return $nonce;
