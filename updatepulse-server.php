@@ -211,6 +211,7 @@ function upserv_run() {
 add_action( 'plugins_loaded', 'upserv_run', -99, 0 );
 
 if (
+	isset( $_SERVER['REQUEST_URI'] ) &&
 	! preg_match(
 		'/^updatepulse-server-((.*?)-api|nonce|token)$/',
 		$_SERVER['REQUEST_URI']
