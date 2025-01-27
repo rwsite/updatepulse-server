@@ -372,9 +372,9 @@ class Package_API {
 	public function upserv_api_package_actions( $actions ) {
 		$actions['browse']     = __( 'Get information about multiple packages', 'updatepulse-server' );
 		$actions['read']       = __( 'Get information about a single package', 'updatepulse-server' );
-		$actions['edit']       = __( 'Forcefully download and overwrite an existing package on the file system; requires using a VCS', 'updatepulse-server' );
-		$actions['add']        = __( 'Download a package to the file system if it does not exist; requires using a VCS', 'updatepulse-server' );
-		$actions['delete']     = __( 'Delete a package from the file system', 'updatepulse-server' );
+		$actions['edit']       = __( 'If a package does exist, update it by uploading a valid package file, or by downloading it if using a VCS', 'updatepulse-server' );
+		$actions['add']        = __( 'If a package does not exist, upload it by providing a valid package file, or download it if using a VCS', 'updatepulse-server' );
+		$actions['delete']     = __( 'Delete a package', 'updatepulse-server' );
 		$actions['signed_url'] = __( 'Retrieve secure URLs for downloading packages', 'updatepulse-server' );
 
 		return $actions;
