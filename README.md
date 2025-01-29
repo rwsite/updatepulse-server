@@ -42,7 +42,6 @@ Package updates may be either uploaded directly, or hosted in a Version Control 
 
 **The `main` branch contains a beta version of UpdatePulse Server. The `dev` branch contains an alpha version of UpdatePulse Server. For stable versions, please use releases.**  
 
-
 ### Overview
 
 This plugin adds the following major features to WordPress:
@@ -67,7 +66,6 @@ Authorisation to use these libraries freely provided relevant licenses are inclu
 ### Compatibility
 
 * Tested with PHP 8.x - may work with PHP 7.x versions for the most part, but it is not guaranteed
-* UpdatePulse Server proper uses Plugin Update Checker Library 5.3 and WP Update Server Library 2.0.1
 * Integration examples for WordPress packages use Plugin Update Checker Library 5.3
 
 **Pull requests to solve any bugs, improve performance, and keep libraries up to date are welcome and highly encouraged.**  
@@ -117,9 +115,8 @@ UpdatePulse Server provides a user interface to manage packages, manage licenses
 This tab allows administrators to:
 - View the list of packages currently available in UpdatePulse Server, with Package Name, Version, Type (Plugin or Theme), File Name, Size, Last Modified and License Status (if enabled)
 - Download a package
-- Toggle between "Require License" and "Do not Require License" for a package when "Enable Package Licenses" is checked under the "Licenses" tab
 - Delete a package
-- Apply bulk actions on the list of packages (download, delete, change license status of the package if licenses are enabled)
+- Apply bulk actions on the list of packages (download, delete)
 - Add a package (either by uploading it directly, or by registering it by pulling it from a configured Version Control System)
 - Configure and test a Cloud Storage service
 - Configure other packages-related settings - file upload, cache and logs max sizes.
@@ -147,7 +144,7 @@ This tab allows administrators to configure how Remote Sources are handled with 
 
 Name                          | Type      | Description
 ----------------------------- |:---------:| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Enable VCS   | checkbox  | Enables this server to download packages from a Version Control System before delivering updates.<br/>Supports Bitbucket, Github and Gitlab.<br/>If left unchecked, zip packages need to be manually uploaded to `wp-content/plugins/updatepulse-server/packages`.
+Enable VCS                    | checkbox  | Enables this server to download packages from a Version Control System before delivering updates.<br/>Supports Bitbucket, Github and Gitlab.<br/>If left unchecked, zip packages need to be manually uploaded to `wp-content/plugins/updatepulse-server/packages`.
 VCS URL                       | text      | The URL of the Version Control System where packages are hosted.<br/>Must follow the following pattern: `https://version-control-system.tld/username` where `https://version-control-system.tld` may be a self-hosted instance of Gitlab.<br/>Each package repository URL must follow the following pattern: `https://version-control-system.tld/username/package-slug/`; the package files must be located at the root of the repository, and in the case of WordPress plugins the main plugin file must follow the pattern `package-slug.php`.
 Self-hosted VCS               | checkbox  | Check this only if the Version Control System is a self-hosted instance of Gitlab.
 Packages branch name          | text      | The branch to download when getting remote packages from the Version Control System.
