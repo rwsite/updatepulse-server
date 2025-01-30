@@ -77,19 +77,19 @@ Note: the screenshots are updated regularly, but the actual interface may vary s
 
 #### Packages Overview
 
-<img src="https://anyape.com/resources/upserv/screenshots/upserv-page.png" alt="Packages Overview" width="100%">
+<img src="https://anyape.com/resources/upserv/screenshots/upserv-page-202501302128.png" alt="Packages Overview" width="100%">
 
 #### Version Control Systems
 
-<img src="https://anyape.com/resources/upserv/screenshots/upserv-page-remote-sources.png" alt="Version Control Systems" width="100%">
+<img src="https://anyape.com/resources/upserv/screenshots/upserv-page-remote-sources-202501302128.png" alt="Version Control Systems" width="100%">
 
 #### Licenses
 
-<img src="https://anyape.com/resources/upserv/screenshots/upserv-page-licenses.png" alt="Licenses" width="100%">
+<img src="https://anyape.com/resources/upserv/screenshots/upserv-page-licenses-202501302128.png" alt="Licenses" width="100%">
 
 #### API & Webhooks
 
-<img src="https://anyape.com/resources/upserv/screenshots/upserv-page-api.png" alt="API & Webhooks" width="100%">
+<img src="https://anyape.com/resources/upserv/screenshots/upserv-page-api-202501302128.png" alt="API & Webhooks" width="100%">
 
 #### Client - plugin screens
 
