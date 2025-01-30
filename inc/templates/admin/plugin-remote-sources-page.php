@@ -70,11 +70,10 @@
 							<br>
 							<?php
 							printf(
-								// translators: %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://version-control-system.tld</code>
-								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the user name in case of Bitbucket, is a group in case of Gitlab (no support for Gitlab subgroups), and where %3$s may be a self-hosted instance of Gitlab.', 'updatepulse-server' ),
+								// translators: %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>
+								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the workspace name in case of Bitbucket, and is a group in case of Gitlab or a self-hosted instance of Gitlab (no support for Gitlab subgroups).', 'updatepulse-server' ),
 								'<code>https://version-control-system.tld/identifier/</code>',
-								'<code>identifier</code>',
-								'<code>https://version-control-system.tld</code>'
+								'<code>identifier</code>'
 							);
 							?>
 							<br>
@@ -271,11 +270,10 @@
 							<br>
 							<?php
 							printf(
-								// translators: %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>, %3$s is <code>https://version-control-system.tld</code>
-								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the user name in case of Bitbucket, is a group in case of Gitlab (no support for Gitlab subgroups), and where %3$s may be a self-hosted instance of Gitlab.', 'updatepulse-server' ),
+								// translators: %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>
+								esc_html__( 'Must follow the following pattern: %1$s where %2$s is the user or the organisation name in case of Github, is the workspace name in case of Bitbucket, and is a group in case of Gitlab or a self-hosted instance of Gitlab (no support for Gitlab subgroups).', 'updatepulse-server' ),
 								'<code>https://version-control-system.tld/identifier/</code>',
-								'<code>identifier</code>',
-								'<code>https://version-control-system.tld</code>'
+								'<code>identifier</code>'
 							);
 							?>
 							<br>
