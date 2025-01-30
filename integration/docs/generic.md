@@ -139,7 +139,7 @@ https://server.domain.tld/updatepulse-server-update-api/?action=get_metadata&pac
 #### Example response
 
 Raw - usable result depends on the language & framework used to get the response.  
-Only the relevant headers are shown here.
+Only the relevant headers are shown here, and the JSON content has been prettified for readability.
 
 ___
 
@@ -187,6 +187,8 @@ ___
 In case a valid license key is provided:
 
 ```
+HTTP/1.1 200 OK
+
 {
    "name": "Dummy Generic Package",
     "version": "1.4.14",
@@ -431,7 +433,7 @@ https://server.domain.tld/updatepulse-server-update-api/?action=deactivate&licen
 #### Example response
 
 Raw - usable result depends on the language & framework used to get the response.
-Only the relevant headers are shown here.
+Only the relevant headers are shown here, and the JSON content has been prettified for readability.
 
 ___
 
@@ -439,18 +441,43 @@ Success - activation:
 ```
 HTTP/1.1 200 OK
 
-{"license_key":"41ec1eba0f17d47f76827a33c7daab2c","max_allowed_domains":999,"allowed_domains":["allowedClientIdentifier"],"status":"activated","txn_id":"","date_created":"2024-01-01","date_renewed":"0000-00-00","date_expiry":"2025-01-01","package_slug":"dummy-generic","package_type":"generic","license_signature":"ZaH+a_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs="}
+{
+    "license_key":"41ec1eba0f17d47f76827a33c7daab2c",
+    "max_allowed_domains":999,
+    "allowed_domains": [
+        "allowedClientIdentifier"
+    ],
+    "status":"activated",
+    "txn_id":"",
+    "date_created":"2024-01-01",
+    "date_renewed":"0000-00-00",
+    "date_expiry":"2025-01-01",
+    "package_slug":"dummy-generic",
+    "package_type":"generic",
+    "license_signature":"ZaH+a_p1_EkM3BUIpqn7T53htuVPBem2lDtGIxr28oHjdCycvo_ZkxItYqb7mOHhfCMSwnMofWW7UchztEo0k2TwRgk81rNvZyYv6GfRZIxzDP5SzgREjnSAu6JVxDa5yvdd6uqWHWi_U1wRxff0nItItoAloWsek1SVbWbmQXs="
+}
 ```
 
 This is when the license signature must be saved by the client to be used for future update requests.
-The client may remove the signature in all other cases.
+The client may remove the signature from their record in all other cases.
 ___
 
 Success - deactivation:
 ```
 HTTP/1.1 200 OK
 
-{"license_key":"41ec1eba0f17d47f76827a33c7daab2c","max_allowed_domains":999,"allowed_domains":[],"status":"deactivated","txn_id":"","date_created":"2024-01-01","date_renewed":"0000-00-00","date_expiry":"2025-01-01","package_slug":"dummy-generic","package_type":"generic"}
+{
+    "license_key":"41ec1eba0f17d47f76827a33c7daab2c",
+    "max_allowed_domains":999,
+    "allowed_domains":[],
+    "status":"deactivated",
+    "txn_id":"",
+    "date_created":"2024-01-01",
+    "date_renewed":"0000-00-00",
+    "date_expiry":"2025-01-01",
+    "package_slug":"dummy-generic",
+    "package_type":"generic"
+}
 
 ```
 ___
@@ -459,31 +486,103 @@ The license is invalid:
 ```
 HTTP/1.1 400 Bad Request
 
-{"license_key":"41ec1eba0f17d47f76827a33c7daab2c"}
+{
+    "code": "invalid_license_key",
+    "message": "The provided license key is invalid.",
+    "data": {
+        "license_key": "example-license"
+    }
+}
 ```
 ___
 
 The license has an illegal status - illegal statuses for activation/deactivation are `on-hold`, `expired` and `blocked`:
 ```
-HTTP/1.1 400 Bad Request
+HTTP/1.1 403 Forbidden
 
-{"status":"expired"}
+{
+    "code": "illegal_license_status",
+    "message": "The license cannot be activated due to its current status.",
+    "data": {
+        "status": "expired"
+    }
+}
+```
+___
+
+The license cannot be deactivated yet:
+```
+HTTP/1.1 403 Forbidden
+
+{
+    "code": "too_early_deactivation",
+    "message": "The license cannot be deactivated before the specified date.",
+    "data": {
+        "next_deactivate": "999999999"
+    }
+}
 ```
 ___
 
 The license is already activated for the domain:
 ```
-HTTP/1.1 400 Bad Request
+HTTP/1.1 409 Conflict
 
-{"allowed_domains":["example.com"]}
+{
+    "code": "license_already_activated",
+    "message": "The license is already activated for the specified domain(s).",
+    "data": {
+        "allowed_domains": [
+            "example.com"
+        ]
+    }
+}
+```
+___
+
+The license is already deactivated for the domain:
+```
+HTTP/1.1 409 Conflict
+
+{
+    "code": "license_already_deactivated",
+    "message": "The license is already deactivated for the specified domain.",
+    "data": {
+        "allowed_domains": [
+            "example.com"
+        ]
+    }
+}
 ```
 ___
 
 The license has no more allowed domains left for activation:
 ```
-HTTP/1.1 400 Bad Request
+HTTP/1.1 422 Unprocessable Entity
 
-{"max_allowed_domains":"2"}
+{
+    "code": "max_domains_reached",
+    "message": "The license has reached the maximum allowed activations for domains.",
+    "data": {
+        "max_allowed_domains": 2
+    }
+}
+```
+___
+
+Failure (in case of unexpected error):
+```
+HTTP/1.1 500 Internal Server Error
+
+{
+    "code": "unexpected_error",
+    "message": "An unexpected error occurred while processing the request.",
+    "data": {
+        "errors": [
+            ...
+        ]
+    }
+}
 ```
 
 #### Examples request
