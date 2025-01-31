@@ -207,7 +207,7 @@ function upserv_run() {
 
 	do_action( 'upserv_ready', $objects );
 }
-add_action( 'plugins_loaded', 'upserv_run', -99, 0 );
+add_action( 'plugins_loaded', 'upserv_run', PHP_INT_MIN + 100, 0 );
 
 if (
 	isset( $_SERVER['REQUEST_URI'] ) &&
