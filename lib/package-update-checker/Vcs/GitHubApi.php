@@ -53,6 +53,10 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 				return true;
 			}
 
+			if ( ! isset( $response->login ) ) {
+				return false;
+			}
+
 			$endpoint = 'https://api.github.com/orgs/'
 				. rawurlencode( $instance->user_name )
 				. '/members/'
