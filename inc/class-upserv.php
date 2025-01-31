@@ -159,9 +159,13 @@ class UPServ {
 		return $result;
 	}
 
-	public function get_option( $path ) {
+	public function get_option( $path, $_default ) {
 		$options = $this->get_options();
 		$option  = access_nested_array( $options, $path );
+
+		if ( is_null( $option ) ) {
+			$option = $_default;
+		}
 
 		return apply_filters( 'upserv_get_option', $option, $path );
 	}

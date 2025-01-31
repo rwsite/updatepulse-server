@@ -108,8 +108,8 @@ if ( ! function_exists( 'upserv_update_options' ) ) {
 }
 
 if ( ! function_exists( 'upserv_get_option' ) ) {
-	function upserv_get_option( $path ) {
-		return UPServ::get_instance()->get_option( $path );
+	function upserv_get_option( $path, $_default = null ) {
+		return UPServ::get_instance()->get_option( $path, $_default );
 	}
 }
 

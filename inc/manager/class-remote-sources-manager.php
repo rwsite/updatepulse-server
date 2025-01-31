@@ -374,7 +374,7 @@ class Remote_Sources_Manager {
 		$vcs_configs          = upserv_get_option( 'vcs', array() );
 		$options              = array(
 			'use_vcs' => upserv_get_option( 'use_vcs', 0 ),
-			'vcs'     => wp_json_encode( $vcs_configs ),
+			'vcs'     => empty( $vcs_configs ) ? '{}' : wp_json_encode( $vcs_configs ),
 		);
 
 		foreach ( $registered_schedules as $key => $schedule ) {
@@ -402,7 +402,7 @@ class Remote_Sources_Manager {
 		$errors          = array();
 		$result          = '';
 		$to_save         = array();
-		$old_vcs_configs = upserv_get_option( 'vcs' );
+		$old_vcs_configs = upserv_get_option( 'vcs', array() );
 		$old_use_vcs     = upserv_get_option( 'use_vcs' );
 
 		if (
@@ -426,7 +426,7 @@ class Remote_Sources_Manager {
 				$inputs = json_decode( $option_info['value'], true );
 
 				if ( ! is_array( $inputs ) ) {
-					$inputs = upserv_get_option( 'vcs' );
+					$inputs = upserv_get_option( 'vcs', array() );
 				} else {
 					$option_info['value'] = $this->filter_json_input( $inputs, $option_name, $errors );
 				}
