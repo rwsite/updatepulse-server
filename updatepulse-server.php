@@ -27,7 +27,6 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIE
 	$upserv_queries_before = $wpdb->queries;
 }
 
-use Anyape\UpdatePulse\Updater\V2_0\UpdatePulse_Updater;
 use Anyape\UpdatePulse\Server\Nonce\Nonce;
 use Anyape\UpdatePulse\Server\API\License_API;
 use Anyape\UpdatePulse\Server\API\Webhook_API;
@@ -235,13 +234,6 @@ if (
 			PHP_INT_MIN
 		);
 	}
-
-	require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
-
-	$upserv_plugin_updater = new UpdatePulse_Updater(
-		wp_normalize_path( __FILE__ ),
-		0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
-	);
 }
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
