@@ -200,8 +200,6 @@ Webhook                                  | Multiple values; creating a Webhook r
 
 ## Performances
 
-Performance can be evaluated using the script `tests.php` located at the plugin's root. It is included only if the WordPress constants `WP_DEBUG` and `SAVEQUERIES` are truthy. Developers can edit the script freely by uncommenting relevant parts to  activate the desired tests.  
-
 The performance insights below have been gathered on a cheap shared hosting server (less than $10 per month) with 256 MB of RAM, without any function hooked to UpdatePulse Server actions or filters, no Webhook, and with the MU Plugin endpoint optimizer active. Your Mileage May Vary depending on your server configuration and various optimisations you may add to your WordPress installation.  
 
 The general conclusion is that calls to the APIs are lighter and faster than loading the vaste majority of WordPress homepages (which is the page likely to be visited the most on any website) and lighter than a WordPress ajax call (extra optimisations and aggressive caching not considered).
@@ -212,26 +210,27 @@ Performances loading the frontpage of a fresh WordPress installation with `dummy
 
 ```
 --- Start load tests ---
-Time elapsed: 0.129
-Server memory used: 16.02 M / 256M
-Total number of queries: 13
-Total number of scripts: 194
+Time elapsed: 0.031
+Total server memory used: 3.5 M / 4096M
+Total number of queries: 11
+Total number of scripts: 455
 --- End load tests ---
 ```
 
 ### Update API
+Performance can evaluated with the script `tests.php` located at the plugin's root. It is included only if the WordPress constants `WP_DEBUG` and `SAVEQUERIES` are truthy.  
 
 Performances when a client is checking for updates (no license):
 
 ```
 --- Start load tests ---
-Time elapsed: 0.103
-Total server memory used: 16.06 M / 256M
-Total number of queries: 1
-Total number of scripts: 173
-Server memory used to run the plugin: 1.76 M / 256M
-Number of queries executed by the plugin: 0
-Number of included/required scripts by the plugin: 30
+Time elapsed: 0.017
+Total server memory used: 2.17 M / 4096M
+Total number of queries: 5
+Total number of scripts: 416
+Server memory used to run the plugin: 118.57 K / 4096M
+Number of queries executed by the plugin: 4
+Number of included/required scripts by the plugin: 52
 --- End load tests ---
 ```
 
@@ -239,13 +238,13 @@ Performances when a client is downloading an update (YMMV: downloading `dummy-pl
 
 ```
 --- Start load tests ---
-Time elapsed: 0.111
-Total server memory used: 16.06 M / 256M
-Total number of queries: 1
-Total number of scripts: 173
-Server memory used to run the plugin: 1.8 M / 256M
-Number of queries executed by the plugin: 0
-Number of included/required scripts by the plugin: 30
+Time elapsed: 0.018
+Total server memory used: 2.17 M / 4096M
+Total number of queries: 6
+Total number of scripts: 415
+Server memory used to run the plugin: 118.57 K / 4096M
+Number of queries executed by the plugin: 5
+Number of included/required scripts by the plugin: 51
 --- End load tests ---
 ```
 
@@ -253,13 +252,13 @@ Performances when a client is checking for updates (with license):
 
 ```
 --- Start load tests ---
-Time elapsed: 0.112
-Total server memory used: 16.06 M / 256M
-Total number of queries: 2
-Total number of scripts: 174
-Server memory used to run the plugin: 1.76 M / 256M
-Number of queries executed by the plugin: 1
-Number of included/required scripts by the plugin: 31
+Time elapsed: 0.017
+Total server memory used: 2.18 M / 4096M
+Total number of queries: 7
+Total number of scripts: 417
+Server memory used to run the plugin: 118.57 K / 4096M
+Number of queries executed by the plugin: 6
+Number of included/required scripts by the plugin: 53
 --- End load tests ---
 ```
 
@@ -267,19 +266,21 @@ Performances when a client is downloading an update (YMMV: downloading `dummy-pl
 
 ```
 --- Start load tests ---
-Time elapsed: 0.114
-Total server memory used: 16.06 M / 256M
-Total number of queries: 2
-Total number of scripts: 174
-Server memory used to run the plugin: 1.76 M / 256M
-Number of queries executed by the plugin: 1
-Number of included/required scripts by the plugin: 31
+Time elapsed: 0.029
+Total server memory used: 2.18 M / 4096M
+Total number of queries: 7
+Total number of scripts: 417
+Server memory used to run the plugin: 118.57 K / 4096M
+Number of queries executed by the plugin: 6
+Number of included/required scripts by the plugin: 53
 --- End load tests ---
 ```
 
 ### Public License API
+Performance can evaluated with the script `tests.php` located at the plugin's root. It is included only if the WordPress constants `WP_DEBUG` and `SAVEQUERIES` are truthy.  
 
 Performances when a client is activating/deactivating a bogus license key:
+
 ```
 --- Start load tests ---
 Time elapsed: 0.108
