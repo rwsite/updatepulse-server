@@ -142,28 +142,35 @@ class License_Server {
 		return $licenses;
 	}
 
-	public function read_license( $payload ) {
-		$payload    = $this->filter_license_payload( $payload );
-		$payload    = apply_filters( 'upserv_read_license_payload', $payload );
-		$validation = $this->validate_license_payload( $payload, true );
-		$return     = $validation;
+	public function read_license( $payload, $force = false ) {
+		$md5    = md5( wp_json_encode( $payload ) );
+		$return = wp_cache_get( $md5, 'updatepulse-server', false, $found );
 
-		if ( true === $validation ) {
-			global $wpdb;
+		if ( $force || ! $found ) {
+			$payload    = $this->filter_license_payload( $payload );
+			$payload    = apply_filters( 'upserv_read_license_payload', $payload );
+			$validation = $this->validate_license_payload( $payload, true );
+			$return     = $validation;
 
-			$where_field = ( isset( $payload['id'] ) && ! empty( $payload['id'] ) ) ? 'id' : 'license_key';
-			$where_value = $payload[ $where_field ];
-			$payload     = $this->sanitize_payload( $payload );
-			$sql         = "SELECT * FROM {$wpdb->prefix}upserv_licenses WHERE {$where_field} = %s;";
-			$license     = $wpdb->get_row( $wpdb->prepare( $sql, $where_value ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			if ( true === $validation ) {
+				global $wpdb;
 
-			if ( is_object( $license ) ) {
-				$license->max_allowed_domains = intval( $license->max_allowed_domains );
-				$license->allowed_domains     = maybe_unserialize( $license->allowed_domains );
-				$license->data                = json_decode( $license->data, true );
-				$license->data                = ( null === $license->data ) ? array() : $license->data;
-				$return                       = $license;
+				$where_field = ( isset( $payload['id'] ) && ! empty( $payload['id'] ) ) ? 'id' : 'license_key';
+				$where_value = $payload[ $where_field ];
+				$payload     = $this->sanitize_payload( $payload );
+				$sql         = "SELECT * FROM {$wpdb->prefix}upserv_licenses WHERE {$where_field} = %s;";
+				$license     = $wpdb->get_row( $wpdb->prepare( $sql, $where_value ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+				if ( is_object( $license ) ) {
+					$license->max_allowed_domains = intval( $license->max_allowed_domains );
+					$license->allowed_domains     = maybe_unserialize( $license->allowed_domains );
+					$license->data                = json_decode( $license->data, true );
+					$license->data                = ( null === $license->data ) ? array() : $license->data;
+					$return                       = $license;
+				}
 			}
+
+			wp_cache_set( $md5, $return, 'updatepulse-server' );
 		}
 
 		do_action( 'upserv_did_read_license', $return, $payload );
@@ -201,7 +208,13 @@ class License_Server {
 			);
 
 			if ( false !== $result ) {
-				$return = $this->read_license( $where );
+				$md5_id = md5( wp_json_encode( array( 'id' => $original->id ) ) );
+				$m5_key = md5( wp_json_encode( array( 'license_key' => $original->license_key ) ) );
+
+				wp_cache_delete( $md5_id, 'updatepulse-server' );
+				wp_cache_delete( $m5_key, 'updatepulse-server' );
+
+				$return = $this->read_license( $where, true );
 			} else {
 				php_log( 'License update failed - database update error.' );
 				throw new Exception( esc_html__( 'License update failed - database update error.', 'updatepulse-server' ) );
@@ -237,7 +250,7 @@ class License_Server {
 			);
 
 			if ( false !== $result ) {
-				$return = $this->read_license( $payload );
+				$return = $this->read_license( $payload, true );
 			} else {
 				php_log( 'License creation failed - database insertion error.' );
 				throw new Exception( esc_html__( 'License creation failed - database insertion error.', 'updatepulse-server' ) );
@@ -269,6 +282,12 @@ class License_Server {
 			);
 
 			if ( false !== $result ) {
+				$md5_id = md5( wp_json_encode( array( 'id' => $license->id ) ) );
+				$m5_key = md5( wp_json_encode( array( 'license_key' => $license->license_key ) ) );
+
+				wp_cache_delete( $md5_id, 'updatepulse-server' );
+				wp_cache_delete( $m5_key, 'updatepulse-server' );
+
 				$return = $license;
 			} else {
 				php_log( 'License removal failed - database deletion error.' );
