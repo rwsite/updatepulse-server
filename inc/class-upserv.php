@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Exception;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Package_Manager;
-use Anyape\UpdatePulse\Server\Manager\Remote_Sources_Manager;
 
 class UPServ {
 
@@ -125,38 +124,10 @@ class UPServ {
 
 			$instance->update_options( self::$default_options );
 		}
-
-		set_transient( 'upserv_flush', 1, 60 );
-
-		$result = Data_Manager::maybe_setup_directories();
-
-		if ( ! $result ) {
-			$error_message = sprintf(
-				// translators: %1$s is the path to the plugin's data directory
-				__( 'Permission errors creating %1$s - could not setup the data directory. Please check the parent directory is writable.', 'updatepulse-server' ),
-				'<code>' . Data_Manager::get_data_dir() . '</code>'
-			);
-
-			die( $error_message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		}
-
-		$result = self::maybe_setup_mu_plugin();
-
-		if ( $result ) {
-			setcookie( 'upserv_activated_mu_success', '1', 60, '/', COOKIE_DOMAIN );
-		} else {
-			setcookie( 'upserv_activated_mu_failure', '1', 60, '/', COOKIE_DOMAIN );
-		}
-
-		Remote_Sources_Manager::register_schedules();
-		Data_Manager::register_schedules();
 	}
 
 	public static function deactivate() {
 		flush_rewrite_rules();
-
-		Remote_Sources_Manager::clear_schedules();
-		Data_Manager::clear_schedules();
 	}
 
 	public static function uninstall() {
@@ -397,31 +368,6 @@ class UPServ {
 		}
 
 		return $template;
-	}
-
-	public static function maybe_setup_mu_plugin() {
-		global $wp_filesystem;
-
-		$result        = true;
-		$mu_plugin_dir = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) );
-		$mu_plugin     = $mu_plugin_dir . 'upserv-endpoint-optimizer.php';
-
-		if ( ! $wp_filesystem->is_dir( $mu_plugin_dir ) ) {
-			$result = $wp_filesystem->mkdir( $mu_plugin_dir );
-		}
-
-		if ( $wp_filesystem->is_file( $mu_plugin ) ) {
-			$result = $wp_filesystem->delete( $mu_plugin );
-		}
-
-		if ( $result && ! $wp_filesystem->is_file( $mu_plugin ) ) {
-			$source_mu_plugin = wp_normalize_path(
-				UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimizer.php'
-			);
-			$result           = $wp_filesystem->copy( $source_mu_plugin, $mu_plugin );
-		}
-
-		return $result;
 	}
 
 	public function setup_mu_plugin_failure_notice() {

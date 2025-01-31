@@ -39,6 +39,14 @@ class Remote_Sources_Manager {
 
 	// WordPress hooks ---------------------------------------------
 
+	public static function activate() {
+		self::register_schedules();
+	}
+
+	public static function deactivate() {
+		self::clear_schedules();
+	}
+
 	public function upserv_admin_scripts( $scripts ) {
 		$scripts['remote_sources'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'js/admin/remote-sources' . upserv_assets_suffix() . '.js',
@@ -279,12 +287,16 @@ class Remote_Sources_Manager {
 	}
 
 	public static function register_schedules() {
-		$manager     = new self();
-		$vcs_configs = upserv_get_option( 'vcs', array() );
+		$options     = get_option( 'upserv_options' );
+		$options     = json_decode( $options, true );
+		$options     = $options ? $options : array();
+		$vcs_configs = isset( $options['vcs'] ) && ! empty( $options['vcs'] ) ? $options['vcs'] : array();
 
 		if ( empty( $vcs_configs ) ) {
 			return;
 		}
+
+		$manager = new self();
 
 		foreach ( $vcs_configs as $vcs_c ) {
 

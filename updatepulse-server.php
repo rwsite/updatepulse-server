@@ -96,7 +96,9 @@ if (
 			'Anyape\\UpdatePulse\\Server\\UPServ',
 			'Anyape\\UpdatePulse\\Server\\Manager\\License_Manager',
 			'Anyape\\UpdatePulse\\Server\\Nonce\\Nonce',
-			'Anyape\\UpdatePulse\\Server\\Manager\\Webhook_manager',
+			'Anyape\\UpdatePulse\\Server\\Manager\\Webhook_Manager',
+			'Anyape\\UpdatePulse\\Server\\Manager\\Data_Manager',
+			'Anyape\\UpdatePulse\\Server\\Manager\\Remote_Sources_Manager_Manager',
 		)
 	);
 

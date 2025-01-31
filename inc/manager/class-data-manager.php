@@ -41,6 +41,36 @@ class Data_Manager {
 
 	// WordPress hooks ---------------------------------------------
 
+	public static function activate() {
+		set_transient( 'upserv_flush', 1, 60 );
+
+		$result = self::maybe_setup_directories();
+
+		if ( ! $result ) {
+			$error_message = sprintf(
+				// translators: %1$s is the path to the plugin's data directory
+				__( 'Permission errors creating %1$s - could not setup the data directory. Please check the parent directory is writable.', 'updatepulse-server' ),
+				'<code>' . self::get_data_dir() . '</code>'
+			);
+
+			die( $error_message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+
+		$result = self::maybe_setup_mu_plugin();
+
+		if ( $result ) {
+			setcookie( 'upserv_activated_mu_success', '1', 60, '/', COOKIE_DOMAIN );
+		} else {
+			setcookie( 'upserv_activated_mu_failure', '1', 60, '/', COOKIE_DOMAIN );
+		}
+
+		self::register_schedules();
+	}
+
+	public static function deactivate() {
+		self::clear_schedules();
+	}
+
 	public function action_scheduler_init() {
 		self::register_cleanup_events();
 		self::register_cleanup_schedules();
@@ -74,6 +104,31 @@ class Data_Manager {
 					$result = $result && self::create_data_dir( $directory );
 				}
 			}
+		}
+
+		return $result;
+	}
+
+	public static function maybe_setup_mu_plugin() {
+		global $wp_filesystem;
+
+		$result        = true;
+		$mu_plugin_dir = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) );
+		$mu_plugin     = $mu_plugin_dir . 'upserv-endpoint-optimizer.php';
+
+		if ( ! $wp_filesystem->is_dir( $mu_plugin_dir ) ) {
+			$result = $wp_filesystem->mkdir( $mu_plugin_dir );
+		}
+
+		if ( $wp_filesystem->is_file( $mu_plugin ) ) {
+			$result = $wp_filesystem->delete( $mu_plugin );
+		}
+
+		if ( $result && ! $wp_filesystem->is_file( $mu_plugin ) ) {
+			$source_mu_plugin = wp_normalize_path(
+				UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimizer.php'
+			);
+			$result           = $wp_filesystem->copy( $source_mu_plugin, $mu_plugin );
 		}
 
 		return $result;
