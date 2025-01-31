@@ -32,7 +32,7 @@ class Cloud_Storage_Manager {
 	public function __construct( $init_hooks = false ) {
 		$config = self::get_config();
 
-		if ( ! self::$cloud_storage instanceof PhpS3 ) {
+		if ( $config['use_cloud_storage'] && ! self::$cloud_storage instanceof PhpS3 ) {
 			self::$cloud_storage = new PhpS3(
 				$config['access_key'],
 				$config['secret_key'],
