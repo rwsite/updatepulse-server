@@ -283,39 +283,39 @@ Performances when a client is activating/deactivating a bogus license key:
 
 ```
 --- Start load tests ---
-Time elapsed: 0.108
-Total server memory used: 15.24 M / 256M
-Total number of queries: 2
-Total number of scripts: 154
-Server memory used to run the plugin: 966.85 K / 256M
-Number of queries executed by the plugin: 1
-Number of included/required scripts by the plugin: 11
+Time elapsed: 0.019
+Total server memory used: 2.44 M / 4096M
+Total number of queries: 4
+Total number of scripts: 412
+Server memory used to run the plugin: 395.28 K / 4096M
+Number of queries executed by the plugin: 3
+Number of included/required scripts by the plugin: 39
 --- End load tests ---
 ```
 
 Performances when a client is activating a license key:
 ```
 --- Start load tests ---
-Time elapsed: 0.109
-Total server memory used: 15.24 M / 256M
-Total number of queries: 6
-Total number of scripts: 154
-Server memory used to run the plugin: 966.85 K / 256M
-Number of queries executed by the plugin: 5
-Number of included/required scripts by the plugin: 11
+Time elapsed: 0.587
+Total server memory used: 2.19 M / 4096M
+Total number of queries: 12
+Total number of scripts: 423
+Server memory used to run the plugin: 138.75 K / 4096M
+Number of queries executed by the plugin: 11
+Number of included/required scripts by the plugin: 50
 --- End load tests ---
 ```
 
 Performances when a client is deactivating a license key:
 ```
 --- Start load tests ---
-Time elapsed: 0.098
-Total server memory used: 15.24 M / 256M
-Total number of queries: 6
-Total number of scripts: 154
-Server memory used to run the plugin: 966.85 K / 256M
-Number of queries executed by the plugin: 5
-Number of included/required scripts by the plugin: 11
+Time elapsed: 0.540
+Total server memory used: 2.19 M / 4096M
+Total number of queries: 12
+Total number of scripts: 423
+Server memory used to run the plugin: 139.25 K / 4096M
+Number of queries executed by the plugin: 11
+Number of included/required scripts by the plugin: 50
 --- End load tests ---
 ```
 
