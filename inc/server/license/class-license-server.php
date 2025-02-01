@@ -251,6 +251,13 @@ class License_Server {
 
 			if ( false !== $result ) {
 				$return = $this->read_license( $payload, true );
+				$md5_id = md5( wp_json_encode( array( 'id' => $return->id ) ) );
+				$m5_key = md5( wp_json_encode( array( 'license_key' => $return->license_key ) ) );
+
+				wp_cache_delete( $md5_id, 'updatepulse-server' );
+				wp_cache_delete( $m5_key, 'updatepulse-server' );
+				wp_cache_delete( 'upserv_license_exists_' . $return->id, 'updatepulse-server' );
+				wp_cache_delete( 'upserv_license_exists_' . $return->license_key, 'updatepulse-server' );
 			} else {
 				php_log( 'License creation failed - database insertion error.' );
 				throw new Exception( esc_html__( 'License creation failed - database insertion error.', 'updatepulse-server' ) );
@@ -287,6 +294,8 @@ class License_Server {
 
 				wp_cache_delete( $md5_id, 'updatepulse-server' );
 				wp_cache_delete( $m5_key, 'updatepulse-server' );
+				wp_cache_delete( 'upserv_license_exists_' . $license->id, 'updatepulse-server' );
+				wp_cache_delete( 'upserv_license_exists_' . $license->license_key, 'updatepulse-server' );
 
 				$return = $license;
 			} else {
@@ -750,16 +759,30 @@ class License_Server {
 					if ( ! is_numeric( $license['id'] ) ) {
 						$errors['invalid_id'] = __( 'The ID must be an integer.', 'updatepulse-server' );
 					} else {
-						$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE id = %s;";
-						$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['id'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+						$cache_key = 'upserv_license_exists_' . $license['id'];
+						$exists    = wp_cache_get( $cache_key, 'updatepulse-server', false, $found );
+
+						if ( ! $found ) {
+							$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE id = %s;";
+							$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['id'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+							wp_cache_set( $cache_key, $exists, 'updatepulse-server' );
+						}
 
 						if ( ! $exists ) {
 							$errors['license_not_found'] = __( 'The license cannot be found.', 'updatepulse-server' );
 						}
 					}
 				} else {
-					$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE license_key = %s;";
-					$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['license_key'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+					$cache_key = 'upserv_license_exists_' . $license['license_key'];
+					$exists    = wp_cache_get( $cache_key, 'updatepulse-server', false, $found );
+
+					if ( ! $found ) {
+						$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE license_key = %s;";
+						$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['license_key'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+						wp_cache_set( $cache_key, $exists, 'updatepulse-server' );
+					}
 
 					if ( ! $exists ) {
 						$errors['license_not_found'] = __( 'The license cannot be found.', 'updatepulse-server' );
@@ -776,8 +799,15 @@ class License_Server {
 			) {
 				$errors['invalid_key'] = __( 'The license key is required and must be a string.', 'updatepulse-server' );
 			} elseif ( ! $partial && isset( $license['license_key'] ) ) {
-				$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE license_key = %s;";
-				$exists = ( '0' !== $wpdb->get_var( $wpdb->prepare( $sql, $license['license_key'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$cache_key = 'upserv_license_exists_' . $license['license_key'];
+				$exists    = wp_cache_get( $cache_key, 'updatepulse-server', false, $found );
+
+				if ( ! $found ) {
+					$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE license_key = %s;";
+					$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['license_key'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+					wp_cache_set( $cache_key, $exists, 'updatepulse-server' );
+				}
 
 				if ( $exists ) {
 					$errors['key_exists'] = __( 'A value already exists for the given license key. Each key must be unique.', 'updatepulse-server' );
