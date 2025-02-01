@@ -147,6 +147,10 @@ jQuery(document).ready(function ($) {
     };
     var disableForm = function (disable) {
         inputElements.prop('disabled', disable);
+
+        if (!disable) {
+            form.removeClass('hidden');
+        }
     };
     var updateSelfHosted = function (elem) {
 

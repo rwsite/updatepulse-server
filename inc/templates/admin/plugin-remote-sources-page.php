@@ -57,7 +57,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="form-container package-source">
+		<div class="form-container package-source hidden">
 			<table class="form-table form-settings">
 				<tr>
 					<th>
