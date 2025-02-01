@@ -966,20 +966,8 @@ class License_API {
 
 	protected function handle_invalid_license( $license, $license_data ) {
 
-		if ( is_array( $license ) ) {
+		if ( is_array( $license ) && isset( $license['license_not_found'] ) ) {
 
-			if ( empty( $license ) || ! isset( $license[0] ) ) {
-				$license = array( __( 'Unknown error.', 'updatepulse-server' ) );
-			}
-
-			$this->http_response_code = 500;
-
-			return $this->prepare_error_response(
-				'unexpected_error',
-				__( 'This is an unexpected error. Please contact support.', 'updatepulse-server' ),
-				array( 'error' => $license )
-			);
-		} else {
 			$this->http_response_code = 400;
 
 			return $this->prepare_error_response(
@@ -987,7 +975,20 @@ class License_API {
 				__( 'The provided license key is invalid.', 'updatepulse-server' ),
 				array( 'license_key' => $license_data['license_key'] ? $license_data['license_key'] : false )
 			);
+
 		}
+
+		if ( ! is_array( $license ) || empty( $license ) || ! isset( $license[0] ) ) {
+			$license = array( __( 'Unknown error.', 'updatepulse-server' ) );
+		}
+
+		$this->http_response_code = 500;
+
+		return $this->prepare_error_response(
+			'unexpected_error',
+			__( 'This is an unexpected error. Please contact support.', 'updatepulse-server' ),
+			array( 'error' => $license )
+		);
 	}
 
 	protected function authorize_private( $action, $payload ) {
