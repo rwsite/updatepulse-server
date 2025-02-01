@@ -250,14 +250,16 @@ class License_Server {
 			);
 
 			if ( false !== $result ) {
-				$return = $this->read_license( $payload, true );
+				$m5_key = md5( wp_json_encode( array( 'license_key' => $payload['license_key'] ) ) );
+
+				wp_cache_delete( $m5_key, 'updatepulse-server' );
+				wp_cache_delete( 'upserv_license_exists_' . $payload['license_key'], 'updatepulse-server' );
+
+				$return = $this->read_license( $payload['license_key'], true );
 				$md5_id = md5( wp_json_encode( array( 'id' => $return->id ) ) );
-				$m5_key = md5( wp_json_encode( array( 'license_key' => $return->license_key ) ) );
 
 				wp_cache_delete( $md5_id, 'updatepulse-server' );
-				wp_cache_delete( $m5_key, 'updatepulse-server' );
 				wp_cache_delete( 'upserv_license_exists_' . $return->id, 'updatepulse-server' );
-				wp_cache_delete( 'upserv_license_exists_' . $return->license_key, 'updatepulse-server' );
 			} else {
 				php_log( 'License creation failed - database insertion error.' );
 				throw new Exception( esc_html__( 'License creation failed - database insertion error.', 'updatepulse-server' ) );
