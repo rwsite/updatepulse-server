@@ -214,7 +214,7 @@ class Webhook_API {
 			$url,
 			array(
 				'method'   => 'POST',
-				'blocking' => false,
+				'blocking' => ! $instant,
 				'headers'  => array(
 					'X-UpdatePulse-Action'        => $action,
 					'X-UpdatePulse-Signature-256' => 'sha256=' . hash_hmac( 'sha256', $body, $secret ),
