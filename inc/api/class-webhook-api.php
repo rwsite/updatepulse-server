@@ -177,22 +177,22 @@ class Webhook_API {
 			}
 
 			if ( apply_filters( 'upserv_webhook_fire', $fire, $payload, $info['url'], $info ) ) {
-				$body   = wp_json_encode(
+				$body              = wp_json_encode(
 					$payload,
 					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK
 				);
-				$hook   = 'upserv_webhook';
-				$params = array( $info['url'], $info['secret'], $body, current_action(), $instant );
+				$hook              = 'upserv_webhook';
+				$params            = array( $info['url'], $info['secret'], $body, current_action() );
+				$params['instant'] = apply_filters(
+					'upserv_schedule_webhook_is_instant',
+					$instant,
+					$event_type,
+					$params
+				);
 
 				if ( ! as_has_scheduled_action( 'upserv_webhook', $params ) ) {
-					$instant = apply_filters(
-						'upserv_schedule_webhook_is_instant',
-						$instant,
-						$event_type,
-						$params
-					);
 
-					if ( $instant ) {
+					if ( $params['instant'] ) {
 						$this->fire_webhook( ...$params );
 
 						continue;
@@ -232,7 +232,7 @@ class Webhook_API {
 
 	public function http_api_curl( $handle, $parsed_args, $url ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
-		if ( ! isset( $parsed_args['blocking'] ) || ! $parsed_args['blocking'] ) {
+		if ( ! $parsed_args['blocking'] ) {
 			curl_setopt( $handle, CURLOPT_RETURNTRANSFER, false ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
 			curl_setopt( $handle, CURLOPT_TIMEOUT_MS, 1 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
 		}
