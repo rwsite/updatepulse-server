@@ -202,7 +202,7 @@ Webhook                                  | Multiple values; creating a Webhook r
 
 The performance insights below have been gathered on a cheap shared hosting server (less than $10 per month) with 256 MB of RAM, without any function hooked to UpdatePulse Server actions or filters, no Webhook, and with the MU Plugin endpoint optimizer active. Your Mileage May Vary depending on your server configuration and various optimisations you may add to your WordPress installation.  
 
-The general conclusion is that calls to the APIs are lighter and faster than loading the vaste majority of WordPress homepages (which is the page likely to be visited the most on any website) and lighter than a WordPress ajax call (extra optimisations and aggressive caching not considered).
+The general conclusion is that most calls to the APIs are lighter and faster than loading the vaste majority of WordPress homepages (which is the page likely to be visited the most on any website) and lighter than a WordPress ajax call (extra optimisations and aggressive caching not considered).
 
 ### Benchmark
 
@@ -219,6 +219,7 @@ Total number of scripts: 455
 
 ### Update API
 Performance can evaluated with the script `tests.php` located at the plugin's root. It is included only if the WordPress constants `WP_DEBUG` and `SAVEQUERIES` are truthy.  
+Below are the results of the tests performed on the Update API with the option "Use Cloud Storage" unchecked.  
 
 Performances when a client is checking for updates (no license):
 
@@ -296,12 +297,12 @@ Number of included/required scripts by the plugin: 39
 Performances when a client is activating a license key:
 ```
 --- Start load tests ---
-Time elapsed: 0.587
-Total server memory used: 2.19 M / 4096M
-Total number of queries: 12
+Time elapsed: 0.025
+Total server memory used: 2.54 M / 4096M
+Total number of queries: 9
 Total number of scripts: 423
-Server memory used to run the plugin: 138.75 K / 4096M
-Number of queries executed by the plugin: 11
+Server memory used to run the plugin: 460.91 K / 4096M
+Number of queries executed by the plugin: 8
 Number of included/required scripts by the plugin: 50
 --- End load tests ---
 ```
@@ -309,12 +310,12 @@ Number of included/required scripts by the plugin: 50
 Performances when a client is deactivating a license key:
 ```
 --- Start load tests ---
-Time elapsed: 0.540
-Total server memory used: 2.19 M / 4096M
-Total number of queries: 12
+Time elapsed: 0.029
+Total server memory used: 2.54 M / 4096M
+Total number of queries: 9
 Total number of scripts: 423
-Server memory used to run the plugin: 139.25 K / 4096M
-Number of queries executed by the plugin: 11
+Server memory used to run the plugin: 461.04 K / 4096M
+Number of queries executed by the plugin: 8
 Number of included/required scripts by the plugin: 50
 --- End load tests ---
 ```

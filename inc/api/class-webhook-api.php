@@ -182,7 +182,7 @@ class Webhook_API {
 					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK
 				);
 				$hook   = 'upserv_webhook';
-				$params = array( $info['url'], $info['secret'], $body, current_action() );
+				$params = array( $info['url'], $info['secret'], $body, current_action(), $instant );
 
 				if ( ! as_has_scheduled_action( 'upserv_webhook', $params ) ) {
 					$instant = apply_filters(
@@ -198,16 +198,19 @@ class Webhook_API {
 						continue;
 					}
 
-					$timestamp = time();
-
-					as_schedule_single_action( $timestamp, $hook, $params );
+					as_schedule_single_action( time(), $hook, $params );
 				}
 			}
 		}
 	}
 
-	public function fire_webhook( $url, $secret, $body, $action ) {
-		return wp_remote_post(
+	public function fire_webhook( $url, $secret, $body, $action, $instant = false ) {
+
+		if ( $instant ) {
+			add_action( 'http_api_curl', array( $this, 'http_api_curl' ), 10, 3 );
+		}
+
+		$return = wp_remote_post(
 			$url,
 			array(
 				'method'   => 'POST',
@@ -219,6 +222,20 @@ class Webhook_API {
 				'body'     => $body,
 			)
 		);
+
+		if ( $instant ) {
+			remove_action( 'http_api_curl', array( $this, 'http_api_curl' ), 10 );
+		}
+
+		return $return;
+	}
+
+	public function http_api_curl( $handle, $parsed_args, $url ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+
+		if ( ! isset( $parsed_args['blocking'] ) || ! $parsed_args['blocking'] ) {
+			curl_setopt( $handle, CURLOPT_RETURNTRANSFER, false ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
+			curl_setopt( $handle, CURLOPT_TIMEOUT_MS, 1 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
+		}
 	}
 
 	/*******************************************************************
