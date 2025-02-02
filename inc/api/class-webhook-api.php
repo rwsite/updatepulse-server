@@ -177,22 +177,22 @@ class Webhook_API {
 			}
 
 			if ( apply_filters( 'upserv_webhook_fire', $fire, $payload, $info['url'], $info ) ) {
-				$body              = wp_json_encode(
+				$body   = wp_json_encode(
 					$payload,
 					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK
 				);
-				$hook              = 'upserv_webhook';
-				$params            = array( $info['url'], $info['secret'], $body, current_action() );
-				$params['instant'] = apply_filters(
-					'upserv_schedule_webhook_is_instant',
-					$instant,
-					$event_type,
-					$params
-				);
+				$hook   = 'upserv_webhook';
+				$params = array( $info['url'], $info['secret'], $body, current_action() );
 
 				if ( ! as_has_scheduled_action( 'upserv_webhook', $params ) ) {
+					$instant = apply_filters(
+						'upserv_schedule_webhook_is_instant',
+						$instant,
+						$event_type,
+						$params
+					);
 
-					if ( $params['instant'] ) {
+					if ( $instant ) {
 						$this->fire_webhook( ...$params );
 
 						continue;
@@ -204,17 +204,12 @@ class Webhook_API {
 		}
 	}
 
-	public function fire_webhook( $url, $secret, $body, $action, $instant = false ) {
-
-		if ( $instant ) {
-			add_action( 'http_api_curl', array( $this, 'http_api_curl' ), 10, 3 );
-		}
-
-		$return = wp_remote_post(
+	public function fire_webhook( $url, $secret, $body, $action ) {
+		return wp_remote_post(
 			$url,
 			array(
 				'method'   => 'POST',
-				'blocking' => ! $instant,
+				'blocking' => false,
 				'headers'  => array(
 					'X-UpdatePulse-Action'        => $action,
 					'X-UpdatePulse-Signature-256' => 'sha256=' . hash_hmac( 'sha256', $body, $secret ),
@@ -222,20 +217,6 @@ class Webhook_API {
 				'body'     => $body,
 			)
 		);
-
-		if ( $instant ) {
-			remove_action( 'http_api_curl', array( $this, 'http_api_curl' ), 10 );
-		}
-
-		return $return;
-	}
-
-	public function http_api_curl( $handle, $parsed_args, $url ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-
-		if ( ! $parsed_args['blocking'] ) {
-			curl_setopt( $handle, CURLOPT_RETURNTRANSFER, false ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
-			curl_setopt( $handle, CURLOPT_TIMEOUT_MS, 1 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
-		}
 	}
 
 	/*******************************************************************
