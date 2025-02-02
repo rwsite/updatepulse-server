@@ -143,8 +143,10 @@ class License_Server {
 	}
 
 	public function read_license( $payload, $force = false ) {
-		$md5    = md5( wp_json_encode( $payload ) );
-		$return = wp_cache_get( $md5, 'updatepulse-server', false, $found );
+		$where_field = isset( $payload['license_key'] ) ? 'license_key' : 'id';
+		$where_value = $payload[ $where_field ];
+		$md5         = md5( wp_json_encode( array( $where_field => $where_value ) ) );
+		$return      = wp_cache_get( $md5, 'updatepulse-server', false, $found );
 
 		if ( $force || ! $found ) {
 			$payload    = $this->filter_license_payload( $payload );
@@ -155,11 +157,9 @@ class License_Server {
 			if ( true === $validation ) {
 				global $wpdb;
 
-				$where_field = ( isset( $payload['id'] ) && ! empty( $payload['id'] ) ) ? 'id' : 'license_key';
-				$where_value = $payload[ $where_field ];
-				$payload     = $this->sanitize_payload( $payload );
-				$sql         = "SELECT * FROM {$wpdb->prefix}upserv_licenses WHERE {$where_field} = %s;";
-				$license     = $wpdb->get_row( $wpdb->prepare( $sql, $where_value ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+				$payload = $this->sanitize_payload( $payload );
+				$sql     = "SELECT * FROM {$wpdb->prefix}upserv_licenses WHERE {$where_field} = %s;";
+				$license = $wpdb->get_row( $wpdb->prepare( $sql, $where_value ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 				if ( is_object( $license ) ) {
 					$license->max_allowed_domains = intval( $license->max_allowed_domains );
@@ -188,7 +188,7 @@ class License_Server {
 		if ( true === $validation ) {
 			global $wpdb;
 
-			$field    = isset( $payload['id'] ) ? 'id' : 'license_key';
+			$field    = isset( $payload['license_key'] ) ? 'license_key' : 'id';
 			$where    = array( $field => $payload[ $field ] );
 			$payload  = $this->sanitize_payload( $payload );
 			$original = $this->read_license( $where );
@@ -274,14 +274,13 @@ class License_Server {
 	public function delete_license( $payload ) {
 		$payload    = $this->filter_license_payload( $payload );
 		$payload    = apply_filters( 'upserv_delete_license_payload', $payload );
-		$validation = ( isset( $payload['id'] ) && ! empty( $payload['id'] ) );
-		$validation = $validation || ( isset( $payload['license_key'] ) && ! empty( $payload['license_key'] ) );
+		$validation = $this->validate_license_payload( $payload, true );
 		$return     = $validation;
 
 		if ( true === $validation ) {
 			global $wpdb;
 
-			$field   = ( isset( $payload['id'] ) && ! empty( $payload['id'] ) ) ? 'id' : 'license_key';
+			$field   = isset( $payload['license_key'] ) ? 'license_key' : 'id';
 			$where   = array( $field => $payload[ $field ] );
 			$payload = $this->sanitize_payload( $payload );
 			$license = $this->read_license( $payload );
@@ -749,39 +748,31 @@ class License_Server {
 
 			if ( $partial ) {
 
-				if ( ! isset( $license['id'] ) ) {
-
-					if ( ! isset( $license['license_key'] ) ) {
-						$errors['missing_key'] = __( 'A license key is required to identify the license.', 'updatepulse-server' );
-					}
-				}
-
-				if ( isset( $license['id'] ) ) {
-
-					if ( ! is_numeric( $license['id'] ) ) {
-						$errors['invalid_id'] = __( 'The ID must be an integer.', 'updatepulse-server' );
-					} else {
-						$cache_key = 'upserv_license_exists_' . $license['id'];
-						$exists    = wp_cache_get( $cache_key, 'updatepulse-server', false, $found );
-
-						if ( ! $found ) {
-							$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE id = %s;";
-							$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['id'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-
-							wp_cache_set( $cache_key, $exists, 'updatepulse-server' );
-						}
-
-						if ( ! $exists ) {
-							$errors['license_not_found'] = __( 'The license cannot be found.', 'updatepulse-server' );
-						}
-					}
-				} else {
+				if ( ! isset( $license['id'] ) && ! isset( $license['license_key'] ) ) {
+					$errors['missing_key'] = __( 'A license key is required to identify the license.', 'updatepulse-server' );
+				} elseif ( isset( $license['license_key'] ) ) {
 					$cache_key = 'upserv_license_exists_' . $license['license_key'];
 					$exists    = wp_cache_get( $cache_key, 'updatepulse-server', false, $found );
 
 					if ( ! $found ) {
 						$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE license_key = %s;";
 						$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['license_key'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+						wp_cache_set( $cache_key, $exists, 'updatepulse-server' );
+					}
+
+					if ( ! $exists ) {
+						$errors['license_not_found'] = __( 'The license cannot be found.', 'updatepulse-server' );
+					}
+				} elseif ( ! is_numeric( $license['id'] ) ) {
+						$errors['invalid_id'] = __( 'The ID must be an integer.', 'updatepulse-server' );
+				} else {
+					$cache_key = 'upserv_license_exists_' . $license['id'];
+					$exists    = wp_cache_get( $cache_key, 'updatepulse-server', false, $found );
+
+					if ( ! $found ) {
+						$sql    = "SELECT COUNT(*) FROM {$wpdb->prefix}upserv_licenses WHERE id = %s;";
+						$exists = ( '1' === $wpdb->get_var( $wpdb->prepare( $sql, $license['id'] ) ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 						wp_cache_set( $cache_key, $exists, 'updatepulse-server' );
 					}

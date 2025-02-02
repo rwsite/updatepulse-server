@@ -465,7 +465,7 @@ class License_API {
 	}
 
 	public function upserv_bypass_did_edit_license_action() {
-		remove_action( 'upserv_did_edit_license', array( $this, 'upserv_did_license_action' ), 10 );
+		remove_action( 'upserv_did_edit_license', array( $this, 'upserv_did_license_action' ), 20 );
 	}
 
 	public function upserv_did_license_action( $result, $payload, $original = null ) {
@@ -854,14 +854,16 @@ class License_API {
 		}
 
 		$payload = array(
-			'id'              => $license->id,
+			'license_key'     => $license->license_key,
 			'status'          => 'activated',
 			'allowed_domains' => array_unique( array_merge( array( $domain ), $license->allowed_domains ) ),
 			'data'            => $data,
 		);
 
 		try {
-			$result = $this->license_server->edit_license( apply_filters( 'upserv_activate_license_payload', $payload ) );
+			$result = $this->license_server->edit_license(
+				apply_filters( 'upserv_activate_license_payload', $payload )
+			);
 		} catch ( Exception $e ) {
 			return array( $e->getMessage() );
 		}
@@ -934,7 +936,7 @@ class License_API {
 
 		$allowed_domains = array_diff( $license->allowed_domains, array( $domain ) );
 		$payload         = array(
-			'id'              => $license->id,
+			'license_key'     => $license->license_key,
 			'status'          => empty( $allowed_domains ) ? 'deactivated' : $license->status,
 			'allowed_domains' => $allowed_domains,
 			'data'            => $data,
