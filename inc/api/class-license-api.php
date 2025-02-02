@@ -930,7 +930,7 @@ class License_API {
 		$data                    = isset( $license->data ) ? $license->data : array();
 		$data['next_deactivate'] = apply_filters(
 			'upserv_deactivate_license_next_deactivate',
-			(bool) ( constant( 'WP_DEBUG' ) ) ? time() + MINUTE_IN_SECONDS : time() + MONTH_IN_SECONDS,
+			(bool) ( constant( 'WP_DEBUG' ) ) ? time() + ( MINUTE_IN_SECONDS / 4 ) : time() + MONTH_IN_SECONDS,
 			$license
 		);
 
