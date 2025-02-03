@@ -255,7 +255,7 @@ class License_Server {
 				wp_cache_delete( $m5_key, 'updatepulse-server' );
 				wp_cache_delete( 'upserv_license_exists_' . $payload['license_key'], 'updatepulse-server' );
 
-				$return = $this->read_license( array( 'license_key' => $payload['license_key'] ), true );
+				$return = $this->read_license( $payload['license_key'], true );
 				$md5_id = md5( wp_json_encode( array( 'id' => $return->id ) ) );
 
 				wp_cache_delete( $md5_id, 'updatepulse-server' );
