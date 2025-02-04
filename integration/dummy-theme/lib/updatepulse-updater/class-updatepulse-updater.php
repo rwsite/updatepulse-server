@@ -400,6 +400,12 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 				wp_send_json_error( $error );
 			}
 
+			if ( 'Theme' === $this->type ) {
+				wp_update_themes();
+			} else {
+				wp_update_plugins();
+			}
+
 			$this->delete_option( 'licenseError' );
 			wp_send_json_success( $license_data );
 		}
@@ -430,6 +436,23 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 				}
 
 				wp_send_json_error( $error );
+			}
+
+			$transient_name  = 'Theme' === $this->type ? 'update_themes' : 'update_plugins';
+			$update_packages = get_site_transient( $transient_name );
+
+			if ( 'Theme' === $this->type ) {
+				unset( $update_packages->response[ $this->package_slug ] );
+			} else {
+				unset( $update_packages->response[ $this->package_id ] );
+			}
+
+			set_site_transient( $transient_name, $update_packages );
+
+			if ( 'Theme' === $this->type ) {
+				wp_update_themes();
+			} else {
+				wp_update_plugins();
 			}
 
 			wp_send_json_success( $license_data );
