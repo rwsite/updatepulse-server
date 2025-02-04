@@ -200,7 +200,7 @@ jQuery(document).ready(function ($) {
 			'nonce' : licenseContainer.data('nonce'),
 			'license_key' : licenseContainer.find('.license').val(),
 			'package_slug' : licenseContainer.data('package_slug'),
-			'action' : UPupdater.action_prefix + '_activate_license'
+			'action' : 'upupdater_' + licenseContainer.attr('id').replace('wrap_license_', '') + '_activate_license'
 		};
 
 		$.ajax({
@@ -262,7 +262,7 @@ jQuery(document).ready(function ($) {
 			'nonce' : licenseContainer.data('nonce'),
 			'license_key' : licenseContainer.find('.license').val(),
 			'package_slug' : licenseContainer.data('package_slug'),
-			'action' : UPupdater.action_prefix + '_deactivate_license'
+			'action' : 'upupdater_' + licenseContainer.attr('id').replace('wrap_license_', '') + '_deactivate_license'
 		};
 
 		$.ajax({

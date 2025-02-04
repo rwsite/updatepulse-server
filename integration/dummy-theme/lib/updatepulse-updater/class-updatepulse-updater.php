@@ -253,8 +253,7 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 				$js_ext = ( $debug ) ? '.js' : '.min.js';
 				$ver_js = filemtime( $this->package_path . 'lib/updatepulse-updater/js/main' . $js_ext );
 				$params = array(
-					'action_prefix' => 'upupdater_' . $this->package_id,
-					'ajax_url'      => admin_url( 'admin-ajax.php' ),
+					'ajax_url' => admin_url( 'admin-ajax.php' ),
 				);
 
 				wp_enqueue_script(
