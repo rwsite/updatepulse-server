@@ -840,6 +840,7 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 				'license_key'     => $license_key,
 				'allowed_domains' => $_SERVER['SERVER_NAME'],
 				'package_slug'    => rawurlencode( $this->package_slug ),
+				'locale'          => get_locale(),
 			);
 			$query      = esc_url_raw( add_query_arg( $api_params, $this->license_server_url ) );
 			$response   = wp_remote_get(
