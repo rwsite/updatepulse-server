@@ -358,6 +358,7 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 					'form'        => $this->get_license_form(),
 					'plugin_file' => $plugin_file,
 					'plugin_data' => $plugin_data,
+					'slug'        => $this->package_slug,
 					'status'      => $status,
 				)
 			);

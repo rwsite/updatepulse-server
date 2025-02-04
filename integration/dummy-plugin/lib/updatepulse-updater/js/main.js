@@ -195,12 +195,13 @@ jQuery(document).ready(function ($) {
 	$('body').on('click', '.wrap-license .activate-license', function (e) {
 		e.preventDefault();
 
-		var licenseContainer = $(this).closest('.wrap-license'),
-		data             = {
+		var licenseContainer = $(this).closest('.wrap-license');
+		var packageID        = licenseContainer.attr('id').replace('wrap_license_', '');
+		var data             = {
 			'nonce' : licenseContainer.data('nonce'),
 			'license_key' : licenseContainer.find('.license').val(),
 			'package_slug' : licenseContainer.data('package_slug'),
-			'action' : 'upupdater_' + licenseContainer.attr('id').replace('wrap_license_', '') + '_activate_license'
+			'action' : 'upupdater_' + packageID + '_activate_license'
 		};
 
 		$.ajax({
@@ -235,6 +236,11 @@ jQuery(document).ready(function ($) {
 
 						licenseContainer.find('.deactivate-license').val(licenseContainer.find('.deactivate-license').val() + ' ' + P.format(date, dateFormat));
 					}
+
+					$('tr[data-plugin="' + packageID + '"] .column-auto-updates a').removeClass('hidden');
+					$('tr.plugin-update-tr:not(.updatepulse)[data-plugin="' + packageID + '"]').removeClass('hidden');
+					licenseContainer.closest('.theme-info').find('.theme-autoupdate').removeClass('hidden');
+					$('#update-theme').closest('.notice').removeClass('hidden');
 				} else {
 					var errorContainer = licenseContainer.find('.current-license-error');
 
@@ -257,12 +263,13 @@ jQuery(document).ready(function ($) {
 	$('body').on('click', '.wrap-license .deactivate-license', function (e) {
 		e.preventDefault();
 
-		var licenseContainer = $(this).closest('.wrap-license'),
-		data             = {
+		var licenseContainer = $(this).closest('.wrap-license');
+		var packageID        = licenseContainer.attr('id').replace('wrap_license_', '');
+		var data             = {
 			'nonce' : licenseContainer.data('nonce'),
 			'license_key' : licenseContainer.find('.license').val(),
 			'package_slug' : licenseContainer.data('package_slug'),
-			'action' : 'upupdater_' + licenseContainer.attr('id').replace('wrap_license_', '') + '_deactivate_license'
+			'action' : 'upupdater_' + packageID + '_deactivate_license'
 		};
 
 		$.ajax({
@@ -277,6 +284,11 @@ jQuery(document).ready(function ($) {
 					licenseContainer.find('.license-message').addClass('hidden');
 					licenseContainer.find('.deactivate-license-container').addClass('hidden');
 					licenseContainer.find('.activate-license-container').removeClass('hidden');
+
+					$('tr[data-plugin="' + packageID + '"] .column-auto-updates a').addClass('hidden');
+					$('tr.plugin-update-tr:not(.updatepulse)[data-plugin="' + packageID + '"]').addClass('hidden');
+					licenseContainer.closest('.theme-info').find('.theme-autoupdate').addClass('hidden');
+					$('#update-theme').closest('.notice').addClass('hidden');
 				} else {
 					var errorContainer = licenseContainer.find('.current-license-error');
 
