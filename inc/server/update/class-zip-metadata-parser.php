@@ -223,9 +223,9 @@ class Zip_Metadata_Parser {
 	protected function set_theme_details_url() {
 
 		if (
-			'theme' !== $this->package_info['type'] &&
 			! isset( $this->metadata['details_url'] ) &&
-			isset( $this->metadata['homepage'] ) ) {
+			isset( $this->metadata['homepage'] )
+		) {
 			$this->metadata['details_url'] = $this->metadata['homepage'];
 		}
 	}
