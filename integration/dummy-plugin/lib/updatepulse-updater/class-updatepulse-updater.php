@@ -158,6 +158,13 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 						add_filter( 'wp_prepare_themes_for_js', array( $this, 'wp_prepare_themes_for_js' ), 10, 1 );
 					}
 
+					if ( ! $this->get_option( 'licenseKey' ) || ! $this->get_option( 'licenseSignature' ) ) {
+						$suffix_type = strtolower( $this->type );
+
+						add_filter( "auto_update_{$suffix_type}", array( $this, 'auto_update_package' ), 10, 2 );
+						add_filter( "site_transient_update_{$suffix_type}s", array( $this, 'site_transient_update_packages' ), 10, 1 );
+					}
+
 					add_action( 'wp_ajax_upupdater_' . $this->package_id . '_activate_license', array( $this, 'activate_license' ), 10, 0 );
 					add_action( 'wp_ajax_upupdater_' . $this->package_id . '_deactivate_license', array( $this, 'deactivate_license' ), 10, 0 );
 					add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ), 99, 1 );
@@ -507,6 +514,28 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 			}
 
 			return $_true;
+		}
+
+		public function auto_update_package( $update, $info ) {
+
+			if ( 'Theme' === $this->type && $this->package_slug === $info->theme ) {
+				return false;
+			} elseif ( 'Plugin' === $this->type && $this->package_id === $info->plugin ) {
+				return false;
+			}
+
+			return $update;
+		}
+
+		public function site_transient_update_packages( $transient ) {
+
+			if ( 'Theme' === $this->type ) {
+				unset( $transient->response[ $this->package_slug ] );
+			} else {
+				unset( $transient->response[ $this->package_id ] );
+			}
+
+			return $transient;
 		}
 
 		// Misc. -------------------------------------------------------
