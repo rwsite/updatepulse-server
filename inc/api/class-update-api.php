@@ -151,6 +151,11 @@ class Update_API {
 
 	public function check_remote_update( $slug, $type ) {
 		$this->init_server( $slug );
+
+		if ( ! $this->update_server ) {
+			return false;
+		}
+
 		$this->update_server->set_type( $type );
 
 		return $this->update_server->check_remote_package_update( $slug );
@@ -174,6 +179,11 @@ class Update_API {
 		}
 
 		$this->init_server( $slug );
+
+		if ( ! $this->update_server ) {
+			return false;
+		}
+
 		$this->update_server->set_type( $type );
 
 		if ( $force || $this->update_server->check_remote_package_update( $slug ) ) {
@@ -270,11 +280,23 @@ class Update_API {
 		);
 
 		$this->init_server( $slug );
+
+		if ( ! $this->update_server ) {
+			wp_send_json(
+				array(
+					'error'   => 'no_server',
+					'message' => __( 'No server found for this package.', 'updatepulse-server' ),
+				),
+				500
+			);
+		}
+
 		do_action( 'upserv_before_handle_update_request', $params );
 		$this->update_server->handle_request( $params );
 	}
 
 	protected function init_server( $slug ) {
+		$check_manual = false;
 
 		if ( upserv_get_option( 'use_vcs' ) ) {
 			$vcs_config  = upserv_get_package_vcs_config( $slug );
@@ -285,6 +307,16 @@ class Update_API {
 			$self_hosted = isset( $vcs_config['self_hosted'] ) ? $vcs_config['self_hosted'] : false;
 
 			if ( ! $url || ! $branch || ! $vcs_type ) {
+				$check_manual = true;
+			}
+		} else {
+			$check_manual = true;
+		}
+
+		if ( $check_manual ) {
+			$meta = upserv_get_package_metadata( $slug );
+
+			if ( ! isset( $meta['origin'] ) || 'manual' !== $meta['origin'] ) {
 				return;
 			}
 		}
