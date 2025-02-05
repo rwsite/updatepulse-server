@@ -36,7 +36,7 @@
 .form-table td textarea.ip-whitelist,
 .api-keys-items,
 .webhook-items {
-    max-width: 600px
+    max-width: 650px;
 }
 
 .new-webhook-item-license_api_key {
@@ -62,8 +62,8 @@
 }
 
 .api-keys-items .key,.webhook-items .secret {
-    word-break: break-all;
-    min-width: 75px;
+    word-break: keep-all;
+    min-width: 130px;
     justify-self: end;
 }
 
