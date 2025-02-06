@@ -7,7 +7,12 @@ jQuery(document).ready(function ($) {
     var form = $('.form-container.package-source');
     var inputElements = form.find('input[type="checkbox"][data-prop], input[type="text"][data-prop], input[type="number"][data-prop], input[type="password"][data-prop], input[type="hidden"][data-prop], select[data-prop]');
     var inputTextElements = form.find('input[type="text"][data-prop], input[type="number"][data-prop], input[type="password"][data-prop]');
-    var data = JSON.parse($('#upserv_vcs').val());
+    var data = $('#upserv_vcs').val() ? JSON.parse($('#upserv_vcs').val()) : {};
+
+    if (typeof data !== 'object') {
+        data = {};
+    }
+
     var init = function () {
         $.each(data, function (id) {
 
@@ -87,7 +92,6 @@ jQuery(document).ready(function ($) {
         $('#' + id).remove();
         updateForm();
         disableForm(true);
-        updateRepositories();
         form.addClass('hidden');
     };
     var updateForm = function (id) {
@@ -147,10 +151,6 @@ jQuery(document).ready(function ($) {
     };
     var disableForm = function (disable) {
         inputElements.prop('disabled', disable);
-
-        if (!disable) {
-            form.removeClass('hidden');
-        }
     };
     var updateSelfHosted = function (elem) {
 

@@ -12,10 +12,24 @@ jQuery(document).ready(function ($) {
 	});
 
 	$('#upserv_modal_license_details').on('open', function (e, handler) {
-		var info  = JSON.parse(handler.closest('tr').find('input[name="license_data[]"]').val());
+		var info;
 		var modal = $(this);
 
-		info.data = JSON.parse(info.data);
+		if (handler.closest('tr').find('input[name="license_data[]"]').val()) {
+			info = JSON.parse(handler.closest('tr').find('input[name="license_data[]"]').val());
+		} else {
+			info = {};
+		}
+
+		if (typeof info !== 'object') {
+			info = {};
+		}
+
+		if (info.data) {
+			info.data = JSON.parse(info.data);
+		} else {
+			info.data = {};
+		}
 
 		modal.find('h2').html(info.license_key + '<br>' + info.package_slug + ' - ' + info.owner_name + ' (' + info.email + ')');
 		modal.find('pre').text(JSON.stringify(info, null, 2));
@@ -39,7 +53,17 @@ jQuery(document).ready(function ($) {
 	$('.upserv-licenses-table .open-panel .edit a').on('click', function(e){
 		e.preventDefault();
 
-		var licenseData = JSON.parse($(this).closest('tr').find('input[name="license_data[]"]').val());
+		var licenseData;
+
+		if ($(this).closest('tr').find('input[name="license_data[]"]').val()) {
+			licenseData = JSON.parse($(this).closest('tr').find('input[name="license_data[]"]').val());
+		} else {
+			licenseData = {};
+		}
+
+		if (typeof licenseData !== 'object') {
+			licenseData = {};
+		}
 
 		showLicensePanel($('#upserv_license_panel'), function() {
 			populateLicensePanel(licenseData);
@@ -127,7 +151,7 @@ jQuery(document).ready(function ($) {
 			initEditor = false;
 		}
 
-		if ($.isPlainObject(licenseData)) {
+		if (licenseData && licenseData.constructor === Object) {
 			$('#upserv_license_id').html(licenseData.id);
 			$('#upserv_license_key').val(licenseData.license_key);
 			$('#upserv_license_date_created').val(licenseData.date_created);
@@ -138,7 +162,7 @@ jQuery(document).ready(function ($) {
 			$('#upserv_license_transaction_id').val(licenseData.txn_id);
 			$('#upserv_license_package_slug').val(licenseData.package_slug);
 			$('#upserv_license_status').val(licenseData.status);
-			$('#upserv_license_data').val(licenseData.data ? JSON.stringify(JSON.parse(licenseData.data), null, '\t') : '');
+			$('#upserv_license_data').val(typeof licenseData.data === 'string' ? JSON.stringify(JSON.parse(licenseData.data), null, '\t') : '{}');
 			$('#upserv_license_package_type').val(licenseData.package_type);
 			editor.codemirror.setValue($('#upserv_license_data').val());
 

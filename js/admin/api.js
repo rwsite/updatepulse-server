@@ -14,8 +14,18 @@ jQuery(document).ready(function ($) {
     }
 
     $('#upserv_modal_api_details').on('open', function (e, handler) {
-		var info = JSON.parse($(handler.data('selector')).val());
-		var modal = $(this);
+        var info;
+        var modal = $(this);
+
+        if (handler.closest('tr').find('input[name="api_data[]"]').val()) {
+            info = JSON.parse(handler.closest('tr').find('input[name="api_data[]"]').val());
+        } else {
+            info = {};
+        }
+
+        if (typeof info !== 'object') {
+            info = {};
+        }
 
 		modal.find('h2').text(handler.data('title'));
 		modal.find('pre').text(JSON.stringify(info, null, 2));
@@ -24,7 +34,18 @@ jQuery(document).ready(function ($) {
     $('.webhook-multiple').each(function (idx, el) {
         el = $(el);
 
-        var data = JSON.parse(el.find('.webhook-values').val());
+        var data;
+
+        if (el.find('.webhook-values').val()) {
+            data = JSON.parse(el.find('.webhook-values').val());
+        } else {
+            data = {};
+        }
+
+        if (typeof data !== 'object') {
+            data = {};
+        }
+
         var urlNew = el.find('.new-webhook-item-url');
         var licenseAPIKeyNew = el.find('.new-webhook-item-license_api_key');
         var secretNew = el.find('.new-webhook-item-secret');
@@ -33,10 +54,6 @@ jQuery(document).ready(function ($) {
         var licenseEvents = el.find('input[data-webhook-event="license"]');
         var addButton = el.find('.webhook-add').get(0);
         var itemsContainer = el.find('.webhook-items').get(0);
-
-        if ( 0 === data.length ) {
-            data = {};
-        }
 
         addButton.onclick = function () {
             addButton.disabled = 'disabled';
@@ -232,16 +249,23 @@ jQuery(document).ready(function ($) {
     $('.api-keys-multiple').each(function (idx, el) {
         el = $(el);
 
-        var data = JSON.parse(el.find('.api-key-values').val());
+        var data;
+
+        if (el.find('.api-key-values').val()) {
+            data = JSON.parse(el.find('.api-key-values').val());
+        } else {
+            data = {};
+        }
+
+        if (typeof data !== 'object') {
+            data = {};
+        }
+
         var idNew = el.find('.new-api-key-item-id');
         var allActions = el.find('input[data-api-action="all"]');
         var addButton = el.find('.api-keys-add').get(0);
         var itemsContainer = el.find('.api-keys-items').get(0);
         var prefix = el.data('prefix');
-
-        if ( 0 === data.length ) {
-            data = {};
-        }
 
         addButton.onclick = function () {
             var dataIndex = prefix + idNew.val().replace(new RegExp('^' + prefix), '');
