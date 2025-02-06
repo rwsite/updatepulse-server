@@ -217,7 +217,7 @@ class Parser {
 		foreach ( $lines as $line ) {
 
 			//Is this a section header?
-			if ( preg_match( '@^\s*==\s+( .+? )\s+==\s*$@m', $line, $matches ) ) {
+			if ( preg_match( '@^\s*==\s+(.+?)\s+==\s*$@m', $line, $matches ) ) {
 
 				//Flush the content buffer for the previous section, if any
 				if ( ! empty( $current_section ) ) {

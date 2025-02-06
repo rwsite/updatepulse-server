@@ -239,7 +239,7 @@ class Zip_Metadata_Parser {
 
 		if (
 			is_array( $this->package_info['readme']['sections'] ) &&
-			array() !== $this->package_info['readme']['sections']
+			! empty( $this->package_info['readme']['sections'] )
 		) {
 
 			foreach ( $this->package_info['readme']['sections'] as $section_name => $section_content ) {
