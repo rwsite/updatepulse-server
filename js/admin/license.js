@@ -17,8 +17,6 @@ jQuery(document).ready(function ($) {
 
 		if (handler.closest('tr').find('input[name="license_data[]"]').val()) {
 			info = JSON.parse(handler.closest('tr').find('input[name="license_data[]"]').val());
-		} else {
-			info = {};
 		}
 
 		if (typeof info !== 'object') {
@@ -27,7 +25,9 @@ jQuery(document).ready(function ($) {
 
 		if (info.data) {
 			info.data = JSON.parse(info.data);
-		} else {
+		}
+
+		if (typeof info.data !== 'object') {
 			info.data = {};
 		}
 

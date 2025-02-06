@@ -19,8 +19,6 @@ jQuery(document).ready(function ($) {
 
         if (handler.closest('tr').find('input[name="api_data[]"]').val()) {
             info = JSON.parse(handler.closest('tr').find('input[name="api_data[]"]').val());
-        } else {
-            info = {};
         }
 
         if (typeof info !== 'object') {
@@ -38,8 +36,6 @@ jQuery(document).ready(function ($) {
 
         if (el.find('.webhook-values').val()) {
             data = JSON.parse(el.find('.webhook-values').val());
-        } else {
-            data = {};
         }
 
         if (typeof data !== 'object') {
@@ -253,8 +249,6 @@ jQuery(document).ready(function ($) {
 
         if (el.find('.api-key-values').val()) {
             data = JSON.parse(el.find('.api-key-values').val());
-        } else {
-            data = {};
         }
 
         if (typeof data !== 'object') {
