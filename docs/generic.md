@@ -38,7 +38,7 @@ Also of note, in the context of a generic package, the "domain" added to or remo
 
 ## Using the provided examples
 
-Examples of implementations in Node.js, PHP, Bash, and Python are provided in `wp-content/plugins/updatepulse-server/integration/dummy-generic`.  
+Examples of implementations in Node.js, PHP, Bash, and Python are provided in the `dummy-generic` folder of the in the [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository.  
 Although they can be executed, the examples are meant to be used as a starting point for your own implementation, and are **not meant to be used as-is**.  
 All the examples have been tested on Linux and MacOS.
 
@@ -83,7 +83,7 @@ Example of package configuration file `updatepulse.json` (all properties require
 In a terminal, use the example by typing (replace `[js|php|sh|py]` with the extension of the file you want to test):
 
 ```bash
-cd wp-content/plugins/updatepulse-server/integration/dummy-generic
+cd path/to/dummy-generic
 # show the help
 ./dummy-generic.[js|php|sh|py]
 # install the package

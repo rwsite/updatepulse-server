@@ -30,14 +30,15 @@
 
 
 Developer documentation:
-- [Packages](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md)
-- [Licenses](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/licenses.md)
-- [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md)
-- [Generic Updates Integration](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md)
+- [Packages](https://github.com/anyape/updatepulse-server/blob/main/docs/packages.md)
+- [Licenses](https://github.com/anyape/updatepulse-server/blob/main/docs/licenses.md)
+- [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/docs/misc.md)
+- [Generic Updates Integration](https://github.com/anyape/updatepulse-server/blob/main/docs/generic.md)
+- [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository
 
 ## Introduction
 
-UpdatePulse Server allows developers to provide updates for plugins & themes not hosted on `wordpress.org` (if not compliant with the GPLv2 or later, for example), or for generic packages unrelated to WordPress altogether. It also allows to control the updates with license.
+UpdatePulse Server allows developers to provide updates for their own plugins & themes not hosted on `wordpress.org`, or for generic packages unrelated to WordPress altogether. It also allows to control the updates with license.
 Package updates may be either uploaded directly, or hosted in a Version Control System, public or private, with the latest version of packages stored either locally or in the Cloud. It supports Bitbucket, Github, Gitlab, and self-hosted installations of Gitlab for package updates; S3 compatible service providers are supported for package storage.
 
 **The `main` branch contains a beta version of UpdatePulse Server. The `dev` branch contains an alpha version of UpdatePulse Server. For stable versions, please use releases.**  
@@ -49,10 +50,10 @@ This plugin adds the following major features to WordPress:
 * **Packages Overview:** manage package updates with a table showing Package Name, Version, Type, File Name, Size, Last Modified and License Status; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages. Upload updates from your local machine to UpdatePulse Server, or let the system to automatically download them to UpdatePulse Server from a Version Control System. Store packages either locally, or in the Cloud with an S3 compatible service. Packages can also be managed through their own API.
 * **Version Control Systems:** configure the Version Control Systems of your choice (Bitbucket, Github, Gitlab, or a self-hosted installation of Gitlab) with secure credentials and a branch name where the updates are hosted; choose to check for updates recurringly, or when receiving a webhook notification. UpdatePulse Server acts as a middleman between your reposiroty, your udpates storage (local or Cloud), and your clients.
 * **Licenses:** manage licenses with a table showing ID, License Key, Registered Email, Status, Package Type, Package Slug, Creation Date, and Expiry Date; add and edit them with a form, or use the API for more control. Licenses prevent packages installed on client machines from being updated without a valid license. Licenses are generated automatically by default and the values are unguessable (it is recommended to keep the default). When checking the validity of licenses an extra license signature is also checked to prevent the use of a license on more than the configured allowed domains.
-* **Not limited to WordPress:** with a platform-agnostic API, updates can be served for any type of package, not just WordPress plugins & themes. Basic examples of integration with Node.js, PHP, bash, and Python are provided in the [documentation](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md).
+* **Not limited to WordPress:** with a platform-agnostic API, updates can be served for any type of package, not just WordPress plugins & themes. Basic examples of integration with Node.js, PHP, bash, and Python are provided in the [documentation](https://github.com/anyape/updatepulse-server/blob/main/docs/generic.md).
 * **API & Webhooks:** Use the Package API to administer packages (browse, read, edit, add, delete), and request for expirable signed URLs of packages to allow secure downloads. Use the License API to administer licenses (browse, read, edit, add, delete) and check, activate or deactivate licenses. Fire Webhooks to notify any URL of your choice of key events affecting packages and licenses. 
 
-To connect their packages and UpdatePulse Server, developers can find integration examples in `updatepulse-server/integration`:
+To connect their packages and UpdatePulse Server, developers can find integration examples [here](https://github.com/Anyape/updatepulse-server-integration):
 * **Dummy Plugin:** a folder `dummy-plugin` with a simple, empty plugin that includes the necessary code in the `dummy-plugin.php` main plugin file and the necessary libraries in a `lib` folder.
 * **Dummy Theme:** a folder `dummy-theme` with a simple, empty child theme of Twenty Seventeen that includes the necessary code in the `functions.php` file and the necessary libraries in a `lib` folder.
 * **Dummy Generic:** a folder `dummy-generic` with a simple command line program written bash, Node.js, PHP, bash, and Python. Execute by calling `./dummy-generic.[js|php|sh|py]` from the command line. See `updatepulse-api.[js|php|sh|py]` for simple examples of the API calls.
@@ -330,9 +331,9 @@ Registering a package is possible with the following methods:
 - \[simple\] using the "Register a package using a VCS" feature in the "Packages Overview" tab of UpdatePulse Server
 - \[simple\] triggering a webhook from a VCS already added to UpdatePulse Server  
 Webhook URL: `https://domain.tld/updatepulse-server-webhook/package-type/package-slug` - where `package-type` is the package type (`plugin`, `theme`, or `generic`) and `package-slug` is the slug of the package to register.
-- \[advanced\] calling `wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>` in the [command line](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md#wp-cli), with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server
-- \[expert\]calling the [upserv_download_remote_package](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md#upserv_download_remote_package) method in your own code, with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server
-- \[expert\]calling the `add` method of the [package API](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/packages.md), with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server present in the request payload
+- \[advanced\] calling `wp updatepulse download_remote_package <package-slug> <plugin|theme|generic>` in the [command line](https://github.com/anyape/updatepulse-server/blob/main/docs/misc.md#wp-cli), with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server
+- \[expert\]calling the [upserv_download_remote_package](https://github.com/anyape/updatepulse-server/blob/main/docs/packages.md#upserv_download_remote_package) method in your own code, with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server
+- \[expert\]calling the `add` method of the [package API](https://github.com/anyape/updatepulse-server/blob/main/docs/packages.md), with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server present in the request payload
 
 
 ### Provide updates with UpdatePulse Server - packages requirements
@@ -351,7 +352,7 @@ $prefix_updater = new UpdatePulse_Updater(
 	0 === strpos( __DIR__, WP_PLUGIN_DIR ) ? wp_normalize_path( __DIR__ ) : get_stylesheet_directory()
 );
 ```
-- Optionally add headers to the main plugin file or to your theme's `style.css` file to enable license checks:
+- Optionally add headers to the main plugin file or to the theme's `style.css` file to enable license checks:
 ```text
 Require License: yes
 Licensed With: another-plugin-or-theme-slug
@@ -367,11 +368,9 @@ The "Licensed With" header is used to link packages together (for example, in th
 - Connect UpdatePulse Server with your repository and register your package, or manually upload your package to UpdatePulse Server.
 
 For generic packages, the steps involved entirely depend on the language used to write the package and the update process of the target platform.  
-You may refer to the documentation found [here](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md).
+You may refer to the documentation found [here](https://github.com/anyape/updatepulse-server/blob/main/docs/generic.md).
 
-See `wp-content/plugins/updatepulse-server/integration/dummy-plugin` for an example of plugin, and  `wp-content/plugins/updatepulse-server/integration/dummy-theme` for an example of theme. They are fully functionnal and can be used to test all the features of the server with a test client installation of WordPress.  
-
-See `wp-content/plugins/updatepulse-server/integration/dummy-generic` for examples of a generic package written in Bash, NodeJS, PHP with Curl, and Python. The API calls made by generic packages to the license API and Update API are the same as the WordPress packages. Unlike the upgrade library provided with plugins & themes, the code found in `updatepulse-api.[sh|php|js|py]` files is **NOT ready for production environment and MUST be adapted**.
+Dummy packages are available in the [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository.
 
 Unless "Enable VCS" is checked in "Version Control Systems", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
 
@@ -383,7 +382,7 @@ To address this, the file `wp-content/plugins/updatepulse-server/optimisation/up
 
 The resulting Must Use Plugin runs before everything else, preventing themes and other plugins from executing when UpdatePulse Server receives an API request.
 
-To alter the behaviour of the optimiser, see the `upserv_mu_optimizer_*` filters in [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/integration/docs/misc.md).
+To alter the behaviour of the optimiser, see the `upserv_mu_optimizer_*` filters in [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/docs/misc.md).
 
 ### More help...
 

@@ -77,12 +77,13 @@
 			<li>
 			<?php
 			printf(
-				// translators: %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>
-				esc_html__( 'Add a %1$s directory with the %2$s and %3$s libraries to the root of the package (provided in %4$s).', 'updatepulse-server' ),
+				// translators: %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>, %5$s is "in the UpdatePulse Server Integration Examples"
+				esc_html__( 'Add a %1$s directory with the %2$s and %3$s libraries to the root of the package (provided in %4$s of the %5$s repository).', 'updatepulse-server' ),
 				'<code>lib</code>',
 				'<code>plugin-update-checker</code>',
 				'<code>updatepulse-updater</code>',
 				'<code>dummy-[plugin|theme]</code>',
+				'<a target="_blank" href="https://github.com/Anyape/updatepulse-server-integration">' . esc_html__( 'UpdatePulse Server Integration Examples', 'updatepulse-server' ) . '</a>'
 			);
 			?>
 			</li>
@@ -90,7 +91,7 @@
 				<?php
 				printf(
 					// translators: %s is <code>functions.php</code>
-					esc_html__( 'Add the following code to the main plugin file or to your theme\'s %s file:', 'updatepulse-server' ),
+					esc_html__( 'Add the following code to the main plugin file or to the theme\'s %s file:', 'updatepulse-server' ),
 					'<code>functions.php</code>'
 				);
 				?>
@@ -112,7 +113,7 @@ $prefix_updater = new UpdatePulse_Updater(
 				<?php
 				printf(
 					// translators: %1s is <code>style.css</code>
-					esc_html__( 'Optionally add headers to the main plugin file or to your theme\'s %s file to enable license checks:', 'updatepulse-server' ),
+					esc_html__( 'Optionally add headers to the main plugin file or to the theme\'s %s file to enable license checks:', 'updatepulse-server' ),
 					'<code>style.css</code>'
 				);
 				?>
@@ -164,27 +165,36 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 			printf(
 				// translators: %s is a link to the documentation
 				esc_html__( 'You may refer to the documentation found %s.', 'updatepulse-server' ),
-				'<a target="_blank" href="' . esc_url( 'https://github.com/anyape/updatepulse-server/blob/main/integration/docs/generic.md' ) . '">' . esc_html__( 'here', 'updatepulse-server' ) . '</a>'
+				'<a target="_blank" href="' . esc_url( 'https://github.com/anyape/updatepulse-server/blob/main/docs/generic.md' ) . '">' . esc_html__( 'here', 'updatepulse-server' ) . '</a>'
 			);
 			?>
 		</p>
 		<hr>
+		<h2><?php esc_html_e( 'Integration examples', 'updatepulse-server' ); ?></h2>
 		<p>
 			<?php
 			printf(
-				// translators: %1$s is <code>integration/dummy-plugin</code>, %2$s is <code>integration/dummy-theme</code>
+				// translators: %1$s is the link to the UpdatePulse Server Integration Examples repository
+				esc_html__( 'Dummy packages are available in the %1$s repository.', 'updatepulse-server' ),
+				'<a target="_blank" href="https://github.com/Anyape/updatepulse-server-integration">' . esc_html__( 'UpdatePulse Server Integration Examples', 'updatepulse-server' ) . '</a>'
+			);
+			?>
+		<p>
+			<?php
+			printf(
+				// translators: %1$s is <code>dummy-plugin</code>, %2$s is <code>dummy-theme</code>
 				esc_html__( 'See %1$s for an example of plugin, and %2$s for an example of theme. They are fully functionnal and can be used to test all the features of the server with a test client installation of WordPress.', 'updatepulse-server' ),
-				'<code>' . esc_html( UPSERV_PLUGIN_PATH ) . 'integration/dummy-theme</code>',
-				'<code>' . esc_html( UPSERV_PLUGIN_PATH ) . 'integration/dummy-plugin</code>',
+				'<code>dummy-theme</code>',
+				'<code>dummy-plugin</code>',
 			);
 			?>
 		</p>
 		<p>
 			<?php
 			printf(
-				// translators: %1$s is <code>integration/dummy-generic</code>, %2$s is `updatepulse-api.[sh|php|js|py]`
-				esc_html__( 'See %1$s for examples of a generic package written in Bash, NodeJS, PHP with Curl, and Python. The API calls made by generic packages to the license API and Update API are the same as the WordPress packages. Unlike the upgrade library provided with plugins & themes, the code found in %2$s files is NOT ready for production environment and MUST be adapted.', 'updatepulse-server' ),
-				'<code>' . esc_html( UPSERV_PLUGIN_PATH ) . 'integration/dummy-generic</code>',
+				// translators: %1$s is <code>dummy-generic</code>, %2$s is `updatepulse-api.[sh|php|js|py]`
+				esc_html__( 'See %1$s for examples of a generic package written in Bash, NodeJS, PHP with Curl, and Python. The API calls made by generic packages to the license API and Update API are the same as those made by the WordPress packages. Unlike the upgrade library provided with plugins & themes, the code found in %2$s files is NOT ready for production environment and MUST be adapted.', 'updatepulse-server' ),
+				'<code>dummy-generic</code>',
 				'<code>updatepulse-api.[sh|php|js|py]</code>'
 			);
 			?>
@@ -242,7 +252,7 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 			printf(
 				// translators: %s is a link to the documentation
 				esc_html__( 'The full documentation can be found %s, with more details for developers on how to integrate UpdatePulse Server with their own plugins, themes, and generic packages.', 'updatepulse-server' ),
-				'<a target="_blank" href="https://github.com/anyape/updatepulse-server/blob/master/README.md">' . esc_html__( 'here', 'updatepulse-server' ) . '</a>',
+				'<a target="_blank" href="https://github.com/anyape/updatepulse-server/blob/main/README.md">' . esc_html__( 'here', 'updatepulse-server' ) . '</a>',
 			);
 			?>
 		</p>
