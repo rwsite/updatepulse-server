@@ -112,8 +112,6 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			);
 			$response = $instance->api( $endpoint, array(), true );
 
-			php_log( $response );
-
 			if ( is_wp_error( $response ) ) {
 				return $response;
 			}
