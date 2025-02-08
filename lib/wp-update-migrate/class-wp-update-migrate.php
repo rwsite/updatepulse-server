@@ -163,7 +163,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			$class   = 'notice notice-error is-dismissible';
 			$message = '<p>' . $this->failed_update_info . '</p>';
 			// translators: %1$s is the package type
-			$message .= '<p>' . sprintf( __( 'The %1$s may not have any effect until the issues are resolved.', 'wp-update-migrate' ), $this->package_type ) . '</p>';
+			$message .= '<p>' . sprintf( esc_html__( 'The %1$s may not have any effect until the issues are resolved.', 'wp-update-migrate' ), $this->package_type ) . '</p>';
 
 			printf( '<div class="%1$s">%2$s</div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}

@@ -223,7 +223,7 @@ class Packages_Table extends WP_List_Table {
 
 			if ( 'max_file_size_exceeded' === $this->bulk_action_error ) {
 				$class   = 'notice notice-error';
-				$message = __( 'Download: Archive max size exceeded - try to adjust it in the settings below.', 'updatepulse-server' );
+				$message = esc_html__( 'Download: Archive max size exceeded - try to adjust it in the settings below.', 'updatepulse-server' );
 
 				printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$this->bulk_action_error = '';

@@ -377,10 +377,10 @@ class UPServ {
 	public function setup_mu_plugin_failure_notice() {
 		$class   = 'notice notice-error';
 		$message = sprintf(
-			// translators: %1$s is the path to the mu-plugins directory, %2$s is the path of the source MU Plugin
-			__( 'Permission errors for <code>%1$s</code> - could not setup the endpoint optimizer MU Plugin. You may create the directory if necessary and manually copy <code>%2$s</code> in it (recommended).', 'updatepulse-server' ),
-			trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ),
-			wp_normalize_path( UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimizer.php' )
+			// translators: %1$s is the <code>path</code> to the mu-plugins directory, %2$s is the <code>path</code> of the source MU Plugin
+			esc_html__( 'Permission errors for %1$s - could not setup the endpoint optimizer MU Plugin. You may create the directory if necessary and manually copy %2$s in it (recommended).', 'updatepulse-server' ),
+			'<code>' . trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ) . '</code>',
+			'<code>' . wp_normalize_path( UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimizer.php</code>' ),
 		);
 
 		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -389,9 +389,9 @@ class UPServ {
 	public function setup_mu_plugin_success_notice() {
 		$class   = 'notice notice-info is-dismissible';
 		$message = sprintf(
-			// translators: %1$s is the path to the mu-plugin
-			__( 'An endpoint optimizer MU Plugin has been confirmed to be installed in <code>%1$s</code>.', 'updatepulse-server' ),
-			trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ) . 'upserv-endpoint-optimizer.php'
+			// translators: %1$s is the <code>path</code> to the mu-plugin
+			esc_html__( 'An endpoint optimizer MU Plugin has been confirmed to be installed in %1$s.', 'updatepulse-server' ),
+			'<code>' . trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ) . 'upserv-endpoint-optimizer.php</code>'
 		);
 
 		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
