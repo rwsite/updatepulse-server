@@ -26,8 +26,6 @@ class Data_Manager {
 		'update_from_remote_locks',
 	);
 
-	protected static $root_data_dirname = 'updatepulse-server';
-
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -130,15 +128,8 @@ class Data_Manager {
 		$data_dir = wp_cache_get( 'data_dir_' . $dir, 'updatepulse-server' );
 
 		if ( false === $data_dir ) {
-			WP_Filesystem();
-
-			global $wp_filesystem;
-
-			if ( ! $wp_filesystem ) {
-				wp_die( 'File system not available.', __METHOD__ );
-			}
-
-			$data_dir = trailingslashit( $wp_filesystem->wp_content_dir() . self::$root_data_dirname );
+			$wp_upload_dir = wp_upload_dir();
+			$data_dir      = trailingslashit( $wp_upload_dir['basedir'] . '/updatepulse-server' );
 
 			if ( 'root' !== $dir ) {
 
@@ -153,6 +144,10 @@ class Data_Manager {
 			}
 
 			$data_dir = trailingslashit( $data_dir );
+
+			if ( ! is_dir( $data_dir ) ) {
+				self::create_data_dir( $dir );
+			}
 
 			wp_cache_set( 'data_dir_' . $dir, $data_dir, 'updatepulse-server' );
 		}
@@ -263,11 +258,10 @@ class Data_Manager {
 	}
 
 	protected static function create_data_dir( $name, $include_htaccess = true, $is_root_dir = false ) {
-		global $wp_filesystem;
-
-		$root_dir = self::get_data_dir();
-		$path     = ( $is_root_dir ) ? $root_dir : $root_dir . $name;
-		$result   = $wp_filesystem->mkdir( $path );
+		$wp_upload_dir = wp_upload_dir();
+		$root_dir      = trailingslashit( $wp_upload_dir['basedir'] . '/updatepulse-server' );
+		$path          = ( $is_root_dir ) ? $root_dir : $root_dir . $name;
+		$result        = wp_mkdir_p( $path );
 
 		if ( $result && $include_htaccess ) {
 			self::generate_restricted_htaccess( $path );

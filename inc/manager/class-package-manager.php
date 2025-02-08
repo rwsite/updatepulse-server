@@ -1029,6 +1029,10 @@ class Package_Manager {
 		$directory  = Data_Manager::get_data_dir( $type );
 		$total_size = 0;
 
+		if ( ! is_dir( $directory ) ) {
+			return $result;
+		}
+
 		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $directory ) ) as $file ) {
 			$total_size += $file->getSize();
 		}

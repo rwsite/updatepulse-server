@@ -27,7 +27,8 @@ foreach ( $cron as $job ) {
 }
 
 $upserv_mu_plugin = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ) . 'upserv-endpoint-optimizer.php';
-$upserv_dir       = trailingslashit( $wp_filesystem->wp_content_dir() . 'updatepulse-server' );
+$wp_upload_dir    = wp_upload_dir();
+$upserv_dir       = trailingslashit( $wp_upload_dir['basedir'] . '/updatepulse-server' );
 
 $wp_filesystem->delete( $upserv_mu_plugin );
 $wp_filesystem->delete( $upserv_mdir, true );
