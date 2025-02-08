@@ -972,7 +972,7 @@ class Package_Manager {
 		$filename  = sanitize_file_name( $package_slug . '.json' );
 		$file_path = trailingslashit( $dir ) . $filename;
 		$result    = false;
-		$data      = apply_filters( 'set_package_metadata_data', $metadata, $package_slug );
+		$data      = apply_filters( 'upserv_set_package_metadata_data', $metadata, $package_slug );
 
 		wp_cache_delete( 'package_metadata_' . $package_slug, 'updatepulse-server' );
 

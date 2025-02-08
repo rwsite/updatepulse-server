@@ -17,8 +17,7 @@ use Anyape\UpdatePulse\Server\UPServ;
  * Utility functions
  *******************************************************************/
 
-
-if ( ! function_exists( 'get_vcs_name' ) ) {
+if ( ! function_exists( 'upserv_get_vcs_name' ) ) {
 	function upserv_get_vcs_name( $type, $context = 'view' ) {
 
 		switch ( $type ) {
