@@ -131,11 +131,11 @@ class Package_Manager {
 
 	public function upserv_admin_scripts( $scripts ) {
 		$l10n = array(
-			'invalidFileFormat' => __( 'Error: invalid file format.', 'updatepulse-server' ),
-			'invalidFileSize'   => __( 'Error: invalid file size.', 'updatepulse-server' ),
-			'invalidFileName'   => __( 'Error: invalid file name.', 'updatepulse-server' ),
-			'invalidFile'       => __( 'Error: invalid file', 'updatepulse-server' ),
-			'deleteRecord'      => __( 'Are you sure you want to delete this record?', 'updatepulse-server' ),
+			'invalidFileFormat'    => __( 'Error: invalid file format.', 'updatepulse-server' ),
+			'invalidFileSize'      => __( 'Error: invalid file size.', 'updatepulse-server' ),
+			'invalidFileName'      => __( 'Error: invalid file name.', 'updatepulse-server' ),
+			'invalidFile'          => __( 'Error: invalid file', 'updatepulse-server' ),
+			'deletePackageConfirm' => __( 'Are you sure you want to delete this package?', 'updatepulse-server' ),
 		);
 
 		if ( upserv_get_option( 'use_vcs' ) ) {

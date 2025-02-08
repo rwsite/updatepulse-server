@@ -63,14 +63,6 @@ jQuery(document).ready(function ($) {
 		$(this).attr('type', 'password');
 	});
 
-	$('.upserv-wrap .wp-list-table .delete a').on('click', function(e) {
-		var r = window.confirm(UPServAdminMain_l10n.deleteRecord);
-
-		if (!r) {
-			e.preventDefault();
-		}
-	});
-
 	$('.ajax-trigger').on('click', function(e) {
 		e.preventDefault();
 

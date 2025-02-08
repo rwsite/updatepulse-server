@@ -2,6 +2,15 @@
 jQuery(document).ready(function ($) {
 	var registrationLocked = false;
 
+	$('.upserv-wrap .wp-list-table .delete a').on('click', function(e) {
+		var r = window.confirm(UPServAdminPackage_l10n.deletePackageConfirm);
+
+		if (!r) {
+			e.preventDefault();
+		}
+	});
+
+
 	$('.upserv-delete-all-packages').on('click', function(e) {
 		var r = window.confirm(UPServAdminPackage_l10n.deletePackagesConfirm);
 
