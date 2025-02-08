@@ -388,68 +388,80 @@ class Cloud_Storage_Manager {
 
 	public function cloud_storage_test() {
 		$result = array();
+		$nonce  = filter_input( INPUT_POST, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
-			$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
-
-			if ( $data ) {
-				$access_key   = $data['upserv_cloud_storage_access_key'];
-				$secret_key   = $data['upserv_cloud_storage_secret_key'];
-				$endpoint     = $data['upserv_cloud_storage_endpoint'];
-				$storage_unit = $data['upserv_cloud_storage_unit'];
-				$region       = $data['upserv_cloud_storage_region'];
-
-				self::$cloud_storage->setAuth( $access_key, $secret_key );
-				self::$cloud_storage->setEndpoint( $endpoint );
-				self::$cloud_storage->setRegion( $region );
-
-				try {
-					$storage_units = self::$cloud_storage->listBuckets();
-
-					if ( ! in_array( $storage_unit, $storage_units, true ) ) {
-						$result = new WP_Error(
-							__METHOD__,
-							__( 'Error - Storage Unit not found', 'updatepulse-server' )
-						);
-					} else {
-						$result[] = __( 'Cloud Storage Service was reached sucessfully.', 'updatepulse-server' );
-
-						if ( ! $this->virtual_folder_exists( self::$virtual_dir ) ) {
-							$created  = $this->create_virtual_folder( self::$virtual_dir, $storage_unit );
-							$result[] = $created ?
-								sprintf(
-									// translators: %s is the virtual folder
-									esc_html__( 'Virtual folder "%s" was created successfully.', 'updatepulse-server' ),
-									self::$virtual_dir,
-								) :
-								sprintf(
-									// translators: %s is the virtual folder
-									esc_html__( 'WARNING: Unable to create Virtual folder "%s". The Cloud Storage feature may not work as expected. Try to create it manually and test again.', 'updatepulse-server' ),
-									self::$virtual_dir,
-								);
-						} else {
-							$result[] = sprintf(
-								// translators: %s is the virtual folder
-								esc_html__( 'Virtual folder "%s" found.', 'updatepulse-server' ),
-								self::$virtual_dir,
-							);
-						}
-					}
-				} catch ( PhpS3Exception $e ) {
-					$result = new WP_Error(
-						__METHOD__ . ' => PhpS3Exception',
-						$e->getMessage()
-					);
-
-					$result->add( __METHOD__ . ' => LF', '' );
-					$result->add( __METHOD__, __( 'An error occured when attempting to communicate with the Cloud Storage Service. Please check all the settings and try again.', 'updatepulse-server' ) );
-				}
-			} else {
-				$result = new WP_Error(
+		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
+			wp_send_json_error(
+				new WP_Error(
 					__METHOD__,
 					__( 'Error - Received invalid data; please reload the page and try again.', 'updatepulse-server' )
+				)
+			);
+		}
+
+		$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
+
+		if ( ! $data ) {
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - Received invalid data; please reload the page and try again.', 'updatepulse-server' )
+				)
+			);
+		}
+
+		$access_key   = $data['upserv_cloud_storage_access_key'];
+		$secret_key   = $data['upserv_cloud_storage_secret_key'];
+		$endpoint     = $data['upserv_cloud_storage_endpoint'];
+		$storage_unit = $data['upserv_cloud_storage_unit'];
+		$region       = $data['upserv_cloud_storage_region'];
+
+		self::$cloud_storage->setAuth( $access_key, $secret_key );
+		self::$cloud_storage->setEndpoint( $endpoint );
+		self::$cloud_storage->setRegion( $region );
+
+		try {
+			$storage_units = self::$cloud_storage->listBuckets();
+
+			if ( ! in_array( $storage_unit, $storage_units, true ) ) {
+				wp_send_json_error(
+					new WP_Error(
+						__METHOD__,
+						__( 'Error - Storage Unit not found', 'updatepulse-server' )
+					)
 				);
 			}
+
+			$result[] = __( 'Cloud Storage Service was reached sucessfully.', 'updatepulse-server' );
+
+			if ( ! $this->virtual_folder_exists( self::$virtual_dir ) ) {
+				$created  = $this->create_virtual_folder( self::$virtual_dir, $storage_unit );
+				$result[] = $created ?
+					sprintf(
+						// translators: %s is the virtual folder
+						esc_html__( 'Virtual folder "%s" was created successfully.', 'updatepulse-server' ),
+						self::$virtual_dir,
+					) :
+					sprintf(
+						// translators: %s is the virtual folder
+						esc_html__( 'WARNING: Unable to create Virtual folder "%s". The Cloud Storage feature may not work as expected. Try to create it manually and test again.', 'updatepulse-server' ),
+						self::$virtual_dir,
+					);
+			} else {
+				$result[] = sprintf(
+					// translators: %s is the virtual folder
+					esc_html__( 'Virtual folder "%s" found.', 'updatepulse-server' ),
+					self::$virtual_dir,
+				);
+			}
+		} catch ( PhpS3Exception $e ) {
+			$result = new WP_Error(
+				__METHOD__ . ' => PhpS3Exception',
+				$e->getMessage()
+			);
+
+			$result->add( __METHOD__ . ' => LF', '' );
+			$result->add( __METHOD__, __( 'An error occured when attempting to communicate with the Cloud Storage Service. Please check all the settings and try again.', 'updatepulse-server' ) );
 		}
 
 		if ( ! is_wp_error( $result ) ) {

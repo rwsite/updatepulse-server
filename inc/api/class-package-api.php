@@ -105,9 +105,10 @@ class Package_API {
 		$exists = upserv_get_package_info( $package_id, false );
 
 		if ( ! empty( $exists ) ) {
+			$file = $this->get_file();
 
-			if ( $this->has_file() ) {
-				$result = $this->get_file( $package_id, $type );
+			if ( $file ) {
+				$result = $this->process_file( $file, $package_id, $type );
 			} elseif ( $config['use_vcs'] ) {
 				$result = $this->download_file( $package_id, $type );
 			}
@@ -148,12 +149,11 @@ class Package_API {
 		$exists = upserv_get_package_info( $package_id, false );
 
 		if ( empty( $exists ) ) {
+			$file = $this->get_file();
 
-			if ( $this->has_file() ) {
-				php_log( 'has file' );
-				$result = $this->get_file( $package_id, $type );
+			if ( $file ) {
+				$result = $this->process_file( $file, $package_id, $type );
 			} elseif ( $config['use_vcs'] ) {
-				php_log( 'NO FILE !!!' );
 				$result = $this->download_file( $package_id, $type );
 			}
 
@@ -536,14 +536,27 @@ class Package_API {
 	 * Protected methods
 	 *******************************************************************/
 
-	protected function has_file() {
-		return isset( $_FILES['file'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+	protected function get_file() {
+		$files  = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$return = false;
+
+		if (
+			isset( $files['file'], $files['file']['tmp_name'], $files['file']['name'] ) &&
+			sanitize_file_name( $files['file']['tmp_name'] ) === $files['file']['tmp_name'] &&
+			sanitize_file_name( $files['file']['name'] ) === $files['file']['name']
+		) {
+			$return = array( $files['file']['tmp_name'], $files['file']['name'] );
+		}
+
+		return $return;
 	}
 
-	protected function get_file( $package_id, $type ) {
-		$uploaded_file  = $_FILES['file']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		$local_filename = $uploaded_file['tmp_name'];
-		$file_hash      = isset( $_SERVER['HTTP_FILE_HASH'] ) ? $_SERVER['HTTP_FILE_HASH'] : false;
+	protected function process_file( $file, $package_id, $type ) {
+		list(
+			$local_filename,
+			$filename
+		)          = $file;
+		$file_hash = isset( $_SERVER['HTTP_FILE_HASH'] ) ? $_SERVER['HTTP_FILE_HASH'] : false;
 
 		if ( hash_file( 'sha256', $local_filename ) !== $file_hash ) {
 			wp_delete_file( $local_filename );
@@ -554,7 +567,7 @@ class Package_API {
 			);
 		}
 
-		$zip_check   = wp_check_filetype( $uploaded_file['name'], array( 'zip' => 'application/zip' ) );
+		$zip_check   = wp_check_filetype( $filename, array( 'zip' => 'application/zip' ) );
 		$bytes       = filesize( $local_filename ) > 4 ?
 			file_get_contents( $local_filename, false, null, 0, 4 ) : // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 			false;

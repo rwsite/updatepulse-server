@@ -404,15 +404,13 @@ class Remote_Sources_Manager {
 		$to_save         = array();
 		$old_vcs_configs = upserv_get_option( 'vcs', array() );
 		$old_use_vcs     = upserv_get_option( 'use_vcs' );
+		$nonce           = filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
-		if (
-			isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) &&
-			! wp_verify_nonce( $_REQUEST['upserv_plugin_options_handler_nonce'], 'upserv_plugin_options' )
-		) {
+		if ( $nonce && ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
 
 			return $errors;
-		} elseif ( ! isset( $_REQUEST['upserv_plugin_options_handler_nonce'] ) ) {
+		} elseif ( ! isset( $nonce ) ) {
 			return $result;
 		}
 

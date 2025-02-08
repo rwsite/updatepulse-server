@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to: 6.7.1
 Stable tag: 2.0
 Requires PHP: 8.0
-License: GPLv3
+License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 Run your own update server for plugins, themes or any other software: manage packages & licenses, and provide updates to your users.
