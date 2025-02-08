@@ -56,12 +56,11 @@ if ( ! defined( 'UPSERV_MB_TO_B' ) ) {
 	define( 'UPSERV_MB_TO_B', 1000000 );
 }
 
-$require = array(
-	UPSERV_PLUGIN_PATH . 'autoload.php',
-);
+$require = apply_filters( 'upserv_mu_require', array( UPSERV_PLUGIN_PATH . 'autoload.php' ) );
 
-$require   = apply_filters( 'upserv_mu_require', $require );
-$require[] = UPSERV_PLUGIN_PATH . 'lib/action-scheduler/action-scheduler.php';
+if ( ! class_exists( 'ActionScheduler' ) ) {
+	$require[] = UPSERV_PLUGIN_PATH . 'lib/action-scheduler/action-scheduler.php';
+}
 
 foreach ( $require as $file ) {
 
