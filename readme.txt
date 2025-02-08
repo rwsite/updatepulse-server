@@ -1,6 +1,6 @@
 === UpdatePulse Server ===
 Contributors: frogerme
-Tags: plugins, themes, updates, license
+Tags: Plugin updates, Theme updates, WordPress updates, License
 Requires at least: 6.7
 Tested up to: 6.7.1
 Stable tag: 2.0
@@ -12,7 +12,7 @@ Run your own update server for plugins, themes or any other software: manage pac
 
 == Description ==
 
-UpdatePulse Server allows developers to provide updates for plugins and themes packages they developped but choose not to hosted on wordpress.org, or any other software.
+UpdatePulse Server allows developers to provide updates for software packages, including WordPress plugins and themes.
 Some example use cases:
 - provide updates for premium plugins or themes, with a license key
 - provide custom theme or plugin updates to clients of a webdesign agency and not intended for the general public
