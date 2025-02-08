@@ -63,8 +63,6 @@ class Data_Manager {
 		} else {
 			setcookie( 'upserv_activated_mu_failure', '1', 60, '/', COOKIE_DOMAIN );
 		}
-
-		self::register_schedules();
 	}
 
 	public static function deactivate() {
@@ -76,16 +74,10 @@ class Data_Manager {
 		self::register_cleanup_schedules();
 	}
 
-	// Overrides ---------------------------------------------------
-
 	// Misc. -------------------------------------------------------
 
 	public static function clear_schedules() {
 		self::clear_cleanup_schedules();
-	}
-
-	public static function register_schedules() {
-		self::register_cleanup_events();
 	}
 
 	public static function maybe_setup_directories() {
