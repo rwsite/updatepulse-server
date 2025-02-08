@@ -30,7 +30,7 @@
 									<?php endforeach; ?>
 								<?php endif; ?>
 							</div>
-							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a Package API Key' ); ?></button>
+							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a Package API Key', 'updatepulse-server' ); ?></button>
 						</div>
 						<input type="hidden" class="api-key-values" id="upserv_package_private_api_keys" name="upserv_package_private_api_keys" value="<?php echo esc_attr( $options['package_private_api_keys'] ); ?>">
 					</div>
@@ -82,7 +82,7 @@
 						<div class="api-keys-items empty">
 						</div>
 						<div class="add-controls">
-							<input type="text" class="new-api-key-item-id" placeholder="<?php esc_attr_e( 'License Key ID' ); ?>">
+							<input type="text" class="new-api-key-item-id" placeholder="<?php esc_attr_e( 'License Key ID', 'updatepulse-server' ); ?>">
 							<div class="event-types">
 								<div class="event-container all">
 									<label><input type="checkbox" data-api-action="all"> <?php esc_html_e( 'Grant access to all the license actions affecting the records associated with the License API Key', 'updatepulse-server' ); ?> <code>(all)</code></label>
@@ -163,7 +163,7 @@
 								</div>
 								<?php endforeach; ?>
 							</div>
-							<button disabled="disabled" class="webhook-add button" type="button"><?php esc_html_e( 'Add a Webhook' ); ?></button>
+							<button disabled="disabled" class="webhook-add button" type="button"><?php esc_html_e( 'Add a Webhook', 'updatepulse-server' ); ?></button>
 						</div>
 						<input type="hidden" class="webhook-values" id="upserv_webhooks" name="upserv_webhooks" value="<?php echo esc_attr( $options['webhooks'] ); ?>">
 						<p class="description">
