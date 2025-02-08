@@ -202,11 +202,7 @@ class License_Server {
 				$payload['data'] = wp_json_encode( $payload['data'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 			}
 
-			$result = $wpdb->update(
-				$wpdb->prefix . 'upserv_licenses',
-				$payload,
-				$where
-			);
+			$result = $wpdb->update( $wpdb->prefix . 'upserv_licenses', $payload, $where );
 
 			if ( false !== $result ) {
 				$md5_id = md5( wp_json_encode( array( 'id' => $original->id ) ) );
@@ -421,9 +417,12 @@ class License_Server {
 		global $wpdb;
 
 		$where = '';
+		$args  = array( $status );
 
 		if ( ! empty( $license_ids ) ) {
-			$where                     = " AND id IN ('" . implode( "','", $license_ids ) . "')";
+			$license_id_placeholders   = implode( ', ', array_fill( 0, count( $license_ids ), '%d' ) );
+			$args                      = array_merge( $args, $license_ids );
+			$where                     = " AND id IN ( $license_id_placeholders )";
 			$license_query['criteria'] = array(
 				array(
 					'field'    => 'id',
@@ -437,7 +436,7 @@ class License_Server {
 		$items = $this->browse_licenses( $license_query );
 		$sql   = "UPDATE {$wpdb->prefix}upserv_licenses SET status = %s WHERE 1=1" . $where;
 
-		$wpdb->query( $wpdb->prepare( $sql, $status ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$wpdb->query( $wpdb->prepare( $sql, $args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 		if ( ! empty( $items ) ) {
 
@@ -474,7 +473,8 @@ class License_Server {
 		$where = '';
 
 		if ( ! empty( $license_ids ) ) {
-			$where                     = " AND id IN ('" . implode( "','", $license_ids ) . "')";
+			$license_id_placeholders   = implode( ', ', array_fill( 0, count( $license_ids ), '%d' ) );
+			$where                     = " AND id IN ( $license_id_placeholders )";
 			$license_query['criteria'] = array(
 				array(
 					'field'    => 'id',
@@ -488,7 +488,11 @@ class License_Server {
 		$items = $this->browse_licenses( $license_query );
 		$sql   = "DELETE FROM {$wpdb->prefix}upserv_licenses WHERE 1=1" . $where;
 
-		$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		if ( ! empty( $license_ids ) ) {
+			$wpdb->query( $sql, $license_ids ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		} else {
+			$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		}
 
 		if ( ! empty( $items ) ) {
 

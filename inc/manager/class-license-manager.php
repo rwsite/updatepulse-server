@@ -313,34 +313,34 @@ class License_Manager {
 			$charset_collate .= " COLLATE {$wpdb->collate}";
 		}
 
-		$table_name = $wpdb->prefix . 'upserv_licenses';
-		$sql        = 'CREATE TABLE ' . $table_name . " (
-			id int(12) NOT NULL auto_increment,
-			license_key varchar(255) NOT NULL,
-			max_allowed_domains int(12) NOT NULL,
-			allowed_domains longtext NOT NULL,
-			status ENUM('pending', 'activated', 'deactivated', 'on-hold', 'blocked', 'expired') NOT NULL DEFAULT 'pending',
-			owner_name varchar(255) NOT NULL default '',
-			email varchar(64) NOT NULL,
-			company_name varchar(100) NOT NULL default '',
-			txn_id varchar(64) NOT NULL default '',
-			date_created date NOT NULL DEFAULT '0000-00-00',
-			date_renewed date NOT NULL DEFAULT '0000-00-00',
-			date_expiry date NOT NULL DEFAULT '0000-00-00',
-			package_slug varchar(255) NOT NULL default '',
-			package_type varchar(8) NOT NULL default '',
-			hmac_key varchar(64) NOT NULL,
-			crypto_key varchar(64) NOT NULL,
-			data longtext NOT NULL,
-			PRIMARY KEY  (id),
-			KEY license_key (license_key)
-			)" . $charset_collate . ';';
+		$sql =
+			"CREATE TABLE {$wpdb->prefix}upserv_licenses (
+				id int(12) NOT NULL auto_increment,
+				license_key varchar(255) NOT NULL,
+				max_allowed_domains int(12) NOT NULL,
+				allowed_domains longtext NOT NULL,
+				status ENUM('pending', 'activated', 'deactivated', 'on-hold', 'blocked', 'expired') NOT NULL DEFAULT 'pending',
+				owner_name varchar(255) NOT NULL default '',
+				email varchar(64) NOT NULL,
+				company_name varchar(100) NOT NULL default '',
+				txn_id varchar(64) NOT NULL default '',
+				date_created date NOT NULL DEFAULT '0000-00-00',
+				date_renewed date NOT NULL DEFAULT '0000-00-00',
+				date_expiry date NOT NULL DEFAULT '0000-00-00',
+				package_slug varchar(255) NOT NULL default '',
+				package_type varchar(8) NOT NULL default '',
+				hmac_key varchar(64) NOT NULL,
+				crypto_key varchar(64) NOT NULL,
+				data longtext NOT NULL,
+				PRIMARY KEY  (id),
+				KEY license_key (license_key)
+			) {$charset_collate};";
 
 		dbDelta( $sql );
 
-		$table_name = $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . "upserv_licenses'" );
+		$table_name = $wpdb->get_var( "SHOW TABLES LIKE '{$wpdb->prefix}upserv_licenses'" );
 
-		if ( $wpdb->prefix . 'upserv_licenses' !== $table_name ) {
+		if ( "{$wpdb->prefix}upserv_licenses" !== $table_name ) {
 			return false;
 		}
 

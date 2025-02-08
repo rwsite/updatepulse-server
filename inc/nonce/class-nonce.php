@@ -161,9 +161,8 @@ class Nonce {
 			$charset_collate .= " COLLATE {$wpdb->collate}";
 		}
 
-		$table = $wpdb->prefix . 'upserv_nonce';
-		$sql   =
-			'CREATE TABLE ' . $table . " (
+		$sql =
+			"CREATE TABLE {$wpdb->prefix}upserv_nonce (
 				id int(12) NOT NULL auto_increment,
 				nonce varchar(255) NOT NULL,
 				true_nonce tinyint(2) NOT NULL DEFAULT '1',
@@ -171,13 +170,13 @@ class Nonce {
 				data longtext NOT NULL,
 				PRIMARY KEY (id),
 				KEY nonce (nonce)
-			)" . $charset_collate . ';';
+			) {$charset_collate};";
 
 		dbDelta( $sql );
 
-		$table = $wpdb->get_var( "SHOW TABLES LIKE '" . $wpdb->prefix . 'upserv_nonce' . "'" );
+		$table_name = $wpdb->get_var( "SHOW TABLES LIKE '{$wpdb->prefix}upserv_nonce'" );
 
-		if ( $wpdb->prefix . 'upserv_nonce' !== $table ) {
+		if ( "{$wpdb->prefix}upserv_nonce" !== $table_name ) {
 			return false;
 		}
 
@@ -280,10 +279,9 @@ class Nonce {
 		$row = wp_cache_get( 'nonce_' . $nonce, 'updatepulse-server', false, $found );
 
 		if ( ! $found ) {
-			$table = $wpdb->prefix . 'upserv_nonce';
-			$row   = $wpdb->get_row(
+			$row = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM {$wpdb->prefix}upserv_nonce WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$nonce
 				)
 			);
@@ -306,10 +304,9 @@ class Nonce {
 		$row = wp_cache_get( 'nonce_' . $nonce, 'updatepulse-server', false, $found );
 
 		if ( ! $found ) {
-			$table = $wpdb->prefix . 'upserv_nonce';
-			$row   = $wpdb->get_row(
+			$row = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM {$wpdb->prefix}upserv_nonce WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$nonce
 				)
 			);
@@ -342,9 +339,7 @@ class Nonce {
 	public static function delete_nonce( $value ) {
 		global $wpdb;
 
-		$table  = $wpdb->prefix . 'upserv_nonce';
-		$where  = array( 'nonce' => $value );
-		$result = $wpdb->delete( $table, $where );
+		$result = $wpdb->delete( "{$wpdb->prefix}upserv_nonce", array( 'nonce' => $value ) );
 
 		wp_cache_delete( 'nonce_' . $value, 'updatepulse-server' );
 
@@ -414,10 +409,9 @@ class Nonce {
 		$row = wp_cache_get( 'nonce_' . $value, 'updatepulse-server', false, $found );
 
 		if ( ! $found ) {
-			$table = $wpdb->prefix . 'upserv_nonce';
-			$row   = $wpdb->get_row(
+			$row = $wpdb->get_row(
 				$wpdb->prepare(
-					"SELECT * FROM {$table} WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					"SELECT * FROM {$wpdb->prefix}upserv_nonce WHERE nonce = %s;", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 					$value
 				)
 			);
@@ -474,14 +468,13 @@ class Nonce {
 	protected static function store_nonce( $nonce, $true_nonce, $expiry, $data ) {
 		global $wpdb;
 
-		$table  = $wpdb->prefix . 'upserv_nonce';
 		$data   = array(
 			'nonce'      => $nonce,
 			'true_nonce' => (bool) $true_nonce,
 			'expiry'     => $expiry,
 			'data'       => $data,
 		);
-		$result = $wpdb->insert( $table, $data );
+		$result = $wpdb->insert( "{$wpdb->prefix}upserv_nonce", $data );
 
 		if ( (bool) $result ) {
 			return $data;
