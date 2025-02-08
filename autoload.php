@@ -10,6 +10,7 @@ function autoload( $class_name ) {
 	$path      = false;
 	$class_map = empty( $class_map ) ? array(
 		$ns_root                 => $f_root . 'inc/class-upserv.php',
+		'Anyape\\Utils\\Utils'   => $f_root . 'inc/class-utils.php',
 		'Anyape\\Crypto\\Crypto' => $f_root . 'lib/anyape-crypto/crypto.php',
 		'PhpS3\\PhpS3'           => $f_root . 'lib/PhpS3/PhpS3.php',
 		'\\PclZip'               => $f_root . 'lib/PclZip/pclzip.php',

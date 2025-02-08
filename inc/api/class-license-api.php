@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use WP_Error;
 use Exception;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
+use Anyape\Utils\Utils;
 
 class License_API {
 
@@ -1160,7 +1161,7 @@ class License_API {
 
 			foreach ( $config['ip_whitelist'] as $range ) {
 
-				if ( cidr_match( $_SERVER['REMOTE_ADDR'], $range ) ) {
+				if ( Utils::cidr_match( $_SERVER['REMOTE_ADDR'], $range ) ) {
 					$result = true;
 
 					break;

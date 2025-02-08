@@ -17,63 +17,6 @@ use Anyape\UpdatePulse\Server\UPServ;
  * Utility functions
  *******************************************************************/
 
-if ( ! function_exists( 'php_log' ) ) {
-	function php_log( $message = '', $prefix = '' ) {
-		$prefix   = $prefix ? ' ' . $prefix . ' => ' : ' => ';
-		$trace    = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 2 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
-		$caller   = end( $trace );
-		$class    = isset( $caller['class'] ) ? $caller['class'] : '';
-		$type     = isset( $caller['type'] ) ? $caller['type'] : '';
-		$function = isset( $caller['function'] ) ? $caller['function'] : '';
-		$context  = $class . $type . $function . $prefix;
-
-		error_log( $context . print_r( $message, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r, WordPress.PHP.DevelopmentFunctions.error_log_error_log
-	}
-}
-
-if ( ! function_exists( 'cidr_match' ) ) {
-	function cidr_match( $ip, $range ) {
-		list ( $subnet, $bits ) = explode( '/', $range );
-		$ip                     = ip2long( $ip );
-		$subnet                 = ip2long( $subnet );
-
-		if ( ! $ip || ! $subnet || ! $bits ) {
-			return false;
-		}
-
-		$mask    = -1 << ( 32 - $bits );
-		$subnet &= $mask; // in case the supplied subnet was not correctly aligned
-
-		return ( $ip & $mask ) === $subnet;
-	}
-}
-
-if ( ! function_exists( 'access_nested_array' ) ) {
-	function access_nested_array( &$_array, $path, $value = null, $update = false ) {
-		$keys    = explode( '/', $path );
-		$current = &$_array;
-
-		foreach ( $keys as $key ) {
-
-			if ( ! isset( $current[ $key ] ) ) {
-
-				if ( $update ) {
-					$current[ $key ] = array();
-				} else {
-					return null;
-				}
-			}
-
-			$current = &$current[ $key ];
-		}
-
-		if ( $update ) {
-			$current = $value;
-		}
-
-		return $current;
-	}
-}
 
 if ( ! function_exists( 'get_vcs_name' ) ) {
 	function upserv_get_vcs_name( $type, $context = 'view' ) {

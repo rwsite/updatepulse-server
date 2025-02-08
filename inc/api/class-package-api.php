@@ -12,6 +12,7 @@ use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
+use Anyape\Utils\Utils;
 
 class Package_API {
 
@@ -815,7 +816,7 @@ class Package_API {
 
 			foreach ( $config['ip_whitelist'] as $range ) {
 
-				if ( cidr_match( $_SERVER['REMOTE_ADDR'], $range ) ) {
+				if ( Utils::cidr_match( $_SERVER['REMOTE_ADDR'], $range ) ) {
 					$result = true;
 
 					break;

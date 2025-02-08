@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Exception;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Package_Manager;
+use Anyape\Utils\Utils;
 
 class UPServ {
 
@@ -84,7 +85,7 @@ class UPServ {
 			return;
 		}
 
-		php_log(
+		Utils::php_log(
 			array(
 				'action_id' => $action_id,
 				'exception' => $exception,
@@ -161,7 +162,7 @@ class UPServ {
 
 	public function get_option( $path, $_default ) {
 		$options = $this->get_options();
-		$option  = access_nested_array( $options, $path );
+		$option  = Utils::access_nested_array( $options, $path );
 
 		if ( is_null( $option ) ) {
 			$option = $_default;
@@ -173,7 +174,7 @@ class UPServ {
 	public function set_option( $path, $value ) {
 		$options = self::$options;
 
-		access_nested_array( $options, $path, $value, true );
+		Utils::access_nested_array( $options, $path, $value, true );
 
 		self::$options = $options;
 
@@ -183,7 +184,7 @@ class UPServ {
 	public function update_option( $path, $value ) {
 		$options = $this->get_options();
 
-		access_nested_array( $options, $path, $value, true );
+		Utils::access_nested_array( $options, $path, $value, true );
 
 		return $this->update_options( $options );
 	}

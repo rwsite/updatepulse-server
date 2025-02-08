@@ -18,6 +18,7 @@ use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\Table\Packages_Table;
+use Anyape\Utils\Utils;
 
 class Package_Manager {
 
@@ -1159,12 +1160,12 @@ class Package_Manager {
 
 			$package = Package::from_archive( $filename, $slug, $cache );
 		} catch ( Exception $e ) {
-			php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
+			Utils::php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
 
 			$log  = 'Exception caught: ' . $e->getMessage() . "\n";
 			$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
 
-			php_log( $log );
+			Utils::php_log( $log );
 		}
 
 		return $package;

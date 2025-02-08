@@ -11,6 +11,7 @@ use DateTime;
 use DateTimeZone;
 use WP_Error;
 use Anyape\Crypto\Crypto;
+use Anyape\Utils\Utils;
 
 class License_Server {
 
@@ -216,7 +217,7 @@ class License_Server {
 
 				$return = $this->read_license( $where, true );
 			} else {
-				php_log( 'License update failed - database update error.' );
+				Utils::php_log( 'License update failed - database update error.' );
 				throw new Exception( esc_html__( 'License update failed - database update error.', 'updatepulse-server' ) );
 			}
 		}
@@ -261,7 +262,7 @@ class License_Server {
 				wp_cache_delete( $md5_id, 'updatepulse-server' );
 				wp_cache_delete( 'upserv_license_exists_' . $return->id, 'updatepulse-server' );
 			} else {
-				php_log( 'License creation failed - database insertion error.' );
+				Utils::php_log( 'License creation failed - database insertion error.' );
 				throw new Exception( esc_html__( 'License creation failed - database insertion error.', 'updatepulse-server' ) );
 			}
 		}
@@ -300,7 +301,7 @@ class License_Server {
 
 				$return = $license;
 			} else {
-				php_log( 'License removal failed - database deletion error.' );
+				Utils::php_log( 'License removal failed - database deletion error.' );
 				throw new Exception( esc_html__( 'License removal failed - database deletion error.', 'updatepulse-server' ) );
 			}
 		}

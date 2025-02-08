@@ -19,6 +19,7 @@ use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
+use Anyape\Utils\Utils;
 
 class Update_Server {
 
@@ -252,7 +253,7 @@ class Update_Server {
 				if ( $remote_info && ! is_wp_error( $remote_info ) ) {
 					$needs_update = version_compare( $remote_info['version'], $meta['header']['Version'], '>' );
 				} else {
-					php_log(
+					Utils::php_log(
 						$remote_info,
 						'Invalid value $remote_info for package of type '
 						. $this->type . ' and slug ' . $slug
@@ -526,12 +527,12 @@ class Update_Server {
 
 			$package = Package::from_archive( $filename, $safe_slug, $this->cache );
 		} catch ( Exception $e ) {
-			php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
+			Utils::php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
 
 			$log  = 'Exception caught: ' . $e->getMessage() . "\n";
 			$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
 
-			php_log( $log );
+			Utils::php_log( $log );
 		}
 
 		return $package;
@@ -883,7 +884,7 @@ class Update_Server {
 
 		if ( is_wp_error( $response ) ) {
 			wp_delete_file( $local_filename );
-			php_log( $response, 'Invalid value for $response' );
+			Utils::php_log( $response, 'Invalid value for $response' );
 
 			return $response;
 		}
@@ -901,7 +902,7 @@ class Update_Server {
 
 			if ( is_wp_error( $md5_check ) ) {
 				wp_delete_file( $local_filename );
-				php_log( $md5_check, 'Invalid value for $md5_check' );
+				Utils::php_log( $md5_check, 'Invalid value for $md5_check' );
 
 				return $md5_check;
 			}

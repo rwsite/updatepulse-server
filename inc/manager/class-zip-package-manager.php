@@ -10,6 +10,7 @@ use ZipArchive;
 use RecursiveIteratorIterator;
 use RecursiveDirectoryIterator;
 use FilesystemIterator;
+use Anyape\Utils\Utils;
 
 class Zip_Package_Manager {
 
@@ -156,7 +157,7 @@ class Zip_Package_Manager {
 				trigger_error( $error_message, E_USER_WARNING ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 			}
 
-			php_log( $error_message );
+			Utils::php_log( $error_message );
 
 			$wp_filesystem->delete( $this->received_package_path, true );
 		}
@@ -237,7 +238,7 @@ class Zip_Package_Manager {
 				trigger_error( $error_message, E_USER_WARNING ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 			}
 
-			php_log( $error_message );
+			Utils::php_log( $error_message );
 		}
 
 		return $return;

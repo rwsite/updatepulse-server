@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use DateTime;
 use DateTimeZone;
 use PasswordHash;
+use Anyape\Utils\Utils;
 
 class Nonce {
 
@@ -114,7 +115,7 @@ class Nonce {
 						'message' => __( 'Internal Error - nonce insert error', 'updatepulse-server' ),
 					);
 
-					php_log( __METHOD__ . ' wpdb::insert error' );
+					Utils::php_log( __METHOD__ . ' wpdb::insert error' );
 				}
 			}
 		}

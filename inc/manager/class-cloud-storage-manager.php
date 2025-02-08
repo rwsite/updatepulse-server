@@ -16,6 +16,7 @@ use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
 use Anyape\UpdatePulse\Server\Server\Update\Cache;
 use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Package_Parser\Parser;
+use Anyape\Utils\Utils;
 
 class Cloud_Storage_Manager {
 
@@ -283,7 +284,7 @@ class Cloud_Storage_Manager {
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'  => $e->getMessage(),
 					'file'   => $e->getFile(),
@@ -318,7 +319,7 @@ class Cloud_Storage_Manager {
 
 			return null === $info ? $info : (bool) $info;
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'  => $e->getMessage(),
 					'file'   => $e->getFile(),
@@ -362,7 +363,7 @@ class Cloud_Storage_Manager {
 				self::$virtual_dir . '/' . $slug . '.zip'
 			);
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'  => $e->getMessage(),
 					'file'   => $e->getFile(),
@@ -487,7 +488,7 @@ class Cloud_Storage_Manager {
 			if ( ! $this->virtual_folder_exists( self::$virtual_dir ) ) {
 
 				if ( ! $this->create_virtual_folder( self::$virtual_dir ) ) {
-					php_log(
+					Utils::php_log(
 						sprintf(
 							// translators: %s is the virtual folder
 							esc_html__( 'WARNING: Unable to create Virtual folder "%s". The Cloud Storage feature may not work as expected. Try to create it manually and test again.', 'updatepulse-server' ),
@@ -497,7 +498,7 @@ class Cloud_Storage_Manager {
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'  => $e->getMessage(),
 					'file'   => $e->getFile(),
@@ -529,7 +530,7 @@ class Cloud_Storage_Manager {
 					$local_meta = Parser::parse_package( $filename, true );
 				}
 			} catch ( PhpS3Exception $e ) {
-				php_log(
+				Utils::php_log(
 					array(
 						'error'    => $e->getMessage(),
 						'file'     => $e->getFile(),
@@ -577,7 +578,7 @@ class Cloud_Storage_Manager {
 				)
 			);
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'    => $e->getMessage(),
 					'file'     => $e->getFile(),
@@ -610,7 +611,7 @@ class Cloud_Storage_Manager {
 				self::$virtual_dir . '/' . $slug . '.zip'
 			);
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'    => $e->getMessage(),
 					'file'     => $e->getFile(),
@@ -646,7 +647,7 @@ class Cloud_Storage_Manager {
 				$save = false === $info;
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'    => $e->getMessage(),
 					'file'     => $e->getFile(),
@@ -672,7 +673,7 @@ class Cloud_Storage_Manager {
 					$archive_path
 				);
 			} catch ( PhpS3Exception $e ) {
-				php_log(
+				Utils::php_log(
 					array(
 						'error'    => $e->getMessage(),
 						'file'     => $e->getFile(),
@@ -711,7 +712,7 @@ class Cloud_Storage_Manager {
 						$filename
 					);
 				} catch ( PhpS3Exception $e ) {
-					php_log(
+					Utils::php_log(
 						array(
 							'error'    => $e->getMessage(),
 							'file'     => $e->getFile(),
@@ -813,7 +814,7 @@ class Cloud_Storage_Manager {
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'    => $e->getMessage(),
 					'file'     => $e->getFile(),
@@ -890,7 +891,7 @@ class Cloud_Storage_Manager {
 					Zip_Metadata_Parser::$cache_time // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				);
 			} catch ( Invalid_Package_Exception $e ) {
-				php_log(
+				Utils::php_log(
 					array(
 						'error'    => $e->getMessage(),
 						'file'     => $e->getFile(),
@@ -934,7 +935,7 @@ class Cloud_Storage_Manager {
 		} catch ( Exception $e ) {
 
 			if ( $e instanceof PhpS3Exception ) {
-				php_log(
+				Utils::php_log(
 					array(
 						'error'    => $e->getMessage(),
 						'file'     => $e->getFile(),
@@ -944,12 +945,12 @@ class Cloud_Storage_Manager {
 					)
 				);
 			} else {
-				php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
+				Utils::php_log( 'Corrupt archive ' . $filename . '; package will not be displayed or delivered' );
 
 				$log  = 'Exception caught: ' . $e->getMessage() . "\n";
 				$log .= 'File: ' . $e->getFile() . ':' . $e->getLine() . "\n";
 
-				php_log( $log );
+				Utils::php_log( $log );
 			}
 		}
 
@@ -1004,7 +1005,7 @@ class Cloud_Storage_Manager {
 				}
 			}
 		} catch ( PhpS3Exception $e ) {
-			php_log(
+			Utils::php_log(
 				array(
 					'error'  => $e->getMessage(),
 					'file'   => $e->getFile(),
