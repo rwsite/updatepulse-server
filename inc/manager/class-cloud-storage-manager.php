@@ -33,18 +33,8 @@ class Cloud_Storage_Manager {
 	public function __construct( $init_hooks = false ) {
 		$config = self::get_config();
 
-		if ( $config['use_cloud_storage'] && ! self::$cloud_storage instanceof PhpS3 ) {
-			self::$cloud_storage = new PhpS3(
-				$config['access_key'],
-				$config['secret_key'],
-				true,
-				$config['endpoint'],
-				$config['region'],
-			);
-
-			self::$cloud_storage->setExceptions();
-
-			self::$virtual_dir = apply_filters( 'upserv_cloud_storage_virtual_dir', 'updatepulse-packages' );
+		if ( $config['use_cloud_storage'] ) {
+			$this->init_manager( $config );
 		}
 
 		if ( $init_hooks ) {
@@ -64,6 +54,23 @@ class Cloud_Storage_Manager {
 			} else {
 				$this->remove_hooks();
 			}
+		}
+	}
+
+	protected function init_manager( $config ) {
+
+		if ( ! self::$cloud_storage instanceof PhpS3 ) {
+			self::$cloud_storage = new PhpS3(
+				$config['access_key'],
+				$config['secret_key'],
+				true,
+				$config['endpoint'],
+				$config['region'],
+			);
+
+			self::$cloud_storage->setExceptions();
+
+			self::$virtual_dir = apply_filters( 'upserv_cloud_storage_virtual_dir', 'updatepulse-packages' );
 		}
 	}
 
@@ -479,6 +486,8 @@ class Cloud_Storage_Manager {
 			$this->remove_hooks();
 
 			return;
+		} else {
+			$this->init_manager( $config );
 		}
 
 		$this->add_hooks();
