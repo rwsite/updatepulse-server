@@ -441,9 +441,7 @@ class PhpS3
     */
     public static function freeSigningKey()
     {
-        if (self::$signingKeyResource instanceof \OpenSSLAsymmetricKey) {
-            openssl_free_key(self::$signingKeyResource);
-        }
+        unset(self::$signingKeyResource);
     }
 
 
