@@ -1060,6 +1060,8 @@ class Update_Server {
 		if (
 			is_object( $result ) &&
 			$slug === $result->package_slug &&
+			$type &&
+			$result->package_type &&
 			strtolower( $type ) === strtolower( $result->package_type )
 		) {
 			$result->result  = 'success';
