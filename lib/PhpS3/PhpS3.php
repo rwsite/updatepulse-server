@@ -3011,10 +3011,9 @@ class PhpS3
         // Use fileinfo if available
         if (
             extension_loaded('fileinfo') &&
-            isset($_ENV['MAGIC']) &&
             class_exists('finfo')
         ) {
-            $finfo = new \finfo(FILEINFO_MIME, $_ENV['MAGIC']);
+            $finfo = new \finfo(FILEINFO_MIME);
 
             if (($type = finfo_file($finfo, $file)) !== false) {
                 // Remove the charset and grab the last content-type
