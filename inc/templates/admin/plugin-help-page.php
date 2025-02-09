@@ -78,7 +78,7 @@
 			<?php
 			printf(
 				// translators: %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>, %5$s is "in the UpdatePulse Server Integration"
-				esc_html__( 'Add a %1$s directory with the %2$s and %3$s libraries to the root of the package (provided in %4$s of the %5$s repository).', 'updatepulse-server' ),
+				esc_html__( 'Add a %1$s directory with the %2$s and %3$s libraries to the root of the package as provided in %4$s of the %5$s repository.', 'updatepulse-server' ),
 				'<code>lib</code>',
 				'<code>plugin-update-checker</code>',
 				'<code>updatepulse-updater</code>',
