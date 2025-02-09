@@ -97,7 +97,7 @@ if (
 			'Anyape\\UpdatePulse\\Server\\Nonce\\Nonce',
 			'Anyape\\UpdatePulse\\Server\\Manager\\Webhook_Manager',
 			'Anyape\\UpdatePulse\\Server\\Manager\\Data_Manager',
-			'Anyape\\UpdatePulse\\Server\\Manager\\Remote_Sources_Manager_Manager',
+			'Anyape\\UpdatePulse\\Server\\Manager\\Remote_Sources_Manager',
 		)
 	);
 
