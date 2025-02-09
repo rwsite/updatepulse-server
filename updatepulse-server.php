@@ -211,32 +211,31 @@ function upserv_run() {
 }
 add_action( 'plugins_loaded', 'upserv_run', PHP_INT_MIN + 100, 0 );
 
-if (
-	isset( $_SERVER['REQUEST_URI'] ) &&
-	! preg_match(
-		'/^updatepulse-server-((.*?)-api|nonce|token)$/',
-		$_SERVER['REQUEST_URI']
-	)
-) {
-	require_once __DIR__ . '/lib/wp-update-migrate/class-wp-update-migrate.php';
+function upserv_updater() {
+	$doing_api = wp_cache_get( 'upserv_mu_doing_api', 'updatepulse-server' );
 
-	if ( ! wp_doing_ajax() && is_admin() && ! wp_doing_cron() ) {
-		add_action(
-			'plugins_loaded',
-			function () {
-				$upserv_update_migrate = WP_Update_Migrate::get_instance( UPSERV_PLUGIN_FILE, 'upserv' );
+	if ( ! $doing_api ) {
+		require_once __DIR__ . '/lib/wp-update-migrate/class-wp-update-migrate.php';
 
-				if ( false === $upserv_update_migrate->get_result() ) {
+		if ( ! wp_doing_ajax() && is_admin() && ! wp_doing_cron() ) {
+			add_action(
+				'plugins_loaded',
+				function () {
+					$update_migrate = WP_Update_Migrate::get_instance( UPSERV_PLUGIN_FILE, 'upserv' );
 
-					if ( false !== has_action( 'plugins_loaded', 'upserv_run' ) ) {
-						remove_action( 'plugins_loaded', 'upserv_run', -99 );
+					if ( false === $update_migrate->get_result() ) {
+
+						if ( false !== has_action( 'plugins_loaded', 'upserv_run' ) ) {
+							remove_action( 'plugins_loaded', 'upserv_run', -99 );
+						}
 					}
-				}
-			},
-			PHP_INT_MIN
-		);
+				},
+				PHP_INT_MIN
+			);
+		}
 	}
 }
+upserv_updater();
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 

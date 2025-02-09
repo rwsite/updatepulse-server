@@ -8,10 +8,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
+use Anyape\Utils\Utils;
 
 class Update_API {
 
-	protected static $doing_update_api_request = null;
+	protected static $doing_api_request = null;
 	protected static $instance;
 
 	protected $update_server;
@@ -134,11 +135,11 @@ class Update_API {
 
 	public static function is_doing_api_request() {
 
-		if ( null === self::$doing_update_api_request ) {
-			self::$doing_update_api_request = ( false !== strpos( $_SERVER['REQUEST_URI'], 'updatepulse-server-update-api' ) );
+		if ( null === self::$doing_api_request ) {
+			self::$doing_api_request = Utils::is_url_subpath_match( '/^updatepulse-server-update-api$/' );
 		}
 
-		return self::$doing_update_api_request;
+		return self::$doing_api_request;
 	}
 
 	public static function get_instance() {

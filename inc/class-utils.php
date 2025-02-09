@@ -83,4 +83,22 @@ class Utils {
 
 		return $current;
 	}
+
+	public static function is_url_subpath_match( $regex ) {
+		$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : false;
+
+		if ( ! $host && isset( $_SERVER['SERVER_NAME'] ) ) {
+			$host = sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) );
+		}
+
+		if ( ! $host || ! isset( $_SERVER['REQUEST_URI'] ) ) {
+			return null;
+		}
+
+		$url   = sanitize_url( 'https://' . $host . wp_unslash( $_SERVER['REQUEST_URI'] ) );
+		$path  = str_replace( trailingslashit( home_url() ), '', $url );
+		$frags = explode( '/', $path );
+
+		return preg_match( $regex, $frags[0] );
+	}
 }

@@ -20,7 +20,7 @@ class Nonce {
 
 	protected static $true_nonce;
 	protected static $expiry_length;
-	protected static $doing_update_api_request = null;
+	protected static $doing_api_request = null;
 	protected static $private_keys;
 
 	/*******************************************************************
@@ -210,13 +210,11 @@ class Nonce {
 
 	public static function is_doing_api_request() {
 
-		if ( null === self::$doing_update_api_request ) {
-			self::$doing_update_api_request =
-				false !== strpos( $_SERVER['REQUEST_URI'], 'upserv-token' ) &&
-				false !== strpos( $_SERVER['REQUEST_URI'], 'upserv-nonce' );
+		if ( null === self::$doing_api_request ) {
+			self::$doing_api_request = Utils::is_url_subpath_match( '/^updatepulse-server-(nonce|token)$/' );
 		}
 
-		return self::$doing_update_api_request;
+		return self::$doing_api_request;
 	}
 
 	public static function create_nonce(
