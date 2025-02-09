@@ -339,7 +339,7 @@ Webhook URL: `https://domain.tld/updatepulse-server-webhook/package-type/package
 
 ### Provide updates with UpdatePulse Server - packages requirements
 
-To link your packages to UpdatePulse Server, and optionally to prevent webmasters from getting updates of your ppackages without a license, your packages need to include some extra code.  
+To link your packages to UpdatePulse Server, and optionally to prevent users from getting updates of your ppackages without a license, your packages need to include some extra code.  
 
 For plugins, and themes, it is fairly straightforward:
 - Add a `lib` directory with the `plugin-update-checker` and `updatepulse-updater` libraries to the root of the package as provided in `dummy-[plugin|theme]`; `updatepulse-updater` can be customized as you see fit, but `plugin-update-checker` should be left untouched.
