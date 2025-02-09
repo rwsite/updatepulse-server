@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
 class Data_Manager {
 
@@ -29,7 +30,7 @@ class Data_Manager {
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
-			add_action( 'action_scheduler_init', array( $this, 'action_scheduler_init' ), 10, 0 );
+			add_action( 'upserv_scheduler_init', array( $this, 'upserv_scheduler_init' ), 10, 0 );
 		}
 	}
 
@@ -67,7 +68,7 @@ class Data_Manager {
 		self::clear_schedules();
 	}
 
-	public function action_scheduler_init() {
+	public function upserv_scheduler_init() {
 		self::register_cleanup_events();
 		self::register_cleanup_schedules();
 	}
@@ -302,7 +303,7 @@ class Data_Manager {
 				$params[] = true;
 			}
 
-			as_unschedule_all_actions( 'upserv_cleanup', $params );
+			Scheduler::get_instance()->unschedule_all_actions( 'upserv_cleanup', $params );
 			do_action( 'upserv_cleared_cleanup_schedule', $type, $params );
 		}
 	}
@@ -340,11 +341,11 @@ class Data_Manager {
 				$params[] = true;
 			}
 
-			if ( ! as_has_scheduled_action( $hook, $params ) ) {
+			if ( ! Scheduler::get_instance()->has_scheduled_action( $hook, $params ) ) {
 				$frequency = apply_filters( 'upserv_schedule_cleanup_frequency', 'hourly', $type );
 				$schedules = wp_get_schedules();
 				$timestamp = time();
-				$result    = as_schedule_recurring_action(
+				$result    = Scheduler::get_instance()->schedule_recurring_action(
 					$timestamp,
 					$schedules[ $frequency ]['interval'],
 					$hook,

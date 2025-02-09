@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use WP_Error;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\API\Update_API;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
 class Remote_Sources_Manager {
 
@@ -17,7 +18,7 @@ class Remote_Sources_Manager {
 		if ( $init_hooks ) {
 
 			if ( upserv_get_option( 'use_vcs' ) ) {
-				add_action( 'action_scheduler_init', array( $this, 'register_remote_check_scheduled_hooks' ), 10, 0 );
+				add_action( 'upserv_scheduler_init', array( $this, 'register_remote_check_scheduled_hooks' ), 10, 0 );
 			} else {
 				add_action( 'init', array( $this, 'clear_remote_check_scheduled_hooks' ), 10, 0 );
 			}
@@ -136,7 +137,7 @@ class Remote_Sources_Manager {
 			foreach ( $slugs as $slug ) {
 				$scheduled_hook = 'upserv_check_remote_' . $slug;
 
-				as_unschedule_all_actions( $scheduled_hook );
+				Scheduler::get_instance()->unschedule_all_actions( $scheduled_hook );
 				do_action( 'upserv_cleared_check_remote_schedule', $slug, $scheduled_hook );
 			}
 		}
@@ -337,10 +338,10 @@ class Remote_Sources_Manager {
 			$timestamp = time();
 			$schedules = wp_get_schedules();
 
-			as_unschedule_all_actions( $hook );
+			Scheduler::get_instance()->unschedule_all_actions( $hook, $params );
 			do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 
-			$result = as_schedule_recurring_action(
+			$result = Scheduler::get_instance()->schedule_recurring_action(
 				$timestamp,
 				$schedules[ $frequency ]['interval'],
 				$hook,

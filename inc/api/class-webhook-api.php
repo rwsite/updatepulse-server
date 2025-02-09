@@ -10,6 +10,7 @@ use DateTimeZone;
 use DateTime;
 use WP_Error;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
 class Webhook_API {
 
@@ -184,7 +185,7 @@ class Webhook_API {
 				$hook   = 'upserv_webhook';
 				$params = array( $info['url'], $info['secret'], $body, current_action() );
 
-				if ( ! as_has_scheduled_action( 'upserv_webhook', $params ) ) {
+				if ( ! Scheduler::get_instance()->has_scheduled_action( $hook, $params ) ) {
 					$instant = apply_filters(
 						'upserv_schedule_webhook_is_instant',
 						$instant,
@@ -198,7 +199,7 @@ class Webhook_API {
 						continue;
 					}
 
-					as_schedule_single_action( time(), $hook, $params );
+					Scheduler::get_instance()->schedule_single_action( time(), $hook, $params );
 				}
 			}
 		}
@@ -338,13 +339,13 @@ class Webhook_API {
 				if ( $package_exists ) {
 					$params           = array( $slug, $type, false );
 					$result           = true;
-					$scheduled_action = as_next_scheduled_action( $hook, $params );
+					$scheduled_action = Scheduler::get_instance()->next_scheduled_action( $hook, $params );
 					$timestamp        = is_int( $scheduled_action ) ? $scheduled_action : false;
 
 					if ( ! is_int( $scheduled_action ) ) {
 
 						if ( ! $scheduled_action ) {
-							as_unschedule_all_actions( $hook );
+							Scheduler::get_instance()->unschedule_all_actions( $hook );
 							do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 						}
 
@@ -352,7 +353,7 @@ class Webhook_API {
 						$timestamp = ( $delay ) ?
 							time() + ( abs( intval( $delay ) ) * MINUTE_IN_SECONDS ) :
 							time();
-						$result    = as_schedule_single_action( $timestamp, $hook, $params );
+						$result    = Scheduler::get_instance()->schedule_single_action( $timestamp, $hook, $params );
 
 						do_action(
 							'upserv_scheduled_check_remote_event',
@@ -386,7 +387,7 @@ class Webhook_API {
 						);
 					}
 				} else {
-					as_unschedule_all_actions( $hook );
+					Scheduler::get_instance()->unschedule_all_actions( $hook );
 					do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 
 					$result = upserv_download_remote_package( $slug, $type );

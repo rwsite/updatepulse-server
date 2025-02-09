@@ -38,6 +38,7 @@ use Anyape\UpdatePulse\Server\Manager\Remote_Sources_Manager;
 use Anyape\UpdatePulse\Server\Manager\Package_Manager;
 use Anyape\UpdatePulse\Server\Manager\License_Manager;
 use Anyape\UpdatePulse\Server\Manager\API_Manager;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 use Anyape\UpdatePulse\Server\UPServ;
 
 if ( ! defined( 'UPSERV_PLUGIN_PATH' ) ) {
@@ -57,10 +58,6 @@ if ( ! defined( 'UPSERV_MB_TO_B' ) ) {
 }
 
 $require = apply_filters( 'upserv_mu_require', array( UPSERV_PLUGIN_PATH . 'autoload.php' ) );
-
-if ( ! class_exists( 'ActionScheduler' ) ) {
-	$require[] = UPSERV_PLUGIN_PATH . 'lib/action-scheduler/action-scheduler.php';
-}
 
 foreach ( $require as $file ) {
 
@@ -137,6 +134,10 @@ function upserv_run() {
 	$priority_api_request = apply_filters( 'upserv_is_priority_api_request', $license_api_request );
 	$is_api_request       = $priority_api_request;
 	$objects              = apply_filters( 'upserv_objects', array() );
+
+	if ( ! isset( $objects['scheduler'] ) ) {
+		$objects['scheduler'] = new Scheduler( true );
+	}
 
 	if ( ! isset( $objects['license_api'] ) ) {
 		$objects['license_api'] = new License_API( true, false );

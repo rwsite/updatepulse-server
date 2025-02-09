@@ -10,6 +10,7 @@ use DateTime;
 use DateTimeZone;
 use Anyape\UpdatePulse\Server\Table\Licenses_Table;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
 class License_Manager {
 
@@ -26,7 +27,7 @@ class License_Manager {
 			if ( $use_licenses ) {
 				$this->license_server = new License_Server();
 
-				add_action( 'action_scheduler_init', array( $this, 'action_scheduler_init' ), 10, 0 );
+				add_action( 'upserv_scheduler_init', array( $this, 'upserv_scheduler_init' ), 10, 0 );
 				add_action( 'upserv_packages_table_cell', array( $this, 'upserv_packages_table_cell' ), 10, 4 );
 
 				add_filter( 'upserv_packages_table_columns', array( $this, 'upserv_packages_table_columns' ), 10, 1 );
@@ -67,18 +68,22 @@ class License_Manager {
 	}
 
 	public static function deactivate() {
-		as_unschedule_all_actions( 'upserv_expire_licenses' );
+		Scheduler::get_instance()->unschedule_all_actions( 'upserv_expire_licenses' );
 		do_action( 'upserv_cleared_license_schedule' );
 	}
 
-	public function action_scheduler_init() {
+	public function upserv_scheduler_init() {
 		$hook = 'upserv_expire_licenses';
 
-		if ( ! as_has_scheduled_action( $hook ) ) {
+		if ( ! Scheduler::get_instance()->has_scheduled_action( $hook ) ) {
 			$frequency = apply_filters( 'upserv_schedule_license_frequency', 'daily' );
 			$schedules = wp_get_schedules();
-			$timestamp = strtotime( 'today noon' );
-			$result    = as_schedule_recurring_action(
+			$d         = new DateTime( 'now', new DateTimeZone( wp_timezone_string() ) );
+
+			$d->setTime( 12, 0, 0 );
+
+			$timestamp = $d->getTimestamp() + DAY_IN_SECONDS;
+			$result    = Scheduler::get_instance()->schedule_recurring_action(
 				$timestamp,
 				$schedules[ $frequency ]['interval'],
 				$hook

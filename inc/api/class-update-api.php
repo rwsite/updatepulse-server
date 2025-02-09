@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
 class Update_API {
 
@@ -81,7 +82,7 @@ class Update_API {
 	public function upserv_removed_package( $result, $type, $slug ) {
 
 		if ( $result ) {
-			as_unschedule_all_actions( 'upserv_check_remote_' . $slug );
+			Scheduler::get_instance()->unschedule_all_actions( 'upserv_check_remote_' . $slug );
 		}
 	}
 
@@ -232,9 +233,10 @@ class Update_API {
 		$hook   = 'upserv_check_remote_' . $slug;
 		$params = array( $slug, $type, false );
 
-		if ( as_has_scheduled_action( $hook, $params ) ) {
+		if ( Scheduler::get_instance()->has_scheduled_action( $hook, $params ) ) {
 			return;
 		}
+
 		$frequency = apply_filters(
 			'upserv_check_remote_frequency',
 			$vcs_config['check_frequency'],
@@ -242,7 +244,7 @@ class Update_API {
 		);
 		$timestamp = time();
 		$schedules = wp_get_schedules();
-		$result    = as_schedule_recurring_action(
+		$result    = Scheduler::get_instance()->schedule_recurring_action(
 			$timestamp,
 			$schedules[ $frequency ]['interval'],
 			$hook,

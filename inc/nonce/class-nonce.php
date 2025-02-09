@@ -10,6 +10,7 @@ use DateTime;
 use DateTimeZone;
 use PasswordHash;
 use Anyape\Utils\Utils;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
 class Nonce {
 
@@ -41,18 +42,25 @@ class Nonce {
 	}
 
 	public static function deactivate() {
-		as_unschedule_all_actions( 'upserv_nonce_cleanup' );
+		Scheduler::get_instance()->unschedule_all_actions( 'upserv_nonce_cleanup' );
 	}
 
 	public static function uninstall() {}
 
-	public static function action_scheduler_init() {
+	public static function upserv_scheduler_init() {
+
+		if ( Scheduler::get_instance()->has_scheduled_action( 'upserv_nonce_cleanup' ) ) {
+			return;
+		}
+
 		$d = new DateTime( 'now', new DateTimeZone( wp_timezone_string() ) );
 
-		if ( ! as_has_scheduled_action( 'upserv_nonce_cleanup' ) ) {
-			$d->setTime( 0, 0, 0 );
-			as_schedule_recurring_action( $d->getTimestamp(), DAY_IN_SECONDS, 'upserv_nonce_cleanup' );
-		}
+		$d->setTime( 0, 0, 0 );
+		Scheduler::get_instance()->schedule_recurring_action(
+			$d->getTimestamp() + DAY_IN_SECONDS,
+			DAY_IN_SECONDS,
+			'upserv_nonce_cleanup'
+		);
 	}
 
 	public static function add_endpoints() {
@@ -186,7 +194,7 @@ class Nonce {
 	public static function register() {
 
 		if ( ! self::is_doing_api_request() ) {
-			add_action( 'action_scheduler_init', array( get_class(), 'action_scheduler_init' ) );
+			add_action( 'upserv_scheduler_init', array( get_class(), 'upserv_scheduler_init' ) );
 			add_action( 'upserv_nonce_cleanup', array( get_class(), 'upserv_nonce_cleanup' ) );
 		}
 
