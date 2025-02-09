@@ -13,7 +13,6 @@ function autoload( $class_name ) {
 		'Anyape\\Utils\\Utils'   => $f_root . 'inc/class-utils.php',
 		'Anyape\\Crypto\\Crypto' => $f_root . 'lib/anyape-crypto/crypto.php',
 		'PhpS3\\PhpS3'           => $f_root . 'lib/PhpS3/PhpS3.php',
-		'\\PclZip'               => $f_root . 'lib/PclZip/pclzip.php',
 	) : $class_map;
 
 	if ( isset( $class_map[ $class_name ] ) ) {

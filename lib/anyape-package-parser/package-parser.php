@@ -3,7 +3,6 @@
 namespace Anyape\UpdatePulse\Package_Parser;
 
 use Parsedown;
-use PclZip;
 use ZipArchive as SystemZipArchive;
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
@@ -606,14 +605,9 @@ abstract class Archive {
 	* @return bool|Archive
 	*/
 	public static function open( $zip_file_name ) {
+		$zip = new ZipArchive( $zip_file_name );
 
-		if ( class_exists( '\\ZipArchive', false ) ) {
-			$zip = new ZipArchive( $zip_file_name );
-
-			return $zip->open( $zip_file_name );
-		} else {
-			return PclZipArchive::open( $zip_file_name );
-		}
+		return $zip->open( $zip_file_name );
 	}
 
 	/**
@@ -673,56 +667,5 @@ class ZipArchive extends Archive {
 
 	public function get_file_contents( $file_info ) {
 		return $this->archive->getFromIndex( $file_info['index'] );
-	}
-}
-
-class PclZipArchive extends Archive {
-	/**
-	* @var PclZip
-	*/
-	protected $archive;
-
-	protected function __construct( $zip_file_name ) {
-		$this->archive = new PclZip( $zip_file_name );
-	}
-
-	public static function open( $zip_file_name ) {
-
-		if ( ! class_exists( 'PclZip', false ) ) {
-			return null;
-		}
-
-		return new self( $zip_file_name );
-	}
-
-	public function list_entries() {
-		$contents = $this->archive->listContent();
-
-		if ( 0 === $contents ) {
-			return array();
-		}
-
-		$list = array();
-
-		foreach ( $contents as $info ) {
-			$list[] = array(
-				'name'     => $info['filename'],
-				'size'     => $info['size'],
-				'isFolder' => $info['folder'],
-				'index'    => $info['index'],
-			);
-		}
-
-		return $list;
-	}
-
-	public function get_file_contents( $file_info ) {
-		$result = $this->archive->extract( PCLZIP_OPT_BY_INDEX, $file_info['index'], PCLZIP_OPT_EXTRACT_AS_STRING );
-
-		if ( ( 0 === $result ) || ( ! isset( $result[0], $result[0]['content'] ) ) ) {
-			return false;
-		}
-
-		return $result[0]['content'];
 	}
 }
