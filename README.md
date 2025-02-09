@@ -26,7 +26,7 @@
 		* [Registering packages with a Version Control System](#registering-packages-with-a-version-control-system)
 		* [Provide updates with UpdatePulse Server - packages requirements](#provide-updates-with-updatepulse-server---packages-requirements)
 		* [Scheduled tasks optimisation](#scheduled-tasks-optimisation)
-		* [UpdatePulse Server Endpoint Optimizer - requests optimisation](#updatepulse-server-endpoint-optimizer---requests-optimisation)
+		* [Requests optimisation](#requests-optimisation)
 		* [More help...](#more-help)
 
 
@@ -35,7 +35,7 @@ Developer documentation:
 - [Licenses](https://github.com/anyape/updatepulse-server/blob/main/docs/licenses.md)
 - [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/docs/misc.md)
 - [Generic Updates Integration](https://github.com/anyape/updatepulse-server/blob/main/docs/generic.md)
-- [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository
+- [UpdatePulse Server Integration](https://github.com/Anyape/updatepulse-server-integration) repository
 
 ## Introduction
 
@@ -371,7 +371,7 @@ The "Licensed With" header is used to link packages together (for example, in th
 For generic packages, the steps involved entirely depend on the language used to write the package and the update process of the target platform.  
 You may refer to the documentation found [here](https://github.com/anyape/updatepulse-server/blob/main/docs/generic.md).
 
-Dummy packages are available in the [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository.
+Dummy packages are available in the [UpdatePulse Server Integration](https://github.com/Anyape/updatepulse-server-integration) repository.
 
 Unless "Enable VCS" is checked in "Version Control Systems", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
 
@@ -385,13 +385,17 @@ To make sure that the tasks are executed on time, it is recommended to set up a 
 For more advanced scheduling, it is recommended to use the [Action Scheduler](https://wordpress.org/plugins/action-scheduler/) plugin.  
 Simply install and activate the plugin, and UpdatePulse Server will automatically use it to schedule tasks instead of the default core scheduler.
 
-### UpdatePulse Server Endpoint Optimizer - requests optimisation
+### Requests optimisation
 
-When remote clients with your packages installed send requests to check for updates or download packages, the WordPress installation on this server is loaded, along with its plugins and themes. If left unoptimized, unnecessary action and filter hooks are triggered before the `parse_request` action hook, even though these requests are not intended to generate on-screen output or perform additional computations.
+When the remote clients where plugins, themes, or generic packages are installed send a request to check for updates, download a package or check or change license status, WordPress where UpdatePulse Server is installed is also loaded, with its own plugins and themes.  
+This is suboptimal: the request should be handled as quickly as possible, and the WordPress core should be loaded as little as possible.
 
-To address this, the file `wp-content/plugins/updatepulse-server/optimisation/upserv-endpoint-optimiser.php` is automatically copied to `wp-content/mu-plugins/upserv-endpoint-optimiser.php` upon activation of UpdatePulse Server, and re-applied each time the plugin is updated (with a new version if present).
+To solve this, the Must-Use Plugin file `upserv-default-optimizer.php` is automatically copied to `/wp-content/mu-plugins/upserv-default-optimizer.php` upon activating UpdatePulse Server.  
+It runs before everything else, and offers mechanisms to prevent WordPress core from executing beyond what is strictly necessary.  
+This file has no effect on other plugins activation status, has no effect when UpdatePulse is deactivated, and is automatically deleted when UpdatePulse Server is uninstalled.
 
-The resulting Must Use Plugin runs before everything else, preventing themes and other plugins from executing when UpdatePulse Server receives an API request.
+Aside from the default optimizer, the [UpdatePulse Server Integration](https://github.com/Anyape/updatepulse-server-integration) repository contains more production-ready Must-Use Plugins developers can download and add to their UpdatePulse Server installation.  
+Contributions via pull requests are welcome.
 
 To alter the behaviour of the optimiser, see the `upserv_mu_optimizer_*` filters in [Miscellaneous](https://github.com/anyape/updatepulse-server/blob/main/docs/misc.md).
 

@@ -77,13 +77,13 @@
 			<li>
 			<?php
 			printf(
-				// translators: %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>, %5$s is "in the UpdatePulse Server Integration Examples"
+				// translators: %1$s is <code>lib</code>, %2$s is <code>plugin-update-checker</code>, %3$s is <code>updatepulse-updater</code>, %4$s is <code>dummy-[plugin|theme]</code>, %5$s is "in the UpdatePulse Server Integration"
 				esc_html__( 'Add a %1$s directory with the %2$s and %3$s libraries to the root of the package (provided in %4$s of the %5$s repository).', 'updatepulse-server' ),
 				'<code>lib</code>',
 				'<code>plugin-update-checker</code>',
 				'<code>updatepulse-updater</code>',
 				'<code>dummy-[plugin|theme]</code>',
-				'<a target="_blank" href="https://github.com/Anyape/updatepulse-server-integration">' . esc_html__( 'UpdatePulse Server Integration Examples', 'updatepulse-server' ) . '</a>'
+				'<a target="_blank" href="https://github.com/Anyape/updatepulse-server-integration">' . esc_html__( 'UpdatePulse Server Integration', 'updatepulse-server' ) . '</a>'
 			);
 			?>
 			</li>
@@ -174,9 +174,9 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 		<p>
 			<?php
 			printf(
-				// translators: %1$s is the link to the UpdatePulse Server Integration Examples repository
+				// translators: %1$s is the link to the UpdatePulse Server Integration repository
 				esc_html__( 'Dummy packages are available in the %1$s repository.', 'updatepulse-server' ),
-				'<a target="_blank" href="https://github.com/Anyape/updatepulse-server-integration">' . esc_html__( 'UpdatePulse Server Integration Examples', 'updatepulse-server' ) . '</a>'
+				'<a target="_blank" href="https://github.com/Anyape/updatepulse-server-integration">' . esc_html__( 'UpdatePulse Server Integration', 'updatepulse-server' ) . '</a>'
 			);
 			?>
 		<p>
@@ -239,37 +239,34 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 		<hr>
 		<h2><?php esc_html_e( 'Requests optimisation', 'updatepulse-server' ); ?></h2>
 		<p>
-			<?php
-			printf(
-				// translators: %s is <code>parse_request</code>
-				esc_html__( "When the remote clients where your plugins, themes, or generic packages are installed send a request to check for updates, download a package or check or change license status, the current server's WordPress installation is loaded, with its own plugins and themes. This is not optimised if left untouched because unnecessary action and filter hooks that execute before %s action hook are also triggered, even though the request is not designed to produce any on-screen output or further computation.", 'updatepulse-server' ),
-				'<code>parse_request</code>',
-			);
-			?>
+			<?php esc_html_e( 'When the remote clients where plugins, themes, or generic packages are installed send a request to check for updates, download a package or check or change license status, WordPress where UpdatePulse Server is installed is also loaded, with its own plugins and themes.', 'updatepulse-server' ); ?>
+			<br>
+			<?php esc_html_e( 'This is suboptimal: the request should be handled as quickly as possible, and the WordPress core should be loaded as little as possible.', 'updatepulse-server' ); ?>
 		</p>
 		<p>
 			<?php
 			printf(
-				// translators: %1$s is <code>optimisation/upserv-endpoint-optimiser.php</code>, %2$s is the MU Plugin's path
-				esc_html__( 'To solve this, the file %1$s has been automatically copied to %2$s. This effectively creates a Must Use Plugin running before everything else and preventing themes and other plugins from being executed when an update request or a license API request is received by UpdatePulse Server.', 'updatepulse-server' ),
-				'<code>' . esc_html( UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimiser.php' ) . '</code>',
-				'<code>' . esc_html( dirname( dirname( UPSERV_PLUGIN_PATH ) ) . '/mu-plugins/upserv-endpoint-optimiser.php' ) . '</code>',
+				// translators: %1$s is <code>optimisation/upserv-default-optimizer.php</code>, %2$s is the MU Plugin's path
+				esc_html__( 'To solve this, the Must-Use Plugin file %1$s automatically copied to %2$s upon activating UpdatePulse Server.', 'updatepulse-server' ),
+				'<code>upserv-default-optimizer.php</code>',
+				'<code>' . esc_html( $mu_path ) . 'upserv-default-optimizer.php</code>',
 			);
 			?>
+			<br>
+			<?php esc_html_e( 'It runs before everything else, and offers mechanisms to prevent WordPress core from executing beyond what is strictly necessary.', 'updatepulse-server' ); ?>
+			<br>
+			<?php esc_html_e( 'This file has no effect on other plugins activation status, has no effect when UpdatePulse is deactivated, and is automatically deleted when UpdatePulse Server is uninstalled.', 'updatepulse-server' ); ?>
 		</p>
 		<p>
 			<?php
 			printf(
-				// translators: %1$s is <code>$upserv_doing_update_api_request</code>, %2$s is <code>$upserv_doing_license_api_request</code>, %3$s is <code>$upserv_always_active_plugins</code>, %4$s is <code>functions.php</code>, %5$s is <code>$upserv_bypass_themes</code>, %5$s is <code>false</code>
-				esc_html__( 'The MU Plugin also provides the global variable %1$s and %2$s that can be tested when adding hooks and filters would you choose to keep some plugins active with %3$s or keep %4$s from themes included with %5$s set to %6$s.', 'updatepulse-server' ),
-				'<code>$upserv_doing_update_api_request</code>',
-				'<code>$upserv_doing_license_api_request</code>',
-				'<code>$upserv_always_active_plugins</code>',
-				'<code>functions.php</code>',
-				'<code>$upserv_bypass_themes</code>',
-				'<code>false</code>',
+				// translators: %1$s is the link to the UpdatePulse Server Integration repository
+				esc_html__( 'Aside from the default optimizer, the %1$s repository contains other production-ready Must-Use Plugins developers can download and add to their UpdatePulse Server installation.', 'updatepulse-server' ),
+				'<a target="_blank" href="https://github.com/Anyape/updatepulse-server-integration">' . esc_html__( 'UpdatePulse Server Integration', 'updatepulse-server' ) . '</a>'
 			);
 			?>
+			<br>
+			<?php esc_html_e( 'Contributions via pull requests are welcome.', 'updatepulse-server' ); ?>
 		</p>
 		<hr>
 		<h2><?php esc_html_e( 'More help...', 'updatepulse-server' ); ?></h2>

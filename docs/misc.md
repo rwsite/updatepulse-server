@@ -24,6 +24,8 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
         * [upserv\_schedule\_webhook](#upserv_schedule_webhook)
         * [upserv\_fire\_webhook](#upserv_fire_webhook)
     * [Actions](#actions)
+        * [upserv\_mu\_optimizer\_default\_pre\_apply](#upserv_mu_optimizer_default_pre_apply)
+        * [upserv\_mu\_optimizer\_default\_applied](#upserv_mu_optimizer_default_applied)
         * [upserv\_mu\_optimizer\_ready](#upserv_mu_optimizer_ready)
         * [upserv\_mu\_ready](#upserv_mu_ready)
         * [upserv\_ready](#upserv_ready)
@@ -31,7 +33,9 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
         * [upserv\_no\_priority\_api\_includes](#upserv_no_priority_api_includes)
         * [upserv\_api\_options\_updated](#upserv_api_options_updated)
     * [Filters](#filters)
+        * [upserv\_mu\_optimizer\_remove\_all\_hooks](#upserv_mu_optimizer_remove_all_hooks)
         * [upserv\_mu\_optimizer\_doing\_api\_request](#upserv_mu_optimizer_doing_api_request)
+        * [upserv\_mu\_optimizer\_info](#upserv_mu_optimizer_info)
         * [upserv\_mu\_require](#upserv_mu_require)
         * [upserv\_mu\_plugin\_registration\_classes](#upserv_mu_plugin_registration_classes)
         * [upserv\_is\_api\_request](#upserv_is_api_request)
@@ -661,6 +665,31 @@ UpdatePulse Server gives developers the possibility to have their plugins react 
 **Warning**: the filters below with the mention "Fired during API requests" need to be used with caution. Although they may be triggered when using the functions above, these filters will possibly be called when the Update API, License API, Packages API or a Webhook is called. Registering functions doing heavy computation to these filters can seriously degrade the server's performances.  
 
 ___
+### upserv_mu_optimizer_default_pre_apply
+
+```php
+do_action( 'upserv_mu_optimizer_default_pre_apply' );
+```
+
+**Description**
+Fired before the Must Used Plugin `UpdatePulse Server Default Optimizer` behavior is applied.  
+Use this hook in a Must Used Plugin to integrate with the default optimizer (See the [UpdatePulse Server Integration](https://github.com/Anyape/updatepulse-server-integration) repository for existing optimizers).  
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action; if within, the action must have a priority lower than `0`.
+
+___
+### upserv_mu_optimizer_default_applied
+
+```php
+do_action( 'upserv_mu_optimizer_default_applied' );
+```
+
+**Description**
+
+Fired after the Must Used Plugin `UpdatePulse Server Default Optimizer` behavior is applied.  
+Use this hook in a Must Used Plugin to integrate with the default optimizer (See the [UpdatePulse Server Integration](https://github.com/Anyape/updatepulse-server-integration) repository for existing optimizers).  
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action; if within, the action must have a priority lower than `0`.
+
+___
 ### upserv_mu_optimizer_ready
 
 ```php
@@ -676,8 +705,9 @@ Must be subscribed to in another MU plugin before or within the `muplugins_loade
 > (bool) whether the current request is made by a remote client interacting with any of the APIs
 
 `$info`
-> (array|bool) an array of information about modifications made when the optimizer is active  (`false` if `$doing_api` is not truthy)
+> (array|bool) an array of information about modifications made when the optimizer executed (`false` if `$doing_api` is not truthy)
 
+___
 ### upserv_mu_ready
 
 ```php
@@ -742,6 +772,21 @@ UpdatePulse Server gives developers the possibility to customize its behavior wi
 **Warning**: the filters below with the mention "Fired during API requests" need to be used with caution. Although they may be triggered when using the functions above, these filters will possibly be called when the Update API, License API, Packages API or a Webhook is called. Registering functions doing heavy computation to these filters can seriously degrade the server's performances.  
 
 ___
+### upserv_mu_optimizer_remove_all_hooks
+
+```php
+apply_filters( 'upserv_mu_optimizer_remove_all_hooks', array $hooks );
+```
+
+**Description**
+Filter the hooks to remove when the Must Used Plugin `UpdatePulse Server Default Optimizer` is applied.
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action; if within, the action must have a priority lower than `0`.
+
+**Parameters**
+`$hooks`
+> (array) the hooks to remove during an optimized API request
+
+___
 ### upserv_mu_optimizer_doing_api_request
 
 ```php
@@ -758,6 +803,28 @@ Must be subscribed to in another MU plugin before or within the `muplugins_loade
 > (bool) whether the current request must be treated as an API request  
 > By default, `true` if the first fragment after `home_url()` matches the regex `/^updatepulse-server-((.*?)-api|nonce|token)$/`
 
+___
+### upserv_mu_optimizer_info
+
+```php
+apply_filters( 'upserv_mu_optimizer_info', array $info );
+```
+
+**Description**
+Filter the information about what the optimizer has done when it was executed.  
+Use this hook in a Must Used Plugin to integrate with the default optimizer (See the [UpdatePulse Server Integration](https://github.com/Anyape/updatepulse-server-integration) repository for existing optimizers).  
+Must be subscribed to in another MU plugin before or within the `muplugins_loaded` action; if within, the action must have a priority lower than `0`.
+
+**Parameters**
+`$info`
+> (array) an array of information about modifications made when the optimizer executed  
+> The array has the following format:
+```php
+$info = array(
+    'removed_hooks'               => $hooks,
+    'info_from_another_optimizer' => 'your_value',
+);
+```
 ___
 ### upserv_mu_require
 

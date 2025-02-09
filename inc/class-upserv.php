@@ -444,6 +444,7 @@ class UPServ {
 			array(
 				'packages_dir' => Data_Manager::get_data_dir( 'packages' ),
 				'options'      => $options,
+				'mu_path'      => trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) ),
 			)
 		);
 	}
