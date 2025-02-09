@@ -178,7 +178,7 @@ class Zip_Package_Manager {
 		$archive_path = $this->tmp_dir . $this->package_slug . '.zip';
 
 		if ( ! is_dir( $temp_path ) ) {
-			$wp_filesystem->mkdir( $temp_path );
+			wp_mkdir_p( $temp_path );
 			$wp_filesystem->chmod( $temp_path, 0755, true );
 		}
 

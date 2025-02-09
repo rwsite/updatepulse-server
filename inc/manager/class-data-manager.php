@@ -108,7 +108,7 @@ class Data_Manager {
 		$mu_plugin     = $mu_plugin_dir . 'upserv-endpoint-optimizer.php';
 
 		if ( ! $wp_filesystem->is_dir( $mu_plugin_dir ) ) {
-			$result = $wp_filesystem->mkdir( $mu_plugin_dir );
+			$result = wp_mkdir_p( $mu_plugin_dir );
 		}
 
 		if ( $wp_filesystem->is_file( $mu_plugin ) ) {
@@ -228,7 +228,7 @@ class Data_Manager {
 		if ( $is_dir && ( $cleanup || $force ) ) {
 			$result = true;
 			$result = $result && $wp_filesystem->delete( $directory, true );
-			$result = $result && $wp_filesystem->mkdir( $directory );
+			$result = $result && wp_mkdir_p( $directory );
 
 			if ( self::is_valid_data_dir( $type ) ) {
 				$result = $result && self::generate_restricted_htaccess( $directory );
