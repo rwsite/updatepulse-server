@@ -345,7 +345,10 @@ For plugins, and themes, it is fairly straightforward:
 - Add a `lib` directory with the `plugin-update-checker` and `updatepulse-updater` libraries to the root of the package as provided in `dummy-[plugin|theme]`; `updatepulse-updater` can be customized as you see fit, but `plugin-update-checker` should be left untouched.
 - Add the following code to the main plugin file (for plugins) or in the `functions.php` file (for themes) :
 ```php
-/** Enable updates - note the  `$prefix_updater` variable: change `prefix` to a unique string for your package **/
+/** Enable updates
+ * Replace `$prefix_` in `$prefix_updater` variable to a unique string for your package.
+ * Replace vX_X with the version of the UpdatePulse Updater you are using.
+ **/
 require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
 
 $prefix_updater = new UpdatePulse_Updater(

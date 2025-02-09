@@ -96,9 +96,9 @@
 				);
 				?>
 				<br>
-<pre>/** Enable updates - note the  `$prefix_updater` variable: change `prefix` to a unique string for your package.
- * Replace vX_X with the version of the UpdatePulse Updater you are using
- * @see /lib/updatepulse-updater/class-updatepulse-updater.php
+<pre>/** Enable updates
+ * Replace `$prefix_` in `$prefix_updater` variable to a unique string for your package.
+ * Replace vX_X with the version of the UpdatePulse Updater you are using.
  **/
 use Anyape\UpdatePulse\Updater\vX_X\UpdatePulse_Updater;
 require_once __DIR__ . '/lib/updatepulse-updater/class-updatepulse-updater.php';
