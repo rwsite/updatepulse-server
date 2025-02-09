@@ -2,8 +2,6 @@
 
 namespace Anyape\PackageUpdateChecker\Vcs;
 
-use Parsedown;
-
 if ( ! class_exists( GitHubApi::class, false ) ) :
 
 	class GitHubApi extends Api {
@@ -183,10 +181,6 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 						//to fall back to the auto-generated source ZIP.
 						return null;
 					}
-				}
-
-				if ( ! empty( $release->body ) ) {
-					$reference->changelog = Parsedown::instance()->text( $release->body );
 				}
 
 				return $reference;

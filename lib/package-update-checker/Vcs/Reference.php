@@ -13,7 +13,6 @@ if ( ! class_exists( Reference::class, false ) ) :
 	 * @property string $download_url
 	 * @property string $updated
 	 *
-	 * @property string|null $changelog
 	 * @property int|null $downloadCount
 	 */
 	class Reference {

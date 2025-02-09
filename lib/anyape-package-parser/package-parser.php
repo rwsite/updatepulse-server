@@ -2,7 +2,7 @@
 
 namespace Anyape\UpdatePulse\Package_Parser;
 
-use Parsedown;
+use Anyape\Parsedown;
 use ZipArchive as SystemZipArchive;
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound

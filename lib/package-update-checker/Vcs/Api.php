@@ -2,9 +2,6 @@
 
 namespace Anyape\PackageUpdateChecker\Vcs;
 
-use Parsedown;
-use PucReadmeParser;
-
 if ( ! class_exists( Api::class, false ) ) :
 
 	abstract class Api {
@@ -119,25 +116,6 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @return array<callable> Array of callables that return Vcs_Reference objects.
 		 */
 		abstract protected function get_update_detection_strategies( $config_branch );
-
-		/**
-		 * Get the readme.txt file from the remote repository and parse it
-		 * according to the plugin readme standard.
-		 *
-		 * @param string $ref Tag or branch name.
-		 * @return array Parsed readme.
-		 */
-		public function get_remote_readme( $ref = 'main' ) {
-			$file_contents = $this->get_remote_file( $this->get_local_readme_name(), $ref );
-
-			if ( empty( $file_contents ) ) {
-				return array();
-			}
-
-			$parser = new PucReadmeParser();
-
-			return $parser->parse_readme_contents( $file_contents );
-		}
 
 		/**
 		 * Get the case-sensitive name of the local readme.txt file.
@@ -287,56 +265,6 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @return string|null
 		 */
 		abstract public function get_latest_commit_time( $ref );
-
-		/**
-		 * Get the contents of the changelog file from the repository.
-		 *
-		 * @param string $ref
-		 * @param string $local_directory Full path to the local plugin or theme directory.
-		 * @return null|string The HTML contents of the changelog.
-		 */
-		public function get_remote_changelog( $ref, $local_directory ) {
-			$filename = $this->find_changelog_name( $local_directory );
-
-			if ( empty( $filename ) ) {
-				return null;
-			}
-
-			$changelog = $this->get_remote_file( $filename, $ref );
-
-			if ( null === $changelog ) {
-				return null;
-			}
-
-			return Parsedown::instance()->text( $changelog );
-		}
-
-		/**
-		 * Guess the name of the changelog file.
-		 *
-		 * @param string $directory
-		 * @return string|null
-		 */
-		protected function find_changelog_name( $directory = null ) {
-
-			if ( ! isset( $directory ) ) {
-				$directory = $this->local_directory;
-			}
-
-			if ( empty( $directory ) || ! is_dir( $directory ) || ( '.' === $directory ) ) {
-				return null;
-			}
-
-			$possible_names = array( 'CHANGES.md', 'CHANGELOG.md', 'changes.md', 'changelog.md' );
-			$files          = scandir( $directory );
-			$found_names    = array_intersect( $possible_names, $files );
-
-			if ( ! empty( $found_names ) ) {
-				return reset( $found_names );
-			}
-
-			return null;
-		}
 
 		/**
 		 * Set authentication credentials.

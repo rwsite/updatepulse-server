@@ -54,19 +54,13 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		}
 
 		protected function get_update_detection_strategies( $config_branch ) {
-			$strategies = array(
-				self::STRATEGY_STABLE_TAG => function () use ( $config_branch ) {
-					return $this->get_stable_tag( $config_branch );
-				},
-			);
+			$strategies[ self::STRATEGY_BRANCH ] = function () use ( $config_branch ) {
+				return $this->get_branch( $config_branch );
+			};
 
 			if ( ( 'main' === $config_branch || 'master' === $config_branch ) ) {
 				$strategies[ self::STRATEGY_LATEST_TAG ] = array( $this, 'get_latest_tag' );
 			}
-
-			$strategies[ self::STRATEGY_BRANCH ] = function () use ( $config_branch ) {
-				return $this->get_branch( $config_branch );
-			};
 
 			return $strategies;
 		}
@@ -146,30 +140,6 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 						'download_url' => $this->get_download_url( $tag->name ),
 					)
 				);
-			}
-
-			return null;
-		}
-
-		/**
-		 * Get the tag/ref specified by the "Stable tag" header in the readme.txt of a given branch.
-		 *
-		 * @param string $branch
-		 * @return null|Reference
-		 */
-		protected function get_stable_tag( $branch ) {
-			$remote_readme = $this->get_remote_readme( $branch );
-
-			if ( ! empty( $remote_readme['stable_tag'] ) ) {
-				$tag = $remote_readme['stable_tag'];
-
-				//You can explicitly opt out of using tags by setting "Stable tag" to
-				//"trunk" or the name of the current branch.
-				if ( ( $tag === $branch ) || ( 'trunk' === $tag ) ) {
-					return $this->get_branch( $branch );
-				}
-
-				return $this->get_tag( $tag );
 			}
 
 			return null;

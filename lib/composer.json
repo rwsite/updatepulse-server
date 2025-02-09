@@ -1,0 +1,15 @@
+{
+    "require": {
+        "erusev/parsedown": "^1.7"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "command -v php-scoper >/dev/null 2>&1 && for pkg in $(jq -r '.require | keys[]' composer.json); do pkg_name=$(echo $pkg | cut -d'/' -f2); php-scoper add-prefix; [ -e \"$pkg_name\" ] && rm -r \"$pkg_name\"; mv \"build/$pkg\" .; done",
+            "rm -r build vendor"
+        ],
+        "post-update-cmd": [
+            "command -v php-scoper >/dev/null 2>&1 && for pkg in $(jq -r '.require | keys[]' composer.json); do pkg_name=$(echo $pkg | cut -d'/' -f2); php-scoper add-prefix; [ -e \"$pkg_name\" ] && rm -r \"$pkg_name\"; mv \"build/$pkg\" .; done",
+            "rm -r build vendor"
+        ]
+    }
+}

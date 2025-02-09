@@ -25,7 +25,7 @@ Package updates may require a license ; both packages and licenses can be manage
 
 The target audience of this plugin is developers, not end-users.
 
-Zip PHP extension is required (use ZipArchive, no fallback to PclZip).
+Zip PHP extension is required.
 
 For more information, available APIs, functions, actions and filters, see [the plugin's full documentation](https://github.com/anyape/updatepulse-server/blob/main/README.md).
 
