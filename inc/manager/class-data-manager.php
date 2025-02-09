@@ -105,7 +105,7 @@ class Data_Manager {
 
 		$result        = true;
 		$mu_plugin_dir = trailingslashit( wp_normalize_path( WPMU_PLUGIN_DIR ) );
-		$mu_plugin     = $mu_plugin_dir . 'upserv-endpoint-optimizer.php';
+		$mu_plugin     = $mu_plugin_dir . 'upserv-default-optimizer.php';
 
 		if ( ! $wp_filesystem->is_dir( $mu_plugin_dir ) ) {
 			$result = wp_mkdir_p( $mu_plugin_dir );
@@ -117,7 +117,7 @@ class Data_Manager {
 
 		if ( $result && ! $wp_filesystem->is_file( $mu_plugin ) ) {
 			$source_mu_plugin = wp_normalize_path(
-				UPSERV_PLUGIN_PATH . 'optimisation/upserv-endpoint-optimizer.php'
+				UPSERV_PLUGIN_PATH . 'optimisation/upserv-default-optimizer.php'
 			);
 			$result           = $wp_filesystem->copy( $source_mu_plugin, $mu_plugin );
 		}
