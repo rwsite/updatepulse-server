@@ -25,6 +25,7 @@
 	* [Help](#help)
 		* [Registering packages with a Version Control System](#registering-packages-with-a-version-control-system)
 		* [Provide updates with UpdatePulse Server - packages requirements](#provide-updates-with-updatepulse-server---packages-requirements)
+		* [Scheduled tasks optimisation](#scheduled-tasks-optimisation)
 		* [UpdatePulse Server Endpoint Optimizer - requests optimisation](#updatepulse-server-endpoint-optimizer---requests-optimisation)
 		* [More help...](#more-help)
 
@@ -373,6 +374,16 @@ You may refer to the documentation found [here](https://github.com/anyape/update
 Dummy packages are available in the [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository.
 
 Unless "Enable VCS" is checked in "Version Control Systems", you need to manually upload the packages zip archives (and subsequent updates) in `wp-content/updatepulse-server/packages` or `CloudStorageUnit://updatepulse-packages/`.  A package needs to be a valid generic package, or a valid WordPress plugin or theme package, and in the case of a plugin the main plugin file must have the same name as the zip archive. For example, the main plugin file in `package-slug.zip` would be `package-slug.php`.  
+
+### Scheduled tasks optimisation
+
+By default, UpdatePulse Server uses the WordPress cron system to schedule tasks. This means that the tasks are executed when a visitor accesses the site, which can lead to delays in the execution of the tasks.  
+This is not optimal: the website where UpdatePulse Server is installed is very likely not meant to be visited by users, and the tasks should be executed as close to the scheduled time as possible..
+
+To make sure that the tasks are executed on time, it is recommended to set up a true cron job by [hooking WP-Cron Into the System Task Scheduler](https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/).
+
+For more advanced scheduling, it is recommended to use the [Action Scheduler](https://wordpress.org/plugins/action-scheduler/) plugin.  
+Simply install and activate the plugin, and UpdatePulse Server will automatically use it to schedule tasks instead of the default core scheduler.
 
 ### UpdatePulse Server Endpoint Optimizer - requests optimisation
 

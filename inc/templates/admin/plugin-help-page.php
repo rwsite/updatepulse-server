@@ -211,6 +211,31 @@ Licensed With: another-plugin-or-theme-slug</pre><br>
 			?>
 		</p>
 		<hr>
+		<h2><?php esc_html_e( 'Scheduled tasks optimisation', 'updatepulse-server' ); ?></h2>
+		<p>
+			<?php esc_html_e( 'By default, scheduled tasks are handled by the WordPress cron system. This means that the tasks are executed when a visitor accesses the site, which leads to delays in the execution of the tasks.', 'updatepulse-server' );
+			?>
+			<br>
+			<?php esc_html_e( 'This is clearly suboptimal: the website where UpdatePulse Server is installed is very likely not meant to be visited by users, and the tasks should be executed as close to the scheduled time as possible.', 'updatepulse-server' ); ?>
+		<p>
+			<?php
+			printf(
+				esc_html__( 'To make sure that the tasks are executed on time, it is recommended to set up a true cron job by %s.', 'updatepulse-server' ),
+				'<a target="_blank" href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/">' . esc_html__( 'hooking WP-Cron Into the System Task Scheduler', 'updatepulse-server' ) . '</a>'
+			);
+			?>
+		</p>
+		<p>
+			<?php
+			printf(
+				esc_html__( 'For more advanced scheduling, it is recommended to use the %s plugin.', 'updatepulse-server' ),
+				'<a target="_blank" href="https://wordpress.org/plugins/action-scheduler/">' . esc_html__( 'Action Scheduler', 'updatepulse-server' ) . '</a>'
+			);
+			?>
+			<br>
+			<?php esc_html_e( 'Simply install and activate the plugin, and UpdatePulse Server will automatically use it to schedule tasks instead of the default core scheduler.', 'updatepulse-server' ); ?>
+		</p>
+		<hr>
 		<h2><?php esc_html_e( 'Requests optimisation', 'updatepulse-server' ); ?></h2>
 		<p>
 			<?php
