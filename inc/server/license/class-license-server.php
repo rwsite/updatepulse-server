@@ -489,7 +489,7 @@ class License_Server {
 		$sql   = "DELETE FROM {$wpdb->prefix}upserv_licenses WHERE 1=1" . $where;
 
 		if ( ! empty( $license_ids ) ) {
-			$wpdb->query( $sql, $license_ids ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->query( $wpdb->prepare( $sql, $license_ids ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		} else {
 			$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
