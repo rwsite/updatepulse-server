@@ -50,6 +50,14 @@ To connect their plugins or themes and UpdatePulse Server, developers can find i
 A warm thank you to [Yahnis Elsts](https://github.com/YahnisElsts), the author of [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) and [WP Update Server](https://github.com/YahnisElsts/wp-update-server) libraries, without whom the creation of this plugin would not have been possible.
 Authorisation to use these libraries freely provided relevant licenses are included has been graciously granted [here](https://github.com/YahnisElsts/wp-update-server/issues/37#issuecomment-386814776).
 
+== Screenshots ==
+
+1. Packages Overview
+2. Version Control Systems
+3. Licenses
+4. API & Webhooks
+5. Help
+
 == Installation ==
 
 This section describes how to install the plugin and get it working.
