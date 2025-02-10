@@ -215,13 +215,48 @@ class API_Manager {
 				if ( empty( $option_info['value'] ) ) {
 					$option_info['value'] = array();
 				} else {
-					$option_info['value'] = array_filter( array_map( 'trim', explode( "\n", $option_info['value'] ) ) );
-					$option_info['value'] = array_unique(
+					$option_info['value'] = array_filter(
 						array_map(
-							function ( $ip ) {
-								return preg_match( '/\//', $ip ) ? $ip : $ip . '/32';
-							},
-							$option_info['value']
+							'trim',
+							explode( "\n", $option_info['value'] )
+						)
+					);
+					$option_info['value'] = array_unique(
+						array_filter(
+							array_map(
+								function ( $value ) {
+									$parts = explode( '/', $value );
+
+									if ( count( $parts ) > 2 || count( $parts ) < 1 ) {
+										return null;
+									}
+
+									$ip = filter_var( $parts[0], FILTER_VALIDATE_IP );
+
+									if ( ! $ip ) {
+										return null;
+									}
+
+									if ( isset( $parts[1] ) ) {
+										$args = array(
+											'options' => array(
+												'min_range' => 0,
+												'max_range' => 32,
+											),
+										);
+										$cdir = filter_var( $parts[1], FILTER_VALIDATE_INT, $args );
+
+										if ( false === $cdir ) {
+											return null;
+										}
+									} else {
+										$cdir = 32;
+									}
+
+									return $ip . '/' . $cdir;
+								},
+								$option_info['value']
+							)
 						)
 					);
 				}
