@@ -391,7 +391,7 @@ class License_Manager {
 			$this->errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
 
 			return false;
-		} elseif ( ! isset( $nonce ) ) {
+		} elseif ( ! $nonce ) {
 			return $result;
 		}
 
