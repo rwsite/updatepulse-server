@@ -19,13 +19,7 @@ class Crypto {
 
 		$ivsize     = openssl_cipher_iv_length( self::METHOD );
 		$iv         = openssl_random_pseudo_bytes( $ivsize );
-		$ciphertext = openssl_encrypt(
-			$message,
-			self::METHOD,
-			$crypt_key,
-			OPENSSL_RAW_DATA,
-			$iv
-		);
+		$ciphertext = openssl_encrypt( $message, self::METHOD, $crypt_key, OPENSSL_RAW_DATA, $iv );
 
 		if ( false !== $ciphertext ) {
 			$hmac   = self::hmac_sign( $iv . $ciphertext, $sign_key );
@@ -51,13 +45,7 @@ class Crypto {
 		$hmacnew    = self::hmac_sign( $iv . $ciphertext, $sign_key );
 
 		if ( self::hmac_verify( $hmac, $hmacnew ) ) {
-			$message = openssl_decrypt(
-				$ciphertext,
-				self::METHOD,
-				$crypt_key,
-				OPENSSL_RAW_DATA,
-				$iv
-			);
+			$message = openssl_decrypt( $ciphertext, self::METHOD, $crypt_key, OPENSSL_RAW_DATA, $iv );
 		}
 
 		return $message;
