@@ -671,10 +671,10 @@ class Package_API {
 	}
 
 	protected function authorize_public() {
-		$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'token' ) ) );
+		$nonce = sanitize_key( filter_input( INPUT_GET, 'token' ) );
 
 		if ( ! $nonce ) {
-			$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'nonce' ) ) );
+			$nonce = sanitize_key( filter_input( INPUT_GET, 'nonce' ) );
 		}
 
 		add_filter( 'upserv_fetch_nonce', array( $this, 'upserv_fetch_nonce_public' ), 10, 4 );
@@ -691,7 +691,7 @@ class Package_API {
 		$is_auth = false;
 
 		if ( ! empty( $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'] ) ) {
-			$token = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'] ) );
+			$token = sanitize_key( $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'] );
 		} else {
 			global $wp;
 
@@ -735,10 +735,7 @@ class Package_API {
 
 		$method = isset( $wp->query_vars['action'] ) ? $wp->query_vars['action'] : false;
 
-		if (
-			sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'action' ) ) ) &&
-			! $this->is_api_public( $method )
-		) {
+		if ( sanitize_key( filter_input( INPUT_GET, 'action' ) ) && ! $this->is_api_public( $method ) ) {
 			$this->http_response_code = 405;
 			$response                 = array(
 				'code'    => 'method_not_allowed',

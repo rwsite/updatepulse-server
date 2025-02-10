@@ -175,15 +175,12 @@ class Remote_Sources_Manager {
 
 		if (
 			! isset( $_REQUEST['nonce'] ) ||
-			! wp_verify_nonce(
-				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
-				'upserv_plugin_options'
-			)
+			! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), 'upserv_plugin_options' )
 		) {
 			return;
 		}
 
-		$type = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'type' ) ) );
+		$type = sanitize_key( filter_input( INPUT_POST, 'type' ) );
 
 		if ( 'schedules' !== $type ) {
 			return;
@@ -224,10 +221,7 @@ class Remote_Sources_Manager {
 
 		if (
 			! isset( $_REQUEST['nonce'] ) ||
-			! wp_verify_nonce(
-				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
-				'upserv_plugin_options'
-			)
+			! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), 'upserv_plugin_options' )
 		) {
 			wp_send_json_error(
 				new WP_Error(
@@ -419,7 +413,7 @@ class Remote_Sources_Manager {
 		$to_save         = array();
 		$old_vcs_configs = upserv_get_option( 'vcs', array() );
 		$old_use_vcs     = upserv_get_option( 'use_vcs' );
-		$nonce           = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) ) );
+		$nonce           = sanitize_key( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) );
 
 		if ( $nonce && ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );

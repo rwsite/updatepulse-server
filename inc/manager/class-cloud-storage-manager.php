@@ -416,7 +416,7 @@ class Cloud_Storage_Manager {
 
 	public function cloud_storage_test() {
 		$result = array();
-		$nonce  = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'nonce' ) ) );
+		$nonce  = sanitize_key( filter_input( INPUT_POST, 'nonce' ) );
 
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			wp_send_json_error(
@@ -788,10 +788,10 @@ class Cloud_Storage_Manager {
 				}
 			}
 
-			$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'token' ) ) );
+			$nonce = sanitize_key( filter_input( INPUT_GET, 'token' ) );
 
 			if ( ! $nonce ) {
-				$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'nonce' ) ) );
+				$nonce = sanitize_key( filter_input( INPUT_GET, 'nonce' ) );
 			}
 
 			$url                  = self::$cloud_storage->getAuthenticatedUrlV4(

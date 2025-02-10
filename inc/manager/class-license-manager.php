@@ -107,21 +107,21 @@ class License_Manager {
 			! (
 				isset( $_REQUEST['_wpnonce'] ) &&
 				wp_verify_nonce(
-					sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ),
+					sanitize_key( $_REQUEST['_wpnonce'] ),
 					$this->licenses_table->nonce_action
 				)
 			) &&
 			! (
 				isset( $_REQUEST['linknonce'] ) &&
 				wp_verify_nonce(
-					sanitize_text_field( wp_unslash( $_REQUEST['linknonce'] ) ),
+					sanitize_key( $_REQUEST['linknonce'] ),
 					'linknonce'
 				)
 			) &&
 			! (
 				isset( $_REQUEST['upserv_license_form_nonce'] ) &&
 				wp_verify_nonce(
-					sanitize_text_field( wp_unslash( $_REQUEST['upserv_license_form_nonce'] ) ),
+					sanitize_key( $_REQUEST['upserv_license_form_nonce'] ),
 					'upserv_license_form_nonce'
 				)
 			)
@@ -129,7 +129,7 @@ class License_Manager {
 			return;
 		}
 
-		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false;
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_key( $_REQUEST['page'] ) : false;
 
 		if ( 'upserv-page-licenses' !== $page ) {
 			return;
@@ -138,7 +138,7 @@ class License_Manager {
 		$license_data        = false;
 		$delete_all_licenses = ! empty( $_REQUEST['upserv_delete_all_licenses'] ) ? true : false;
 		$action              = ! empty( $_REQUEST['upserv_license_action'] ) ?
-			sanitize_text_field( wp_unslash( $_REQUEST['upserv_license_action'] ) ) :
+			sanitize_key( $_REQUEST['upserv_license_action'] ) :
 			false;
 
 		if ( ! empty( $_REQUEST['license_data'] ) ) {
@@ -160,9 +160,9 @@ class License_Manager {
 		}
 
 		if ( ! empty( $_REQUEST['action'] ) && -1 !== intval( $_REQUEST['action'] ) ) {
-			$action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
+			$action = sanitize_key( $_REQUEST['action'] );
 		} elseif ( ! empty( $_REQUEST['action2'] ) && -1 !== intval( $_REQUEST['action2'] ) ) {
-			$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) );
+			$action = sanitize_key( $_REQUEST['action2'] );
 		}
 
 		if ( $license_data && in_array( $action, License_Server::$license_statuses, true ) ) {
@@ -385,7 +385,7 @@ class License_Manager {
 		$errors  = array();
 		$result  = '';
 		$to_save = array();
-		$nonce   = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) ) );
+		$nonce   = sanitize_key( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) );
 
 		if ( $nonce && ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			$this->errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
