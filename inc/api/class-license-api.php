@@ -647,11 +647,13 @@ class License_API {
 		$credentials = array();
 		$config      = self::get_config();
 
-		if (
-			isset( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] ) &&
-			! empty( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] )
-		) {
-			$credentials = explode( '|', $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] );
+		if ( ! empty( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] ) ) {
+			$credentials = explode(
+				'|',
+				sanitize_text_field(
+					wp_unslash( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] )
+				)
+			);
 		} elseif (
 			isset( $wp->query_vars['api_credentials'], $wp->query_vars['api'] ) &&
 			is_string( $wp->query_vars['api_credentials'] ) &&
@@ -998,11 +1000,8 @@ class License_API {
 		$token   = false;
 		$is_auth = false;
 
-		if (
-			isset( $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'] ) &&
-			! empty( $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'] )
-		) {
-			$token = $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'];
+		if ( ! empty( $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'] ) ) {
+			$token = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_UPDATEPULSE_TOKEN'] ) );
 		} else {
 			global $wp;
 

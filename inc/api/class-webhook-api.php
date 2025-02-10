@@ -226,7 +226,12 @@ class Webhook_API {
 	 *******************************************************************/
 
 	protected function handle_remote_test() {
-		$sign       = $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'];
+
+		if ( empty( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ) {
+			wp_send_json( false, 403 );
+		}
+
+		$sign       = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) );
 		$sign_parts = explode( '=', $sign );
 		$sign       = 2 === count( $sign_parts ) ? end( $sign_parts ) : false;
 		$algo       = ( $sign ) ? reset( $sign_parts ) : false;
@@ -449,14 +454,14 @@ class Webhook_API {
 			return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, '', $vcs_config );
 		}
 
-		if ( isset( $_SERVER['HTTP_X_GITLAB_TOKEN'] ) ) {
-			$valid = $_SERVER['HTTP_X_GITLAB_TOKEN'] === $secret;
+		if ( ! empty( $_SERVER['HTTP_X_GITLAB_TOKEN'] ) ) {
+			$valid = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GITLAB_TOKEN'] ) ) === $secret;
 		} else {
 
-			if ( isset( $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ) ) {
-				$sign = $_SERVER['HTTP_X_HUB_SIGNATURE_256'];
-			} elseif ( isset( $_SERVER['HTTP_X_HUB_SIGNATURE'] ) ) {
-				$sign = $_SERVER['HTTP_X_HUB_SIGNATURE'];
+			if ( ! empty( $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ) ) {
+				$sign = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HUB_SIGNATURE_256'] ) );
+			} elseif ( ! empty( $_SERVER['HTTP_X_HUB_SIGNATURE'] ) ) {
+				$sign = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HUB_SIGNATURE'] ) );
 			}
 
 			$sign = apply_filters( 'upserv_webhook_signature', $sign, $secret, $vcs_config );
@@ -533,7 +538,10 @@ class Webhook_API {
 
 		if (
 			( isset( $payload['object_kind'] ) && 'push' === $payload['object_kind'] ) ||
-			( isset( $_SERVER['HTTP_X_GITHUB_EVENT'] ) && 'push' === $_SERVER['HTTP_X_GITHUB_EVENT'] )
+			(
+				! empty( $_SERVER['HTTP_X_GITHUB_EVENT'] ) &&
+				'push' === sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_GITHUB_EVENT'] ) )
+			)
 		) {
 			$branch = str_replace( 'refs/heads/', '', $payload['ref'] );
 		} elseif ( isset( $payload['push'], $payload['push']['changes'] ) ) {

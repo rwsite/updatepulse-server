@@ -505,11 +505,8 @@ class Nonce {
 		$credentials  = array();
 		$current_time = time();
 
-		if (
-			isset( $_SERVER['HTTP_X_UPDATEPULSE_API_SIGNATURE'] ) &&
-			! empty( $_SERVER['HTTP_X_UPDATEPULSE_API_SIGNATURE'] )
-		) {
-			$sign = $_SERVER['HTTP_X_UPDATEPULSE_API_SIGNATURE'];
+		if ( ! empty( $_SERVER['HTTP_X_UPDATEPULSE_API_SIGNATURE'] ) ) {
+			$sign = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_UPDATEPULSE_API_SIGNATURE'] ) );
 		} else {
 			global $wp;
 
@@ -522,11 +519,13 @@ class Nonce {
 			}
 		}
 
-		if (
-			isset( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] ) &&
-			! empty( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] )
-		) {
-			$credentials = explode( '|', $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] );
+		if ( ! empty( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] ) ) {
+			$credentials = explode(
+				'|',
+				sanitize_text_field(
+					wp_unslash( $_SERVER['HTTP_X_UPDATEPULSE_API_CREDENTIALS'] )
+				)
+			);
 		} else {
 			global $wp;
 
