@@ -267,22 +267,30 @@ class Update_API {
 		global $wp;
 
 		$vars   = $wp->query_vars;
-		$slug   = isset( $vars['package_id'] ) ? trim( rawurldecode( $vars['package_id'] ) ) : null;
 		$params = array(
 			'action' => isset( $vars['action'] ) ? trim( $vars['action'] ) : null,
 			'token'  => isset( $vars['token'] ) ? trim( $vars['token'] ) : null,
-			'slug'   => $slug,
+			'slug'   => isset( $vars['package_id'] ) ? trim( $vars['package_id'] ) : null,
 			'type'   => isset( $vars['update_type'] ) ? trim( $vars['update_type'] ) : null,
 		);
-		$params = apply_filters(
-			'upserv_handle_update_request_params',
-			array_merge(
-				$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$params
+		$query  = wp_unslash( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$query  = array_map(
+			'sanitize_text_field',
+			array_filter(
+				$query,
+				function ( $key ) use ( $query ) {
+					return (
+						! empty( $query[ $key ] ) &&
+						is_scalar( $query[ $key ] ) &&
+						preg_match( '@^[a-z0-9\-_]+$@i', $key )
+					);
+				},
+				ARRAY_FILTER_USE_KEY
 			)
 		);
+		$params = apply_filters( 'upserv_handle_update_request_params', array_merge( $query, $params ) );
 
-		$this->init_server( $slug );
+		$this->init_server( $params['slug'] );
 
 		if ( ! $this->update_server ) {
 			wp_send_json(
