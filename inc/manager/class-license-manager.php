@@ -199,6 +199,12 @@ class License_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'upserv-page-licenses' !== $page ) {
+			return $scripts;
+		}
+
 		$l10n['deleteLicensesConfirm'] = array(
 			__( 'You are about to delete all the licenses from this server.', 'updatepulse-server' ),
 			__( 'All the records will be permanently deleted.', 'updatepulse-server' ),

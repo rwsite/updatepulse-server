@@ -38,6 +38,12 @@ class API_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'upserv-page-api' !== $page ) {
+			return $scripts;
+		}
+
 		$l10n = array(
 			'deleteApiKeyConfirm'           => array(
 				__( 'You are about to delete an API key.', 'updatepulse-server' ),

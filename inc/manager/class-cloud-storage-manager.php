@@ -164,6 +164,12 @@ class Cloud_Storage_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'upserv-page' !== $page ) {
+			return $scripts;
+		}
+
 		$scripts['cloud-storage'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'js/admin/cloud-storage' . upserv_assets_suffix() . '.js',
 			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/cloud-storage' . upserv_assets_suffix() . '.js',

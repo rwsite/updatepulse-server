@@ -49,6 +49,12 @@ class Remote_Sources_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'upserv-page-remote-sources' !== $page ) {
+			return $scripts;
+		}
+
 		$scripts['remote_sources'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'js/admin/remote-sources' . upserv_assets_suffix() . '.js',
 			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/remote-sources' . upserv_assets_suffix() . '.js',

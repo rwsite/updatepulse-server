@@ -152,6 +152,12 @@ class Package_Manager {
 	}
 
 	public function upserv_admin_scripts( $scripts ) {
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'upserv-page' !== $page ) {
+			return $scripts;
+		}
+
 		$l10n = array(
 			'invalidFileFormat'    => __( 'Error: invalid file format.', 'updatepulse-server' ),
 			'invalidFileSize'      => __( 'Error: invalid file size.', 'updatepulse-server' ),
