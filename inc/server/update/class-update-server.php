@@ -64,11 +64,10 @@ class Update_Server {
 	/**
 	 * Process an update API request.
 	 *
-	 * @param array|null $query Query parameters. Defaults to the current GET request parameters.
-	 * @param array|null $headers HTTP headers. Defaults to the headers received for the current request.
+	 * @param array $query Query parameters.
 	 */
-	public function handle_request( $query = null, $headers = null ) {
-		$request = $this->init_request( $query, $headers );
+	public function handle_request( $query ) {
+		$request = $this->init_request( $query );
 
 		$this->log_request( $request );
 		$this->load_package_for( $request );
@@ -361,18 +360,12 @@ class Update_Server {
 		}
 	}
 
-	protected function init_request( $query = null, $headers = null ) {
-
-		if ( null === $query ) {
-			$query = $_GET; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		}
-
-		if ( null === $headers ) {
-			$headers = Headers::parse_current();
-		}
-
+	protected function init_request( $query ) {
+		$headers     = Headers::parse_current();
 		$client_ip   = Utils::get_remote_ip();
-		$http_method = ! empty( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : 'GET';
+		$http_method = ! empty( $_SERVER['REQUEST_METHOD'] ) ?
+			sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) :
+			'GET';
 
 		if ( ! in_array( $http_method, array( 'GET', 'POST' ), true ) ) {
 			$this->exit_with_error( 'Invalid request method.', 405 );
