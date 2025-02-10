@@ -106,11 +106,7 @@ class Webhook_API {
 	}
 
 	public function upserv_webhook_process_request( $process, $payload, $slug, $type, $package_exists, $vcs_config ) {
-		$branch = $this->get_payload_vcs_branch( $payload );
-
-		$process = $branch === $vcs_config['branch'];
-
-		return $process;
+		return $this->get_payload_vcs_branch( $payload ) === $vcs_config['branch'];
 	}
 
 	// Misc. -------------------------------------------------------
