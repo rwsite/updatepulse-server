@@ -427,7 +427,7 @@ class Cloud_Storage_Manager {
 			);
 		}
 
-		$data = filter_input( INPUT_POST, 'data', FILTER_REQUIRE_ARRAY );
+		$data = filter_input( INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 		$data = $data ? array_map( 'sanitize_text_field', wp_unslash( $data ) ) : false;
 
 		if ( ! $data ) {
@@ -438,6 +438,10 @@ class Cloud_Storage_Manager {
 				)
 			);
 		}
+
+		$config = self::get_config( true );
+
+		$this->init_manager( $config );
 
 		$access_key   = $data['upserv_cloud_storage_access_key'];
 		$secret_key   = $data['upserv_cloud_storage_secret_key'];
