@@ -43,6 +43,8 @@ class Scheduler {
 		}
 
 		if ( class_exists( 'ActionScheduler', false ) ) {
+			$name = 'as_' . $name;
+
 			return $name( ...$arguments );
 		}
 
