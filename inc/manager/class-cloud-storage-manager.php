@@ -767,10 +767,10 @@ class Cloud_Storage_Manager {
 				}
 			}
 
-			$nonce = filter_input( INPUT_GET, 'token', FILTER_UNSAFE_RAW );
+			$nonce = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( ! $nonce ) {
-				$nonce = filter_input( INPUT_GET, 'nonce', FILTER_UNSAFE_RAW );
+				$nonce = filter_input( INPUT_GET, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			}
 
 			$url                  = self::$cloud_storage->getAuthenticatedUrlV4(

@@ -115,7 +115,7 @@ class Nonce {
 
 				if ( $response ) {
 					$code                     = 200;
-					$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+					$response['time_elapsed'] = Utils::get_time_elapsed();
 				} else {
 					$code     = 500;
 					$response = array(

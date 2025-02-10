@@ -559,7 +559,7 @@ class Package_API {
 			$local_filename,
 			$filename
 		)          = $file;
-		$file_hash = isset( $_SERVER['HTTP_FILE_HASH'] ) ? $_SERVER['HTTP_FILE_HASH'] : false;
+		$file_hash = ! empty( $_SERVER['HTTP_FILE_HASH'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_FILE_HASH'] ) ) : false;
 
 		if ( hash_file( 'sha256', $local_filename ) !== $file_hash ) {
 			wp_delete_file( $local_filename );
@@ -670,10 +670,10 @@ class Package_API {
 	}
 
 	protected function authorize_public() {
-		$nonce = filter_input( INPUT_GET, 'token', FILTER_UNSAFE_RAW );
+		$nonce = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 		if ( ! $nonce ) {
-			$nonce = filter_input( INPUT_GET, 'nonce', FILTER_UNSAFE_RAW );
+			$nonce = filter_input( INPUT_GET, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		}
 
 		add_filter( 'upserv_fetch_nonce', array( $this, 'upserv_fetch_nonce_public' ), 10, 4 );
@@ -785,7 +785,7 @@ class Package_API {
 						}
 
 						if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
-							$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+							$response->time_elapsed = Utils::get_time_elapsed();
 						}
 					} else {
 						$this->http_response_code = 400;
@@ -815,7 +815,7 @@ class Package_API {
 
 			foreach ( $config['ip_whitelist'] as $range ) {
 
-				if ( Utils::cidr_match( $_SERVER['REMOTE_ADDR'], $range ) ) {
+				if ( Utils::cidr_match( Utils::get_remote_ip(), $range ) ) {
 					$result = true;
 
 					break;

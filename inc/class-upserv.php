@@ -196,12 +196,12 @@ class UPServ {
 			flush_rewrite_rules();
 		}
 
-		if ( filter_input( INPUT_COOKIE, 'upserv_activated_mu_failure', FILTER_UNSAFE_RAW ) ) {
+		if ( filter_input( INPUT_COOKIE, 'upserv_activated_mu_failure', FILTER_VALIDATE_INT ) ) {
 			setcookie( 'upserv_activated_mu_failure', '', time() - 3600, '/', COOKIE_DOMAIN );
 			add_action( 'admin_notices', array( $this, 'setup_mu_plugin_failure_notice' ), 10, 0 );
 		}
 
-		if ( filter_input( INPUT_COOKIE, 'upserv_activated_mu_success', FILTER_UNSAFE_RAW ) ) {
+		if ( filter_input( INPUT_COOKIE, 'upserv_activated_mu_success', FILTER_VALIDATE_INT ) ) {
 			setcookie( 'upserv_activated_mu_success', '', time() - 3600, '/', COOKIE_DOMAIN );
 			add_action( 'admin_notices', array( $this, 'setup_mu_plugin_success_notice' ), 10, 0 );
 		}
@@ -476,7 +476,7 @@ class UPServ {
 	}
 
 	protected function get_tab_states() {
-		$page   = filter_input( INPUT_GET, 'page', FILTER_UNSAFE_RAW );
+		$page   = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 		$states = array();
 
 		if ( 0 === strpos( $page, 'upserv-page' ) ) {

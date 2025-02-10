@@ -663,15 +663,15 @@ class Package_Manager {
 			}
 
 			// Add Content-Digest or Repr-Digest header based on requested priority
-			$digest_requested = isset( $_SERVER['HTTP_WANT_DIGEST'] ) && is_string( $_SERVER['HTTP_WANT_DIGEST'] ) ?
-				$_SERVER['HTTP_WANT_DIGEST'] :
-				( isset( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) && is_string( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) ?
-					$_SERVER['HTTP_WANT_REPR_DIGEST'] :
+			$digest_requested = ! empty( $_SERVER['HTTP_WANT_DIGEST'] ) && is_string( $_SERVER['HTTP_WANT_DIGEST'] ) ?
+				sanitize_text_field( wp_unslash( $_SERVER['HTTP_WANT_DIGEST'] ) ) :
+				( ! empty( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) && is_string( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) ?
+					sanitize_text_field( wp_unslash( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) ) :
 					'sha-256=1'
 				);
-			$digest_field     = isset( $_SERVER['HTTP_WANT_DIGEST'] ) ?
+			$digest_field     = ! empty( $_SERVER['HTTP_WANT_DIGEST'] ) ?
 				'Content-Digest' :
-				( isset( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) ? 'Repr-Digest' : 'Content-Digest' );
+				( ! empty( $_SERVER['HTTP_WANT_REPR_DIGEST'] ) ? 'Repr-Digest' : 'Content-Digest' );
 
 			if ( $digest_requested && $digest_field ) {
 				$digests = array_map(

@@ -65,14 +65,23 @@ function upserv_performance_stats_log() {
 	$query_stats   = 'Number of queries executed by the plugin: ' . ( count( $wpdb->queries ) - count( $upserv_queries_before ) );
 	$scripts_stats = 'Number of included/required scripts by the plugin: ' . count( $scripts );
 	$mem_stats     = 'Server memory used to run the plugin: ' . upserv_get_formatted_memory( $mem_after - $upserv_mem_before ) . ' / ' . ini_get( 'memory_limit' );
+	$elapsed_time  = 'N/A';
 
 	foreach ( $wpdb->queries as $query ) {
 		$query_list[] = reset( $query );
 	}
 
+	if ( ! empty( $_SERVER['REQUEST_TIME_FLOAT'] ) ) {
+		$req_time_float = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME_FLOAT'] ) );
+
+		if ( is_numeric( $req_time_float ) ) {
+			$elapsed_time = sprintf( '%.3f', microtime( true ) - $req_time_float );
+		}
+	}
+
 	upserv_tests_log( '========================================================' );
 	upserv_tests_log( '--- Start load tests ---' );
-	upserv_tests_log( 'Time elapsed: ' . sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] ) );
+	upserv_tests_log( 'Time elapsed: ' . $elapsed_time . 'sec' );
 	upserv_tests_log( 'Total server memory used: ' . upserv_get_formatted_memory( $mem_after ) . ' / ' . ini_get( 'memory_limit' ) );
 	upserv_tests_log( 'Total number of queries: ' . count( $wpdb->queries ) );
 	upserv_tests_log( 'Total number of scripts: ' . count( $scripts_after ) );

@@ -364,7 +364,7 @@ class API_Manager {
 			'upserv_submitted_api_config',
 			array(
 				'upserv_package_private_api_keys'         => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_package_private_api_keys', FILTER_UNSAFE_RAW ),
+					'value'                   => wp_kses_post( filter_input( INPUT_POST, 'upserv_package_private_api_keys' ) ),
 					'display_name'            => __( 'Package API Authentication Keys', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
 					'condition'               => 'api-keys',
@@ -376,7 +376,7 @@ class API_Manager {
 					'path'      => 'api/packages/private_api_ip_whitelist',
 				),
 				'upserv_license_private_api_keys'         => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_license_private_api_keys', FILTER_UNSAFE_RAW ),
+					'value'                   => wp_kses_post( filter_input( INPUT_POST, 'upserv_license_private_api_keys' ) ),
 					'display_name'            => __( 'Private API Authentication Key', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
 					'condition'               => 'api-keys',
@@ -388,7 +388,7 @@ class API_Manager {
 					'path'      => 'api/licenses/private_api_ip_whitelist',
 				),
 				'upserv_webhooks'                         => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_webhooks', FILTER_UNSAFE_RAW ),
+					'value'                   => wp_kses_post( filter_input( INPUT_POST, 'upserv_webhooks' ) ),
 					'display_name'            => __( 'Webhooks', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
 					'condition'               => 'webhooks',

@@ -633,7 +633,7 @@ class Remote_Sources_Manager {
 					'path'         => 'use_vcs',
 				),
 				'upserv_vcs'     => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_vcs', FILTER_UNSAFE_RAW ),
+					'value'                   => wp_kses_post( filter_input( INPUT_POST, 'upserv_vcs' ) ),
 					'display_name'            => __( 'Version Control Systems', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid payload', 'updatepulse-server' ),
 					'condition'               => 'vcs',

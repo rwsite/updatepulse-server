@@ -371,9 +371,14 @@ class Update_Server {
 			$headers = Headers::parse_current();
 		}
 
-		$client_ip   = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-		$http_method = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : 'GET';
-		$request     = new Request( $query, $headers, $client_ip, $http_method );
+		$client_ip   = Utils::get_remote_ip();
+		$http_method = ! empty( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : 'GET';
+
+		if ( ! in_array( $http_method, array( 'GET', 'POST' ), true ) ) {
+			$this->exit_with_error( 'Invalid request method.', 405 );
+		}
+
+		$request = new Request( $query, $headers, $client_ip, $http_method );
 
 		if ( ! upserv_is_package_whitelisted( $request->slug ) && upserv_get_option( 'use_vcs' ) ) {
 			$this->exit_with_error( 'Invalid package.', 404 );
@@ -550,7 +555,7 @@ class Update_Server {
 		}
 
 		$meta                 = $this->filter_metadata( $meta, $request );
-		$meta['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+		$meta['time_elapsed'] = Utils::get_time_elapsed();
 
 		$this->output_as_json( $meta );
 
@@ -724,11 +729,7 @@ class Update_Server {
 			505 => '505 HTTP Version Not Supported',
 		);
 
-		if ( ! isset( $_SERVER['SERVER_PROTOCOL'] ) || '' === $_SERVER['SERVER_PROTOCOL'] ) {
-			$protocol = 'HTTP/1.1';
-		} else {
-			$protocol = $_SERVER['SERVER_PROTOCOL'];
-		}
+		$protocol = empty( $_SERVER['SERVER_PROTOCOL'] ) ? 'HTTP/1.1' : sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) );
 
 		//Output a HTTP status header.
 		if ( isset( $status_messages[ $http_status ] ) ) {

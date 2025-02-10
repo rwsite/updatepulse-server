@@ -89,12 +89,7 @@ class Webhook_API {
 	}
 
 	public function upserv_webhook_invalid_request() {
-
-		if ( ! isset( $_SERVER['SERVER_PROTOCOL'] ) || '' === $_SERVER['SERVER_PROTOCOL'] ) {
-			$protocol = 'HTTP/1.1';
-		} else {
-			$protocol = $_SERVER['SERVER_PROTOCOL'];
-		}
+		$protocol = empty( $_SERVER['SERVER_PROTOCOL'] ) ? 'HTTP/1.1' : sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) );
 
 		header( $protocol . ' 401 Unauthorized' );
 
@@ -435,7 +430,7 @@ class Webhook_API {
 		}
 
 		if ( 200 === $this->http_response_code ) {
-			$response['time_elapsed'] = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+			$response['time_elapsed'] = Utils::get_time_elapsed();
 		}
 
 		$response = apply_filters( 'upserv_webhook_response', $response, $this->http_response_code, $vcs_config );

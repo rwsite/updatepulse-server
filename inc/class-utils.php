@@ -101,4 +101,34 @@ class Utils {
 
 		return preg_match( $regex, $frags[0] );
 	}
+
+	public static function get_time_elapsed() {
+
+		if ( empty( $_SERVER['REQUEST_TIME_FLOAT'] ) ) {
+			return null;
+		}
+
+		$req_time_float = sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME_FLOAT'] ) );
+
+		if ( ! is_numeric( $req_time_float ) ) {
+			return null;
+		}
+
+		return sprintf( '%.3f', microtime( true ) - $req_time_float );
+	}
+
+	public static function get_remote_ip() {
+
+		if ( empty( $_SERVER['REMOTE_ADDR'] ) ) {
+			return '0.0.0.0';
+		}
+
+		$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) {
+			return '0.0.0.0';
+		}
+
+		return $ip;
+	}
 }

@@ -1124,7 +1124,7 @@ class License_API {
 						$response = $this->$method( $payload );
 
 						if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
-							$response->time_elapsed = sprintf( '%.3f', microtime( true ) - $_SERVER['REQUEST_TIME_FLOAT'] );
+							$response->time_elapsed = Utils::get_time_elapsed();
 						}
 					} else {
 						$this->http_response_code = 400;
@@ -1160,7 +1160,7 @@ class License_API {
 
 			foreach ( $config['ip_whitelist'] as $range ) {
 
-				if ( Utils::cidr_match( $_SERVER['REMOTE_ADDR'], $range ) ) {
+				if ( Utils::cidr_match( Utils::get_remote_ip(), $range ) ) {
 					$result = true;
 
 					break;
