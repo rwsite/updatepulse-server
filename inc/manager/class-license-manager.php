@@ -209,7 +209,7 @@ class License_Manager {
 		$scripts['license']            = array(
 			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/license' . upserv_assets_suffix() . '.js',
 			'uri'    => UPSERV_PLUGIN_URL . 'js/admin/license' . upserv_assets_suffix() . '.js',
-			'deps'   => array( 'jquery', 'upserv-jq-validate-admin-script' ),
+			'deps'   => array( 'jquery' ),
 			'params' => array(
 				'cm_settings' => wp_enqueue_code_editor( array( 'type' => 'text/json' ) ),
 			),
@@ -217,12 +217,6 @@ class License_Manager {
 		);
 
 		wp_enqueue_script( 'wp-theme-plugin-editor' );
-
-		$scripts['jq-validate'] = array(
-			'path' => UPSERV_PLUGIN_PATH . 'js/admin/jquery.validate.min.js',
-			'uri'  => UPSERV_PLUGIN_URL . 'js/admin/jquery.validate.min.js',
-			'deps' => array( 'jquery' ),
-		);
 
 		return $scripts;
 	}

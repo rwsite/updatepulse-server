@@ -45,8 +45,8 @@ jQuery(document).ready(function ($) {
 			$('.open-panel').attr('disabled', 'disabled');
 			$('.upserv-licenses-table .open-panel').hide();
 			$('html, body').animate({
-                scrollTop: ($('#upserv_license_panel').offset().top - $('#wpadminbar').height() - 20)
-            }, 500);
+				scrollTop: ($('#upserv_license_panel').offset().top - $('#wpadminbar').height() - 20)
+			}, 500);
 		});
 	});
 
@@ -74,66 +74,91 @@ jQuery(document).ready(function ($) {
 			$('.open-panel').attr('disabled', 'disabled');
 			$('.upserv-licenses-table .open-panel').hide();
 			$('html, body').animate({
-                scrollTop: ($('#upserv_license_panel').offset().top - $('#wpadminbar').height() - 20)
-            }, 500);
+				scrollTop: ($('#upserv_license_panel').offset().top - $('#wpadminbar').height() - 20)
+			}, 500);
 		});
 	});
 
 	$('#upserv_license_cancel, .close-panel.reset').on('click', function() {
 		$('html, body').animate({
-            scrollTop: ($('.upserv-wrap').offset().top - $('#wpadminbar').height() - 20)
-        }, 150);
+			scrollTop: ($('.upserv-wrap').offset().top - $('#wpadminbar').height() - 20)
+		}, 150);
 		hideLicensePanel($('#upserv_license_panel'), function() {
 			resetLicensePanel();
 		});
 	});
 
-	if ($.validator) {
-		$.validator.methods.licenseDate = function( value, element ) {
-			return this.optional( element ) || /[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/.test( value );
-		};
-		$.validator.methods.slug = function( value, element ) {
-			return this.optional( element ) || /[a-z0-9-]*/.test( value );
+	function validateForm(event) {
+		event.preventDefault();
+
+		const validators = {
+			required: value => value.trim() !== '',
+			email: value => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value.trim()),
+			slug: value => /^[a-z0-9-]+$/.test(value.trim()),
+			licenseDate: value => /[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])/.test(value.trim()) || value.trim() === ''
 		};
 
-		$('#upserv_license').validate({
-			ignore: '.CodeMirror *',
-			errorClass: 'upserv-license-error',
-			rules: {
-				upserv_license_key: { required: true },
-				upserv_license_package_slug: { required: true, slug: true },
-				upserv_license_registered_email: { required: true, email: true },
-				upserv_license_date_created: { required: true, licenseDate: true },
-				upserv_license_date_expiry: { licenseDate: true },
-				upserv_license_date_renewed: { licenseDate: true },
-				upserv_license_max_allowed_domains: { required: true }
-			},
-			submitHandler: function (form) {
-				var domainElements = $('.upserv-domains-list li:not(.upserv-domain-template) .upserv-domain-value'),
-					values = {
-						'id': $('#upserv_license_id').html(),
-						'license_key': $('#upserv_license_key').val(),
-						'max_allowed_domains': $('#upserv_license_max_allowed_domains').val(),
-						'allowed_domains': domainElements.map(function() { return $(this).text(); }).get(),
-						'status': $('#upserv_license_status').val(),
-						'owner_name': $('#upserv_license_owner_name').val(),
-						'email': $('#upserv_license_registered_email').val(),
-						'company_name': $('#upserv_license_owner_company').val(),
-						'txn_id': $('#upserv_license_transaction_id').val(),
-						'data': editor.codemirror.getValue(),
-						'date_created': $('#upserv_license_date_created').val(),
-						'date_renewed': $('#upserv_license_date_renewed').val(),
-						'date_expiry': $('#upserv_license_date_expiry').val(),
-						'package_slug': $('#upserv_license_package_slug').val(),
-						'package_type': $('#upserv_license_package_type').val()
-					};
+		function clearErrors() {
+			event.target.querySelectorAll('.upserv-license-error').forEach(el => el.classList.remove('upserv-license-error'));
+		}
 
-				$('#upserv_license_values').val(JSON.stringify(values));
-				$('.no-submit').removeAttr('name');
-				form.submit();
+		function showError(input) {
+			input.classList.add('upserv-license-error');
+		}
+
+		let isValid = true;
+
+		const fields = {
+			licenseKey: { el: document.getElementById('upserv_license_key'), validate: 'required' },
+			licensePackageSlug: { el: document.getElementById('upserv_license_package_slug'), validate: 'slug' },
+			registeredEmail: { el: document.getElementById('upserv_license_registered_email'), validate: 'email' },
+			dateCreated: { el: document.getElementById('upserv_license_date_created'), validate: ['required', 'licenseDate'] },
+			dateExpiry: { el: document.getElementById('upserv_license_date_expiry'), validate: 'licenseDate' },
+			dateRenewed: { el: document.getElementById('upserv_license_date_renewed'), validate: 'licenseDate' },
+			maxAllowedDomains: { el: document.getElementById('upserv_license_max_allowed_domains'), validate: 'required' }
+		};
+
+		clearErrors();
+
+		for (const [key, field] of Object.entries(fields)) {
+			const value = field.el.value;
+			const validations = Array.isArray(field.validate) ? field.validate : [field.validate];
+
+			for (const validation of validations) {
+				if (!validators[validation](value)) {
+					isValid = false;
+					showError(field.el);
+					break;
+				}
 			}
-		});
+		}
+
+		if (isValid) {
+			const values = {
+				id: document.getElementById('upserv_license_id').innerHTML,
+				license_key: fields.licenseKey.el.value,
+				max_allowed_domains: fields.maxAllowedDomains.el.value,
+				allowed_domains: Array.from(document.querySelectorAll('.upserv-domains-list li:not(.upserv-domain-template) .upserv-domain-value')).map(el => el.textContent),
+				status: document.getElementById('upserv_license_status').value,
+				owner_name: document.getElementById('upserv_license_owner_name').value,
+				email: fields.registeredEmail.el.value,
+				company_name: document.getElementById('upserv_license_owner_company').value,
+				txn_id: document.getElementById('upserv_license_transaction_id').value,
+				data: editor.codemirror.getValue(),
+				date_created: fields.dateCreated.el.value,
+				date_renewed: fields.dateRenewed.el.value,
+				date_expiry: fields.dateExpiry.el.value,
+				package_slug: fields.licensePackageSlug.el.value,
+				package_type: document.getElementById('upserv_license_package_type').value
+			};
+
+			document.getElementById('upserv_license_values').value = JSON.stringify(values);
+			document.querySelectorAll('.no-submit').forEach(el => el.removeAttribute('name'));
+			event.target.submit();
+		}
 	}
+
+	document.getElementById('upserv_license').addEventListener('submit', validateForm);
 
 	$('#upserv_license_registered_domains').on('click', '.upserv-remove-domain', function(e) {
 		e.preventDefault();
