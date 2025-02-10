@@ -162,7 +162,7 @@ class Packages_Table extends WP_List_Table {
 					unset( $info['vcs']['class'] );
 				}
 
-				$page           = ! empty( $_REQUEST['page'] ) ? sanitize_key( $_REQUEST['page'] ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$page           = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$search         = ! empty( $_REQUEST['s'] ) ? trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$record['info'] = wp_json_encode(
 					$info,
@@ -197,8 +197,8 @@ class Packages_Table extends WP_List_Table {
 	}
 
 	public function uasort_reorder( $a, $b ) {
-		$order_by = ! empty( $_REQUEST['orderby'] ) ? sanitize_key( $_REQUEST['orderby'] ) : 'name'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$order    = ! empty( $_REQUEST['order'] ) ? sanitize_key( $_REQUEST['order'] ) : 'asc'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$order_by = ! empty( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'name'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$order    = ! empty( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'asc'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$result   = 0;
 
 		if ( ! in_array( str_replace( 'col_', '', $order_by ), array_keys( $this->get_sortable_columns() ), true ) ) {

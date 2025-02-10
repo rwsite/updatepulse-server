@@ -235,7 +235,7 @@ class Nonce {
 
 		if ( ! $nonce ) {
 			$id    = self::generate_id();
-			$nonce = strtolower( md5( wp_salt( 'nonce' ) . $id . microtime( true ) ) );
+			$nonce = md5( wp_salt( 'nonce' ) . $id . microtime( true ) );
 		}
 
 		$data = is_array( $data ) ? filter_var_array( $data, FILTER_SANITIZE_FULL_SPECIAL_CHARS ) : false;

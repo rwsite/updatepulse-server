@@ -76,14 +76,14 @@ class Package_Manager {
 			! (
 				isset( $_REQUEST['_wpnonce'] ) &&
 				wp_verify_nonce(
-					sanitize_key( $_REQUEST['_wpnonce'] ),
+					sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ),
 					$this->packages_table->nonce_action
 				)
 			) &&
 			! (
 				isset( $_REQUEST['linknonce'] ) &&
 				wp_verify_nonce(
-					sanitize_key( $_REQUEST['linknonce'] ),
+					sanitize_text_field( wp_unslash( $_REQUEST['linknonce'] ), ),
 					'linknonce'
 				)
 			)
@@ -91,7 +91,7 @@ class Package_Manager {
 			return;
 		}
 
-		$page = ! empty( $_REQUEST['page'] ) ? sanitize_key( $_REQUEST['page'] ) : false;
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false;
 
 		if ( 'upserv-page' !== $page ) {
 			return;
@@ -104,16 +104,16 @@ class Package_Manager {
 		if ( ! empty( $_REQUEST['packages'] ) ) {
 
 			if ( is_array( $_REQUEST['packages'] ) ) {
-				$packages = array_map( 'sanitize_key', $_REQUEST['packages'] );
+				$packages = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['packages'] ) );
 			} else {
-				$packages = sanitize_key( $_REQUEST['packages'] );
+				$packages = sanitize_text_field( wp_unslash( $_REQUEST['packages'] ) );
 			}
 		}
 
 		if ( ! empty( $_REQUEST['action'] ) && -1 !== intval( $_REQUEST['action'] ) ) {
-			$action = sanitize_key( $_REQUEST['action'] );
+			$action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
 		} elseif ( ! empty( $_REQUEST['action2'] ) && -1 !== intval( $_REQUEST['action2'] ) ) {
-			$action = sanitize_key( $_REQUEST['action2'] );
+			$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) );
 		}
 
 		if ( $packages && 'download' === $action ) {
@@ -227,11 +227,11 @@ class Package_Manager {
 		if (
 			isset( $_REQUEST['nonce'] ) &&
 			wp_verify_nonce(
-				sanitize_key( $_REQUEST['nonce'] ),
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
 				'upserv_plugin_options'
 			)
 		) {
-			$type = sanitize_key( filter_input( INPUT_POST, 'type' ) );
+			$type = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'type' ) ) );
 
 			if ( in_array( $type, self::$filesystem_clean_types, true ) ) {
 				$result = Data_Manager::maybe_cleanup( $type, true );
@@ -262,11 +262,11 @@ class Package_Manager {
 		if (
 			isset( $_REQUEST['nonce'] ) &&
 			wp_verify_nonce(
-				sanitize_key( $_REQUEST['nonce'] ),
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
 				'upserv_plugin_options'
 			)
 		) {
-			$slug    = sanitize_key( filter_input( INPUT_POST, 'slug' ) );
+			$slug    = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'slug' ) ) );
 			$vcs_key = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'vcs_key' ) ) );
 
 			if ( $slug && $vcs_key ) {
@@ -331,7 +331,10 @@ class Package_Manager {
 
 		if (
 			! isset( $_REQUEST['nonce'] ) ||
-			! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), 'upserv_plugin_options' )
+			! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
+				'upserv_plugin_options'
+			)
 		) {
 			wp_send_json_error(
 				new WP_Error(
@@ -1135,7 +1138,7 @@ class Package_Manager {
 	protected function plugin_options_handler() {
 		$errors = array();
 		$result = '';
-		$nonce  = sanitize_key( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) );
+		$nonce  = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) ) );
 
 		if ( $nonce && ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
