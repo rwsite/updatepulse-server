@@ -97,58 +97,93 @@ class License_Manager {
 
 	public function admin_init() {
 
-		if ( is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->licenses_table = new Licenses_Table();
+		if ( ! is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
+			return;
+		}
 
-			if (
-				(
-					isset( $_REQUEST['_wpnonce'] ) &&
-					wp_verify_nonce( $_REQUEST['_wpnonce'], $this->licenses_table->nonce_action )
-				) ||
-				(
-					isset( $_REQUEST['linknonce'] ) &&
-					wp_verify_nonce( $_REQUEST['linknonce'], 'linknonce' )
-				) ||
-				(
-					isset( $_REQUEST['upserv_license_form_nonce'] ) &&
-					wp_verify_nonce( $_REQUEST['upserv_license_form_nonce'], 'upserv_license_form_nonce' )
+		$this->licenses_table = new Licenses_Table();
+
+		if (
+			! (
+				isset( $_REQUEST['_wpnonce'] ) &&
+				wp_verify_nonce(
+					sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ),
+					$this->licenses_table->nonce_action
 				)
-			) {
-				$page                = isset( $_REQUEST['page'] ) ? $_REQUEST['page'] : false;
-				$license_data        = isset( $_REQUEST['license_data'] ) ? $_REQUEST['license_data'] : false;
-				$delete_all_licenses = isset( $_REQUEST['upserv_delete_all_licenses'] ) ? true : false;
-				$license_data        = isset( $_REQUEST['upserv_license_values'] ) ? $_REQUEST['upserv_license_values'] : $license_data;
-				$action              = isset( $_REQUEST['upserv_license_action'] ) ? $_REQUEST['upserv_license_action'] : false;
+			) &&
+			! (
+				isset( $_REQUEST['linknonce'] ) &&
+				wp_verify_nonce(
+					sanitize_text_field( wp_unslash( $_REQUEST['linknonce'] ) ),
+					'linknonce'
+				)
+			) &&
+			! (
+				isset( $_REQUEST['upserv_license_form_nonce'] ) &&
+				wp_verify_nonce(
+					sanitize_text_field( wp_unslash( $_REQUEST['upserv_license_form_nonce'] ) ),
+					'upserv_license_form_nonce'
+				)
+			)
+		) {
+			return;
+		}
 
-				if ( isset( $_REQUEST['action'] ) && -1 != $_REQUEST['action'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-					$action = $_REQUEST['action'];
-				} elseif ( isset( $_REQUEST['action2'] ) && -1 != $_REQUEST['action2'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-					$action = $_REQUEST['action2'];
-				}
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false;
 
-				if ( 'upserv-page-licenses' === $page ) {
+		if ( 'upserv-page-licenses' !== $page ) {
+			return;
+		}
 
-					if ( $license_data && in_array( $action, License_Server::$license_statuses, true ) ) {
-						$this->change_license_statuses_bulk( $action, $license_data );
-					}
+		$license_data        = false;
+		$delete_all_licenses = ! empty( $_REQUEST['upserv_delete_all_licenses'] ) ? true : false;
+		$action              = ! empty( $_REQUEST['upserv_license_action'] ) ?
+			sanitize_text_field( wp_unslash( $_REQUEST['upserv_license_action'] ) ) :
+			false;
 
-					if ( false !== $license_data && 'delete' === $action ) {
-						$this->delete_license_bulk( $license_data );
-					}
+		if ( ! empty( $_REQUEST['license_data'] ) ) {
 
-					if ( $license_data && 'update' === $action ) {
-						$this->update_license( $license_data );
-					}
-
-					if ( $license_data && 'create' === $action ) {
-						$this->create_license( $license_data );
-					}
-
-					if ( $delete_all_licenses ) {
-						$this->delete_all_licenses();
-					}
-				}
+			if ( is_array( $_REQUEST['license_data'] ) ) {
+				$license_data = array_map( 'wp_kses_post', wp_unslash( $_REQUEST['license_data'] ) );
+			} else {
+				$license_data = wp_kses_post( wp_unslash( $_REQUEST['license_data'] ) );
 			}
+		}
+
+		if ( ! empty( $_REQUEST['upserv_license_values'] ) ) {
+
+			if ( is_array( $_REQUEST['upserv_license_values'] ) ) {
+				$license_data = array_map( 'wp_kses_post', wp_unslash( $_REQUEST['upserv_license_values'] ) );
+			} else {
+				$license_data = wp_kses_post( wp_unslash( $_REQUEST['upserv_license_values'] ) );
+			}
+		}
+
+		if ( ! empty( $_REQUEST['action'] ) && -1 !== intval( $_REQUEST['action'] ) ) {
+			$action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
+		} elseif ( ! empty( $_REQUEST['action2'] ) && -1 !== intval( $_REQUEST['action2'] ) ) {
+			$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) );
+		}
+
+		if ( $license_data && in_array( $action, License_Server::$license_statuses, true ) ) {
+			$this->change_license_statuses_bulk(
+				$action,
+				is_array( $license_data ) ? $license_data : array( $license_data )
+			);
+		} elseif ( false !== $license_data && 'delete' === $action ) {
+			$this->delete_license_bulk(
+				is_array( $license_data ) ? $license_data : array( $license_data )
+			);
+		} elseif ( $license_data && 'update' === $action ) {
+			$this->update_license(
+				is_array( $license_data ) ? reset( $license_data ) : $license_data
+			);
+		} elseif ( $license_data && 'create' === $action ) {
+			$this->create_license(
+				is_array( $license_data ) ? reset( $license_data ) : $license_data
+			);
+		} elseif ( $delete_all_licenses ) {
+			$this->delete_all_licenses();
 		}
 	}
 
@@ -425,12 +460,18 @@ class License_Manager {
 	}
 
 	protected function change_license_statuses_bulk( $status, $license_data ) {
-		$license_data           = is_array( $license_data ) ? $license_data : array( $license_data );
+
+		if ( ! is_array( $license_data ) ) {
+			$this->errors[] = __( 'Operation failed: an unexpected error occured (invalid license data).', 'updatepulse-server' );
+
+			return;
+		}
+
 		$applicable_license_ids = array();
 		$license_ids            = array();
 
 		foreach ( $license_data as $data ) {
-			$license_info = json_decode( wp_unslash( $data ) );
+			$license_info = json_decode( $data );
 			$include      = false;
 
 			if ( in_array( $status, License_Server::$license_statuses, true ) ) {
@@ -473,15 +514,18 @@ class License_Manager {
 	}
 
 	protected function delete_license_bulk( $license_ids ) {
-		$license_ids = is_array( $license_ids ) ? $license_ids : array( $license_ids );
+
+		if ( ! is_array( $license_ids ) ) {
+			return array();
+		}
 
 		foreach ( $license_ids as $key => $data ) {
 
 			if ( ! is_numeric( $data ) ) {
-				$license = json_decode( wp_unslash( $data ), true );
+				$license = json_decode( $data );
 
-				if ( isset( $license['id'] ) ) {
-					$license_ids[ $key ] = $license['id'];
+				if ( isset( $license->id ) ) {
+					$license_ids[ $key ] = $license->id;
 				} else {
 					unset( $license_ids[ $key ] );
 				}
@@ -496,8 +540,8 @@ class License_Manager {
 	}
 
 	protected function update_license( $license_data ) {
-		$payload         = json_decode( wp_unslash( $license_data ), true );
-		$payload['data'] = json_decode( wp_unslash( $payload['data'] ), true );
+		$payload         = json_decode( $license_data, true );
+		$payload['data'] = json_decode( $payload['data'], true );
 		$license         = upserv_edit_license( $payload );
 
 		if ( is_object( $license ) ) {
@@ -510,8 +554,8 @@ class License_Manager {
 	}
 
 	protected function create_license( $license_data ) {
-		$payload         = json_decode( wp_unslash( $license_data ), true );
-		$payload['data'] = json_decode( wp_unslash( $payload['data'] ), true );
+		$payload         = json_decode( $license_data, true );
+		$payload['data'] = json_decode( $payload['data'], true );
 		$license         = upserv_add_license( $payload );
 
 		if ( is_object( $license ) ) {

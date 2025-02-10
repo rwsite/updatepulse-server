@@ -5,15 +5,10 @@
 	<?php
 	$actions      = array();
 	$query_string = '?page=%s&action=%s&packages=%s&linknonce=%s';
-	$args         = array(
-		$_REQUEST['page'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		'download',
-		$record_key,
-		wp_create_nonce( 'linknonce' ),
-	);
+	$args         = array( $page, 'download', $record_key, wp_create_nonce( 'linknonce' ) );
 
-	if ( isset( $_REQUEST['s'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$args[]        = $_REQUEST['s']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! empty( $search ) ) {
+		$args[]        = $search;
 		$query_string .= '&s=%s';
 	}
 
@@ -52,7 +47,7 @@
 			<td class="<?php echo esc_attr( $class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-colname="<?php echo esc_attr( $column_display_name ); ?>">
 				<?php if ( 'col_name' === $column_name ) : ?>
 					<?php echo esc_html( $record[ $key ] ); ?>
-					<?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo wp_kses_post( $actions ); ?>
 				<?php elseif ( 'col_version' === $column_name ) : ?>
 					<?php echo esc_html( $record[ $key ] ); ?>
 				<?php elseif ( 'col_type' === $column_name ) : ?>

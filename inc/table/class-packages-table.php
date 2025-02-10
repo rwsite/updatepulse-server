@@ -162,9 +162,10 @@ class Packages_Table extends WP_List_Table {
 					unset( $info['vcs']['class'] );
 				}
 
+				$page           = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$search         = ! empty( $_REQUEST['s'] ) ? trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$record['info'] = wp_json_encode(
 					$info,
-					// unescape all chars
 					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
 				);
 
@@ -181,6 +182,8 @@ class Packages_Table extends WP_List_Table {
 						'time_format' => $time_format,
 						'time_zone'   => $time_zone,
 						'primary'     => $primary,
+						'page'        => $page,
+						'search'      => $search,
 					)
 				);
 			}
@@ -194,18 +197,26 @@ class Packages_Table extends WP_List_Table {
 	}
 
 	public function uasort_reorder( $a, $b ) {
-		$orderby = ( ! empty( $_GET['orderby'] ) ) ? $_GET['orderby'] : 'name'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$order   = ( ! empty( $_GET['order'] ) ) ? $_GET['order'] : 'asc'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$result  = 0;
+		$order_by = ! empty( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'name'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$order    = ! empty( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'asc'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$result   = 0;
 
-		if ( 'version' === $orderby ) {
-			$result = version_compare( $a[ $orderby ], $b[ $orderby ] );
-		} elseif ( 'file_size' === $orderby ) {
-			$result = $a[ $orderby ] - $b[ $orderby ];
-		} elseif ( 'file_last_modified' === $orderby ) {
-			$result = $a[ $orderby ] - $b[ $orderby ];
+		if ( ! in_array( str_replace( 'col_', '', $order_by ), array_keys( $this->get_sortable_columns() ), true ) ) {
+			$order_by = 'name';
+		}
+
+		if ( ! in_array( $order, array( 'asc', 'desc' ), true ) ) {
+			$order = 'asc';
+		}
+
+		if ( 'version' === $order_by ) {
+			$result = version_compare( $a[ $order_by ], $b[ $order_by ] );
+		} elseif ( 'file_size' === $order_by ) {
+			$result = $a[ $order_by ] - $b[ $order_by ];
+		} elseif ( 'file_last_modified' === $order_by ) {
+			$result = $a[ $order_by ] - $b[ $order_by ];
 		} else {
-			$result = strcmp( $a[ $orderby ], $b[ $orderby ] );
+			$result = strcmp( $a[ $order_by ], $b[ $order_by ] );
 		}
 
 		return ( 'asc' === $order ) ? $result : -$result;

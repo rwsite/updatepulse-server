@@ -66,47 +66,68 @@ class Package_Manager {
 
 	public function admin_init() {
 
-		if ( is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->packages_table = new Packages_Table( $this );
+		if ( ! is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
+			return;
+		}
 
-			if (
-				(
-					isset( $_REQUEST['_wpnonce'] ) &&
-					wp_verify_nonce( $_REQUEST['_wpnonce'], $this->packages_table->nonce_action )
-				) ||
-				(
-					isset( $_REQUEST['linknonce'] ) &&
-					wp_verify_nonce( $_REQUEST['linknonce'], 'linknonce' )
+		$this->packages_table = new Packages_Table( $this );
+
+		if (
+			! (
+				isset( $_REQUEST['_wpnonce'] ) &&
+				wp_verify_nonce(
+					sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ),
+					$this->packages_table->nonce_action
 				)
-			) {
-				$page                = isset( $_REQUEST['page'] ) ? $_REQUEST['page'] : false;
-				$packages            = isset( $_REQUEST['packages'] ) ? $_REQUEST['packages'] : false;
-				$delete_all_packages = isset( $_REQUEST['upserv_delete_all_packages'] ) ? true : false;
-				$action              = false;
+			) &&
+			! (
+				isset( $_REQUEST['linknonce'] ) &&
+				wp_verify_nonce(
+					sanitize_text_field( wp_unslash( $_REQUEST['linknonce'] ), ),
+					'linknonce'
+				)
+			)
+		) {
+			return;
+		}
 
-				if ( isset( $_REQUEST['action'] ) && -1 != $_REQUEST['action'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-					$action = $_REQUEST['action'];
-				} elseif ( isset( $_REQUEST['action2'] ) && -1 != $_REQUEST['action2'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-					$action = $_REQUEST['action2'];
-				}
+		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false;
 
-				if ( 'upserv-page' === $page ) {
+		if ( 'upserv-page' !== $page ) {
+			return;
+		}
 
-					if ( $packages && 'download' === $action ) {
-						$error = $this->download_packages_bulk( $packages );
+		$packages            = false;
+		$action              = false;
+		$delete_all_packages = ! empty( $_REQUEST['upserv_delete_all_packages'] ) ? true : false;
 
-						if ( $error ) {
-							$this->packages_table->bulk_action_error = $error;
-						}
-					} elseif ( $packages && 'delete' === $action ) {
-						$this->delete_packages_bulk( $packages );
-					} elseif ( $delete_all_packages ) {
-						$this->delete_packages_bulk();
-					} else {
-						do_action( 'upserv_udpdate_manager_request_action', $action, $packages );
-					}
-				}
+		if ( ! empty( $_REQUEST['packages'] ) ) {
+
+			if ( is_array( $_REQUEST['packages'] ) ) {
+				$packages = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['packages'] ) );
+			} else {
+				$packages = sanitize_text_field( wp_unslash( $_REQUEST['packages'] ) );
 			}
+		}
+
+		if ( ! empty( $_REQUEST['action'] ) && -1 !== intval( $_REQUEST['action'] ) ) {
+			$action = sanitize_text_field( wp_unslash( $_REQUEST['action'] ) );
+		} elseif ( ! empty( $_REQUEST['action2'] ) && -1 !== intval( $_REQUEST['action2'] ) ) {
+			$action = sanitize_text_field( wp_unslash( $_REQUEST['action2'] ) );
+		}
+
+		if ( $packages && 'download' === $action ) {
+			$error = $this->download_packages_bulk( is_array( $packages ) ? $packages : array( $packages ) );
+
+			if ( $error ) {
+				$this->packages_table->bulk_action_error = $error;
+			}
+		} elseif ( $packages && 'delete' === $action ) {
+			$this->delete_packages_bulk( is_array( $packages ) ? $packages : array( $packages ) );
+		} elseif ( $delete_all_packages ) {
+			$this->delete_packages_bulk();
+		} else {
+			do_action( 'upserv_udpdate_manager_request_action', $action, $packages );
 		}
 	}
 
@@ -203,7 +224,13 @@ class Package_Manager {
 		$result = false;
 		$type   = false;
 
-		if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
+		if (
+			isset( $_REQUEST['nonce'] ) &&
+			wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
+				'upserv_plugin_options'
+			)
+		) {
 			$type = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
 			if ( in_array( $type, self::$filesystem_clean_types, true ) ) {
@@ -232,7 +259,13 @@ class Package_Manager {
 		$error  = false;
 		$slug   = 'N/A';
 
-		if ( isset( $_REQUEST['nonce'] ) && wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
+		if (
+			isset( $_REQUEST['nonce'] ) &&
+			wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
+				'upserv_plugin_options'
+			)
+		) {
 			$slug    = filter_input( INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			$vcs_key = filter_input( INPUT_POST, 'vcs_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 
@@ -292,10 +325,17 @@ class Package_Manager {
 	public function manual_package_upload() {
 		$result      = false;
 		$slug        = 'N/A';
+		$type        = 'N/A';
 		$parsed_info = false;
 		$error_text  = __( 'Reload the page and try again.', 'updatepulse-server' );
 
-		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
+		if (
+			! isset( $_REQUEST['nonce'] ) ||
+			! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
+				'upserv_plugin_options'
+			)
+		) {
 			wp_send_json_error(
 				new WP_Error(
 					__METHOD__,
@@ -312,11 +352,29 @@ class Package_Manager {
 			return;
 		}
 
-		$package_info = isset( $_FILES['package'] ) ? $_FILES['package'] : false;
-		$valid        = (bool) ( $package_info );
+		$files = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-		if ( ! $valid ) {
-			$error_text = __( 'Something very wrong happened.', 'updatepulse-server' );
+		if (
+			! is_array( $files ) ||
+			! isset(
+				$files['package'],
+				$files['package']['tmp_name'],
+				$files['package']['name'],
+				$files['package']['type']
+			) ||
+			sanitize_file_name( $files['package']['tmp_name'] ) !== $files['package']['tmp_name'] ||
+			sanitize_file_name( $files['package']['name'] ) !== $files['package']['name'] ||
+			sanitize_file_name( $files['package']['type'] ) !== $files['package']['type']
+		) {
+			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not upload the package. ', 'updatepulse-server' )
+						. "\n\n" .
+						__( 'Invalid file data.', 'updatepulse-server' )
+				)
+			);
 		}
 
 		$valid_archive_formats = array(
@@ -326,71 +384,98 @@ class Package_Manager {
 			'application/x-zip-compressed',
 		);
 
-		if ( $valid && ! in_array( $package_info['type'], $valid_archive_formats, true ) ) {
-			$valid      = false;
-			$error_text = __( 'Make sure the uploaded file is a zip archive.', 'updatepulse-server' );
+		if ( ! in_array( $files['package']['type'], $valid_archive_formats, true ) ) {
+			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not upload the package. ', 'updatepulse-server' )
+						. "\n\n" .
+						__( 'Make sure the uploaded file is a zip archive.', 'updatepulse-server' )
+				)
+			);
 		}
 
-		if ( $valid && 0 !== abs( intval( $package_info['error'] ) ) ) {
-			$valid = false;
+		if ( isset( $files['package']['error'] ) && 0 !== abs( intval( $files['package']['error'] ) ) ) {
 
-			switch ( $package_info['error'] ) {
+			switch ( $files['package']['error'] ) {
 				case UPLOAD_ERR_INI_SIZE:
-					$error_text = ( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.' );
+					$error_text = __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.', 'updatepulse-server' );
 					break;
 
 				case UPLOAD_ERR_FORM_SIZE:
-					$error_text = ( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.' );
+					$error_text = __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.', 'updatepulse-server' );
 					break;
 
 				case UPLOAD_ERR_PARTIAL:
-					$error_text = ( 'The uploaded file was only partially uploaded.' );
+					$error_text = __( 'The uploaded file was only partially uploaded.', 'updatepulse-server' );
 					break;
 
 				case UPLOAD_ERR_NO_FILE:
-					$error_text = ( 'No file was uploaded.' );
+					$error_text = __( 'No file was uploaded.', 'updatepulse-server' );
 					break;
 
 				case UPLOAD_ERR_NO_TMP_DIR:
-					$error_text = ( 'Missing a temporary folder.' );
+					$error_text = __( 'Missing a temporary folder.', 'updatepulse-server' );
 					break;
 
 				case UPLOAD_ERR_CANT_WRITE:
-					$error_text = ( 'Failed to write file to disk.' );
+					$error_text = __( 'Failed to write file to disk.', 'updatepulse-server' );
 					break;
 
 				case UPLOAD_ERR_EXTENSION:
-					$error_text = ( 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.' );
+					$error_text = __( 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.', 'updatepulse-server' );
+					break;
+
+				default:
+					$error_text = __( 'An unknown file upload error occurred.', 'updatepulse-server' );
 					break;
 			}
+
+			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not upload the package. ', 'updatepulse-server' ) . "\n\n" . $error_text
+				)
+			);
 		}
 
-		if ( $valid && 0 >= $package_info['size'] ) {
-			$valid      = false;
-			$error_text = __( 'Make sure the uploaded file is not empty.', 'updatepulse-server' );
+		if ( 0 >= $files['package']['size'] ) {
+			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not upload the package. ', 'updatepulse-server' )
+						. "\n\n" .
+						__( 'Make sure the uploaded file is not empty.', 'updatepulse-server' )
+				)
+			);
 		}
 
-		if ( $valid ) {
-			$parsed_info = Package_Parser::parse_package( $package_info['tmp_name'], true );
+		$parsed_info = Package_Parser::parse_package( $files['package']['tmp_name'], true );
+
+		if ( ! $parsed_info ) {
+			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
+			wp_send_json_error(
+				new WP_Error(
+					__METHOD__,
+					__( 'Error - could not upload the package. ', 'updatepulse-server' )
+						. "\n\n" .
+						__( 'The uploaded package is not a valid Generic, Theme or Plugin package.', 'updatepulse-server' )
+				)
+			);
 		}
 
-		if ( $valid && ! $parsed_info ) {
-			$valid      = false;
-			$error_text = __( 'The uploaded package is not a valid Generic, Theme or Plugin package.', 'updatepulse-server' );
-		}
-
-		if ( $valid ) {
-			$source      = $package_info['tmp_name'];
-			$filename    = $package_info['name'];
-			$slug        = str_replace( '.zip', '', $filename );
-			$type        = ucfirst( $parsed_info['type'] );
-			$destination = Data_Manager::get_data_dir( 'packages' ) . $filename;
-			$result      = $wp_filesystem->move( $source, $destination, true );
-		} else {
-			$result = false;
-
-			$wp_filesystem->delete( $package_info['tmp_name'] );
-		}
+		$filename = $files['package']['name'];
+		$slug     = str_replace( '.zip', '', $filename );
+		$type     = ucfirst( $parsed_info['type'] );
+		$dest     = Data_Manager::get_data_dir( 'packages' ) . $filename;
+		$result   = $wp_filesystem->move( $files['package']['tmp_name'], $dest, true );
 
 		do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 
@@ -403,10 +488,13 @@ class Package_Manager {
 			$this->set_package_metadata( $slug, $meta );
 			wp_send_json_success();
 		} else {
+			$wp_filesystem->delete( $files['package']['tmp_name'] );
 			wp_send_json_error(
 				new WP_Error(
 					__METHOD__,
-					__( 'Error - could not upload the package. ', 'updatepulse-server' ) . "\n\n" . $error_text
+					__( 'Error - could not upload the package. ', 'updatepulse-server' )
+					. "\n\n" .
+					__( 'The uploaded package could not be moved to the packages directory.', 'updatepulse-server' )
 				)
 			);
 		}
@@ -500,7 +588,6 @@ class Package_Manager {
 	}
 
 	public function delete_packages_bulk( $package_slugs = array() ) {
-		$package_slugs         = is_array( $package_slugs ) ? $package_slugs : array( $package_slugs );
 		$package_directory     = Data_Manager::get_data_dir( 'packages' );
 		$package_paths         = glob( trailingslashit( $package_directory ) . '*.zip' );
 		$package_names         = array();
@@ -589,7 +676,6 @@ class Package_Manager {
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
 		$total_size        = 0;
 		$max_archive_size  = upserv_get_option( 'limits/archive_max_size', self::DEFAULT_ARCHIVE_MAX_SIZE );
-		$package_slugs     = is_array( $package_slugs ) ? $package_slugs : array( $package_slugs );
 
 		if ( 1 === count( $package_slugs ) ) {
 			$archive_name = reset( $package_slugs );
@@ -816,7 +902,7 @@ class Package_Manager {
 
 		if ( is_dir( $package_directory ) && ! Package_API::is_doing_api_request() ) {
 			$search = isset( $_REQUEST['s'] ) ? // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				wp_unslash( trim( $_REQUEST['s'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$search;
 		}
 

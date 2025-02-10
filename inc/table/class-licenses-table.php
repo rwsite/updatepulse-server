@@ -66,7 +66,7 @@ class Licenses_Table extends WP_List_Table {
 	public function prepare_items() {
 		global $wpdb;
 
-		$search     = isset( $_REQUEST['s'] ) ? wp_unslash( trim( $_REQUEST['s'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$search     = ! empty( $_REQUEST['s'] ) ? trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$where      = false;
 		$where_args = false;
 
@@ -112,21 +112,15 @@ class Licenses_Table extends WP_List_Table {
 		$offset   = 0;
 		$per_page = $this->get_items_per_page( 'licenses_per_page', 10 );
 		$paged    = filter_input( INPUT_GET, 'paged', FILTER_VALIDATE_INT );
-		$order_by = 'date_created';
-		$order    = 'desc';
+		$order_by = ! empty( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'date_created'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$order    = ! empty( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'desc'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		if ( isset( $_REQUEST['orderby'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-			if ( in_array( 'col_' . $_REQUEST['orderby'], array_keys( $this->get_sortable_columns() ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$order_by = $_REQUEST['orderby']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			}
+		if ( ! in_array( str_replace( 'col_', '', $order_by ), array_keys( $this->get_sortable_columns() ), true ) ) {
+			$order_by = 'date_created';
 		}
 
-		if ( isset( $_REQUEST['order'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
-			if ( in_array( $_REQUEST['order'], array( 'asc', 'desc' ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$order = $_REQUEST['order']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			}
+		if ( ! in_array( $order, array( 'asc', 'desc' ), true ) ) {
+			$order = 'desc';
 		}
 
 		if ( empty( $paged ) || ! is_numeric( $paged ) || $paged <= 0 ) {
@@ -188,6 +182,7 @@ class Licenses_Table extends WP_List_Table {
 		if ( ! empty( $records ) ) {
 			$date_format = 'Y-m-d';
 			$primary     = $this->get_primary_column_name();
+			$page        = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			foreach ( $records as $record_key => $record ) {
 				$bulk_value = wp_json_encode( $record );
@@ -204,6 +199,7 @@ class Licenses_Table extends WP_List_Table {
 						'record'      => $record,
 						'date_format' => $date_format,
 						'primary'     => $primary,
+						'page'        => $page,
 					)
 				);
 			}

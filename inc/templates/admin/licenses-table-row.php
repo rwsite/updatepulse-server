@@ -25,7 +25,7 @@
 				'edit'    => '<a href="#">' . __( 'Edit' ) . '</a>',
 				'delete'  => sprintf(
 					'<a href="?page=%s&action=%s&license_data=%s&linknonce=%s">%s</a>',
-					$_REQUEST['page'], // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					$page,
 					'delete',
 					$record['id'],
 					wp_create_nonce( 'linknonce' ),
@@ -45,7 +45,7 @@
 					<?php echo esc_html( $record[ $key ] ); ?>
 				<?php elseif ( 'col_license_key' === $column_name ) : ?>
 					<?php echo esc_html( $record[ $key ] ); ?>
-					<?php echo $actions; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php echo wp_kses_post( $actions ); ?>
 				<?php elseif ( 'col_status' === $column_name ) : ?>
 					<?php echo esc_html( ucfirst( $record[ $key ] ) ); ?>
 				<?php elseif ( 'col_package_type' === $column_name ) : ?>

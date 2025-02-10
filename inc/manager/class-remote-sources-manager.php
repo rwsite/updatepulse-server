@@ -173,7 +173,13 @@ class Remote_Sources_Manager {
 		$result = false;
 		$type   = false;
 
-		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
+		if (
+			! isset( $_REQUEST['nonce'] ) ||
+			! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
+				'upserv_plugin_options'
+			)
+		) {
 			return;
 		}
 
@@ -215,7 +221,13 @@ class Remote_Sources_Manager {
 	public function vcs_test() {
 		$result = false;
 
-		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'upserv_plugin_options' ) ) {
+		if (
+			! isset( $_REQUEST['nonce'] ) ||
+			! wp_verify_nonce(
+				sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) ),
+				'upserv_plugin_options'
+			)
+		) {
 			wp_send_json_error(
 				new WP_Error(
 					__METHOD__,
@@ -224,7 +236,7 @@ class Remote_Sources_Manager {
 			);
 		}
 
-		$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
+		$data = filter_input( INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
 
 		if ( ! $data ) {
 			wp_send_json_error(
@@ -237,6 +249,7 @@ class Remote_Sources_Manager {
 
 		require_once UPSERV_PLUGIN_PATH . 'lib/package-update-checker/package-update-checker.php';
 
+		$data        = array_map( 'sanitize_text_field', $data );
 		$url         = $data['upserv_vcs_url'];
 		$credentials = $data['upserv_vcs_credentials'];
 		$vcs_type    = $data['upserv_vcs_type'];
