@@ -92,6 +92,7 @@ jQuery(document).ready(function ($) {
         $('#' + id).remove();
         updateForm();
         disableForm(true);
+        updateRepositories();
         form.addClass('hidden');
     };
     var updateForm = function (id) {
