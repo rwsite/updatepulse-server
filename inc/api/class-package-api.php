@@ -733,29 +733,32 @@ class Package_API {
 	protected function handle_api_request() {
 		global $wp;
 
-		if ( isset( $wp->query_vars['action'] ) ) {
-			$method = $wp->query_vars['action'];
+		$method = isset( $wp->query_vars['action'] ) ? $wp->query_vars['action'] : false;
 
-			if (
-				filter_input( INPUT_GET, 'action' ) &&
-				! $this->is_api_public( $method )
+		if (
+			filter_input( INPUT_GET, 'action' ) &&
+			! $this->is_api_public( $method )
+		) {
+			$this->http_response_code = 405;
+			$response                 = array(
+				'code'    => 'method_not_allowed',
+				'message' => __( 'Unauthorized GET method.', 'updatepulse-server' ),
+			);
+		} else {
+			$malformed_request = false;
+
+			if ( ! isset( $wp->query_vars['action'] ) ) {
+				$malformed_request = true;
+			} elseif (
+				'browse' === $wp->query_vars['action'] &&
+				isset( $wp->query_vars['browse_query'] )
 			) {
-				$this->http_response_code = 405;
-				$response                 = array(
-					'code'    => 'method_not_allowed',
-					'message' => __( 'Unauthorized GET method.', 'updatepulse-server' ),
-				);
+				$payload = $wp->query_vars['browse_query'];
 			} else {
+				$payload = $wp->query_vars;
+			}
 
-				if (
-					'browse' === $wp->query_vars['action'] &&
-					isset( $wp->query_vars['browse_query'] )
-				) {
-					$payload = $wp->query_vars['browse_query'];
-				} else {
-					$payload = $wp->query_vars;
-				}
-
+			if ( ! $malformed_request ) {
 				$authorized = apply_filters(
 					'upserv_package_api_request_authorized',
 					(
@@ -802,10 +805,16 @@ class Package_API {
 						'message' => __( 'Unauthorized access.', 'updatepulse-server' ),
 					);
 				}
+			} else {
+				$this->http_response_code = 400;
+				$response                 = array(
+					'code'    => 'malformed_request',
+					'message' => __( 'Malformed request.', 'updatepulse-server' ),
+				);
 			}
-
-			wp_send_json( $response, $this->http_response_code );
 		}
+
+		wp_send_json( $response, $this->http_response_code );
 	}
 
 	protected function authorize_ip() {

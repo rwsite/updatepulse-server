@@ -1073,13 +1073,7 @@ class License_API {
 	protected function handle_api_request() {
 		global $wp;
 
-		if ( ! isset( $wp->query_vars['action'] ) ) {
-			return;
-		}
-
-		$method = $wp->query_vars['action'];
-
-		$this->init_server();
+		$method = isset( $wp->query_vars['action'] ) ? $wp->query_vars['action'] : false;
 
 		if ( filter_input( INPUT_GET, 'action' ) && ! $this->is_api_public( $method ) ) {
 			$this->http_response_code = 405;
@@ -1090,7 +1084,9 @@ class License_API {
 		} else {
 			$malformed_request = false;
 
-			if ( 'browse' === $wp->query_vars['action'] ) {
+			if ( ! isset( $wp->query_vars['action'] ) ) {
+				$malformed_request = true;
+			} elseif ( 'browse' === $wp->query_vars['action'] ) {
 
 				if ( isset( $wp->query_vars['browse_query'] ) ) {
 					$payload = $wp->query_vars['browse_query'];
@@ -1121,6 +1117,8 @@ class License_API {
 					do_action( 'upserv_license_api_request', $method, $payload );
 
 					if ( method_exists( $this, $method ) ) {
+						$this->init_server();
+
 						$response = $this->$method( $payload );
 
 						if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
