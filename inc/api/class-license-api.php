@@ -431,13 +431,13 @@ class License_API {
 	public function upserv_handle_update_request_params( $params ) {
 		global $wp;
 
-		$vars                                = $wp->query_vars;
-		$request_params['license_key']       = isset( $vars['license_key'] ) ?
+		$vars                        = $wp->query_vars;
+		$params['license_key']       = isset( $vars['license_key'] ) ?
 			trim( $vars['license_key'] ) :
 			null;
-		$request_params['license_signature'] = isset( $vars['license_signature'] ) ?
-				trim( $vars['license_signature'] ) :
-				null;
+		$params['license_signature'] = isset( $vars['license_signature'] ) ?
+			trim( $vars['license_signature'] ) :
+			null;
 
 		return $params;
 	}
