@@ -550,7 +550,13 @@ class License_Server {
 
 		$payload['limit'] = intval( $payload['limit'] );
 
-		if ( ! is_numeric( $payload['offset'] ) && ! empty( $payload['offset'] ) || 0 > $payload['offset'] ) {
+		if (
+			(
+				! is_numeric( $payload['offset'] ) &&
+				! empty( $payload['offset'] )
+			) ||
+			0 > $payload['offset']
+		) {
 			throw new Exception( esc_html__( 'The offset must be a positive integer.', 'updatepulse-server' ) );
 		}
 
