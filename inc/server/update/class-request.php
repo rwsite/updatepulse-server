@@ -19,11 +19,10 @@ class Request {
 	public $http_method;
 	/** @var string The name of the current action. For example, "get_metadata". */
 	public $action;
-	/** @var string Plugin or theme slug from the current request. */
+	/** @var string Package slug from the current request. */
 	public $slug;
 	/** @var Package The package that matches the current slug, if any. */
 	public $package = null;
-
 	/** @var string WordPress version number as extracted from the User-Agent header. */
 	public $wp_version = null;
 	/** @var string WordPress site URL, also from the User-Agent. */
@@ -64,6 +63,7 @@ class Request {
 	 * @return mixed
 	 */
 	public function param( $name, $_default = null ) {
+
 		if ( array_key_exists( $name, $this->query ) ) {
 			return $this->query[ $name ];
 		} else {
@@ -72,9 +72,11 @@ class Request {
 	}
 
 	public function __get( $name ) {
+
 		if ( array_key_exists( $name, $this->props ) ) {
 			return $this->props[ $name ];
 		}
+
 		return null;
 	}
 

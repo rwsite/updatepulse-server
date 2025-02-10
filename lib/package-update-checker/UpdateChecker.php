@@ -5,11 +5,11 @@ namespace Anyape\PackageUpdateChecker;
 if ( ! class_exists( UpdateChecker::class, false ) ) :
 
 	abstract class UpdateChecker {
+
 		public $debug_mode = null;
 		public $directory_name;
 		public $slug;
 		public $package_absolute_path = '';
-
 
 		protected $branch = 'main';
 		protected $api;

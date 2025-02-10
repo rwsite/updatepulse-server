@@ -5,6 +5,7 @@ namespace Anyape\PackageUpdateChecker;
 if ( ! class_exists( PluginUpdateChecker::class, false ) ) :
 
 	class PluginUpdateChecker extends UpdateChecker {
+
 		public $package_file = '';
 
 		public function __construct( $api, $slug, $container, $file_name ) {
@@ -43,9 +44,6 @@ if ( ! class_exists( PluginUpdateChecker::class, false ) ) :
 				'TextDomain'        => 'Text Domain',
 				'DomainPath'        => 'Domain Path',
 				'Network'           => 'Network',
-
-				//The newest WordPress version that this plugin requires or has been tested with.
-				//We support several different formats for compatibility with other libraries.
 				'Tested WP'         => 'Tested WP',
 				'Requires WP'       => 'Requires WP',
 				'Tested up to'      => 'Tested up to',

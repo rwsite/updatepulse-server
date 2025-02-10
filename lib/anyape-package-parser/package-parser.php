@@ -8,12 +8,13 @@ use ZipArchive as SystemZipArchive;
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
 class Parser {
+
 	/**
-	* Extract headers and readme.txt data from a ZIP archive that contains a plugin or theme.
+	* Extract headers and readme.txt data from a ZIP archive that contains a package.
 	*
 	* Returns an associative array with these keys:
 	* 'type'   - Detected package type. This can be either "plugin" or "theme".
-	* 'header' - An array of plugin or theme headers. See get_plugin_data() or WP_Theme for details.
+	* 'header' - An array of package headers. See get_plugin_data() or WP_Theme for details.
 	* 'readme' - An array of metadata extracted from readme.txt. @see self::parseReadme()
 	* 'pluginFile' - The name of the PHP file where the plugin headers were found relative to the root directory of the ZIP archive.
 	* 'stylesheet' - The relative path to the style.css file that contains theme headers, if any.
@@ -24,7 +25,7 @@ class Parser {
 	*
 	* @param string $package_filename The path to the ZIP package.
 	* @param bool $apply_markdown Whether to transform markup used in readme.txt to HTML. Defaults to false.
-	* @return array|bool Either an associative array or FALSE if the input file is not a valid ZIP archive or doesn't contain a WP plugin or theme.
+	* @return array|bool Either an associative array or FALSE if the input file is not a valid ZIP archive or doesn't contain a package.
 	*/
 	public static function parse_package( $package_filename, $apply_markdown = false ) {
 
@@ -32,13 +33,13 @@ class Parser {
 			return false;
 		}
 
-		$zip = Archive::open( $package_filename );
+		$zip = ZipArchive::open( $package_filename );
 
 		if ( false === $zip ) {
 			return false;
 		}
 
-		//Find and parse the plugin or theme file and ( optionally ) readme.txt.
+		//Find and parse the package file and ( optionally ) readme.txt.
 		$header        = null;
 		$readme        = null;
 		$plugin_file   = null;
@@ -232,6 +233,7 @@ class Parser {
 				$content_buffer[] = $line;
 			}
 		}
+
 		//Flush the buffer for the last section
 		if ( ! empty( $current_section ) ) {
 			$sections[ $current_section ] = trim( implode( "\n", $content_buffer ) );
@@ -515,9 +517,8 @@ class Parser {
 			'RequireLicense' => 'Require License',
 			'LicensedWith'   => 'Licensed With',
 		);
-
-		$headers       = self::get_file_headers( $file_contents, $extra_header_names );
-		$extra_headers = array();
+		$headers            = self::get_file_headers( $file_contents, $extra_header_names );
+		$extra_headers      = array();
 
 		if ( ! empty( $headers['RequireLicense'] ) ) {
 			$extra_headers['require_license'] = $headers['RequireLicense'];
@@ -561,7 +562,7 @@ class Parser {
 	/**
 	* Parse the file contents to retrieve its metadata.
 	*
-	* Searches for metadata for a file, such as a plugin or theme.  Each piece of
+	* Searches for metadata for a file, such as a package.  Each piece of
 	* metadata must be on its own line. For a field spanning multiple lines, it
 	* must not have any newlines or only parts of it will be displayed.
 	*
@@ -571,7 +572,6 @@ class Parser {
 	*/
 	public static function get_file_headers( $file_contents, $header_map ) {
 		$headers = array();
-
 		//Support systems that use CR as a line ending.
 		$file_contents = str_replace( "\r", "\n", $file_contents );
 
@@ -597,36 +597,7 @@ class Parser {
 	}
 }
 
-abstract class Archive {
-	/**
-	* Open a Zip archive.
-	*
-	* @param string $zip_file_name
-	* @return bool|Archive
-	*/
-	public static function open( $zip_file_name ) {
-		$zip = new ZipArchive( $zip_file_name );
-
-		return $zip->open( $zip_file_name );
-	}
-
-	/**
-	* Get the list of files and directories in the archive.
-	*
-	* @return array
-	*/
-	abstract public function list_entries();
-
-	/**
-	* Get the contents of a specific file.
-	*
-	* @param array $file
-	* @return string|false
-	*/
-	abstract public function get_file_contents( $file );
-}
-
-class ZipArchive extends Archive {
+class ZipArchive {
 	/**
 	* @var SystemZipArchive
 	*/
@@ -636,12 +607,19 @@ class ZipArchive extends Archive {
 		$this->archive = $zip_archive;
 	}
 
+	/**
+	* Open a Zip archive.
+	*
+	* @param string $zip_file_name
+	* @return bool|ZipArchive
+	*/
 	public static function open( $zip_file_name ) {
 		$zip = new SystemZipArchive();
 
 		if ( $zip->open( $zip_file_name ) !== true ) {
 			return false;
 		}
+
 		return new self( $zip );
 	}
 

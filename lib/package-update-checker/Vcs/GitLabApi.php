@@ -2,6 +2,10 @@
 
 namespace Anyape\PackageUpdateChecker\Vcs;
 
+use WP_Error;
+use InvalidArgumentException;
+use LogicException;
+
 if ( ! class_exists( GitLabApi::class, false ) ) :
 
 	class GitLabApi extends Api {
@@ -12,12 +16,10 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 * @var string GitLab server host.
 		 */
 		protected $repository_host;
-
 		/**
 		 * @var string Protocol used by this GitLab server: "http" or "https".
 		 */
 		protected $repository_protocol = 'https';
-
 		/**
 		 * @var string GitLab authentication token. Optional.
 		 */
@@ -48,7 +50,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				$parts = explode( '/', trim( $path, '/' ) );
 
 				if ( count( $parts ) < 3 ) {
-					throw new \InvalidArgumentException(
+					throw new InvalidArgumentException(
 						esc_html(
 							'Invalid GitLab.com repository URL: "' . $repository_url . '"'
 						)
@@ -71,7 +73,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 
 				//We need at least /user-name/repository-name/
 				if ( count( $segments ) < 2 ) {
-					throw new \InvalidArgumentException(
+					throw new InvalidArgumentException(
 						esc_html(
 							'Invalid GitLab repository URL: "' . $repository_url . '"'
 						)
@@ -100,7 +102,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		/**
 		 * Check if the VCS is accessible.
 		 *
-		 * @return bool|\WP_Error
+		 * @return bool|WP_Error
 		 */
 		public static function test( $url, $access_token = null ) {
 			$instance = new self( $url . 'bogus/', $access_token );
@@ -154,6 +156,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				}
 
 				$download_url = $this->find_release_download_url( $release );
+
 				if ( empty( $download_url ) ) {
 					//The latest release doesn't have valid download URL.
 					return null;
@@ -288,7 +291,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 *
 		 * @param string $url
 		 * @param array $query_params
-		 * @return mixed|\WP_Error
+		 * @return mixed|WP_Error
 		 */
 		protected function api( $url, $query_params = array(), $override_url = false ) {
 
@@ -324,7 +327,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				return $response;
 			}
 
-			$error = new \WP_Error(
+			$error = new WP_Error(
 				'puc-gitlab-http-error',
 				sprintf( 'GitLab API error. URL: "%s",  HTTP status code: %d.', $url, $code )
 			);
@@ -404,7 +407,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		 * @return void
 		 */
 		public function get_tag( $tag_name ) {
-			throw new \LogicException( 'The ' . __METHOD__ . ' method is not implemented and should not be used.' );
+			throw new LogicException( 'The ' . __METHOD__ . ' method is not implemented and should not be used.' );
 		}
 
 		protected function get_update_detection_strategies( $config_branch ) {
@@ -424,6 +427,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 
 		public function set_authentication( $credentials ) {
 			parent::set_authentication( $credentials );
+
 			$this->access_token = is_string( $credentials ) ? $credentials : null;
 		}
 

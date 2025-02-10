@@ -5,11 +5,11 @@ namespace Anyape\PackageUpdateChecker\Vcs;
 if ( ! trait_exists( VcsCheckerMethods::class, false ) ) :
 
 	trait VcsCheckerMethods {
+
 		/**
 		 * @var string The branch where to look for updates. Defaults to "main".
 		 */
 		protected $branch = 'main';
-
 		/**
 		 * @var Api Repository API client.
 		 */

@@ -2,6 +2,10 @@
 
 namespace Anyape\PackageUpdateChecker\Vcs;
 
+use WP_Error;
+use InvalidArgumentException;
+use LogicException;
+
 if ( ! class_exists( GitHubApi::class, false ) ) :
 
 	class GitHubApi extends Api {
@@ -25,7 +29,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 				$this->user_name       = $matches['username'];
 				$this->repository_name = $matches['repository'];
 			} else {
-				throw new \InvalidArgumentException(
+				throw new InvalidArgumentException(
 					esc_html( 'Invalid GitHub repository URL: "' . $repository_url . '"' )
 				);
 			}
@@ -36,7 +40,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		/**
 		 * Check if the VCS is accessible.
 		 *
-		 * @return bool|\WP_Error
+		 * @return bool|WP_Error
 		 */
 		public static function test( $url, $access_token = null ) {
 			$instance = new self( $url . 'bogus/', $access_token );
@@ -65,7 +69,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 				return false;
 			}
 
-			$error = new \WP_Error(
+			$error = new WP_Error(
 				'puc-github-http-error',
 				sprintf( 'GitHub API error. Base URL: "%s",  HTTP status code: %d.', $url, $response->code )
 			);
@@ -291,7 +295,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		 *
 		 * @param string $url
 		 * @param array $query_params
-		 * @return mixed|\WP_Error
+		 * @return mixed|WP_Error
 		 */
 		protected function api( $url, $query_params = array(), $override_url = false ) {
 			$base_url = $url;
@@ -333,7 +337,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 				return $response;
 			}
 
-			$error = new \WP_Error(
+			$error = new WP_Error(
 				'puc-github-http-error',
 				sprintf( 'GitHub API error. Base URL: "%s",  HTTP status code: %d.', $base_url, $code )
 			);
@@ -412,7 +416,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		 */
 		public function get_tag( $tag_name ) {
 			//The current GitHub update checker doesn't use get_tag, so I didn't bother to implement it.
-			throw new \LogicException( 'The ' . __METHOD__ . ' method is not implemented and should not be used.' );
+			throw new LogicException( 'The ' . __METHOD__ . ' method is not implemented and should not be used.' );
 		}
 
 		public function set_authentication( $credentials ) {

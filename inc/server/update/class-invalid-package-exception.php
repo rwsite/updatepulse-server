@@ -9,6 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 use RuntimeException;
 
 /**
- * Exception thrown when the server fails to parse a plugin/theme.
+ * Exception thrown when the server fails to parse a plugin/theme/generic.
  */
 class Invalid_Package_Exception extends RuntimeException { }

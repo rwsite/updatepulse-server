@@ -8,30 +8,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * This class represents the collection of files and metadata that make up
- * a WordPress plugin or theme.
+ * a WordPress plugin or theme, or a generic software package.
  *
- * Most often a "package" is going to be a "plugin-slug.zip" archive that exists
- * in the /packages subdirectory and contains the current version of a plugin.
- * However, you could also load plugin information from the database or a configuration
- * file and store the actual download elsewhere - or even generate it on the fly.
  */
 class Package {
 
-	/** @var string Path to the Zip archive that contains the plugin or theme. */
+	/** @var string Path to the Zip archive that contains the package. */
 	protected $filename;
 
 	/** @var array Package metadata in a format suitable for the update checker. */
 	protected $metadata = array();
 
-	/** @var string Plugin or theme slug. */
+	/** @var string Package slug. */
 	public $slug;
 
 	/**
 	 * Create a new package.
 	 *
-	 * In most cases you will probably want to use self::fromArchive($pluginZip) instead
+	 * In most cases you will probably want to use self::fromArchive($package) instead
 	 * of instantiating this class directly. Still, you can do it if you want to, for example,
-	 * load plugin metadata from the database instead of extracting it from a Zip file.
+	 * load package metadata from the database instead of extracting it from a Zip file.
 	 *
 	 * @param string $slug
 	 * @param string $filename
@@ -65,8 +61,8 @@ class Package {
 	/**
 	 * Load package information.
 	 *
-	 * @param string $filename Path to a Zip archive that contains a WP plugin or theme.
-	 * @param string $slug Optional plugin or theme slug. Will be detected automatically.
+	 * @param string $filename Path to a Zip archive that contains a package.
+	 * @param string $slug Optional package slug. Will be detected automatically.
 	 * @param Cache $cache
 	 * @return Package
 	 */

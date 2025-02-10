@@ -5,17 +5,16 @@ namespace Anyape\PackageUpdateChecker\Vcs;
 if ( ! class_exists( Api::class, false ) ) :
 
 	abstract class Api {
+
 		const STRATEGY_LATEST_RELEASE = 'latest_release';
 		const STRATEGY_LATEST_TAG     = 'latest_tag';
 		const STRATEGY_STABLE_TAG     = 'stable_tag';
 		const STRATEGY_BRANCH         = 'branch';
-
 		/**
 		 * Consider all releases regardless of their version number or prerelease/upcoming
 		 * release status.
 		 */
 		const RELEASE_FILTER_ALL = 3;
-
 		/**
 		 * Exclude releases that have the "prerelease" or "upcoming release" flag.
 		 *
@@ -24,7 +23,6 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * manually mark a release as a prerelease.
 		 */
 		const RELEASE_FILTER_SKIP_PRERELEASE = 1;
-
 		/**
 		 * If there are no release assets or none of them match the configured filter,
 		 * fall back to the automatically generated source code archive.
@@ -35,33 +33,30 @@ if ( ! class_exists( Api::class, false ) ) :
 		 */
 		const REQUIRE_RELEASE_ASSETS = 2;
 
+		/**
+		 * @var string
+		 */
 		protected $tag_name_property = 'name';
-
 		/**
 		 * @var string
 		 */
 		protected $slug = '';
-
 		/**
 		 * @var string
 		 */
 		protected $repository_url = '';
-
 		/**
 		 * @var string GitHub repository name.
 		 */
 		protected $repository_name;
-
 		/**
 		 * @var string
 		 */
 		protected $user_name;
-
 		/**
 		 * @var mixed Authentication details for private repositories. Format depends on service.
 		 */
 		protected $credentials = null;
-
 		/**
 		 * @var string|null
 		 */
@@ -275,6 +270,11 @@ if ( ! class_exists( Api::class, false ) ) :
 			$this->credentials = $credentials ? $credentials : null;
 		}
 
+		/**
+		 * Check if authentication is enabled.
+		 *
+		 * @return bool
+		 */
 		public function is_authentication_enabled() {
 			return ! empty( $this->credentials );
 		}

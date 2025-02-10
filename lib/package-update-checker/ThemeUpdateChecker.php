@@ -5,6 +5,7 @@ namespace Anyape\PackageUpdateChecker;
 if ( ! class_exists( ThemeUpdateChecker::class, false ) ) :
 
 	class ThemeUpdateChecker extends UpdateChecker {
+
 		public $package_file = 'style.css';
 
 		public function __construct( $api, $slug, $container ) {

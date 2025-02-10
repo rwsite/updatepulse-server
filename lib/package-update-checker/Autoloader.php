@@ -5,6 +5,7 @@ namespace Anyape\PackageUpdateChecker;
 if ( ! class_exists( Autoloader::class, false ) ) :
 
 	class Autoloader {
+
 		const DEFAULT_NS_PREFIX = 'Anyape\\PackageUpdateChecker\\';
 
 		private $prefix;

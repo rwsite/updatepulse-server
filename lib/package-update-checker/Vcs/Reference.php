@@ -16,6 +16,7 @@ if ( ! class_exists( Reference::class, false ) ) :
 	 * @property int|null $downloadCount
 	 */
 	class Reference {
+
 		private $properties = array();
 
 		public function __construct( $properties = array() ) {

@@ -5,6 +5,7 @@ namespace Anyape\PackageUpdateChecker\Vcs;
 if ( ! trait_exists( ReleaseFilteringFeature::class, false ) ) :
 
 	trait ReleaseFilteringFeature {
+
 		/**
 		 * @var callable|null
 		 */

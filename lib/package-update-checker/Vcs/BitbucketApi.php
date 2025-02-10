@@ -2,9 +2,12 @@
 
 namespace Anyape\PackageUpdateChecker\Vcs;
 
+use WP_Error;
+
 if ( ! class_exists( BitbucketApi::class, false ) ) :
 
 	class BitbucketApi extends Api {
+
 		/**
 		 * @var string Bitbucket app password. Optional.
 		 */
@@ -28,7 +31,7 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		/**
 		 * Check if the VCS is accessible.
 		 *
-		 * @return bool|\WP_Error
+		 * @return bool|WP_Error
 		 */
 		public static function test( $url, $app_password = null ) {
 			$instance = new self( $url . 'bogus/', $app_password );
@@ -47,7 +50,7 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 				return 'missing_privileges';
 			}
 
-			return new \WP_Error(
+			return new WP_Error(
 				'puc-bitbucket-http-error',
 				sprintf( 'Bitbucket API error. Base URL: "%s",  HTTP status code: %d.', $url, $response->code )
 			);
@@ -196,7 +199,7 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		 *
 		 * @param string $url
 		 * @param string $version
-		 * @return mixed|\WP_Error
+		 * @return mixed|WP_Error
 		 */
 		public function api( $url, $version = '2.0', $override_url = false ) {
 			$url             = ltrim( $url, '/' );
@@ -252,7 +255,7 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 				return $response;
 			}
 
-			$error = new \WP_Error(
+			$error = new WP_Error(
 				'puc-bitbucket-http-error',
 				sprintf( 'Bitbucket API error. Base URL: "%s",  HTTP status code: %d.', $url, $code )
 			);

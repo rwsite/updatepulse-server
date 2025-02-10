@@ -5,18 +5,17 @@ namespace Anyape\PackageUpdateChecker\Vcs;
 if ( ! trait_exists( ReleaseAssetSupport::class, false ) ) :
 
 	trait ReleaseAssetSupport {
+
 		/**
 		 * @var bool Whether to download release assets instead of the auto-generated
 		 *           source code archives.
 		 */
 		protected $release_assets_enabled = false;
-
 		/**
 		 * @var string|null Regular expression that's used to filter release assets
 		 *                  by file name or URL. Optional.
 		 */
 		protected $asset_filter_regex = null;
-
 		/**
 		 * How to handle releases that don't have any matching release assets.
 		 *

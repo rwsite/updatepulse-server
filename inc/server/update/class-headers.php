@@ -32,6 +32,7 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	protected $headers = array();
 
 	public function __construct( $headers = array() ) {
+
 		foreach ( $headers as $name => $value ) {
 			$this->set( $name, $value );
 		}

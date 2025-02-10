@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 use Anyape\UpdatePulse\Package_Parser\Parser;
 
 /**
- * This class represents the metadata from one specific WordPress plugin or theme.
+ * This class represents the metadata from one specific package.
  */
 class Zip_Metadata_Parser {
 
@@ -20,7 +20,7 @@ class Zip_Metadata_Parser {
 	public static $cache_time = 604800;
 
 	/**
-	* @var array Plugin PHP header mapping, i.e. which tags to add to the metadata under which array key
+	* @var array Package PHP header mapping, i.e. which tags to add to the metadata under which array key
 	*/
 	protected $header_map = array(
 		'Name'        => 'name',
@@ -52,12 +52,12 @@ class Zip_Metadata_Parser {
 	protected $package_info;
 
 	/**
-	* @var string Path to the Zip archive that contains the plugin or theme.
+	* @var string Path to the Zip archive that contains the package.
 	*/
 	protected $filename;
 
 	/**
-	* @var string Plugin or theme slug.
+	* @var string Package slug.
 	*/
 	protected $slug;
 
@@ -118,7 +118,7 @@ class Zip_Metadata_Parser {
 	* Load metadata information from a cache or create it.
 	*
 	* We'll try to load processed metadata from the cache first (if available), and if that
-	* fails we'll extract plugin/theme details from the specified Zip file.
+	* fails we'll extract package details from the specified Zip file.
 	*/
 	protected function set_metadata() {
 		$cache_key = self::build_cache_key( $this->slug, $this->filename );
@@ -140,13 +140,10 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract plugin or theme headers and readme contents from a ZIP file and convert them
+	* Extract package headers and readme contents from a ZIP file and convert them
 	* into a structure compatible with the custom update checker.
 	*
-	* See this page for an overview of the plugin metadata format:
-	* @link https://spreadsheets.google.com/pub?key=0AqP80E74YcUWdEdETXZLcXhjd2w0cHMwX2U1eDlWTHc&authkey=CK7h9toK&hl=en&single=true&gid=0&output=html
-	*
-	* @throws Invalid_Package_Exception if the input file can't be parsed as a plugin or theme.
+	* @throws Invalid_Package_Exception if the input file can't be parsed as a package.
 	*/
 	protected function extract_metadata() {
 		$this->package_info = Parser::parse_package( $this->filename, true );
@@ -161,7 +158,7 @@ class Zip_Metadata_Parser {
 		} else {
 			throw new Invalid_Package_Exception(
 				sprintf(
-					'The specified file %s does not contain a valid Generic package or WordPress plugin or theme.',
+					'The specified file %s does not contain a valid package.',
 					esc_html( $this->filename )
 				)
 			);
@@ -169,7 +166,7 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract relevant metadata from the plugin/theme header information
+	* Extract relevant metadata from the package header information
 	*/
 	protected function set_info_from_header() {
 
@@ -180,7 +177,7 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract relevant metadata from the plugin/theme readme
+	* Extract relevant metadata from the plugin readme
 	*/
 	protected function set_info_from_readme() {
 

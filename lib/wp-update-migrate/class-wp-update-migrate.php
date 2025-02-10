@@ -140,7 +140,9 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			}
 
 			if ( $this->package_type ) {
-				$current_recorded_version = get_option( $this->package_prefix . '_' . $this->package_type . '_version' );
+				$current_recorded_version = get_option(
+					$this->package_prefix . '_' . $this->package_type . '_version'
+				);
 
 				if ( ! version_compare( $current_recorded_version, $latest_version, '>=' ) ) {
 					$i10n_path = trailingslashit( basename( $this->package_dir ) ) . 'lib/wp-update-migrate/languages';
@@ -165,7 +167,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			// translators: %1$s is the package type
 			$message .= '<p>' . sprintf( esc_html__( 'The %1$s may not have any effect until the issues are resolved.', 'wp-update-migrate' ), $this->package_type ) . '</p>';
 
-			printf( '<div class="%1$s">%2$s</div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_kses_post( sprintf( '<div class="%1$s">%2$s</div>', $class, $message ) );
 		}
 
 		public function update_success_notice() {
@@ -174,7 +176,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			$title   = $this->package_name . ' - ' . sprintf( __( 'Success updating to version %1$s', 'wp-update-migrate' ), $this->to_version );
 			$message = '<h3>' . $title . '</h3><p>' . $this->success_update_info . '</p>';
 
-			printf( '<div class="%1$s">%2$s</div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_kses_post( sprintf( '<div class="%1$s">%2$s</div>', $class, $message ) );
 		}
 
 		protected static function get_content_dir() {
@@ -183,7 +185,6 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			global $wp_filesystem;
 
 			if ( ! $wp_filesystem ) {
-
 				wp_die( 'File system not available.', __METHOD__ );
 			}
 
@@ -344,16 +345,25 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 		}
 
 		protected function handle_error( $error = null ) {
-			// translators: %1$s is the package version to update to
-			$error_title = $this->package_name . ' - ' . sprintf( __( 'Error updating to version %1$s', 'wp-update-migrate' ), $this->to_version );
-			// translators: %1$s is the path to WP_CONTENT_DIR, %2$s is the package type
-			$error_message = sprintf( __( '<br/>An unexpected error has occured during the update.<br/>Please restore the previously used version of the %2$s, or delete the %2$s and its files in the <code>%1$s</code> directory if any and install the latest version.', 'wp-update-migrate' ), self::get_content_dir(), $this->package_type );
+			$error_title = $this->package_name
+				. ' - '
+				. sprintf(
+					// translators: %1$s is the package version to update to
+					__( 'Error updating to version %1$s', 'wp-update-migrate' ),
+					$this->to_version
+				);
+			$error_message = sprintf(
+				// translators: %1$s is the path to WP_CONTENT_DIR, %2$s is the package type
+				__( 'An unexpected error has occured during the update.<br/>Please restore the previously used version of the %2$s, or delete the %2$s and its files in the <code>%1$s</code> directory if any and install the latest version.', 'wp-update-migrate' ),
+				self::get_content_dir(),
+				$this->package_type
+			);
 
 			if ( $error instanceof WP_Error ) {
 				$error_message = implode( '<br/><br/>', $error->get_error_messages() );
 			}
 
-			$this->failed_update_info = '<h3>' . $error_title . '</h3>' . $error_message;
+			$this->failed_update_info = '<h3>' . $error_title . '</h3><br/>' . $error_message;
 
 			return false;
 		}
