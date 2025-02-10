@@ -15,7 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-if ( defined( 'DOING_AJAX' ) && DOING_AJAX && 'heartbeat' === filter_input( INPUT_POST, 'action' ) ) {
+if (
+	defined( 'DOING_AJAX' ) &&
+	DOING_AJAX &&
+	'heartbeat' === sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'action' ) ) )
+) {
 	return;
 }
 

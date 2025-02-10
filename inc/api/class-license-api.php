@@ -1075,7 +1075,10 @@ class License_API {
 
 		$method = isset( $wp->query_vars['action'] ) ? $wp->query_vars['action'] : false;
 
-		if ( filter_input( INPUT_GET, 'action' ) && ! $this->is_api_public( $method ) ) {
+		if (
+			sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'action' ) ) ) &&
+			! $this->is_api_public( $method )
+		) {
 			$this->http_response_code = 405;
 			$response                 = array(
 				'code'    => 'method_not_allowed',

@@ -231,7 +231,7 @@ class Package_Manager {
 				'upserv_plugin_options'
 			)
 		) {
-			$type = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$type = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'type' ) ) );
 
 			if ( in_array( $type, self::$filesystem_clean_types, true ) ) {
 				$result = Data_Manager::maybe_cleanup( $type, true );
@@ -266,8 +266,8 @@ class Package_Manager {
 				'upserv_plugin_options'
 			)
 		) {
-			$slug    = filter_input( INPUT_POST, 'slug', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-			$vcs_key = filter_input( INPUT_POST, 'vcs_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$slug    = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'slug' ) ) );
+			$vcs_key = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'vcs_key' ) ) );
 
 			if ( $slug && $vcs_key ) {
 				$vcs_config      = upserv_get_option( 'vcs/' . $vcs_key, false );
@@ -1138,7 +1138,7 @@ class Package_Manager {
 	protected function plugin_options_handler() {
 		$errors = array();
 		$result = '';
-		$nonce  = filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$nonce  = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) ) );
 
 		if ( $nonce && ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );

@@ -185,35 +185,55 @@ class Cloud_Storage_Manager {
 					'path'                    => 'use_cloud_storage',
 				),
 				'upserv_cloud_storage_access_key' => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_access_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
+					'value'                   => sanitize_text_field(
+						wp_unslash(
+							filter_input( INPUT_POST, 'upserv_cloud_storage_access_key' )
+						)
+					),
 					'display_name'            => __( 'Cloud Storage Access Key', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
 					'path'                    => 'cloud_storage/access_key',
 				),
 				'upserv_cloud_storage_secret_key' => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_secret_key', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
+					'value'                   => sanitize_text_field(
+						wp_unslash(
+							filter_input( INPUT_POST, 'upserv_cloud_storage_secret_key' )
+						)
+					),
 					'display_name'            => __( 'Cloud Storage Secret Key', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
 					'path'                    => 'cloud_storage/secret_key',
 				),
 				'upserv_cloud_storage_endpoint'   => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_endpoint', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
+					'value'                   => sanitize_text_field(
+						wp_unslash(
+							filter_input( INPUT_POST, 'upserv_cloud_storage_endpoint' )
+						)
+					),
 					'display_name'            => __( 'Cloud Storage Endpoint', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
 					'path'                    => 'cloud_storage/endpoint',
 				),
 				'upserv_cloud_storage_unit'       => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_unit', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
+					'value'                   => sanitize_text_field(
+						wp_unslash(
+							filter_input( INPUT_POST, 'upserv_cloud_storage_unit' )
+						)
+					),
 					'display_name'            => __( 'Cloud Storage Unit', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
 					'path'                    => 'cloud_storage/storage_unit',
 				),
 				'upserv_cloud_storage_region'     => array(
-					'value'                   => filter_input( INPUT_POST, 'upserv_cloud_storage_region', FILTER_SANITIZE_FULL_SPECIAL_CHARS ),
+					'value'                   => sanitize_text_field(
+						wp_unslash(
+							filter_input( INPUT_POST, 'upserv_cloud_storage_region' )
+						)
+					),
 					'display_name'            => __( 'Cloud Storage Region', 'updatepulse-server' ),
 					'failure_display_message' => __( 'Not a valid string', 'updatepulse-server' ),
 					'condition'               => 'use-cloud-storage',
@@ -396,7 +416,7 @@ class Cloud_Storage_Manager {
 
 	public function cloud_storage_test() {
 		$result = array();
-		$nonce  = filter_input( INPUT_POST, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$nonce  = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'nonce' ) ) );
 
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			wp_send_json_error(
@@ -407,7 +427,8 @@ class Cloud_Storage_Manager {
 			);
 		}
 
-		$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
+		$data = filter_input( INPUT_POST, 'data', FILTER_REQUIRE_ARRAY );
+		$data = $data ? array_map( 'sanitize_text_field', wp_unslash( $data ) ) : false;
 
 		if ( ! $data ) {
 			wp_send_json_error(
@@ -767,10 +788,10 @@ class Cloud_Storage_Manager {
 				}
 			}
 
-			$nonce = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'token' ) ) );
 
 			if ( ! $nonce ) {
-				$nonce = filter_input( INPUT_GET, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+				$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'nonce' ) ) );
 			}
 
 			$url                  = self::$cloud_storage->getAuthenticatedUrlV4(

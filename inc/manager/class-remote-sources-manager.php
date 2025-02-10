@@ -183,13 +183,14 @@ class Remote_Sources_Manager {
 			return;
 		}
 
-		$type = filter_input( INPUT_POST, 'type', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$type = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'type' ) ) );
 
 		if ( 'schedules' !== $type ) {
 			return;
 		}
 
-		$data = filter_input( INPUT_POST, 'data', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY );
+		$data = filter_input( INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+		$data = $data ? array_map( 'sanitize_text_field', wp_unslash( $data ) ) : false;
 
 		if ( ! $data || ! isset( $data['upserv_vcs_list'] ) ) {
 			return;
@@ -237,6 +238,7 @@ class Remote_Sources_Manager {
 		}
 
 		$data = filter_input( INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
+		$data = $data ? array_map( 'sanitize_text_field', wp_unslash( $data ) ) : false;
 
 		if ( ! $data ) {
 			wp_send_json_error(
@@ -249,7 +251,6 @@ class Remote_Sources_Manager {
 
 		require_once UPSERV_PLUGIN_PATH . 'lib/package-update-checker/package-update-checker.php';
 
-		$data        = array_map( 'sanitize_text_field', $data );
 		$url         = $data['upserv_vcs_url'];
 		$credentials = $data['upserv_vcs_credentials'];
 		$vcs_type    = $data['upserv_vcs_type'];
@@ -418,7 +419,7 @@ class Remote_Sources_Manager {
 		$to_save         = array();
 		$old_vcs_configs = upserv_get_option( 'vcs', array() );
 		$old_use_vcs     = upserv_get_option( 'use_vcs' );
-		$nonce           = filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$nonce           = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) ) );
 
 		if ( $nonce && ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			$errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );

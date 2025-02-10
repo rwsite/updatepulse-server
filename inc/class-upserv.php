@@ -476,7 +476,7 @@ class UPServ {
 	}
 
 	protected function get_tab_states() {
-		$page   = filter_input( INPUT_GET, 'page', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$page   = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'page' ) ) );
 		$states = array();
 
 		if ( 0 === strpos( $page, 'upserv-page' ) ) {

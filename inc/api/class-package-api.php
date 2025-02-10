@@ -621,7 +621,7 @@ class Package_API {
 		}
 
 		$vcs_url      = filter_input( INPUT_POST, 'vcs_url', FILTER_SANITIZE_URL );
-		$branch       = filter_input( INPUT_POST, 'branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$branch       = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'branch' ) ) );
 		$meta         = upserv_get_package_metadata( $package_id );
 		$meta['type'] = $type;
 
@@ -657,7 +657,7 @@ class Package_API {
 
 	protected function download_file( $package_id, $type ) {
 		$vcs_url = filter_input( INPUT_POST, 'vcs_url', FILTER_SANITIZE_URL );
-		$branch  = filter_input( INPUT_POST, 'branch', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$branch  = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'branch' ) ) );
 		$result  = false;
 
 		if ( $vcs_url ) {
@@ -671,10 +671,10 @@ class Package_API {
 	}
 
 	protected function authorize_public() {
-		$nonce = filter_input( INPUT_GET, 'token', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'token' ) ) );
 
 		if ( ! $nonce ) {
-			$nonce = filter_input( INPUT_GET, 'nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+			$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'nonce' ) ) );
 		}
 
 		add_filter( 'upserv_fetch_nonce', array( $this, 'upserv_fetch_nonce_public' ), 10, 4 );
@@ -736,7 +736,7 @@ class Package_API {
 		$method = isset( $wp->query_vars['action'] ) ? $wp->query_vars['action'] : false;
 
 		if (
-			filter_input( INPUT_GET, 'action' ) &&
+			sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'action' ) ) ) &&
 			! $this->is_api_public( $method )
 		) {
 			$this->http_response_code = 405;

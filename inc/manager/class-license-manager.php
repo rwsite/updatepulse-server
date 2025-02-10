@@ -385,7 +385,7 @@ class License_Manager {
 		$errors  = array();
 		$result  = '';
 		$to_save = array();
-		$nonce   = filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$nonce   = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'upserv_plugin_options_handler_nonce' ) ) );
 
 		if ( $nonce && ! wp_verify_nonce( $nonce, 'upserv_plugin_options' ) ) {
 			$this->errors['general'] = __( 'There was an error validating the form. It may be outdated. Please reload the page.', 'updatepulse-server' );
