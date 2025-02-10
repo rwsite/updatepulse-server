@@ -43,18 +43,21 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	 * @param array $environment
 	 * @return array
 	 */
-	public static function parse( $environment ) {
-		$results = array();
+	protected static function parse_server() {
+		$results     = array();
+		$environment = $_SERVER;
 
 		foreach ( $environment as $key => $value ) {
 			$key = strtoupper( $key );
 
 			if ( self::is_header_name( $key ) ) {
 				//Remove the "HTTP_" prefix that PHP adds to headers stored in $_SERVER.
-				$key             = preg_replace( '/^HTTP[_-]/', '', $key );
-				$results[ $key ] = $value;
+				$key = preg_replace( '/^HTTP[_-]/', '', $key );
+				// Assign a sanitized value to the parsed results.
+				$results[ $key ] = null !== $value ? wp_kses_post( $value ) : $value;
 			}
 		}
+
 		return $results;
 	}
 
@@ -65,9 +68,11 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	 * @return bool
 	 */
 	protected static function is_header_name( $key ) {
-		return self::starts_with( $key, 'X_' )
-		|| self::starts_with( $key, 'HTTP_' )
-		|| in_array( $key, static::$unprefixed_names, true );
+		return (
+			self::starts_with( $key, 'X_' ) ||
+			self::starts_with( $key, 'HTTP_' ) ||
+			in_array( $key, static::$unprefixed_names, true )
+		);
 	}
 
 	/**
@@ -78,7 +83,6 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	 */
 	public static function parse_current() {
 
-		//getallheaders() is the easiest solution, but it's not available in some server configurations.
 		if ( function_exists( 'getallheaders' ) ) {
 			$headers = getallheaders();
 
@@ -87,7 +91,7 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 			}
 		}
 
-		return self::parse( $_SERVER );
+		return self::parse_server();
 	}
 
 	/**
@@ -129,6 +133,7 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 		if ( isset( $this->headers[ $name ] ) ) {
 			return $this->headers[ $name ];
 		}
+
 		return $_default;
 	}
 
