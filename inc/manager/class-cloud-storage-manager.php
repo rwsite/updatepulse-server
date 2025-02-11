@@ -1037,8 +1037,7 @@ class Cloud_Storage_Manager {
 						false === strpos( strtolower( $info['slug'] ) . '.zip', strtolower( $search ) )
 					)
 				);
-
-				$include = apply_filters( 'upserv_batch_package_info_include', $include, $info, $search );
+				$include = apply_filters( 'upserv_package_info_include', $include, $info );
 
 				if ( $include ) {
 					$packages[ $info['slug'] ] = $info;

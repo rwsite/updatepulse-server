@@ -54,7 +54,6 @@ class Package_Manager {
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 10, 1 );
 			add_filter( 'upserv_admin_tab_states', array( $this, 'upserv_admin_tab_states' ), 10, 2 );
 			add_filter( 'set-screen-option', array( $this, 'set_page_options' ), 10, 3 );
-			add_filter( 'upserv_batch_package_info_include', array( $this, 'batch_package_info_include' ), 10, 3 );
 		}
 	}
 
@@ -527,10 +526,6 @@ class Package_Manager {
 		}
 	}
 
-	public function batch_package_info_include( $_include, $info, $type ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
-		return ! upserv_get_option( 'use_vcs' ) || upserv_is_package_whitelisted( $info['slug'] );
-	}
-
 	// Misc. -------------------------------------------------------
 
 	public static function get_instance() {
@@ -880,11 +875,11 @@ class Package_Manager {
 
 		wp_cache_set( 'package_info_' . $slug, $package_info, 'updatepulse-server' );
 
-		$package_info = apply_filters( 'upserv_package_manager_package_info', $package_info, $slug );
-
 		if ( is_array( $package_info ) && ! isset( $package_info['metadata'] ) ) {
 			$package_info['metadata'] = $this->get_package_metadata( $slug );
 		}
+
+		$package_info = apply_filters( 'upserv_package_manager_package_info', $package_info, $slug );
 
 		return $package_info;
 	}
@@ -940,6 +935,7 @@ class Package_Manager {
 						false === strpos( strtolower( $meta['slug'] ) . '.zip', strtolower( $search ) )
 					)
 				);
+				$include = apply_filters( 'upserv_package_info_include', $include, $meta );
 
 				if ( ! $include ) {
 					continue;

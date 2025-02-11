@@ -125,7 +125,7 @@ UpdatePulse Server offers a series of functions, actions and filters for develop
         * [upserv\_delete\_packages\_bulk\_paths](#upserv_delete_packages_bulk_paths)
         * [upserv\_package\_manager\_get\_package\_info](#upserv_package_manager_get_package_info)
         * [upserv\_package\_manager\_package\_info](#upserv_package_manager_package_info)
-        * [upserv\_batch\_package\_info\_include](#upserv_batch_package_info_include)
+        * [upserv\_package\_info\_include](#upserv_package_info_include)
         * [upserv\_package\_manager\_get\_batch\_package\_info](#upserv_package_manager_get_batch_package_info)
         * [upserv\_package\_manager\_batch\_package\_info](#upserv_package_manager_batch_package_info)
         * [upserv\_check\_remote\_package\_update\_local\_meta](#upserv_check_remote_package_update_local_meta)
@@ -3076,24 +3076,21 @@ Filter the package information retrieved by the admin interface or through [`ups
 > (string) the slug of the package  
 
 ___
-### upserv_batch_package_info_include
+### upserv_package_info_include
 
 ```php
-apply_filters( 'upserv_batch_package_info_include', bool $include, array $package_info, string $search );
+apply_filters( 'upserv_package_info_include', bool $include, array $package_info );
 ```
 
 **Description**  
-Filter whether to include the package in the batch of information.
+Filter whether to include the result when getting package information.
 
 **Parameters**  
 `$include`
-> (bool) whether to include the package in the batch of information  
+> (bool) whether to include the result  
 
 `$package_info`
 > (array) the information of the package  
-
-`$search`
-> (string) the keyword used to search in package's slug and package's name  
 
 ___
 ### upserv_package_manager_get_batch_package_info

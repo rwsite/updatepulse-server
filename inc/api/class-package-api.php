@@ -38,6 +38,7 @@ class Package_API {
 			add_filter( 'upserv_api_package_actions', array( $this, 'upserv_api_package_actions' ), 0, 1 );
 			add_filter( 'upserv_api_webhook_events', array( $this, 'upserv_api_webhook_events' ), 10, 1 );
 			add_filter( 'upserv_nonce_api_payload', array( $this, 'upserv_nonce_api_payload' ), 0, 1 );
+			add_filter( 'upserv_package_info_include', array( $this, 'upserv_package_info_include' ), 10, 2 );
 		}
 	}
 
@@ -498,6 +499,10 @@ class Package_API {
 		$payload['expiry_length'] = HOUR_IN_SECONDS / 2;
 
 		return $payload;
+	}
+
+	public function upserv_package_info_include( $_include, $info ) {
+		return ! upserv_get_option( 'use_vcs' ) || upserv_is_package_whitelisted( $info['slug'] );
 	}
 
 	// Misc. -------------------------------------------------------
