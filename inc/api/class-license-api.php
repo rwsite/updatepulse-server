@@ -95,21 +95,27 @@ class License_API {
 				break;
 			case JSON_ERROR_DEPTH:
 				$result = 'JSON parse error - Maximum stack depth exceeded.';
+
 				break;
 			case JSON_ERROR_STATE_MISMATCH:
 				$result = 'JSON parse error - Underflow or the modes mismatch.';
+
 				break;
 			case JSON_ERROR_CTRL_CHAR:
 				$result = 'JSON parse error - Unexpected control character found.';
+
 				break;
 			case JSON_ERROR_SYNTAX:
 				$result = 'JSON parse error - Syntax error, malformed JSON.';
+
 				break;
 			case JSON_ERROR_UTF8:
 				$result = 'JSON parse error - Malformed UTF-8 characters, possibly incorrectly encoded.';
+
 				break;
 			default:
 				$result = 'JSON parse error - Unknown error.';
+
 				break;
 		}
 
@@ -500,22 +506,27 @@ class License_API {
 				case 'license_edit':
 					// translators: %s is the license key
 					$format = esc_html__( 'The license `%s` has been edited on UpdatePulse Server', 'updatepulse-server' );
+
 					break;
 				case 'license_add':
 					// translators: %s is the license key
 					$format = esc_html__( 'The license `%s` has been added on UpdatePulse Server', 'updatepulse-server' );
+
 					break;
 				case 'license_delete':
 					// translators: %s is the license key
 					$format = esc_html__( 'The license `%s` has been deleted on UpdatePulse Server', 'updatepulse-server' );
+
 					break;
 				case 'license_activate':
 					// translators: %s is the license key
 					$format = esc_html__( 'The license `%s` has been activated on UpdatePulse Server', 'updatepulse-server' );
+
 					break;
 				case 'license_deactivate':
 					// translators: %s is the license key
 					$format = esc_html__( 'The license `%s` has been deactivated on UpdatePulse Server', 'updatepulse-server' );
+
 					break;
 				default:
 					return;

@@ -407,34 +407,35 @@ class Package_Manager {
 			switch ( $files['package']['error'] ) {
 				case UPLOAD_ERR_INI_SIZE:
 					$error_text = __( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.', 'updatepulse-server' );
-					break;
 
+					break;
 				case UPLOAD_ERR_FORM_SIZE:
 					$error_text = __( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.', 'updatepulse-server' );
-					break;
 
+					break;
 				case UPLOAD_ERR_PARTIAL:
 					$error_text = __( 'The uploaded file was only partially uploaded.', 'updatepulse-server' );
-					break;
 
+					break;
 				case UPLOAD_ERR_NO_FILE:
 					$error_text = __( 'No file was uploaded.', 'updatepulse-server' );
-					break;
 
+					break;
 				case UPLOAD_ERR_NO_TMP_DIR:
 					$error_text = __( 'Missing a temporary folder.', 'updatepulse-server' );
-					break;
 
+					break;
 				case UPLOAD_ERR_CANT_WRITE:
 					$error_text = __( 'Failed to write file to disk.', 'updatepulse-server' );
-					break;
 
+					break;
 				case UPLOAD_ERR_EXTENSION:
 					$error_text = __( 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.', 'updatepulse-server' );
-					break;
 
+					break;
 				default:
 					$error_text = __( 'An unknown file upload error occurred.', 'updatepulse-server' );
+
 					break;
 			}
 

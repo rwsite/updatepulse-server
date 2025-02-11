@@ -1,7 +1,6 @@
 <?php if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 } ?>
-
 <h3><?php esc_html_e( 'Cloud Storage', 'updatepulse-server' ); ?></h3>
 	<table class="form-table upserv-add-packages">
 	<tr>

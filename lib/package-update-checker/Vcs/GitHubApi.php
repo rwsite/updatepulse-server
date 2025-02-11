@@ -90,8 +90,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		 */
 		public function get_latest_release() {
 
-			//The "latest release" endpoint returns one release and always skips pre-releases,
-			//so we can only use it if that's compatible with the current filter settings.
+			//The "latest release" endpoint returns one release and always skips pre-releases, so we can only use it if that's compatible with the current filter settings.
 			if (
 				$this->should_skip_pre_releases()
 				&& (
@@ -181,8 +180,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 
 						$reference->download_count = $matching_assets[0]->download_count;
 					} elseif ( Api::REQUIRE_RELEASE_ASSETS === $this->release_asset_preference ) {
-						//None of the assets match the filter, and we're not allowed
-						//to fall back to the auto-generated source ZIP.
+						//None of the assets match the filter, and we're not allowed to fall back to the auto-generated source ZIP.
 						return null;
 					}
 				}

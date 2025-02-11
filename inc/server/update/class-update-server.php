@@ -664,8 +664,7 @@ class Update_Server {
 		$value = (string) $value;
 		$regex = '/[[:^graph:]]/';
 
-		//preg_replace_callback will return NULL if the input contains invalid Unicode sequences,
-		//so only enable the Unicode flag if the input encoding looks valid.
+		//preg_replace_callback will return NULL if the input contains invalid Unicode sequences, so only enable the Unicode flag if the input encoding looks valid.
 		if ( function_exists( 'mb_check_encoding' ) && mb_check_encoding( $value, 'UTF-8' ) ) {
 			$regex = $regex . 'u';
 		}

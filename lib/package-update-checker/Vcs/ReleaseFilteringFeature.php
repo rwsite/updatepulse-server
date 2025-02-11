@@ -36,6 +36,7 @@ if ( ! trait_exists( ReleaseFilteringFeature::class, false ) ) :
 			$release_types = Api::RELEASE_FILTER_SKIP_PRERELEASE,
 			$max_releases = 20
 		) {
+
 			if ( $max_releases > 100 ) {
 				throw new \InvalidArgumentException(
 					sprintf(
@@ -100,8 +101,7 @@ if ( ! trait_exists( ReleaseFilteringFeature::class, false ) ) :
 		 * @return bool
 		 */
 		protected function should_skip_pre_releases() {
-			//Maybe this could be a bitfield in the future, if we need to support
-			//more release types.
+			//Maybe this could be a bitfield in the future, if we need to support more release types.
 			return ( Api::RELEASE_FILTER_ALL !== $this->release_filter_by_type );
 		}
 

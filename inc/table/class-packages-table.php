@@ -265,6 +265,7 @@ class Packages_Table extends WP_List_Table {
 	}
 
 	protected function get_vcs_class( $vcs_config ) {
+
 		switch ( $vcs_config['type'] ) {
 			case 'github':
 				return 'fa-brands fa-github';

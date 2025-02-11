@@ -156,6 +156,7 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 			if ( null === $this->debug_mode ) {
 				$this->debug_mode = (bool) ( constant( 'WP_DEBUG' ) );
 			}
+
 			return $this->debug_mode;
 		}
 	}

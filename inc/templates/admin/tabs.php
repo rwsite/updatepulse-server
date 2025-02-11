@@ -1,12 +1,12 @@
 <?php if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
-}
-
-?>
+} ?>
 <div id="upserv-header">
 	<nav class="nav-tab-wrapper">
 		<?php
+
 		foreach ( $links as $tab_id => $tab_link ) {
+
 			if ( ! empty( $states[ $tab_id ] ) ) {
 				printf(
 					'<a href="%s" class="nav-tab nav-tab-active">%s</a>',
