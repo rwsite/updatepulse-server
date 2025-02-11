@@ -188,7 +188,7 @@ class Parser {
 			if ( array_key_exists( $pieces[0], $header_map ) ) {
 
 				if ( isset( $pieces[1] ) ) {
-					$headers[ $header_map[ $pieces[0] ] ] = trim( $pieces[1] );
+					$headers[ $header_map[ $pieces[0] ] ] = (string) trim( $pieces[1] );
 				} else {
 					$headers[ $header_map[ $pieces[0] ] ] = '';
 				}

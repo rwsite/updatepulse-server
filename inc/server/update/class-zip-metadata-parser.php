@@ -132,6 +132,17 @@ class Zip_Metadata_Parser {
 		if ( ! isset( $this->metadata ) || ! is_array( $this->metadata ) ) {
 			$this->extract_metadata();
 
+			// Enforce all the values in the metadata array to be strings when scalar
+			array_walk_recursive(
+				$this->metadata,
+				function ( &$value ) {
+
+					if ( is_scalar( $value ) ) {
+						$value = (string) $value;
+					}
+				}
+			);
+
 			//Update cache.
 			if ( isset( $this->cache ) ) {
 				$this->cache->set( $cache_key, $this->metadata, static::$cache_time );
@@ -205,7 +216,7 @@ class Zip_Metadata_Parser {
 		foreach ( $map as $field_key => $meta_key ) {
 
 			if ( ! empty( $input[ $field_key ] ) ) {
-				$this->metadata[ $meta_key ] = $input[ $field_key ];
+				$this->metadata[ $meta_key ] = (string) $input[ $field_key ];
 			}
 		}
 	}
