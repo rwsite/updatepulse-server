@@ -220,7 +220,7 @@ Total number of scripts: 455
 ```
 
 ### Update API
-Performance can evaluated with the script `tests.php` located at the plugin's root. It is included only if the `wp-config.php` constant `UPSERV_TEST` is truthy.  
+Performance can evaluated with the script `tests.php` located at the plugin's root. It is included only if the `wp-config.php` constant `UPSERV_ENABLE_TEST` is truthy.  
 Below are the results of the tests performed on the Update API with the option "Use Cloud Storage" unchecked.  
 
 Performances when a client is checking for updates (no license):
@@ -280,7 +280,7 @@ Number of included/required scripts by the plugin: 53
 ```
 
 ### Public License API
-Performance can evaluated with the script `tests.php` located at the plugin's root. It is included only if the `wp-config.php` constant `UPSERV_TEST` is truthy.  
+Performance can evaluated with the script `tests.php` located at the plugin's root. It is included only if the `wp-config.php` constant `UPSERV_ENABLE_TEST` is truthy.  
 
 Performances when a client is activating/deactivating a bogus license key:
 

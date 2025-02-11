@@ -241,7 +241,7 @@ function upserv_updater() {
 }
 upserv_updater();
 
-if ( defined( 'UPSERV_TEST' ) && constant( 'UPSERV_TEST' ) ) {
+if ( defined( 'UPSERV_ENABLE_TEST' ) && constant( 'UPSERV_ENABLE_TEST' ) ) {
 
 	if ( Update_API::is_doing_api_request() || License_API::is_doing_api_request() ) {
 		require_once UPSERV_PLUGIN_PATH . 'tests.php';
