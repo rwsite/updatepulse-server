@@ -819,7 +819,7 @@ class Package_API {
 			}
 		}
 
-		wp_send_json( $response, $this->http_response_code );
+		wp_send_json( $response, $this->http_response_code, Utils::JSON_OPTIONS );
 	}
 
 	protected function authorize_ip() {

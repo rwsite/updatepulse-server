@@ -298,7 +298,8 @@ class Update_API {
 					'error'   => 'no_server',
 					'message' => __( 'No server found for this package.', 'updatepulse-server' ),
 				),
-				500
+				500,
+				Utils::JSON_OPTIONS
 			);
 		}
 

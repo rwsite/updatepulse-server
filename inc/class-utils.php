@@ -12,7 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package Anyape\Utils
  */
 class Utils {
-	// generate static methods based on above functions
+
+	// JSON options
+	const JSON_OPTIONS = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK;
 
 	/**
 	 * @param string $message

@@ -170,10 +170,7 @@ class Webhook_API {
 			}
 
 			if ( apply_filters( 'upserv_webhook_fire', $fire, $payload, $info['url'], $info ) ) {
-				$body   = wp_json_encode(
-					$payload,
-					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK
-				);
+				$body   = wp_json_encode( $payload, Utils::JSON_OPTIONS );
 				$hook   = 'upserv_webhook';
 				$params = array( $info['url'], $info['secret'], $body, current_action() );
 
@@ -219,7 +216,7 @@ class Webhook_API {
 	protected function handle_remote_test() {
 
 		if ( empty( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ) {
-			wp_send_json( false, 403 );
+			wp_send_json( false, 403, Utils::JSON_OPTIONS );
 		}
 
 		$sign       = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) );
@@ -266,7 +263,7 @@ class Webhook_API {
 			}
 		}
 
-		wp_send_json( $valid, $valid ? 200 : 403 );
+		wp_send_json( $valid, $valid ? 200 : 403, Utils::JSON_OPTIONS );
 	}
 
 	protected function handle_api_request() {
@@ -432,7 +429,7 @@ class Webhook_API {
 		$response = apply_filters( 'upserv_webhook_response', $response, $this->http_response_code, $vcs_config );
 
 		do_action( 'upserv_webhook_after_handling_request', $vcs_config, $response );
-		wp_send_json( $response, $this->http_response_code );
+		wp_send_json( $response, $this->http_response_code, Utils::JSON_OPTIONS );
 	}
 
 	protected function validate_request( $vcs_config ) {
