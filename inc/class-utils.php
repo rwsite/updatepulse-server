@@ -84,6 +84,12 @@ class Utils {
 		return $current;
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $regex
+	 *
+	 * @return int|null
+	 */
 	public static function is_url_subpath_match( $regex ) {
 		$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : false;
 
@@ -102,6 +108,12 @@ class Utils {
 		return preg_match( $regex, $frags[0] );
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $regex
+	 *
+	 * @return int|null
+	 */
 	public static function get_time_elapsed() {
 
 		if ( empty( $_SERVER['REQUEST_TIME_FLOAT'] ) ) {
@@ -117,6 +129,12 @@ class Utils {
 		return sprintf( '%.3f', microtime( true ) - $req_time_float );
 	}
 
+	/**
+	 * @param string $path
+	 * @param string $regex
+	 *
+	 * @return int|null
+	 */
 	public static function get_remote_ip() {
 
 		if ( empty( $_SERVER['REMOTE_ADDR'] ) ) {
