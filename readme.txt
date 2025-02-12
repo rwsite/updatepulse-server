@@ -3,7 +3,7 @@ Contributors: frogerme
 Tags: Plugin updates, Theme updates, WordPress updates, License
 Requires at least: 6.7
 Tested up to: 6.7
-Stable tag: 2.0
+Stable tag: 1.0
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -68,5 +68,5 @@ This section describes how to install the plugin and get it working.
 
 == Changelog ==
 
-= 2.0 =
-Major update from WPPUS - renamed to UpdatePulse Server, many new features, improvements and bugfixes. No upgrade path from WPPUS.
+= 1.0 =
+Major rewrite from the original WP Plugins Update Server - renamed to UpdatePulse Server, many new features, improvements and bugfixes. No upgrade path from WPPUS.

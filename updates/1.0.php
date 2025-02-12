@@ -4,8 +4,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-function upserv_update_to_2_0() {
-	// @TODO
-
+function upserv_update_to_1_0() {
 	return false;
 }
