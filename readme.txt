@@ -14,9 +14,9 @@ Run your own update server for plugins, themes or any other software: manage pac
 
 UpdatePulse Server allows developers to provide updates for software packages, including WordPress plugins and themes.
 Some example use cases:
-- provide updates for premium plugins or themes, with a license key
-- provide custom theme or plugin updates to clients of a webdesign agency and not intended for the general public
-- provide updates for a desktop software that integrates with UpdatePulse Server's update and license API
+* provide updates for premium plugins or themes, with a license key
+* provide custom theme or plugin updates to clients of a webdesign agency and not intended for the general public
+* provide updates for a desktop software that integrates with UpdatePulse Server's update and license API
 
 Packages may be either uploaded directly, or downloaded automatically from configured Version Control Systems, public or private.
 Package updates may require a license ; both packages and licenses can be managed through an API or a user interface within UpdatePulse Server.
