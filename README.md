@@ -64,7 +64,8 @@ To connect their packages and UpdatePulse Server, developers can find integratio
 In addition, requests to the various APIs are optimised with a customisable [Must Use Plugin](https://codex.wordpress.org/Must_Use_Plugins) automatically added upon install of UpdatePulse Server. The original file can be found in `updatepulse-server/optimisation/upserv-endpoint-optimizer.php`.  
 
 ### Special Thanks
-A warm thank you to [Yahnis Elsts](https://github.com/YahnisElsts), the author of [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) and [WP Update Server](https://github.com/YahnisElsts/wp-update-server) libraries, without whom the creation of this plugin would not have been possible.  
+
+A warm thank you to [Yahnis Elsts](https://github.com/YahnisElsts), the author of the [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) library, without whom the creation of this plugin would not have been possible.  
 Authorisation to use and modify these libraries freely (provided relevant licenses are included) has been graciously granted [here](https://github.com/YahnisElsts/wp-update-server/issues/37#issuecomment-386814776).
 
 ### Compatibility

@@ -45,11 +45,6 @@ This plugin adds the following major features to WordPress:
 
 To connect their plugins or themes and UpdatePulse Server, developers can find integration examples in the [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository - theme and plugin examples rely heavily on the popular [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) by [Yahnis Elsts](https://github.com/YahnisElsts).
 
-== Special Thanks ==
-
-A warm thank you to [Yahnis Elsts](https://github.com/YahnisElsts), the author of [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) and [WP Update Server](https://github.com/YahnisElsts/wp-update-server) libraries, without whom the creation of this plugin would not have been possible.
-Authorisation to use and modify these libraries freely (provided relevant licenses are included) has been graciously granted [here](https://github.com/YahnisElsts/wp-update-server/issues/37#issuecomment-386814776).
-
 == Screenshots ==
 
 1. Packages Overview
