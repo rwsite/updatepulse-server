@@ -42,7 +42,9 @@ Developer documentation:
 UpdatePulse Server allows developers to provide updates for their own plugins & themes not hosted on `wordpress.org`, or for generic packages unrelated to WordPress altogether. It also allows to control the updates with license.
 Package updates may be either uploaded directly, or hosted in a Version Control System, public or private, with the latest version of packages stored either locally or in the Cloud. It supports Bitbucket, Github, Gitlab, and self-hosted installations of Gitlab for package updates; S3 compatible service providers are supported for package storage.
 
-**The `main` branch contains a beta version of UpdatePulse Server. The `dev` branch contains an alpha version of UpdatePulse Server. For stable versions, please use releases.**  
+**The `main` branch contains a beta version of UpdatePulse Server.**
+**The `dev` branch contains an alpha version of UpdatePulse Server.**
+**For stable versions, please use releases, or the [WordPress Repository](https://wordpress.org/plugins/updatepulse-server/).**  
 
 ### Overview
 
@@ -63,12 +65,11 @@ In addition, requests to the various APIs are optimised with a customisable [Mus
 
 ### Special Thanks
 A warm thank you to [Yahnis Elsts](https://github.com/YahnisElsts), the author of [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) and [WP Update Server](https://github.com/YahnisElsts/wp-update-server) libraries, without whom the creation of this plugin would not have been possible.  
-Authorisation to use these libraries freely provided relevant licenses are included has been graciously granted [here](https://github.com/YahnisElsts/wp-update-server/issues/37#issuecomment-386814776).
+Authorisation to use and modify these libraries freely (provided relevant licenses are included) has been graciously granted [here](https://github.com/YahnisElsts/wp-update-server/issues/37#issuecomment-386814776).
 
 ### Compatibility
 
-* Tested with PHP 8.x - may work with PHP 7.x versions for the most part, but it is not guaranteed
-* Integration examples for WordPress packages use Plugin Update Checker Library 5.3
+Tested with PHP 8.x - may work with PHP 7.x versions for the most part, but it is not guaranteed
 
 **Pull requests to solve any bugs, improve performance, and keep libraries up to date are welcome and highly encouraged.**  
 **Requests to debug or troubleshoot specific setups will not be addressed.**
