@@ -99,7 +99,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 				$this->package_prefix = $package_prefix;
 
 				$this->init_package_type( $package_prefix );
-				add_action( 'init', array( $this, 'init' ), 10, PHP_INT_MIN - 100 );
+				add_action( 'init', array( $this, 'init' ), 10, PHP_INT_MIN + 100 );
 			}
 
 			wp_cache_set( $package_prefix, $this, 'wp-update-migrate' );

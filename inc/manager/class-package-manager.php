@@ -982,7 +982,13 @@ class Package_Manager {
 
 		$data = $this->get_package_metadata( $package_slug, false );
 
-		if ( isset( $data['whitelisted'] ) && isset( $data['whitelisted']['local'] ) ) {
+		if (
+			isset(
+				$data['whitelisted'],
+				$data['whitelisted']['local'],
+				$data['whitelisted']['local'][0]
+			)
+		) {
 			return (bool) $data['whitelisted']['local'][0];
 		}
 

@@ -43,10 +43,13 @@ class Cloud_Storage_Manager {
 				add_action( 'wp_ajax_upserv_cloud_storage_test', array( $this, 'cloud_storage_test' ), 10, 0 );
 				add_action( 'upserv_package_options_updated', array( $this, 'upserv_package_options_updated' ), 10, 0 );
 				add_action( 'upserv_template_package_manager_option_before_miscellaneous', array( $this, 'upserv_template_package_manager_option_before_miscellaneous' ), 10, 0 );
+				add_action( 'upserv_did_manual_upload_package', array( $this, 'upserv_did_manual_upload_package' ), 10, 3 );
 
 				add_filter( 'upserv_admin_scripts', array( $this, 'upserv_admin_scripts' ), 10, 1 );
 				add_filter( 'upserv_submitted_package_config', array( $this, 'upserv_submitted_package_config' ), 10, 1 );
 				add_filter( 'upserv_package_option_update', array( $this, 'upserv_package_option_update' ), 10, 4 );
+				add_filter( 'upserv_get_admin_template_args', array( $this, 'upserv_get_admin_template_args' ), 10, 2 );
+				add_filter( 'upserv_delete_packages_bulk_paths', array( $this, 'upserv_delete_packages_bulk_paths' ), 10, 1 );
 			}
 
 			if ( $config['use_cloud_storage'] ) {
@@ -82,13 +85,12 @@ class Cloud_Storage_Manager {
 
 		self::$hooks = array(
 			'actions' => array(
-				array( 'upserv_saved_remote_package_to_local', 'upserv_saved_remote_package_to_local', 10, 3 ),
+				array( 'upserv_saved_remote_package_to_local', 'upserv_saved_remote_package_to_local', PHP_INT_MIN + 100, 3 ),
 				array( 'upserv_find_package_no_cache', 'upserv_find_package_no_cache', 10, 3 ),
 				array( 'upserv_update_server_action_download', 'upserv_update_server_action_download', 10, 1 ),
 				array( 'upserv_after_packages_download', 'upserv_after_packages_download', 10, 2 ),
 				array( 'upserv_before_packages_download_repack', 'upserv_before_packages_download_repack', 10, 3 ),
 				array( 'upserv_before_packages_download', 'upserv_before_packages_download', 10, 3 ),
-				array( 'upserv_did_manual_upload_package', 'upserv_did_manual_upload_package', 10, 3 ),
 				array( 'upserv_package_api_request', 'upserv_package_api_request', 10, 2 ),
 			),
 			'filters' => array(
@@ -99,10 +101,8 @@ class Cloud_Storage_Manager {
 				array( 'upserv_package_manager_get_package_info', 'upserv_package_manager_get_package_info', 10, 2 ),
 				array( 'upserv_update_server_action_download_handled', 'upserv_update_server_action_download_handled', 10, 1 ),
 				array( 'upserv_remove_package_result', 'upserv_remove_package_result', 10, 3 ),
-				array( 'upserv_delete_packages_bulk_paths', 'upserv_delete_packages_bulk_paths', 10, 1 ),
 				array( 'upserv_webhook_package_exists', 'upserv_webhook_package_exists', 10, 3 ),
-				array( 'upserv_get_admin_template_args', 'upserv_get_admin_template_args', 10, 2 ),
-				array( 'upserv_is_package_whitelisted', 'upserv_is_package_whitelisted', 10, 2 ),
+				array( 'upserv_is_package_whitelisted', 'upserv_is_package_whitelisted', PHP_INT_MIN + 100, 2 ),
 				array( 'upserv_whitelist_package_data', 'upserv_whitelist_package_data', 10, 2 ),
 				array( 'upserv_unwhitelist_package_data', 'upserv_unwhitelist_package_data', 10, 2 ),
 			),
@@ -111,12 +111,14 @@ class Cloud_Storage_Manager {
 		// Register actions.
 		foreach ( self::$hooks['actions'] as $hook ) {
 			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+
 			add_action( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
 		}
 
 		// Register filters.
 		foreach ( self::$hooks['filters'] as $hook ) {
 			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+
 			add_filter( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
 		}
 	}
@@ -130,12 +132,14 @@ class Cloud_Storage_Manager {
 		// Remove actions.
 		foreach ( self::$hooks['actions'] as $hook ) {
 			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+
 			remove_action( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
 		}
 
 		// Remove filters.
 		foreach ( self::$hooks['filters'] as $hook ) {
 			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+
 			remove_filter( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
 		}
 
@@ -1077,9 +1081,17 @@ class Cloud_Storage_Manager {
 	public function upserv_is_package_whitelisted( $whitelisted, $package_slug ) {
 		$data = upserv_get_package_metadata( $package_slug, false );
 
-		if ( isset( $data['whitelisted'] ) && isset( $data['whitelisted']['cloud'] ) ) {
+		if (
+			isset(
+				$data['whitelisted'],
+				$data['whitelisted']['cloud'],
+				$data['whitelisted']['cloud'][0]
+			)
+		) {
 			return (bool) $data['whitelisted']['cloud'][0];
 		}
+
+		return $whitelisted;
 	}
 
 	public function upserv_whitelist_package_data( $data, $slug ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed

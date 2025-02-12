@@ -29,7 +29,7 @@ class Package_API {
 		if ( $init_hooks ) {
 			add_action( 'init', array( $this, 'add_endpoints' ), 10, 0 );
 			add_action( 'parse_request', array( $this, 'parse_request' ), -99, 0 );
-			add_action( 'upserv_saved_remote_package_to_local', array( $this, 'upserv_saved_remote_package_to_local' ), 20, 3 );
+			add_action( 'upserv_saved_remote_package_to_local', array( $this, 'upserv_saved_remote_package_to_local' ), 10, 3 );
 			add_action( 'upserv_pre_delete_package', array( $this, 'upserv_pre_delete_package' ), 0, 2 );
 			add_action( 'upserv_did_delete_package', array( $this, 'upserv_did_delete_package' ), 20, 3 );
 			add_action( 'upserv_did_download_package', array( $this, 'upserv_did_download_package' ), 20, 1 );
@@ -324,6 +324,8 @@ class Package_API {
 			return;
 		}
 
+		upserv_whitelist_package( $package_slug );
+
 		$payload = array(
 			'event'       => 'package_updated',
 			// translators: %1$s is the package type, %2$s is the pakage slug
@@ -385,9 +387,9 @@ class Package_API {
 	public function upserv_api_webhook_events( $webhook_events ) {
 
 		if ( isset( $webhook_events['package'], $webhook_events['package']['events'] ) ) {
-			$webhook_events['package']['events']['package_update']   = __( 'Package added or updated', 'updatepulse-server' );
-			$webhook_events['package']['events']['package_delete']   = __( 'Package deleted', 'updatepulse-server' );
-			$webhook_events['package']['events']['package_download'] = __( 'Package downloaded via a signed URL', 'updatepulse-server' );
+			$webhook_events['package']['events']['package_updated']    = __( 'Package added or updated', 'updatepulse-server' );
+			$webhook_events['package']['events']['package_deleted']    = __( 'Package deleted', 'updatepulse-server' );
+			$webhook_events['package']['events']['package_downloaded'] = __( 'Package downloaded via a signed URL', 'updatepulse-server' );
 		}
 
 		return $webhook_events;
@@ -654,7 +656,6 @@ class Package_API {
 			upserv_set_package_metadata( $package_id, $meta );
 		}
 
-		upserv_whitelist_package( $package_id );
 		do_action( 'upserv_saved_remote_package_to_local', true, $type, $package_id );
 
 		return $result;
