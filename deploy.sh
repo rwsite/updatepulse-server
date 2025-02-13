@@ -103,6 +103,17 @@ execute_or_echo() {
                 "$command" "${args[@]}"
             fi
             ;;
+        gh)
+        # In dry-run mode, disallow all gh commands
+            if ! $DEPLOY; then
+                echo "[DRY-RUN] gh ${args[*]}"
+            else
+                if $VERBOSE; then
+                    echo "gh ${args[*]}"
+                fi
+                "$command" "${args[@]}"
+            fi
+            ;;
         *)
         # For other commands, actually execute them
             if $VERBOSE; then
@@ -160,6 +171,15 @@ if ! git show-ref --verify --quiet "refs/heads/$GITBRANCH"; then
     exit 1
 fi
 
+# If gh cli is installed, check if user is authenticated
+if which gh > /dev/null; then
+    # If the user is not authenticated, instruct to run 'gh auth login' and exit
+    if ! gh auth status > /dev/null 2>&1; then
+        echo "You are not authenticated. Please run 'gh auth login'. Exiting."
+        exit 1
+    fi
+fi
+
 # Keep the current branch so that we can switch back to it later
 CURRENTBRANCH=$(git rev-parse --abbrev-ref HEAD)
 
@@ -175,6 +195,24 @@ execute_or_echo git tag -a "$NEWVERSION1" -m "Tagging version $NEWVERSION1"
 # Push changes to origin
 execute_or_echo git push origin "$GITBRANCH"
 execute_or_echo git push origin "$GITBRANCH" --tags
+
+# check if gh cli is installed
+if which gh > /dev/null; then
+    # Create a GitHub release using the GitHub API
+    echo "Creating GitHub release for tag $NEWVERSION1..."
+
+    # Define the GitHub repository owner and name
+    GITHUB_OWNER=$(git config --get remote.origin.url | sed -E 's#(https://github.com|git@github.com:)([^/]+)/.*#\2#')
+    GITHUB_REPO=$(git config --get remote.origin.url | sed -E 's#(https://github.com|git@github.com:)[^/]+/([^/]+).git#\2#')
+
+    # use gh cli to create a release
+    execute_or_echo gh release create v"$NEWVERSION1" \
+        --title "Release v$NEWVERSION1" \
+        --notes "Auto-deployed from tag $NEWVERSION1" \
+        --repo "$GITHUB_OWNER/$GITHUB_REPO"
+else
+    echo "Command 'gh' not found. Skipping GitHub release creation."
+fi
 
 # Delete the local SVN repo if it exists
 if [ -d "$SVNPATH" ]; then
