@@ -205,11 +205,29 @@ if which gh > /dev/null; then
     GITHUB_OWNER=$(git config --get remote.origin.url | sed -E 's#(https://github.com|git@github.com:)([^/]+)/.*#\2#')
     GITHUB_REPO=$(git config --get remote.origin.url | sed -E 's#(https://github.com|git@github.com:)[^/]+/([^/]+).git#\2#')
 
+    # Define the release path
+    RELEASEPATH="/tmp/$PLUGINSLUG-release/"
+    # Create the release path
+    execute_or_echo mkdir -p "$RELEASEPATH"
+    # Define the zip file name
+    ZIPFILE="$PLUGINSLUG.zip"
+
+    # Create a zip file of the plugin, excluding all hidden files and *.sh files
+    execute_or_echo rsync -r --exclude=".*" --exclude="*.sh" "$GITPATH" "$RELEASEPATH"
+    # Use tar to create the zip file
+    execute_or_echo tar -czf "/tmp/$ZIPFILE" -C "$RELEASEPATH" .
+    # Delete the release path
+    execute_or_echo rm -fr "$RELEASEPATH"
+
     # use gh cli to create a release
     execute_or_echo gh release create v"$NEWVERSION1" \
         --title "Release v$NEWVERSION1" \
         --notes "Auto-deployed from tag $NEWVERSION1" \
-        --repo "$GITHUB_OWNER/$GITHUB_REPO"
+        --repo "$GITHUB_OWNER/$GITHUB_REPO" \
+        "/tmp/$ZIPFILE"
+
+    # Delete the zip file
+   execute_or_echo rm -f "/tmp/$ZIPFILE"
 else
     echo "Command 'gh' not found. Skipping GitHub release creation."
 fi
