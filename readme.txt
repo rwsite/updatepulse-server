@@ -13,7 +13,9 @@ Run your own update server for plugins, themes or any other software: manage pac
 == Description ==
 
 UpdatePulse Server allows developers to provide updates for software packages, including WordPress plugins and themes.
+
 Some example use cases:
+
 * provide updates for premium plugins or themes, with a license key
 * provide custom theme or plugin updates to clients of a webdesign agency and not intended for the general public
 * provide updates for a desktop software that integrates with UpdatePulse Server's update and license API
@@ -62,6 +64,9 @@ This section describes how to install the plugin and get it working.
 3. Edit plugin settings
 
 == Changelog ==
+
+= 1.0.1 =
+* Minor readme updates
 
 = 1.0 =
 Major rewrite from the original WP Plugins Update Server - renamed to UpdatePulse Server, many new features, improvements and bugfixes. No upgrade path from WPPUS.
