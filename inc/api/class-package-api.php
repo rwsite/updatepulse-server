@@ -70,7 +70,7 @@ class Package_API {
 			);
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function read( $package_id, $type ) {

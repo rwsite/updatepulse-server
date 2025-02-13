@@ -128,7 +128,7 @@ class Utils {
 			return null;
 		}
 
-		return sprintf( '%.3f', microtime( true ) - $req_time_float );
+		return (string) sprintf( '%.3fs', microtime( true ) - $req_time_float );
 	}
 
 	/**
