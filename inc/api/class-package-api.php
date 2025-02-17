@@ -98,7 +98,7 @@ class Package_API {
 			);
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function edit( $package_id, $type ) {
@@ -142,7 +142,7 @@ class Package_API {
 			do_action( 'upserv_did_edit_package', $result );
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function add( $package_id, $type ) {
@@ -186,7 +186,7 @@ class Package_API {
 			do_action( 'upserv_did_add_package', $result );
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function delete( $package_id, $type ) {
@@ -205,7 +205,7 @@ class Package_API {
 			);
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	public function download( $package_id, $type ) {
@@ -271,7 +271,7 @@ class Package_API {
 			);
 		}
 
-		return $result;
+		return (object) $result;
 	}
 
 	// WordPress hooks ---------------------------------------------

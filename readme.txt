@@ -3,7 +3,7 @@ Contributors: frogerme
 Tags: Plugin updates, Theme updates, WordPress updates, License
 Requires at least: 6.7
 Tested up to: 6.7
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -64,6 +64,9 @@ This section describes how to install the plugin and get it working.
 3. Edit plugin settings
 
 == Changelog ==
+
+= 1.0.2 =
+* Minor Package API fix
 
 = 1.0.1 =
 * Minor readme updates
