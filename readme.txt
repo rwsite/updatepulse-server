@@ -68,6 +68,8 @@ This section describes how to install the plugin and get it working.
 = 1.0.1 =
 * Minor readme updates
 * Minor package API fixes
+* Manual upload validation fix
+* Cloud storage hooks fix
 
 = 1.0 =
 Major rewrite from the original WP Plugins Update Server - renamed to UpdatePulse Server, many new features, improvements and bugfixes. No upgrade path from WPPUS.

@@ -359,6 +359,36 @@ class Package_Manager {
 
 		$files = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
+		$sanitized_part = function ( $part ) {
+
+			if ( 'application/zip' === $part ) {
+				return $part;
+			}
+
+			$part       = realpath( $part );
+			$part_array = $part ? explode( DIRECTORY_SEPARATOR, $part ) : false;
+
+			if ( ! empty( $part_array ) ) {
+
+				foreach ( $part_array as $key => $_part ) {
+
+					if ( empty( $_part ) ) {
+						continue;
+					}
+
+					if ( 0 === $key && strlen( $_part ) === 2 && ':' === substr( $_part, 1, 1 ) ) {
+						continue;
+					}
+
+					$part_array[ $key ] = sanitize_file_name( $_part );
+				}
+
+				$part = implode( DIRECTORY_SEPARATOR, $part_array );
+			}
+
+			return $part;
+		};
+
 		if (
 			! is_array( $files ) ||
 			! isset(
@@ -367,9 +397,9 @@ class Package_Manager {
 				$files['package']['name'],
 				$files['package']['type']
 			) ||
-			sanitize_file_name( $files['package']['tmp_name'] ) !== $files['package']['tmp_name'] ||
-			sanitize_file_name( $files['package']['name'] ) !== $files['package']['name'] ||
-			sanitize_file_name( $files['package']['type'] ) !== $files['package']['type']
+			$sanitized_part( $files['package']['type'] ) !== $files['package']['type'] ||
+			$sanitized_part( $files['package']['tmp_name'] ) !== $files['package']['tmp_name'] ||
+			sanitize_file_name( $files['package']['name'] ) !== $files['package']['name']
 		) {
 			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 			wp_send_json_error(

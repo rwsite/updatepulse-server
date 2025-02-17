@@ -43,13 +43,10 @@ class Cloud_Storage_Manager {
 				add_action( 'wp_ajax_upserv_cloud_storage_test', array( $this, 'cloud_storage_test' ), 10, 0 );
 				add_action( 'upserv_package_options_updated', array( $this, 'upserv_package_options_updated' ), 10, 0 );
 				add_action( 'upserv_template_package_manager_option_before_miscellaneous', array( $this, 'upserv_template_package_manager_option_before_miscellaneous' ), 10, 0 );
-				add_action( 'upserv_did_manual_upload_package', array( $this, 'upserv_did_manual_upload_package' ), 10, 3 );
 
 				add_filter( 'upserv_admin_scripts', array( $this, 'upserv_admin_scripts' ), 10, 1 );
 				add_filter( 'upserv_submitted_package_config', array( $this, 'upserv_submitted_package_config' ), 10, 1 );
 				add_filter( 'upserv_package_option_update', array( $this, 'upserv_package_option_update' ), 10, 4 );
-				add_filter( 'upserv_get_admin_template_args', array( $this, 'upserv_get_admin_template_args' ), 10, 2 );
-				add_filter( 'upserv_delete_packages_bulk_paths', array( $this, 'upserv_delete_packages_bulk_paths' ), 10, 1 );
 			}
 
 			if ( $config['use_cloud_storage'] ) {
@@ -108,9 +105,25 @@ class Cloud_Storage_Manager {
 			),
 		);
 
+		if ( ! upserv_is_doing_api_request() ) {
+			self::$hooks['actions'] = array_merge(
+				self::$hooks['actions'],
+				array(
+					array( 'upserv_did_manual_upload_package', 'upserv_did_manual_upload_package', PHP_INT_MIN + 100, 3 ),
+				)
+			);
+			self::$hooks['filters'] = array_merge(
+				self::$hooks['filters'],
+				array(
+					array( 'upserv_get_admin_template_args', 'upserv_get_admin_template_args', 10, 2 ),
+					array( 'upserv_delete_packages_bulk_paths', 'upserv_delete_packages_bulk_paths', 10, 1 ),
+				)
+			);
+		}
+
 		// Register actions.
 		foreach ( self::$hooks['actions'] as $hook ) {
-			$accepted_args = isset( $hook[3] ) ? $hook[3] : 1;
+			$accepted_args = isset( $hook[3] ) ? $hook[3] : 0;
 
 			add_action( $hook[0], array( $this, $hook[1] ), $hook[2], $accepted_args );
 		}
