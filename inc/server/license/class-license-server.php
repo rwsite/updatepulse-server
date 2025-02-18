@@ -173,7 +173,7 @@ class License_Server {
 			}
 
 			wp_cache_set( $md5, $return, 'updatepulse-server' );
-		} else {
+		} elseif ( true !== $validation ) {
 			$return = $validation;
 		}
 
