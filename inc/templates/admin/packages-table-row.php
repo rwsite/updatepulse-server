@@ -21,7 +21,7 @@
 	$actions['download']        = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
 	$args[1]                    = 'delete';
 	$args[ count( $args ) - 1 ] = __( 'Delete' );
-	$actions['delete']          = vsprintf( '<a href="' . $query_string . '">%s</a>', $args );
+	$actions['delete']          = vsprintf( '<a href="#" data-href="' . $query_string . '">%s</a>', $args );
 	$actions                    = $table->row_actions(
 		apply_filters( 'upserv_packages_table_row_actions', $actions, $args, $query_string, $record_key )
 	);

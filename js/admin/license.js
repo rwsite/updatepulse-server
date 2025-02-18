@@ -1,14 +1,24 @@
-/* global UPServAdminLicense, console */
+/* global UPServAdminLicense, console, UPServAdminLicense_l10n */
 jQuery(document).ready(function ($) {
 	var editor = wp.codeEditor;
 	var initEditor = true;
 
-	$('.upserv-delete-all-licenses').on('click', function (e) {
-		var r = window.confirm(UPServAdminLicense_l10n.deleteLicensesConfirm);
+	$('.upserv-wrap .wp-list-table .delete a').on('click', function(e) {
 
-		if (!r) {
+		if (!window.confirm(UPServAdminLicense_l10n.deleteLicenseConfirm)) {
 			e.preventDefault();
 		}
+
+		$(this).attr('href', $(this).data('href'));
+	});
+
+	$('.upserv-delete-all-licenses').on('click', function (e) {
+
+		if (!window.confirm(UPServAdminLicense_l10n.deleteLicensesConfirm)) {
+			e.preventDefault();
+		}
+
+		$(this).attr('type', 'submit');
 	});
 
 	$('#upserv_modal_license_details').on('open', function (e, handler) {

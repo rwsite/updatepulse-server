@@ -240,7 +240,7 @@ class Packages_Table extends WP_List_Table {
 				$this->bulk_action_error = '';
 			}
 		} elseif ( 'bottom' === $which ) {
-			print '<div class="alignleft actions bulkactions"><input id="post-query-submit" type="submit" name="upserv_delete_all_packages" value="' . esc_html( __( 'Delete All Packages', 'updatepulse-server' ) ) . '" class="button upserv-delete-all-packages"></div>';
+			print '<div class="alignleft actions bulkactions"><input id="post-query-submit" type="button" name="upserv_delete_all_packages" value="' . esc_html( __( 'Delete All Packages', 'updatepulse-server' ) ) . '" class="button upserv-delete-all-packages"></div>';
 		}
 	}
 

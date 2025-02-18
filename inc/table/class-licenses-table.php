@@ -245,7 +245,7 @@ class Licenses_Table extends WP_List_Table {
 	protected function extra_tablenav( $which ) {
 
 		if ( 'bottom' === $which ) {
-			print '<div class="alignleft actions bulkactions"><input id="post-query-submit" type="submit" name="upserv_delete_all_licenses" value="' . esc_html( __( 'Delete All Licenses', 'updatepulse-server' ) ) . '" class="button upserv-delete-all-licenses"><input id="add_license_trigger" type="button" value="' . esc_html( __( 'Add License', 'updatepulse-server' ) ) . '" class="button button-primary open-panel"></div>';
+			print '<div class="alignleft actions bulkactions"><input id="post-query-submit" type="button" name="upserv_delete_all_licenses" value="' . esc_html( __( 'Delete All Licenses', 'updatepulse-server' ) ) . '" class="button upserv-delete-all-licenses"><input id="add_license_trigger" type="button" value="' . esc_html( __( 'Add License', 'updatepulse-server' ) ) . '" class="button button-primary open-panel"></div>';
 		}
 	}
 

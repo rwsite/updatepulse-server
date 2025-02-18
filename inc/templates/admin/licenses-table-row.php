@@ -24,7 +24,7 @@
 					. '</a>',
 				'edit'    => '<a href="#">' . __( 'Edit' ) . '</a>',
 				'delete'  => sprintf(
-					'<a href="?page=%s&action=%s&license_data=%s&linknonce=%s">%s</a>',
+					'<a href="#" data-href="?page=%s&action=%s&license_data=%s&linknonce=%s">%s</a>',
 					$page,
 					'delete',
 					$record['id'],

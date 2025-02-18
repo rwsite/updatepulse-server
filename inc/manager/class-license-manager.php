@@ -212,6 +212,7 @@ class License_Manager {
 			"\n",
 			__( 'Are you sure you want to do this?', 'updatepulse-server' ),
 		);
+		$l10n['deleteLicenseConfirm']  = __( 'Are you sure you want to delete this license?', 'updatepulse-server' );
 		$scripts['license']            = array(
 			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/license' . upserv_assets_suffix() . '.js',
 			'uri'    => UPSERV_PLUGIN_URL . 'js/admin/license' . upserv_assets_suffix() . '.js',

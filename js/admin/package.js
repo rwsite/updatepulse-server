@@ -3,20 +3,22 @@ jQuery(document).ready(function ($) {
 	var registrationLocked = false;
 
 	$('.upserv-wrap .wp-list-table .delete a').on('click', function(e) {
-		var r = window.confirm(UPServAdminPackage_l10n.deletePackageConfirm);
 
-		if (!r) {
+		if (window.confirm(UPServAdminPackage_l10n.deletePackageConfirm)) {
 			e.preventDefault();
 		}
+
+		$(this).attr('href', $(this).data('href'));
 	});
 
 
 	$('.upserv-delete-all-packages').on('click', function(e) {
-		var r = window.confirm(UPServAdminPackage_l10n.deletePackagesConfirm);
 
-		if (!r) {
+		if (!window.confirm(UPServAdminPackage_l10n.deletePackagesConfirm)) {
 			e.preventDefault();
 		}
+
+		$(this).attr('type', 'submit');
 	});
 
 	$('#upserv_modal_package_details').on('open', function (e, handler) {
