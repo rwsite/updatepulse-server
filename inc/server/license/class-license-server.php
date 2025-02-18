@@ -145,11 +145,12 @@ class License_Server {
 
 	public function read_license( $payload, $force = false ) {
 		$where_field = isset( $payload['license_key'] ) ? 'license_key' : 'id';
-		$where_value = $payload[ $where_field ];
+		$where_value = isset( $payload[ $where_field ] ) ? $payload[ $where_field ] : null;
 		$md5         = md5( wp_json_encode( array( $where_field => $where_value ) ) );
 		$return      = wp_cache_get( $md5, 'updatepulse-server', false, $found );
+		$validation  = $this->validate_license_payload( $payload, true );
 
-		if ( $force || ! $found ) {
+		if ( ( $force || ! $found ) && true === $validation ) {
 			$payload    = $this->filter_license_payload( $payload );
 			$payload    = apply_filters( 'upserv_read_license_payload', $payload );
 			$validation = $this->validate_license_payload( $payload, true );
@@ -172,6 +173,8 @@ class License_Server {
 			}
 
 			wp_cache_set( $md5, $return, 'updatepulse-server' );
+		} else {
+			$return = $validation;
 		}
 
 		do_action( 'upserv_did_read_license', $return, $payload );
@@ -686,7 +689,7 @@ class License_Server {
 	}
 
 	protected function filter_license_payload( $payload ) {
-		return array_intersect_key( $payload, self::$license_definition );
+		return is_array( $payload ) ? array_intersect_key( $payload, self::$license_definition ) : self::$license_definition;
 	}
 
 	protected function extend_license_payload( $payload ) {
