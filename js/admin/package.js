@@ -4,7 +4,7 @@ jQuery(document).ready(function ($) {
 
 	$('.upserv-wrap .wp-list-table .delete a').on('click', function(e) {
 
-		if (window.confirm(UPServAdminPackage_l10n.deletePackageConfirm)) {
+		if (!window.confirm(UPServAdminPackage_l10n.deletePackageConfirm)) {
 			e.preventDefault();
 		}
 
