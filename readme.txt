@@ -67,6 +67,7 @@ This section describes how to install the plugin and get it working.
 
 = 1.0.2 =
 * Minor Package API fix
+* Minor License API fix
 * Minor License Server fix
 * Improve record delete
 
