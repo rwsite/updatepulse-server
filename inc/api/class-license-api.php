@@ -1114,6 +1114,8 @@ class License_API {
 			}
 
 			if ( ! $malformed_request ) {
+				$this->init_server();
+
 				$authorized = apply_filters(
 					'upserv_license_api_request_authorized',
 					(
@@ -1131,8 +1133,6 @@ class License_API {
 					do_action( 'upserv_license_api_request', $method, $payload );
 
 					if ( method_exists( $this, $method ) ) {
-						$this->init_server();
-
 						$response = $this->$method( $payload );
 
 						if ( is_object( $response ) && ! empty( get_object_vars( $response ) ) ) {
