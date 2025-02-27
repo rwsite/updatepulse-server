@@ -73,6 +73,7 @@ This section describes how to install the plugin and get it working.
 * Expiry => Expiration in all UI
 * Improved Licenses table styles
 * Add `@package` to main plugin file
+* Hard-force PHP min version to 8.0
 
 = 1.0.1 =
 * Minor readme updates

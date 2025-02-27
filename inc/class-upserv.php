@@ -98,8 +98,8 @@ class UPServ {
 
 	public static function activate() {
 
-		if ( ! version_compare( phpversion(), '7.4', '>=' ) ) {
-			$error_message  = __( 'PHP version 7.4 or higher is required. Current version: ', 'updatepulse-server' );
+		if ( ! version_compare( phpversion(), '8.0', '>=' ) ) {
+			$error_message  = __( 'PHP version 8.0 or higher is required. Current version: ', 'updatepulse-server' );
 			$error_message .= phpversion();
 
 			die( $error_message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
