@@ -78,11 +78,11 @@
 								</td>
 							</tr>
 							<tr valign="top">
-								<th scope="row"><?php esc_html_e( 'Expiry Date', 'updatepulse-server' ); ?></th>
+								<th scope="row"><?php esc_html_e( 'Expiration Date', 'updatepulse-server' ); ?></th>
 								<td>
 									<input type="date" id="upserv_license_date_expiry" name="upserv_license_date_expiry" class="upserv-license-date no-submit" value="" size="30">
 									<p class="description">
-										<?php esc_html_e( 'Expiry date of the license. Leave empty for no expiry.', 'updatepulse-server' ); ?>
+										<?php esc_html_e( 'Expiration date of the license. Leave empty for no expiry.', 'updatepulse-server' ); ?>
 									</p>
 								</td>
 							</tr>
