@@ -1,15 +1,17 @@
 <?php
-/*
-Plugin Name: UpdatePulse Server
-Plugin URI: https://github.com/anyape/updatepulse-server/
-Description: Run your own update server.
-Version: 1.0.2
-Author: Alexandre Froger
-Author URI: https://froger.me/
-License: GPLv2 or later
-Text Domain: updatepulse-server
-Domain Path: /languages
-*/
+/**
+ * Plugin Name: UpdatePulse Server
+ * Plugin URI: https://github.com/anyape/updatepulse-server/
+ * Description: Run your own update server.
+ * Version: 1.0.2
+ * Author: Alexandre Froger
+ * Author URI: https://froger.me/
+ * License: GPLv2 or later
+ * Text Domain: updatepulse-server
+ * Domain Path: /languages
+ *
+ * @package UPServ
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
