@@ -50,12 +50,11 @@
 								<th scope="row"><?php esc_html_e( 'License Status', 'updatepulse-server' ); ?></th>
 								<td>
 									<select id="upserv_license_status">
-										<option value="pending"><?php esc_html_e( 'Pending', 'updatepulse-server' ); ?></option>
-										<option value="activated"><?php esc_html_e( 'Activated', 'updatepulse-server' ); ?></option>
-										<option value="deactivated"><?php esc_html_e( 'Deactivated', 'updatepulse-server' ); ?></option>
-										<option value="on-hold"><?php esc_html_e( 'On Hold', 'updatepulse-server' ); ?></option>
-										<option value="blocked"><?php esc_html_e( 'Blocked', 'updatepulse-server' ); ?></option>
-										<option value="expired"><?php esc_html_e( 'Expired', 'updatepulse-server' ); ?></option>
+										<?php
+										foreach ( $status_options as $value => $label ) {
+											echo '<option value="' . esc_html( $value ) . '">' . esc_html( $label ) . '</option>';
+										}
+										?>
 									</select>
 								</td>
 							</tr>

@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use WP_List_Table;
+use Anyape\Utils\Utils;
 
 class Licenses_Table extends WP_List_Table {
 
@@ -42,7 +43,7 @@ class Licenses_Table extends WP_List_Table {
 			'col_package_type' => __( 'Package Type', 'updatepulse-server' ),
 			'col_package_slug' => __( 'Package Slug', 'updatepulse-server' ),
 			'col_date_created' => __( 'Creation Date', 'updatepulse-server' ),
-			'col_date_expiry'  => __( 'Expiry Date', 'updatepulse-server' ),
+			'col_date_expiry'  => __( 'Expiration Date', 'updatepulse-server' ),
 			'col_id'           => __( 'ID', 'updatepulse-server' ),
 		);
 	}
@@ -185,7 +186,8 @@ class Licenses_Table extends WP_List_Table {
 			$page        = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			foreach ( $records as $record_key => $record ) {
-				$bulk_value = wp_json_encode( $record );
+				$bulk_value             = wp_json_encode( $record );
+				$record['status_label'] = Utils::get_status_string( $record['status'] );
 
 				upserv_get_admin_template(
 					'licenses-table-row.php',

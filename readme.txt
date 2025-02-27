@@ -71,6 +71,7 @@ This section describes how to install the plugin and get it working.
 * Minor License Server fix
 * Improve record delete
 * Expiry => Expiration in all UI
+* Improved Licenses table styles
 
 = 1.0.1 =
 * Minor readme updates

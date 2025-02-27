@@ -151,4 +151,23 @@ class Utils {
 
 		return $ip;
 	}
+
+	public static function get_status_string( $status ) {
+		switch ( $status ) {
+			case 'pending':
+				return __( 'Pending', 'updatepulse-server' );
+			case 'activated':
+				return __( 'Activated', 'updatepulse-server' );
+			case 'deactivated':
+				return __( 'Deactivated', 'updatepulse-server' );
+			case 'on-hold':
+				return __( 'On Hold', 'updatepulse-server' );
+			case 'blocked':
+				return __( 'Blocked', 'updatepulse-server' );
+			case 'expired':
+				return __( 'Expired', 'updatepulse-server' );
+			default:
+				return __( 'N/A', 'updatepulse-server' );
+		}
+	}
 }

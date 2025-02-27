@@ -5,12 +5,16 @@
 	<?php foreach ( $columns as $column_name => $column_display_name ) : ?>
 		<?php
 		$key     = str_replace( 'col_', '', $column_name );
-		$class   = $column_name
+		$_class  = $column_name
 			. ' column-'
 			. $column_name
 			. ( $primary === $column_name ? ' has-row-actions column-primary' : '' );
 		$style   = '';
 		$actions = '';
+
+		if ( 'col_status' === $column_name ) {
+			$_class .= ' ' . $record[ $key ];
+		}
 
 		if ( in_array( $column_name, $hidden, true ) ) {
 			$style = 'display:none;';
@@ -40,14 +44,14 @@
 				<input type="checkbox" name="license_data[]" id="cb-select-<?php echo esc_attr( $record_key ); ?>" value="<?php echo esc_attr( $bulk_value ); ?>" />
 			</th>
 		<?php else : ?>
-			<td class="<?php echo esc_attr( $class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-colname="<?php echo esc_attr( $column_display_name ); ?>">
+			<td class="<?php echo esc_attr( $_class ); ?>" style="<?php echo esc_attr( $style ); ?>" data-colname="<?php echo esc_attr( $column_display_name ); ?>">
 				<?php if ( 'col_id' === $column_name ) : ?>
 					<?php echo esc_html( $record[ $key ] ); ?>
 				<?php elseif ( 'col_license_key' === $column_name ) : ?>
 					<?php echo esc_html( $record[ $key ] ); ?>
 					<?php echo wp_kses_post( $actions ); ?>
 				<?php elseif ( 'col_status' === $column_name ) : ?>
-					<?php echo esc_html( ucfirst( $record[ $key ] ) ); ?>
+					<mark><span><?php echo esc_html( ucfirst( $record['status_label'] ) ); ?></span></mark>
 				<?php elseif ( 'col_package_type' === $column_name ) : ?>
 					<?php echo esc_html( ucfirst( $record[ $key ] ) ); ?>
 				<?php elseif ( 'col_package_slug' === $column_name ) : ?>

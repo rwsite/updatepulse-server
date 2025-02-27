@@ -8,6 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use DateTime;
 use DateTimeZone;
+use Anyape\Utils\Utils;
 use Anyape\UpdatePulse\Server\Table\Licenses_Table;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
@@ -313,6 +314,14 @@ class License_Manager {
 		$options        = array(
 			'use_licenses' => upserv_get_option( 'use_licenses', 0 ),
 		);
+		$status_options = array(
+			'pending'     => Utils::get_status_string( 'pending' ),
+			'activated'   => Utils::get_status_string( 'activated' ),
+			'deactivated' => Utils::get_status_string( 'deactivated' ),
+			'on-hold'     => Utils::get_status_string( 'on-hold' ),
+			'blocked'     => Utils::get_status_string( 'blocked' ),
+			'expired'     => Utils::get_status_string( 'expired' ),
+		);
 
 		$licenses_table->prepare_items();
 
@@ -331,6 +340,7 @@ class License_Manager {
 			array(
 				'licenses_table' => $licenses_table,
 				'options'        => $options,
+				'status_options' => $status_options,
 			)
 		);
 	}
