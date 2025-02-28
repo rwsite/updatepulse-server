@@ -74,6 +74,7 @@ This section describes how to install the plugin and get it working.
 * Improved Licenses table styles
 * Add `@package` to main plugin file
 * Hard-force PHP min version to 8.0
+* Fix API details modal
 
 = 1.0.1 =
 * Minor readme updates

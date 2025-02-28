@@ -17,8 +17,8 @@ jQuery(document).ready(function ($) {
         var info;
         var modal = $(this);
 
-        if (handler.closest('tr').find('input[name="api_data[]"]').val()) {
-            info = JSON.parse(handler.closest('tr').find('input[name="api_data[]"]').val());
+        if (handler.closest('table').find('.api-data').val()) {
+            info = JSON.parse(handler.closest('table').find('.api-data').val());
         }
 
         if (typeof info !== 'object') {

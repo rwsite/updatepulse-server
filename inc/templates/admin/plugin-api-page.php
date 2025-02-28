@@ -32,7 +32,7 @@
 							</div>
 							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a Package API Key', 'updatepulse-server' ); ?></button>
 						</div>
-						<input type="hidden" class="api-key-values" id="upserv_package_private_api_keys" name="upserv_package_private_api_keys" value="<?php echo esc_attr( $options['package_private_api_keys'] ); ?>">
+						<input type="hidden" class="api-key-values api-data" id="upserv_package_private_api_keys" name="upserv_package_private_api_keys" value="<?php echo esc_attr( $options['package_private_api_keys'] ); ?>">
 					</div>
 					<p class="description">
 						<?php esc_html_e( 'Used to get tokens for package administration requests and requests of signed URLs used to download packages.', 'updatepulse-server' ); ?>
@@ -100,7 +100,7 @@
 							</div>
 							<button disabled="disabled" class="api-keys-add button" type="button"><?php esc_html_e( 'Add a License API Key', 'updatepulse-server' ); ?></button>
 						</div>
-						<input type="hidden" class="api-key-values" id="upserv_license_private_api_keys" name="upserv_license_private_api_keys" value="<?php echo esc_attr( $options['license_private_api_keys'] ); ?>">
+						<input type="hidden" class="api-key-values api-data" id="upserv_license_private_api_keys" name="upserv_license_private_api_keys" value="<?php echo esc_attr( $options['license_private_api_keys'] ); ?>">
 					</div>
 					<p class="description">
 						<?php esc_html_e( 'Used to get tokens for license administration requests.', 'updatepulse-server' ); ?>
@@ -165,7 +165,7 @@
 							</div>
 							<button disabled="disabled" class="webhook-add button" type="button"><?php esc_html_e( 'Add a Webhook', 'updatepulse-server' ); ?></button>
 						</div>
-						<input type="hidden" class="webhook-values" id="upserv_webhooks" name="upserv_webhooks" value="<?php echo esc_attr( $options['webhooks'] ); ?>">
+						<input type="hidden" class="webhook-values api-data" id="upserv_webhooks" name="upserv_webhooks" value="<?php echo esc_attr( $options['webhooks'] ); ?>">
 						<p class="description">
 							<?php esc_html_e( 'Webhooks are event notifications sent to arbitrary URLs during the next cron job (within 1 minute after the event occurs with a server cron configuration schedule to execute every minute). The event is sent along with a payload of data for third party services integration.', 'updatepulse-server' ); ?>
 							<br>
