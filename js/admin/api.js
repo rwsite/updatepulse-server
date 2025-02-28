@@ -19,6 +19,8 @@ jQuery(document).ready(function ($) {
 
         if (handler.closest('table').find('.api-data').val()) {
             info = JSON.parse(handler.closest('table').find('.api-data').val());
+        } else if (handler.closest('h3').next('table').find('.api-data').val()) {
+            info = JSON.parse(handler.closest('h3').next('table').find('.api-data').val());
         }
 
         if (typeof info !== 'object') {
