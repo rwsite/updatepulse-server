@@ -75,6 +75,7 @@ This section describes how to install the plugin and get it working.
 * Add `@package` to main plugin file
 * Hard-force PHP min version to 8.0
 * Fix API details modal
+* Fix webhooks with empty license API keys (not recommended)
 
 = 1.0.1 =
 * Minor readme updates

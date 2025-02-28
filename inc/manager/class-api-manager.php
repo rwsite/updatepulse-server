@@ -347,7 +347,7 @@ class API_Manager {
 							'url'           => $url,
 							'secret'        => $secret,
 							'events'        => $events,
-							'licenseAPIKey' => $license_api_key,
+							'licenseAPIKey' => 'UPDATEPULSE_L_' === $license_api_key ? '' : $license_api_key,
 						);
 					}
 
