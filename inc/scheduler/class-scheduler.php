@@ -110,11 +110,11 @@ class Scheduler {
 		}
 	}
 
-	protected function next_scheduled_action( $hook, $args = null, $group = '' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	protected function next_scheduled_action( $hook, $args = array(), $group = '' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		return wp_next_scheduled( $hook, $args );
 	}
 
-	protected function has_scheduled_action( $hook, $args = null, $group = '' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+	protected function has_scheduled_action( $hook, $args = array(), $group = '' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		return (bool) wp_next_scheduled( $hook, $args );
 	}
 }
