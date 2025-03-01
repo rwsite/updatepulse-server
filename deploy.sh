@@ -145,7 +145,7 @@ fi
 
 # Check version in readme.txt is the same as plugin file
 NEWVERSION1=$(grep "^Stable tag:" "$GITPATH"/readme.txt | awk -F' ' '{print $NF}')
-NEWVERSION2=$(grep "^Version:" "$GITPATH"/"$MAINFILE" | awk -F' ' '{print $NF}')
+NEWVERSION2=$(grep -E "^[[:space:]]*\*?[[:space:]]*Version:" "$GITPATH"/"$MAINFILE" | awk -F' ' '{print $NF}')
 echo "readme.txt version: $NEWVERSION1"
 echo "$MAINFILE version: $NEWVERSION2"
 
