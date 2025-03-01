@@ -756,7 +756,7 @@ class Update_Server {
 	protected function output_as_json( $response ) {
 		header( 'Content-Type: application/json; charset=utf-8' );
 
-		echo wp_json_encode( $response, JSON_PRETTY_PRINT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo wp_json_encode( $response, Utils::JSON_OPTIONS ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	// Misc. -------------------------------------------------------

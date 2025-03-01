@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Utils {
 
 	// JSON options
-	const JSON_OPTIONS = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_NUMERIC_CHECK;
+	const JSON_OPTIONS = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
 
 	/**
 	 * @param string $message
