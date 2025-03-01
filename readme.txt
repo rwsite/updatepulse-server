@@ -65,6 +65,9 @@ This section describes how to install the plugin and get it working.
 
 == Changelog ==
 
+= 1.0.3 =
+* Minor Package API fix
+
 = 1.0.2 =
 * Minor Package API fix
 * Minor License API fix

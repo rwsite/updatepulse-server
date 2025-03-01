@@ -486,7 +486,7 @@ Values format in case of a plugin package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "plugin-slug",
     "type": "plugin",
     "file_name": "plugin-slug.zip",
@@ -523,7 +523,7 @@ Values format in case of a theme package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "theme-slug",
     "type": "theme",
     "file_name": "theme-slug.zip",
@@ -560,7 +560,7 @@ Values format in case of a generic package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "generic-slug",
     "type": "generic",
     "file_name": "generic-slug.zip",
@@ -650,7 +650,7 @@ Values format in case of a plugin package:
         "low": "https:\/\/domain.tld\/banner-722x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "plugin-slug",
     "type": "plugin",
     "file_name": "plugin-slug.zip",
@@ -687,7 +687,7 @@ Values format in case of a theme package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "theme-slug",
     "type": "theme",
     "file_name": "theme-slug.zip",
@@ -724,7 +724,7 @@ Values format in case of a generic package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "generic-slug",
     "type": "generic",
     "file_name": "generic-slug.zip",
@@ -885,7 +885,7 @@ Values format in case of a theme package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "theme-slug",
     "type": "theme",
     "file_name": "theme-slug.zip",
@@ -922,7 +922,7 @@ Values format in case of a generic package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "generic-slug",
     "type": "generic",
     "file_name": "generic-slug.zip",
@@ -1426,7 +1426,7 @@ Values format in case of a plugin package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "plugin-slug",
     "type": "plugin",
     "file_name": "plugin-slug.zip",
@@ -1454,7 +1454,7 @@ Values format in case of a theme package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "theme-slug",
     "type": "theme",
     "file_name": "theme-slug.zip",
@@ -1482,7 +1482,7 @@ Values format in case of a generic package:
         "low": "https:\/\/domain.tld\/banner-772x250.png",
         "high": "https:\/\/domain.tld\/banner-1544x500.png"
     },
-    "require_license": false,
+    "require_license": "",
     "slug": "generic-slug",
     "type": "generic",
     "file_name": "generic-slug.zip",

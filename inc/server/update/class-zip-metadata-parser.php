@@ -324,13 +324,14 @@ class Zip_Metadata_Parser {
 				$this->metadata['banners'] = $extra_meta['banners'];
 			}
 
-			if ( ! empty( $extra_meta['require_license'] ) ) {
-				$this->metadata['require_license'] = (
+			$this->metadata['require_license'] = (
+				! empty( $extra_meta['require_license'] ) &&
+				(
 					'yes' === $extra_meta['require_license'] ||
 					'true' === $extra_meta['require_license'] ||
 					1 === intval( $extra_meta['require_license'] )
-				);
-			}
+				)
+			);
 
 			if ( ! empty( $extra_meta['licensed_with'] ) ) {
 				$this->metadata['licensed_with'] = $extra_meta['licensed_with'];

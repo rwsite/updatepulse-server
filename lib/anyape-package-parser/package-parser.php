@@ -521,7 +521,9 @@ class Parser {
 		$extra_headers      = array();
 
 		if ( ! empty( $headers['RequireLicense'] ) ) {
-			$extra_headers['require_license'] = $headers['RequireLicense'];
+			$extra_headers['require_license'] = (bool) $headers['RequireLicense'];
+		} else {
+			$extra_headers['require_license'] = false;
 		}
 
 		if ( ! empty( $headers['LicensedWith'] ) ) {
