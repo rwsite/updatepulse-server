@@ -148,6 +148,19 @@ class Packages_Table extends WP_List_Table {
 					$record['metadata']['origin'] = 'unknown';
 				}
 
+				$record['update_url'] = add_query_arg(
+					array(
+						'action'               => 'get_metadata',
+						'package_id'           => $record['slug'],
+						'installed_version'    => $record['version'],
+						'php'                  => PHP_VERSION,
+						'locale'               => get_locale(),
+						'checking_for_updates' => 1,
+						'update_type'          => ucfirst( $record['type'] ),
+					),
+					home_url( '/updatepulse-server-update-api/' )
+				);
+
 				$info           = $record;
 				$unset_metadata = array( 'previous', 'branch', 'vcs_key', 'vcs', 'whitelist' );
 
@@ -245,8 +258,7 @@ class Packages_Table extends WP_List_Table {
 	}
 
 	protected function get_table_classes() {
-		$mode = get_user_setting( 'posts_list_mode', 'list' );
-
+		$mode       = get_user_setting( 'posts_list_mode', 'list' );
 		$mode_class = esc_attr( 'table-view-' . $mode );
 
 		return array( 'widefat', 'striped', $mode_class, $this->_args['plural'] );

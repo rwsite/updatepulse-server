@@ -106,7 +106,7 @@ class Nonce {
 			if (
 				is_string( $wp->query_vars['action'] ) &&
 				method_exists(
-					get_class(),
+					__CLASS__,
 					'generate_' . $wp->query_vars['action'] . '_api_response'
 				)
 			) {
@@ -194,14 +194,14 @@ class Nonce {
 	public static function register() {
 
 		if ( ! self::is_doing_api_request() ) {
-			add_action( 'upserv_scheduler_init', array( get_class(), 'upserv_scheduler_init' ) );
-			add_action( 'upserv_nonce_cleanup', array( get_class(), 'upserv_nonce_cleanup' ) );
+			add_action( 'upserv_scheduler_init', array( __CLASS__, 'upserv_scheduler_init' ) );
+			add_action( 'upserv_nonce_cleanup', array( __CLASS__, 'upserv_nonce_cleanup' ) );
 		}
 
-		add_action( 'init', array( get_class(), 'add_endpoints' ) );
-		add_action( 'parse_request', array( get_class(), 'parse_request' ), -99, 0 );
+		add_action( 'init', array( __CLASS__, 'add_endpoints' ) );
+		add_action( 'parse_request', array( __CLASS__, 'parse_request' ), -99, 0 );
 
-		add_filter( 'query_vars', array( get_class(), 'query_vars' ), -99, 1 );
+		add_filter( 'query_vars', array( __CLASS__, 'query_vars' ), -99, 1 );
 	}
 
 	public static function init_auth( $private_keys ) {

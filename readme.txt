@@ -68,6 +68,9 @@ This section describes how to install the plugin and get it working.
 = 1.0.3 =
 * Minor Package API fix
 * All API: remove `JSON_NUMERIC_CHECK` when encoding output as it creates issues with values like version numbers.
+* Fix deprecated PHP 8.3 calls to `get_class()`
+* Add a URL to test the Update API endpoint in Packages JSON details
+* Minor code cleanup
 
 = 1.0.2 =
 * Minor Package API fix
