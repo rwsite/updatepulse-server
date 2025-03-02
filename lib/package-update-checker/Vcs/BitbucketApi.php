@@ -6,6 +6,10 @@ use WP_Error;
 
 if ( ! class_exists( BitbucketApi::class, false ) ) :
 
+	/**
+	 * Class BitbucketApi
+	 * Handles interactions with the Bitbucket API.
+	 */
 	class BitbucketApi extends Api {
 
 		/**
@@ -13,6 +17,13 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		 */
 		protected $app_password;
 
+		/**
+		 * BitbucketApi constructor.
+		 *
+		 * @param string $repository_url The URL of the Bitbucket repository.
+		 * @param string|null $app_password Optional. The Bitbucket app password.
+		 * @throws \InvalidArgumentException If the repository URL is invalid.
+		 */
 		public function __construct( $repository_url, $app_password = null ) {
 			$path = wp_parse_url( $repository_url, PHP_URL_PATH );
 
@@ -31,7 +42,9 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		/**
 		 * Check if the VCS is accessible.
 		 *
-		 * @return bool|WP_Error
+		 * @param string $url The URL to test.
+		 * @param string|null $app_password Optional. The Bitbucket app password.
+		 * @return bool|WP_Error True if accessible, WP_Error otherwise.
 		 */
 		public static function test( $url, $app_password = null ) {
 			$instance = new self( $url . 'bogus/', $app_password );
@@ -56,6 +69,12 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 			);
 		}
 
+		/**
+		 * Get update detection strategies.
+		 *
+		 * @param string $config_branch The branch to check for updates.
+		 * @return array The update detection strategies.
+		 */
 		protected function get_update_detection_strategies( $config_branch ) {
 			$strategies[ self::STRATEGY_BRANCH ] = function () use ( $config_branch ) {
 				return $this->get_branch( $config_branch );
@@ -68,6 +87,12 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 			return $strategies;
 		}
 
+		/**
+		 * Get a specific branch.
+		 *
+		 * @param string $branch_name The name of the branch.
+		 * @return Reference|null The branch reference or null if not found.
+		 */
 		public function get_branch( $branch_name ) {
 			$branch = $this->api( '/refs/branches/' . $branch_name );
 
@@ -75,9 +100,8 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 				return null;
 			}
 
-			//The "/src/{stuff}/{path}" endpoint doesn't seem to handle branch names that contain slashes.
-			//If we don't encode the slash, we get a 404. If we encode it as "%2F", we get a 401.
-			//To avoid issues, if the branch name is not URL-safe, let's use the commit hash instead.
+			// The "/src/{something}/{path}" endpoint doesn't handle branch names with slashes.
+			// If the branch name is not URL-safe, use the commit hash instead.
 			$ref = $branch->name;
 
 			if ( ( rawurlencode( $ref ) !== $ref ) && isset( $branch->target->hash ) ) {
@@ -96,8 +120,8 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		/**
 		 * Get a specific tag.
 		 *
-		 * @param string $tag_name
-		 * @return Reference|null
+		 * @param string $tag_name The name of the tag.
+		 * @return Reference|null The tag reference or null if not found.
 		 */
 		public function get_tag( $tag_name ) {
 			$tag = $this->api( '/refs/tags/' . $tag_name );
@@ -117,9 +141,9 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the tag that looks like the highest version number.
+		 * Get the latest tag that looks like the highest version number.
 		 *
-		 * @return Reference|null
+		 * @return Reference|null The latest tag reference or null if not found.
 		 */
 		public function get_latest_tag() {
 			$tags = $this->api( '/refs/tags?sort=-target.date' );
@@ -128,10 +152,10 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 				return null;
 			}
 
-			//Filter and sort the list of tags.
+			// Filter and sort the list of tags.
 			$version_tags = $this->sort_tags_by_version( $tags->values );
 
-			//Return the first result.
+			// Return the first result.
 			if ( ! empty( $version_tags ) ) {
 				$tag = $version_tags[0];
 
@@ -149,8 +173,10 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		}
 
 		/**
-		 * @param string $ref
-		 * @return string
+		 * Get the download URL for a specific reference.
+		 *
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return string The download URL.
 		 */
 		protected function get_download_url( $ref ) {
 			return sprintf(
@@ -164,9 +190,9 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		/**
 		 * Get the contents of a file from a specific branch or tag.
 		 *
-		 * @param string $path File name.
-		 * @param string $ref
-		 * @return null|string Either the contents of the file, or null if the file doesn't exist or there's an error.
+		 * @param string $path The file path.
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return null|string The file contents or null if not found.
 		 */
 		public function get_remote_file( $path, $ref = 'main' ) {
 			$response = $this->api( 'src/' . $ref . '/' . ltrim( $path ) );
@@ -181,8 +207,8 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		/**
 		 * Get the timestamp of the latest commit that changed the specified branch or tag.
 		 *
-		 * @param string $ref Reference name ( e.g. branch or tag ).
-		 * @return string|null
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return string|null The timestamp of the latest commit or null if not found.
 		 */
 		public function get_latest_commit_time( $ref ) {
 			$response = $this->api( 'commits/' . $ref );
@@ -197,9 +223,10 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		/**
 		 * Perform a Bitbucket API 2.0 request.
 		 *
-		 * @param string $url
-		 * @param string $version
-		 * @return mixed|WP_Error
+		 * @param string $url The API endpoint URL.
+		 * @param string $version The API version.
+		 * @param bool $override_url Whether to override the base URL.
+		 * @return mixed|WP_Error The API response or WP_Error on failure.
 		 */
 		public function api( $url, $version = '2.0', $override_url = false ) {
 			$url             = ltrim( $url, '/' );
@@ -238,8 +265,7 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 			if ( 200 === $code ) {
 
 				if ( $is_src_resource ) {
-					//Most responses are JSON-encoded, but src resources just
-					//return raw file contents.
+					// Most responses are JSON-encoded, but src resources return raw file contents.
 					$document = $body;
 				} else {
 					$document = json_decode( $body );
@@ -266,7 +292,9 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		}
 
 		/**
-		 * @param array $credentials
+		 * Set authentication credentials.
+		 *
+		 * @param array|string $credentials The authentication credentials.
 		 */
 		public function set_authentication( $credentials ) {
 			parent::set_authentication( $credentials );
@@ -277,7 +305,7 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 		/**
 		 * Generate the value of the "Authorization" header.
 		 *
-		 * @return string
+		 * @return array The authorization headers.
 		 */
 		public function get_authorization_headers() {
 			return array(

@@ -4,6 +4,9 @@ namespace Anyape\PackageUpdateChecker\Vcs;
 
 if ( ! class_exists( Api::class, false ) ) :
 
+	/**
+	 * Abstract class representing a Version Control System (VCS) API.
+	 */
 	abstract class Api {
 
 		const STRATEGY_LATEST_RELEASE = 'latest_release';
@@ -82,7 +85,7 @@ if ( ! class_exists( Api::class, false ) ) :
 		}
 
 		/**
-		 * Figure out which reference ( i.e. tag or branch ) contains the latest version.
+		 * Determine which reference (i.e., tag or branch) contains the latest version.
 		 *
 		 * @param string $config_branch Start looking in this branch.
 		 * @return null|Reference
@@ -119,7 +122,7 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * "README.TXT", or even "Readme.txt". Most VCS are case-sensitive so we need to know the correct
 		 * capitalization.
 		 *
-		 * Defaults to "readme.txt" ( all lowercase ).
+		 * Defaults to "readme.txt" (all lowercase).
 		 *
 		 * @return string
 		 */
@@ -169,7 +172,7 @@ if ( ! class_exists( Api::class, false ) ) :
 
 		/**
 		 * Get the tag that looks like the highest version number.
-		 * ( Implementations should skip pre-release versions if possible. )
+		 * (Implementations should skip pre-release versions if possible.)
 		 *
 		 * @return Reference|null
 		 */
@@ -182,15 +185,15 @@ if ( ! class_exists( Api::class, false ) ) :
 		 * @return bool
 		 */
 		protected function looks_like_version( $name ) {
-			//Tag names may be prefixed with "v", e.g. "v1.2.3".
+			// Tag names may be prefixed with "v", e.g., "v1.2.3".
 			$name = ltrim( $name, 'v' );
 
-			//The version string must start with a number.
+			// The version string must start with a number.
 			if ( ! is_numeric( substr( $name, 0, 1 ) ) ) {
 				return false;
 			}
 
-			//The goal is to accept any SemVer-compatible or "PHP-standardized" version number.
+			// The goal is to accept any SemVer-compatible or "PHP-standardized" version number.
 			return ( preg_match( '@^(\d{1,5}?)(\.\d{1,10}?){0,4}?($|[abrdp+_\-]|\s)@i', $name ) === 1 );
 		}
 
@@ -208,23 +211,23 @@ if ( ! class_exists( Api::class, false ) ) :
 
 		/**
 		 * Sort a list of tags as if they were version numbers.
-		 * Tags that don't look like version number will be removed.
+		 * Tags that don't look like version numbers will be removed.
 		 *
 		 * @param \stdClass[] $tags Array of tag objects.
 		 * @return \stdClass[] Filtered array of tags sorted in descending order.
 		 */
 		protected function sort_tags_by_version( $tags ) {
-			//Keep only those tags that look like version numbers.
+			// Keep only those tags that look like version numbers.
 			$version_tags = array_filter( $tags, array( $this, 'is_version_tag' ) );
 
-			//Sort them in descending order.
+			// Sort them in descending order.
 			usort( $version_tags, array( $this, 'compare_tag_names' ) );
 
 			return $version_tags;
 		}
 
 		/**
-		 * Compare two tags as if they were version number.
+		 * Compare two tags as if they were version numbers.
 		 *
 		 * @param \stdClass $tag1 Tag object.
 		 * @param \stdClass $tag2 Another tag object.
@@ -256,7 +259,7 @@ if ( ! class_exists( Api::class, false ) ) :
 		/**
 		 * Get the timestamp of the latest commit that changed the specified branch or tag.
 		 *
-		 * @param string $ref Reference name ( e.g. branch or tag ).
+		 * @param string $ref Reference name (e.g., branch or tag).
 		 * @return string|null
 		 */
 		abstract public function get_latest_commit_time( $ref );

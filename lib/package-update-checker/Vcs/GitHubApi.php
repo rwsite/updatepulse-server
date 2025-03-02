@@ -8,6 +8,13 @@ use LogicException;
 
 if ( ! class_exists( GitHubApi::class, false ) ) :
 
+	/**
+	 * Class GitHubApi
+	 *
+	 * This class provides methods to interact with the GitHub API for various operations
+	 * such as fetching releases, tags, branches, and commits. It also handles authentication
+	 * and API request construction.
+	 */
 	class GitHubApi extends Api {
 		use ReleaseAssetSupport;
 		use ReleaseFilteringFeature;
@@ -18,10 +25,17 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		protected $access_token;
 
 		/**
-		 * @var bool
+		 * @var bool Indicates if the download filter has been added.
 		 */
 		private $download_filter_added = false;
 
+		/**
+		 * GitHubApi constructor.
+		 *
+		 * @param string $repository_url The URL of the GitHub repository.
+		 * @param string|null $access_token Optional GitHub access token.
+		 * @throws InvalidArgumentException If the repository URL is invalid.
+		 */
 		public function __construct( $repository_url, $access_token = null ) {
 			$path = wp_parse_url( $repository_url, PHP_URL_PATH );
 
@@ -40,7 +54,9 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		/**
 		 * Check if the VCS is accessible.
 		 *
-		 * @return bool|WP_Error
+		 * @param string $url The URL to check.
+		 * @param string|null $access_token Optional GitHub access token.
+		 * @return bool|WP_Error True if accessible, false or WP_Error otherwise.
 		 */
 		public static function test( $url, $access_token = null ) {
 			$instance = new self( $url . 'bogus/', $access_token );
@@ -84,20 +100,20 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the latest release from GitHub.
+		 * Retrieve the latest release from GitHub.
 		 *
-		 * @return Reference|null
+		 * @return Reference|null The latest release or null if not found.
 		 */
 		public function get_latest_release() {
 
-			//The "latest release" endpoint returns one release and always skips pre-releases, so we can only use it if that's compatible with the current filter settings.
+			// The "latest release" endpoint returns one release and always skips pre-releases, so we can only use it if that's compatible with the current filter settings.
 			if (
 				$this->should_skip_pre_releases()
 				&& (
 					( 1 === $this->release_filter_max_releases ) || ! $this->has_custom_release_filter()
 				)
 			) {
-				//Just get the latest release.
+				// Fetch the latest release.
 				$release = $this->api( '/repos/:user/:repo/releases/latest' );
 
 				if ( is_wp_error( $release ) || ! is_object( $release ) || ! isset( $release->tag_name ) ) {
@@ -106,7 +122,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 
 				$found_releases = array( $release );
 			} else {
-				//Get a list of the most recent releases.
+				// Retrieve a list of the most recent releases.
 				$found_releases = $this->api(
 					'/repos/:user/:repo/releases',
 					array( 'per_page' => $this->release_filter_max_releases )
@@ -119,12 +135,12 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 
 			foreach ( $found_releases as $release ) {
 
-				//Always skip drafts.
+				// Always skip drafts.
 				if ( isset( $release->draft ) && ! empty( $release->draft ) ) {
 					continue;
 				}
 
-				//Skip pre-releases unless specifically included.
+				// Skip pre-releases unless specifically included.
 				if (
 					$this->should_skip_pre_releases()
 					&& isset( $release->prerelease )
@@ -133,9 +149,9 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 					continue;
 				}
 
-				$version_number = ltrim( $release->tag_name, 'v' ); //Remove the "v" prefix from "v1.2.3".
+				$version_number = ltrim( $release->tag_name, 'v' ); // Remove the "v" prefix from "v1.2.3".
 
-				//Custom release filtering.
+				// Custom release filtering.
 				if ( ! $this->matches_custom_release_filter( $version_number, $release ) ) {
 					continue;
 				}
@@ -156,7 +172,7 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 
 				if ( $this->release_assets_enabled ) {
 
-					//Use the first release asset that matches the specified regular expression.
+					// Use the first release asset that matches the specified regular expression.
 					if ( isset( $release->assets, $release->assets[0] ) ) {
 						$matching_assets = array_values( array_filter( $release->assets, array( $this, 'matchesAssetFilter' ) ) );
 					} else {
@@ -173,14 +189,14 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 							 */
 							$reference->download_url = $matching_assets[0]->url;
 						} else {
-							//It seems that browser_download_url only works for public repositories.
-							//Using an access_token doesn't help. Maybe OAuth would work?
+							// It seems that browser_download_url only works for public repositories.
+							// Using an access_token doesn't help. Maybe OAuth would work?
 							$reference->download_url = $matching_assets[0]->browser_download_url;
 						}
 
 						$reference->download_count = $matching_assets[0]->download_count;
 					} elseif ( Api::REQUIRE_RELEASE_ASSETS === $this->release_asset_preference ) {
-						//None of the assets match the filter, and we're not allowed to fall back to the auto-generated source ZIP.
+						// None of the assets match the filter, and we're not allowed to fall back to the auto-generated source ZIP.
 						return null;
 					}
 				}
@@ -192,9 +208,9 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the tag that looks like the highest version number.
+		 * Retrieve the tag that appears to be the highest version number.
 		 *
-		 * @return Reference|null
+		 * @return Reference|null The highest version tag or null if not found.
 		 */
 		public function get_latest_tag() {
 			$tags = $this->api( '/repos/:user/:repo/tags' );
@@ -222,10 +238,10 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get a branch by name.
+		 * Retrieve a branch by its name.
 		 *
-		 * @param string $branch_name
-		 * @return null|Reference
+		 * @param string $branch_name The name of the branch.
+		 * @return null|Reference The branch reference or null if not found.
 		 */
 		public function get_branch( $branch_name ) {
 			$branch = $this->api( '/repos/:user/:repo/branches/' . $branch_name );
@@ -250,11 +266,11 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the latest commit that changed the specified file.
+		 * Retrieve the latest commit that modified the specified file.
 		 *
-		 * @param string $filename
-		 * @param string $ref Reference name ( e.g. branch or tag ).
-		 * @return \StdClass|null
+		 * @param string $filename The name of the file.
+		 * @param string $ref Reference name (e.g., branch or tag).
+		 * @return \StdClass|null The latest commit or null if not found.
 		 */
 		public function get_latest_commit( $filename, $ref = 'main' ) {
 			$commits = $this->api(
@@ -273,10 +289,10 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the timestamp of the latest commit that changed the specified branch or tag.
+		 * Retrieve the timestamp of the latest commit that modified the specified branch or tag.
 		 *
-		 * @param string $ref Reference name ( e.g. branch or tag ).
-		 * @return string|null
+		 * @param string $ref Reference name (e.g., branch or tag).
+		 * @return string|null The timestamp of the latest commit or null if not found.
 		 */
 		public function get_latest_commit_time( $ref ) {
 			$commits = $this->api( '/repos/:user/:repo/commits', array( 'sha' => $ref ) );
@@ -291,9 +307,10 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		/**
 		 * Perform a GitHub API request.
 		 *
-		 * @param string $url
-		 * @param array $query_params
-		 * @return mixed|WP_Error
+		 * @param string $url The API endpoint URL.
+		 * @param array $query_params Optional query parameters.
+		 * @param bool $override_url Whether to override the base URL.
+		 * @return mixed|WP_Error The API response or WP_Error on failure.
 		 */
 		protected function api( $url, $query_params = array(), $override_url = false ) {
 			$base_url = $url;
@@ -346,11 +363,11 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Build a fully qualified URL for an API request.
+		 * Construct a fully qualified URL for an API request.
 		 *
-		 * @param string $url
-		 * @param array $query_params
-		 * @return string
+		 * @param string $url The API endpoint URL.
+		 * @param array $query_params Optional query parameters.
+		 * @return string The fully qualified URL.
 		 */
 		protected function build_api_url( $url, $query_params ) {
 			$variables = array(
@@ -372,11 +389,11 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the contents of a file from a specific branch or tag.
+		 * Retrieve the contents of a file from a specific branch or tag.
 		 *
-		 * @param string $path File name.
-		 * @param string $ref
-		 * @return null|string Either the contents of the file, or null if the file doesn't exist or there's an error.
+		 * @param string $path The file path.
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return null|string The file contents or null if not found.
 		 */
 		public function get_remote_file( $path, $ref = 'main' ) {
 			$api_url  = '/repos/:user/:repo/contents/' . $path;
@@ -392,8 +409,8 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		/**
 		 * Generate a URL to download a ZIP archive of the specified branch/tag/etc.
 		 *
-		 * @param string $ref
-		 * @return string
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return string The download URL.
 		 */
 		public function build_archive_download_url( $ref = 'main' ) {
 			$url = sprintf(
@@ -407,33 +424,45 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get a specific tag.
+		 * Retrieve a specific tag.
 		 *
-		 * @param string $tag_name
+		 * @param string $tag_name The name of the tag.
 		 * @return void
+		 * @throws LogicException If the method is not implemented.
 		 */
 		public function get_tag( $tag_name ) {
-			//The current GitHub update checker doesn't use get_tag, so I didn't bother to implement it.
+			// The current GitHub update checker doesn't use get_tag, so I didn't bother to implement it.
 			throw new LogicException( 'The ' . __METHOD__ . ' method is not implemented and should not be used.' );
 		}
 
+		/**
+		 * Set the authentication credentials.
+		 *
+		 * @param string|array $credentials The authentication credentials.
+		 */
 		public function set_authentication( $credentials ) {
 			parent::set_authentication( $credentials );
 
 			$this->access_token = is_string( $credentials ) ? $credentials : null;
 		}
 
+		/**
+		 * Retrieve the update detection strategies based on the configuration branch.
+		 *
+		 * @param string $config_branch The configuration branch.
+		 * @return array The update detection strategies.
+		 */
 		protected function get_update_detection_strategies( $config_branch ) {
 			$strategies = array();
 
 			if ( 'main' === $config_branch || 'master' === $config_branch ) {
-				//Use the latest release.
+				// Use the latest release.
 				$strategies[ self::STRATEGY_LATEST_RELEASE ] = array( $this, 'get_latest_release' );
-				//Failing that, use the tag with the highest version number.
+				// Failing that, use the tag with the highest version number.
 				$strategies[ self::STRATEGY_LATEST_TAG ] = array( $this, 'get_latest_tag' );
 			}
 
-			//Alternatively, just use the branch itself.
+			// Alternatively, just use the branch itself.
 			$strategies[ self::STRATEGY_BRANCH ] = function () use ( $config_branch ) {
 				return $this->get_branch( $config_branch );
 			};
@@ -442,9 +471,9 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the unchanging part of a release asset URL. Used to identify download attempts.
+		 * Retrieve the unchanging part of a release asset URL. Used to identify download attempts.
 		 *
-		 * @return string
+		 * @return string The base URL for release assets.
 		 */
 		protected function get_asset_api_base_url() {
 			return sprintf(
@@ -454,6 +483,12 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 			);
 		}
 
+		/**
+		 * Retrieve the filterable name of a release asset.
+		 *
+		 * @param object $release_asset The release asset object.
+		 * @return string|null The name of the release asset or null if not found.
+		 */
 		protected function get_filterable_asset_name( $release_asset ) {
 
 			if ( isset( $release_asset->name ) ) {
@@ -464,8 +499,10 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * @param bool $result
-		 * @return bool
+		 * Add an HTTP request filter.
+		 *
+		 * @param bool $result The result of the filter.
+		 * @return bool The result of the filter.
 		 * @internal
 		 */
 		public function add_http_request_filter( $result ) {
@@ -482,9 +519,9 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		}
 
 		/**
-		 * Set the HTTP headers that are necessary to download updates from private repositories.
+		 * Set the HTTP headers required to download updates from private repositories.
 		 *
-		 * See GitHub docs:
+		 * Refer to GitHub documentation:
 		 *
 		 * @link https://developer.github.com/v3/repos/releases/#get-a-single-release-asset
 		 * @link https://developer.github.com/v3/auth/#basic-authentication
@@ -496,12 +533,12 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 		 */
 		public function set_update_download_headers( $request_args, $url = '' ) {
 
-			//Is WordPress trying to download one of our release assets?
+			// Check if WordPress is attempting to download one of our release assets.
 			if ( $this->release_assets_enabled && ( strpos( $url, $this->get_asset_api_base_url() ) !== false ) ) {
 				$request_args['headers']['Accept'] = 'application/octet-stream';
 			}
 
-			//Use Basic authentication, but only if the download is from our repository.
+			// Use Basic authentication only if the download is from our repository.
 			$repo_api_base_url = $this->build_api_url( '/repos/:user/:repo/', array() );
 
 			if ( $this->is_authentication_enabled() && ( strpos( $url, $repo_api_base_url ) ) === 0 ) {
@@ -513,8 +550,8 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 
 		/**
 		 * When following a redirect, the Requests library will automatically forward
-		 * the authorization header to other hosts. We don't want that because it breaks
-		 * AWS downloads and can leak authorization information.
+		 * the authorization header to other hosts. This can cause issues with AWS downloads
+		 * and may expose authorization information.
 		 *
 		 * @param string $location
 		 * @param array $headers
@@ -524,17 +561,17 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 			$repo_api_base_url = $this->build_api_url( '/repos/:user/:repo/', array() );
 
 			if ( strpos( $location, $repo_api_base_url ) === 0 ) {
-				return; //This request is going to GitHub, so it's fine.
+				return; // This request is going to GitHub, so it's acceptable.
 			}
 
-			//Remove the header.
+			// Remove the authorization header.
 			if ( isset( $headers['Authorization'] ) ) {
 				unset( $headers['Authorization'] );
 			}
 		}
 
 		/**
-		 * Generate the value of the "Authorization" header.
+		 * Create the value for the "Authorization" header.
 		 *
 		 * @return string
 		 */

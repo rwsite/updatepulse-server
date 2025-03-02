@@ -5,43 +5,55 @@ namespace Anyape\PackageUpdateChecker\Vcs;
 if ( ! class_exists( Reference::class, false ) ) :
 
 	/**
-	 * This class represents a VCS branch or tag. It's intended as a read only, short-lived container
-	 * that only exists to provide a limited degree of type checking.
+	 * Class Reference
+	 *
+	 * This class represents a VCS branch or tag. It serves as a read-only, temporary container
+	 * that provides a limited degree of type checking.
 	 *
 	 * @property string $name
-	 * @property string|null version
+	 * @property string|null $version
 	 * @property string $download_url
 	 * @property string $updated
-	 *
 	 * @property int|null $downloadCount
 	 */
 	class Reference {
 
 		private $properties = array();
 
+		/**
+		 * Constructor.
+		 *
+		 * @param array $properties The properties to initialize the reference with.
+		 */
 		public function __construct( $properties = array() ) {
 			$this->properties = $properties;
 		}
 
 		/**
-		 * @param string $name
-		 * @return mixed|null
+		 * Magic getter method.
+		 *
+		 * @param string $name The property name.
+		 * @return mixed|null The property value or null if it doesn't exist.
 		 */
 		public function __get( $name ) {
 			return array_key_exists( $name, $this->properties ) ? $this->properties[ $name ] : null;
 		}
 
 		/**
-		 * @param string $name
-		 * @param mixed $value
+		 * Magic setter method.
+		 *
+		 * @param string $name The property name.
+		 * @param mixed $value The value to set.
 		 */
 		public function __set( $name, $value ) {
 			$this->properties[ $name ] = $value;
 		}
 
 		/**
-		 * @param string $name
-		 * @return bool
+		 * Magic isset method.
+		 *
+		 * @param string $name The property name.
+		 * @return bool True if the property is set, false otherwise.
 		 */
 		public function __isset( $name ) {
 			return isset( $this->properties[ $name ] );

@@ -8,25 +8,39 @@ use LogicException;
 
 if ( ! class_exists( GitLabApi::class, false ) ) :
 
+	/**
+	 * Class GitLabApi
+	 *
+	 * This class interacts with the GitLab API to fetch repository information,
+	 * releases, tags, branches, and other relevant data.
+	 */
 	class GitLabApi extends Api {
 		use ReleaseAssetSupport;
 		use ReleaseFilteringFeature;
 
 		/**
-		 * @var string GitLab server host.
+		 * @var string The host of the GitLab server.
 		 */
 		protected $repository_host;
 		/**
-		 * @var string Protocol used by this GitLab server: "http" or "https".
+		 * @var string The protocol used by the GitLab server, either "http" or "https".
 		 */
 		protected $repository_protocol = 'https';
 		/**
-		 * @var string GitLab authentication token. Optional.
+		 * @var string The GitLab authentication token, which is optional.
 		 */
 		protected $access_token;
 
+		/**
+		 * Constructor.
+		 *
+		 * @param string $repository_url The URL of the GitLab repository.
+		 * @param string $access_token The authentication token for GitLab.
+		 * @param string $sub_group The sub-group within the GitLab repository.
+		 * @throws InvalidArgumentException If the repository URL is invalid.
+		 */
 		public function __construct( $repository_url, $access_token = null, $sub_group = null ) {
-			//Parse the repository host to support custom hosts.
+			// Extract the port from the repository URL to support custom hosts.
 			$port = wp_parse_url( $repository_url, PHP_URL_PORT );
 
 			if ( ! empty( $port ) ) {
@@ -36,17 +50,18 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			$this->repository_host = wp_parse_url( $repository_url, PHP_URL_HOST ) . $port;
 
 			if ( 'gitlab.com' !== $this->repository_host ) {
+				// Identify the protocol used by the GitLab server.
 				$this->repository_protocol = wp_parse_url( $repository_url, PHP_URL_SCHEME );
 			}
 
-			//Find the repository information
+			// Extract repository information from the URL.
 			$path = wp_parse_url( $repository_url, PHP_URL_PATH );
 
 			if ( preg_match( '@^/?(?P<username>[^/]+?)/(?P<repository>[^/#?&]+?)/?$@', $path, $matches ) ) {
 				$this->user_name       = $matches['username'];
 				$this->repository_name = $matches['repository'];
 			} elseif ( ( 'gitlab.com' === $this->repository_host ) ) {
-				//This is probably a repository in a sub_group, e.g. "/organization/category/repo".
+				// Handle repositories in sub-groups, e.g., "/organization/category/repo".
 				$parts = explode( '/', trim( $path, '/' ) );
 
 				if ( count( $parts ) < 3 ) {
@@ -62,16 +77,16 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				$this->repository_name = $last_part;
 			} else {
 
-				//There could be sub_groups in the URL:  gitlab.domain.com/group/sub_group/sub_group2/repository
+				// Handle URLs with sub-groups: gitlab.domain.com/group/sub_group/sub_group2/repository.
 				if ( null === $sub_group ) {
 					$path = str_replace( trailingslashit( $sub_group ), '', $path );
 				}
 
-				//This is not a traditional url, it could be gitlab is in a deeper subdirectory.
-				//Get the path segments.
+				// Handle non-traditional URLs where GitLab is in a deeper subdirectory.
+				// Extract the path segments.
 				$segments = explode( '/', untrailingslashit( ltrim( $path, '/' ) ) );
 
-				//We need at least /user-name/repository-name/
+				// Ensure there are at least /user-name/repository-name/ segments.
 				if ( count( $segments ) < 2 ) {
 					throw new InvalidArgumentException(
 						esc_html(
@@ -80,17 +95,17 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 					);
 				}
 
-				//Get the username and repository name.
+				// Extract the username and repository name.
 				$username_repo         = array_splice( $segments, -2, 2 );
 				$this->user_name       = $username_repo[0];
 				$this->repository_name = $username_repo[1];
 
-				//Append the remaining segments to the host if there are segments left.
+				// Append remaining segments to the host if any segments are left.
 				if ( count( $segments ) > 0 ) {
 					$this->repository_host = trailingslashit( $this->repository_host ) . implode( '/', $segments );
 				}
 
-				//Add sub_groups to username.
+				// Add sub-groups to the username if provided.
 				if ( null !== $sub_group ) {
 					$this->user_name = $username_repo[0] . '/' . untrailingslashit( $sub_group );
 				}
@@ -102,7 +117,9 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		/**
 		 * Check if the VCS is accessible.
 		 *
-		 * @return bool|WP_Error
+		 * @param string $url The URL to check.
+		 * @param string $access_token The authentication token for GitLab.
+		 * @return bool|WP_Error True if accessible, WP_Error otherwise.
 		 */
 		public static function test( $url, $access_token = null ) {
 			$instance = new self( $url . 'bogus/', $access_token );
@@ -122,9 +139,9 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the latest release from GitLab.
+		 * Retrieve the latest release from GitLab.
 		 *
-		 * @return Reference|null
+		 * @return Reference|null The latest release or null if not found.
 		 */
 		public function get_latest_release() {
 			$releases = $this->api( '/:id/releases', array( 'per_page' => $this->release_filter_max_releases ) );
@@ -136,10 +153,10 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			foreach ( $releases as $release ) {
 
 				if (
-					//Skip invalid/unsupported releases.
+					// Skip invalid or unsupported releases.
 					! is_object( $release )
 					|| ! isset( $release->tag_name )
-					//Skip upcoming releases.
+					// Skip upcoming releases.
 					|| (
 						! empty( $release->upcoming_release )
 						&& $this->should_skip_pre_releases()
@@ -148,9 +165,9 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 					continue;
 				}
 
-				$version_number = ltrim( $release->tag_name, 'v' ); //Remove the "v" prefix from "v1.2.3".
+				$version_number = ltrim( $release->tag_name, 'v' ); // Remove the "v" prefix from "v1.2.3".
 
-				//Apply custom filters.
+				// Apply custom filters.
 				if ( ! $this->matches_custom_release_filter( $version_number, $release ) ) {
 					continue;
 				}
@@ -158,7 +175,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				$download_url = $this->find_release_download_url( $release );
 
 				if ( empty( $download_url ) ) {
-					//The latest release doesn't have valid download URL.
+					// The latest release doesn't have a valid download URL.
 					return null;
 				}
 
@@ -177,8 +194,10 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * @param object $release
-		 * @return string|null
+		 * Locate the download URL for a release asset.
+		 *
+		 * @param object $release The release object.
+		 * @return string|null The download URL or null if not found.
 		 */
 		protected function find_release_download_url( $release ) {
 
@@ -186,7 +205,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 
 				if ( isset( $release->assets, $release->assets->links ) ) {
 
-					//Use the first asset link where the URL matches the filter.
+					// Use the first asset link that matches the filter.
 					foreach ( $release->assets->links as $link ) {
 
 						if ( $this->matches_asset_filter( $link ) ) {
@@ -196,12 +215,12 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				}
 
 				if ( Api::REQUIRE_RELEASE_ASSETS === $this->release_asset_preference ) {
-					//Falling back to source archives is not allowed, so give up.
+					// Do not fall back to source archives, so return null.
 					return null;
 				}
 			}
 
-			//Use the first source code archive that's in ZIP format.
+			// Use the first source code archive in ZIP format.
 			foreach ( $release->assets->sources as $source ) {
 
 				if ( isset( $source->format ) && ( 'zip' === $source->format ) ) {
@@ -213,9 +232,9 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the tag that looks like the highest version number.
+		 * Retrieve the tag that appears to be the highest version number.
 		 *
-		 * @return Reference|null
+		 * @return Reference|null The latest tag or null if not found.
 		 */
 		public function get_latest_tag() {
 			$tags = $this->api( '/:id/repository/tags' );
@@ -243,10 +262,10 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Get a branch by name.
+		 * Retrieve a branch by its name.
 		 *
-		 * @param string $branch_name
-		 * @return null|Reference
+		 * @param string $branch_name The name of the branch.
+		 * @return null|Reference The branch reference or null if not found.
 		 */
 		public function get_branch( $branch_name ) {
 			$branch = $this->api( '/:id/repository/branches/' . $branch_name );
@@ -271,10 +290,10 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the timestamp of the latest commit that changed the specified branch or tag.
+		 * Retrieve the timestamp of the latest commit that modified the specified branch or tag.
 		 *
-		 * @param string $ref Reference name ( e.g. branch or tag ).
-		 * @return string|null
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return string|null The timestamp of the latest commit or null if not found.
 		 */
 		public function get_latest_commit_time( $ref ) {
 			$commits = $this->api( '/:id/repository/commits/', array( 'ref_name' => $ref ) );
@@ -287,11 +306,11 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Perform a GitLab API request.
+		 * Execute a GitLab API request.
 		 *
-		 * @param string $url
-		 * @param array $query_params
-		 * @return mixed|WP_Error
+		 * @param string $url The API endpoint URL.
+		 * @param array $query_params The query parameters for the request.
+		 * @return mixed|WP_Error The API response or WP_Error on failure.
 		 */
 		protected function api( $url, $query_params = array(), $override_url = false ) {
 
@@ -338,11 +357,11 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Build a fully qualified URL for an API request.
+		 * Construct a fully qualified URL for an API request.
 		 *
-		 * @param string $url
-		 * @param array $query_params
-		 * @return string
+		 * @param string $url The API endpoint URL.
+		 * @param array $query_params The query parameters for the request.
+		 * @return string The fully qualified URL.
 		 */
 		protected function build_api_url( $url, $query_params ) {
 			$variables = array(
@@ -366,11 +385,11 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Get the contents of a file from a specific branch or tag.
+		 * Retrieve the contents of a file from a specific branch or tag.
 		 *
-		 * @param string $path File name.
-		 * @param string $ref
-		 * @return null|string Either the contents of the file, or null if the file doesn't exist or there's an error.
+		 * @param string $path The file name.
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return null|string The file contents or null if the file doesn't exist or there's an error.
 		 */
 		public function get_remote_file( $path, $ref = 'main' ) {
 			$response = $this->api( '/:id/repository/files/' . $path, array( 'ref' => $ref ) );
@@ -385,8 +404,8 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		/**
 		 * Generate a URL to download a ZIP archive of the specified branch/tag/etc.
 		 *
-		 * @param string $ref
-		 * @return string
+		 * @param string $ref The reference name (e.g., branch or tag).
+		 * @return string The download URL.
 		 */
 		public function build_archive_download_url( $ref = 'main' ) {
 			$url = sprintf(
@@ -401,15 +420,21 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		}
 
 		/**
-		 * Get a specific tag.
+		 * Retrieve a specific tag.
 		 *
-		 * @param string $tag_name
+		 * @param string $tag_name The name of the tag.
 		 * @return void
 		 */
 		public function get_tag( $tag_name ) {
 			throw new LogicException( 'The ' . __METHOD__ . ' method is not implemented and should not be used.' );
 		}
 
+		/**
+		 * Get the strategies for detecting updates.
+		 *
+		 * @param string $config_branch The configuration branch.
+		 * @return array The update detection strategies.
+		 */
 		protected function get_update_detection_strategies( $config_branch ) {
 			$strategies = array();
 
@@ -425,12 +450,24 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 			return $strategies;
 		}
 
+		/**
+		 * Set the authentication credentials.
+		 *
+		 * @param string $credentials The authentication credentials.
+		 * @return void
+		 */
 		public function set_authentication( $credentials ) {
 			parent::set_authentication( $credentials );
 
 			$this->access_token = is_string( $credentials ) ? $credentials : null;
 		}
 
+		/**
+		 * Retrieve the filterable asset name.
+		 *
+		 * @param object $release_asset The release asset object.
+		 * @return string|null The asset name or null if not found.
+		 */
 		protected function get_filterable_asset_name( $release_asset ) {
 
 			if ( isset( $release_asset->url ) ) {
@@ -443,7 +480,7 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		/**
 		 * Generate the value of the "Authorization" header.
 		 *
-		 * @return string
+		 * @return string The authorization header value.
 		 */
 		public function get_authorization_headers() {
 			return array( 'PRIVATE-TOKEN' => $this->access_token );

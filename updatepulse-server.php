@@ -11,12 +11,19 @@
  * Domain Path: /languages
  *
  * @package UPServ
+ *
+ * UpdatePulse Server is a WordPress plugin that enables users to host their own
+ * update server for WordPress themes and plugins, or generic packages.
+ * It handles license verification, package distribution, and update management
+ * through a set of APIs and managers.
  */
 
+// Exit if accessed directly to prevent unauthorized access
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+// Skip processing during WordPress heartbeat requests for performance optimization
 if (
 	defined( 'DOING_AJAX' ) &&
 	DOING_AJAX &&
@@ -25,6 +32,7 @@ if (
 	return;
 }
 
+// Store performance metrics when debugging is enabled
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIES ) {
 	global $wpdb, $upserv_mem_before, $upserv_scripts_before, $upserv_queries_before;
 
@@ -33,6 +41,7 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'SAVEQUERIES' ) && SAVEQUERIE
 	$upserv_queries_before = $wpdb->queries;
 }
 
+// Import required namespace components for the plugin
 use Anyape\UpdatePulse\Server\Nonce\Nonce;
 use Anyape\UpdatePulse\Server\API\License_API;
 use Anyape\UpdatePulse\Server\API\Webhook_API;
@@ -47,6 +56,7 @@ use Anyape\UpdatePulse\Server\Manager\API_Manager;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 use Anyape\UpdatePulse\Server\UPServ;
 
+// Define essential plugin constants for file paths and URLs
 if ( ! defined( 'UPSERV_PLUGIN_PATH' ) ) {
 	define( 'UPSERV_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 }
@@ -63,6 +73,7 @@ if ( ! defined( 'UPSERV_MB_TO_B' ) ) {
 	define( 'UPSERV_MB_TO_B', 1000000 );
 }
 
+// Load required files, allowing for extension via filter
 $require = apply_filters( 'upserv_mu_require', array( UPSERV_PLUGIN_PATH . 'autoload.php' ) );
 
 foreach ( $require as $file ) {
@@ -72,6 +83,7 @@ foreach ( $require as $file ) {
 	}
 }
 
+// Load plugin options and extract private API keys for authentication
 $options      = json_decode( get_option( 'upserv_options' ), true );
 $private_keys = array();
 
@@ -85,9 +97,12 @@ if ( is_array( $options ) && ! empty( $options ) && isset( $options['api'] ) ) {
 	}
 }
 
+// Initialize nonce authentication with the extracted private keys
 Nonce::register();
 Nonce::init_auth( $private_keys );
 
+// Register activation, deactivation and uninstall hooks for core plugin classes
+// Skip during API requests to optimize performance
 if (
 	! Update_API::is_doing_api_request() &&
 	! License_API::is_doing_api_request()
@@ -120,12 +135,27 @@ if (
 	}
 }
 
+// Register WP-CLI commands if the CLI environment is active
 if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
 	require_once UPSERV_PLUGIN_PATH . 'functions.php';
 
 	WP_CLI::add_command( 'updatepulse-server', 'Anyape\\UpdatePulse\\Server\\CLI\\CLI' );
 }
 
+/**
+ * Main initialization function for UpdatePulse Server plugin.
+ *
+ * This function is responsible for initializing different components based on request type:
+ * - Sets up caching
+ * - Loads required dependencies
+ * - Initializes core components like Scheduler and APIs
+ * - Conditionally loads admin-specific components
+ *
+ * The function intelligently loads only what's needed for each request type to optimize performance.
+ *
+ * @since 1.0.0
+ * @return void
+ */
 function upserv_run() {
 
 	if ( ! did_action( 'upserv_mu_optimizer_ready' ) ) {
@@ -136,11 +166,13 @@ function upserv_run() {
 
 	require_once UPSERV_PLUGIN_PATH . 'functions.php';
 
+	// Determine request type to optimize component loading
 	$license_api_request  = upserv_is_doing_license_api_request();
 	$priority_api_request = apply_filters( 'upserv_is_priority_api_request', $license_api_request );
 	$is_api_request       = $priority_api_request;
 	$objects              = apply_filters( 'upserv_objects', array() );
 
+	// Initialize core API components needed for all request types
 	if ( ! isset( $objects['scheduler'] ) ) {
 		$objects['scheduler'] = new Scheduler( true );
 	}
@@ -153,12 +185,14 @@ function upserv_run() {
 		$objects['webhook_api'] = new Webhook_API( true );
 	}
 
+	// Load additional components for non-priority API requests
 	if ( ! $priority_api_request ) {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
 		do_action( 'upserv_no_priority_api_includes' );
 
+		// Check for other API request types
 		$is_api_request = (
 			upserv_is_doing_update_api_request() ||
 			upserv_is_doing_webhook_api_request() ||
@@ -180,6 +214,7 @@ function upserv_run() {
 
 	$is_api_request = apply_filters( 'upserv_is_api_request', $is_api_request );
 
+	// Load admin interface components only when not handling API requests
 	if ( ! $is_api_request ) {
 
 		if ( ! class_exists( 'WP_List_Table' ) ) {
@@ -217,6 +252,16 @@ function upserv_run() {
 }
 add_action( 'plugins_loaded', 'upserv_run', PHP_INT_MIN + 100, 0 );
 
+/**
+ * Handles plugin updates and migrations.
+ *
+ * This function checks if we're in an API context, and if not, loads the update/migration
+ * functionality. During admin page loads, it hooks into plugins_loaded at a very early
+ * priority to ensure migrations run before the main plugin code.
+ *
+ * @since 1.0.0
+ * @return void
+ */
 function upserv_updater() {
 	$doing_api = wp_cache_get( 'upserv_mu_doing_api', 'updatepulse-server' );
 
@@ -243,6 +288,7 @@ function upserv_updater() {
 }
 upserv_updater();
 
+// Load testing functionality if enabled via constant
 if ( defined( 'UPSERV_ENABLE_TEST' ) && constant( 'UPSERV_ENABLE_TEST' ) ) {
 
 	if ( Update_API::is_doing_api_request() || License_API::is_doing_api_request() ) {

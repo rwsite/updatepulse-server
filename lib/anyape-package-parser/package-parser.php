@@ -7,25 +7,30 @@ use ZipArchive as SystemZipArchive;
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 
+/**
+ * Package parser for WordPress plugins and themes.
+ *
+ * This class provides functionality to extract and analyze information from WordPress plugin and theme packages, or generic packages, in ZIP format.
+ */
 class Parser {
 
 	/**
-	* Extract headers and readme.txt data from a ZIP archive that contains a package.
+	* Extracts and parses metadata from a WordPress plugin or theme ZIP package.
 	*
-	* Returns an associative array with these keys:
-	* 'type'   - Detected package type. This can be either "plugin" or "theme".
-	* 'header' - An array of package headers. See get_plugin_data() or WP_Theme for details.
-	* 'readme' - An array of metadata extracted from readme.txt. @see self::parseReadme()
-	* 'pluginFile' - The name of the PHP file where the plugin headers were found relative to the root directory of the ZIP archive.
-	* 'stylesheet' - The relative path to the style.css file that contains theme headers, if any.
+	* Analyzes the contents of a ZIP archive to determine if it contains a valid WordPress plugin, theme, or generic package, then extracts relevant metadata from header files and readme.txt (if present).
 	*
-	* The 'readme' key will only be present if the input archive contains a readme.txt file
-	* formatted according to WordPress.org readme standards. Similarly, 'pluginFile' and
-	* 'stylesheet' will only be present if the archive contains a plugin or a theme, respectively.
+	* The function returns an array with the following structure:
+	* 'type'   - Package type: "plugin", "theme", or "generic"
+	* 'header' - Package header information (varies by type)
+	* 'readme' - Metadata extracted from readme.txt (if available)
+	* 'pluginFile' - Path to the main plugin file (for plugins only)
+	* 'stylesheet' - Path to style.css file (for themes only)
+	* 'generic_file' - Path to updatepulse.json (for generic packages only)
+	* 'extra' - Additional metadata like icons and banners (if available)
 	*
 	* @param string $package_filename The path to the ZIP package.
 	* @param bool $apply_markdown Whether to transform markup used in readme.txt to HTML. Defaults to false.
-	* @return array|bool Either an associative array or FALSE if the input file is not a valid ZIP archive or doesn't contain a package.
+	* @return array|bool Package information array or FALSE if invalid/unreadable.
 	*/
 	public static function parse_package( $package_filename, $apply_markdown = false ) {
 
@@ -39,7 +44,7 @@ class Parser {
 			return false;
 		}
 
-		//Find and parse the package file and ( optionally ) readme.txt.
+		// Find and parse the package file and (optionally) readme.txt
 		$header        = null;
 		$readme        = null;
 		$plugin_file   = null;
@@ -57,27 +62,36 @@ class Parser {
 			$file_index++
 		) {
 			$info = $entries[ $file_index ];
-			//Normalize filename: convert backslashes to slashes, remove leading slashes.
-			$file_name       = trim( str_replace( '\\', '/', $info['name'] ), '/' );
-			$file_name       = ltrim( $file_name, '/' );
+			// Normalize filename: convert backslashes to slashes, remove leading slashes
+			$file_name = trim( str_replace( '\\', '/', $info['name'] ), '/' );
+			$file_name = ltrim( $file_name, '/' );
+
+			// Add path traversal protection
+			if ( false !== strpos( $file_name, '../' ) || false !== strpos( $file_name, '..\\' ) ) {
+				// Log attempt and skip this file
+				error_log( __METHOD__ . ' Potential path traversal attempt blocked for file: ' . $file_name ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
+				continue;
+			}
+
 			$file_name_parts = explode( '.', $file_name );
 			$extension       = strtolower( end( $file_name_parts ) );
 			$depth           = substr_count( $file_name, '/' );
 
-			// Skip empty files, directories and everything that's more than 1 sub-directory deep.
+			// Skip files that are either empty, directories, or nested deeper than one level
 			if ( ( $depth > 1 ) || $info['isFolder'] ) {
 				continue;
 			}
 
-			// readme.txt ( for plugins )?
+			// Check for and parse readme.txt file for plugins
 			if ( empty( $readme ) && ( strtolower( basename( $file_name ) ) === 'readme.txt' ) ) {
-				//Try to parse the readme.
+				// Attempt to parse the readme content
 				$readme = self::parse_readme( $zip->get_file_contents( $info ), $apply_markdown );
 			}
 
 			$file_contents = null;
 
-			// Theme stylesheet?
+			// Check if the provided file is for a theme
 			if ( empty( $header ) && ( strtolower( basename( $file_name ) ) === 'style.css' ) ) {
 				$file_contents = substr( $zip->get_file_contents( $info ), 0, 8 * 1024 );
 				$header        = self::get_theme_headers( $file_contents );
@@ -89,7 +103,7 @@ class Parser {
 				}
 			}
 
-			// Main plugin file?
+			// Check if the provided file is for a plugin
 			if ( empty( $header ) && ( 'php' === $extension ) ) {
 				$file_contents = substr( $zip->get_file_contents( $info ), 0, 8 * 1024 );
 				$plugin_file   = $file_name;
@@ -98,7 +112,7 @@ class Parser {
 				$type          = 'plugin';
 			}
 
-			// Generic info file?
+			// Check if the provided file is a generic package
 			if ( empty( $header ) && ( 'json' === $extension ) && ( basename( $file_name ) === 'updatepulse.json' ) ) {
 				$file_contents = substr( $zip->get_file_contents( $info ), 0, 8 * 1024 );
 				$header        = self::get_generic_headers( $file_contents );
@@ -121,29 +135,25 @@ class Parser {
 	}
 
 	/**
-	* Parse a plugin's readme.txt to extract various plugin metadata.
+	* Extracts metadata from a WordPress plugin/theme readme.txt file.
 	*
-	* Returns an array with the following fields:
-	* 'name' - Name of the plugin.
-	* 'contributors' - An array of wordpress.org usernames.
-	* 'donate' - The plugin's donation link.
-	* 'tags' - An array of the plugin's tags.
-	* 'requires' - The minimum version of WordPress that the plugin will run on.
-	* 'tested' - The latest version of WordPress that the plugin has been tested on.
-	* 'stable' - The SVN tag of the latest stable release, or 'trunk'.
-	* 'short_description' - The plugin's "short description".
-	* 'sections' - An associative array of sections present in the readme.txt.
-	*               Case and formatting of section headers will be preserved.
+	* Parses the standardized WordPress readme.txt format to extract key information about the plugin or theme, including version requirements, descriptions, and documentation sections.
 	*
-	* Be warned that this function does *not* perfectly emulate the way that WordPress.org
-	* parses plugin readme's. In particular, it may mangle certain HTML markup that wp.org
-	* handles correctly.
+	* The returned array includes:
+	* 'name' - Plugin/theme name
+	* 'contributors' - List of WordPress.org contributor usernames
+	* 'donate' - Donation URL
+	* 'tags' - Plugin tags/categories
+	* 'requires' - Minimum WordPress version
+	* 'requires_php' - Minimum PHP version
+	* 'tested' - WordPress version tested up to
+	* 'stable' - Stable release tag
+	* 'short_description' - Brief plugin description
+	* 'sections' - Content sections (FAQ, installation, etc.)
 	*
-	* @see http://wordpress.org/extend/plugins/about/readme.txt
-	*
-	* @param string $readme_txt_contents The contents of a plugin's readme.txt file.
-	* @param bool $apply_markdown Whether to transform Markdown used in readme.txt sections to HTML. Defaults to false.
-	* @return array|null Associative array, or NULL if the input isn't a valid readme.txt file.
+	* @param string $readme_txt_contents The contents of a readme.txt file.
+	* @param bool $apply_markdown Whether to convert Markdown to HTML. Defaults to false.
+	* @return array|null Parsed readme data or NULL if invalid format.
 	*/
 	public static function parse_readme( $readme_txt_contents, $apply_markdown = false ) {
 		$readme_txt_contents = trim( $readme_txt_contents, " \t\n\r" );
@@ -160,17 +170,17 @@ class Parser {
 			'sections'          => array(),
 		);
 
-		//The readme.txt header has a fairly fixed structure, so we can parse it line-by-line
+		// Do a line-by-line parse of the readme.txt file
 		$lines = explode( "\n", $readme_txt_contents );
 
-		//Plugin name is at the very top, e.g. === My Plugin ===
+		// Get the name of the plugin
 		if ( preg_match( '@===\s*( .+? )\s*===@', array_shift( $lines ), $matches ) ) {
 			$readme['name'] = $matches[1];
 		} else {
 			return null;
 		}
 
-		//Then there's a bunch of meta fields formatted as "Field: value"
+		// Set up a map of header fields to their corresponding keys in the readme array
 		$headers    = array();
 		$header_map = array(
 			'Contributors'      => 'contributors',
@@ -182,7 +192,7 @@ class Parser {
 			'Stable tag'        => 'stable',
 		);
 
-		do { //Parse each readme.txt header
+		do {
 			$pieces = explode( ':', array_shift( $lines ), 2 );
 
 			if ( array_key_exists( $pieces[0], $header_map ) ) {
@@ -193,53 +203,53 @@ class Parser {
 					$headers[ $header_map[ $pieces[0] ] ] = '';
 				}
 			}
-		} while ( trim( $pieces[0] ) !== '' ); //Until an empty line is encountered
+		} while ( trim( $pieces[0] ) !== '' );
 
-		//"Contributors" is a comma-separated list. Convert it to an array.
+		// Convert comma-separated contributors list into an array
 		if ( ! empty( $headers['contributors'] ) ) {
 			$headers['contributors'] = array_map( 'trim', explode( ',', $headers['contributors'] ) );
 		}
 
-		//Likewise for "Tags"
+		// Convert comma-separated tags list into an array
 		if ( ! empty( $headers['tags'] ) ) {
 			$headers['tags'] = array_map( 'trim', explode( ',', $headers['tags'] ) );
 		}
 
 		$readme = array_merge( $readme, $headers );
-		//After the headers comes the short description
+		// Extract the short description from the next line
 		$readme['short_description'] = array_shift( $lines );
 
-		//Finally, a valid readme.txt also contains one or more "sections" identified by "== Section Name =="
+		// Parse remaining content into sections (e.g., "== Description ==", "== Installation ==", etc.)
 		$sections        = array();
 		$content_buffer  = array();
 		$current_section = '';
 
 		foreach ( $lines as $line ) {
 
-			//Is this a section header?
+			// Check if there is a section header
 			if ( preg_match( '@^\s*==\s+(.+?)\s+==\s*$@m', $line, $matches ) ) {
 
-				//Flush the content buffer for the previous section, if any
+				// Flush the content buffer for the previous section, if any
 				if ( ! empty( $current_section ) ) {
 					$section_content              = trim( implode( "\n", $content_buffer ) );
 					$sections[ $current_section ] = $section_content;
 				}
 
-				//Start reading a new section
+				// Read a new section
 				$current_section = $matches[1];
 				$content_buffer  = array();
 			} else {
-				//Buffer all section content
+				// Buffer all section content
 				$content_buffer[] = $line;
 			}
 		}
 
-		//Flush the buffer for the last section
+		// Flush the buffer for the last section
 		if ( ! empty( $current_section ) ) {
 			$sections[ $current_section ] = trim( implode( "\n", $content_buffer ) );
 		}
 
-		//Apply Markdown to sections
+		// Apply Markdown to sections
 		if ( $apply_markdown ) {
 			$sections = array_map( __CLASS__ . '::apply_markdown', $sections );
 		}
@@ -250,41 +260,31 @@ class Parser {
 	}
 
 	/**
-	* Transform Markdown markup to HTML.
+	* Converts Markdown syntax to HTML format.
 	*
-	* Tries ( in vain ) to emulate the transformation that WordPress.org applies to readme.txt files.
+	* This method processes text with Markdown formatting and returns HTML content.
+	* It handles WordPress-specific readme.txt formatting conventions, including custom header syntax like "= H4 headers =".
 	*
-	* @param string $text
-	* @return string
+	* @param string $text Text content with Markdown formatting
+	* @return string HTML-formatted content
 	*/
 	private static function apply_markdown( $text ) {
-		//The WP standard for readme files uses some custom markup, like "= H4 headers ="
+		// The WP standard for readme files uses some custom markup, like "= H4 headers ="
 		$text = preg_replace( '@^\s*=\s*( .+? )\s*=\s*$@m', "\n####$1####\n", $text );
 
 		return Parsedown::instance()->text( $text );
 	}
 
 	/**
-	* Parse the plugin contents to retrieve plugin's metadata headers.
+	* Extracts plugin header metadata from PHP file content.
 	*
-	* Adapted from the get_plugin_data() function used by WordPress.
-	* Returns an array that contains the following:
-	* 'Name' - Name of the plugin.
-	* 'Title' - Title of the plugin and the link to the plugin's web site.
-	* 'Description' - Description of what the plugin does and/or notes from the author.
-	* 'Author' - The author's name.
-	* 'AuthorURI' - The author's web site address.
-	* 'Version' - The plugin version number.
-	* 'PluginURI' - Plugin web site address.
-	* 'TextDomain' - Plugin's text domain for localization.
-	* 'DomainPath' - Plugin's relative directory path to .mo files.
-	* 'Network' - Boolean. Whether the plugin can only be activated network wide.
+	* Parses a plugin file to extract standard WordPress plugin headers like name, version, author information, and other metadata. This mimics WordPress's get_plugin_data() function to handle plugin header extraction.
 	*
-	* If the input string doesn't appear to contain a valid plugin header, the function
-	* will return NULL.
+	* The returned array includes:
+	* 'Name', 'Title', 'Description', 'Author', 'AuthorURI', 'Version', 'PluginURI', 'TextDomain', 'DomainPath', 'Network', 'Depends', 'Provides', 'RequiresPHP', and others.
 	*
 	* @param string $file_contents Contents of the plugin file
-	* @return array|null See above for description.
+	* @return array|null Plugin metadata or NULL if no valid plugin header found
 	*/
 	public static function get_plugin_headers( $file_contents ) {
 		//[Internal name => Name used in the plugin file]
@@ -308,7 +308,6 @@ class Parser {
 			)
 		);
 
-		//Site Wide Only is the old header for Network.
 		if ( empty( $headers['Network'] ) && ! empty( $headers['_sitewide'] ) ) {
 			$headers['Network'] = $headers['_sitewide'];
 		}
@@ -317,20 +316,20 @@ class Parser {
 
 		$headers['Network'] = ( strtolower( $headers['Network'] ) === 'true' );
 
-		//For backward compatibility by default Title is the same as Name.
+		// For backward compatibility, by default, Title is the same as Name.
 		$headers['Title'] = $headers['Name'];
 
-		//"Depends" is a comma-separated list. Convert it to an array.
+		// Comma-separated list. Convert it to an array.
 		if ( ! empty( $headers['Depends'] ) ) {
 			$headers['Depends'] = array_map( 'trim', explode( ',', $headers['Depends'] ) );
 		}
 
-		//Same for "Provides"
+		// Comma-separated list. Convert it to an array.
 		if ( ! empty( $headers['Provides'] ) ) {
 			$headers['Provides'] = array_map( 'trim', explode( ',', $headers['Provides'] ) );
 		}
 
-		//If it doesn't have a name, it's probably not a plugin.
+		// If no name is found, return null - not a plugin.
 		if ( empty( $headers['Name'] ) ) {
 			return null;
 		}
@@ -339,27 +338,14 @@ class Parser {
 	}
 
 	/**
-	* Parse the theme stylesheet to retrieve its metadata headers.
+	* Extracts theme metadata from style.css file content.
 	*
-	* Adapted from the get_theme_data() function and the WP_Theme class in WordPress.
-	* Returns an array that contains the following:
-	* 'Name' - Name of the theme.
-	* 'Description' - Theme description.
-	* 'Author' - The author's name
-	* 'AuthorURI' - The authors web site address.
-	* 'Version' - The theme version number.
-	* 'ThemeURI' - Theme web site address.
-	* 'Template' - The slug of the parent theme. Only applies to child themes.
-	* 'Status' - Unknown. Included for completeness.
-	* 'Tags' - An array of tags.
-	* 'TextDomain' - Theme's text domain for localization.
-	* 'DomainPath' - Theme's relative directory path to .mo files.
+	* Analyzes a WordPress theme's style.css file to extract standardized theme headers that provide information about the theme, including name, version, author details, and theme dependencies.
 	*
-	* If the input string doesn't appear to contain a valid theme header, the function
-	* will return NULL.
+	* The returned array includes: 'Name', 'Description', 'Author', 'AuthorURI', 'Version', 'ThemeURI', 'Template' (parent theme), 'Tags', 'TextDomain', 'DomainPath', and more.
 	*
-	* @param string $file_contents Contents of the theme stylesheet.
-	* @return array|null See above for description.
+	* @param string $file_contents Contents of the theme stylesheet
+	* @return array|null Theme metadata or NULL if no valid theme header found
 	*/
 	public static function get_theme_headers( $file_contents ) {
 		//[Internal name => Name used in the theme file]
@@ -383,7 +369,7 @@ class Parser {
 
 		$headers['Tags'] = array_filter( array_map( 'trim', explode( ',', wp_strip_all_tags( $headers['Tags'] ) ) ) );
 
-		//If it doesn't have a name, it's probably not a valid theme.
+		// If no name is found, return null - not a theme.
 		if ( empty( $headers['Name'] ) ) {
 			return null;
 		}
@@ -392,16 +378,15 @@ class Parser {
 	}
 
 	/**
-	* Parse the generic package's headers from updatepulse.json file.
-	* Returns an array that may contain the following:
-	* 'Name'
-	* 'Version'
-	* 'Homepage'
-	* 'Author'
-	* 'AuthorURI'
-	* 'Description'
-	* @param string $file_contents Contents of the package file
-	* @return array See above for description.
+	* Extracts generic package metadata from updatepulse.json file.
+	*
+	* Parses a JSON file containing package metadata for non-standard WordPress packages. This allows UpdatePulse to manage generic software packages alongside plugins and themes.
+	*
+	* The function extracts standard package information fields:
+	* 'Name', 'Version', 'Homepage', 'Author', 'AuthorURI', 'Description'
+	*
+	* @param string $file_contents Contents of the updatepulse.json file
+	* @return array Extracted package metadata
 	*/
 	public static function get_generic_headers( $file_contents ) {
 		$decoded_contents = json_decode( $file_contents, true );
@@ -430,16 +415,18 @@ class Parser {
 	}
 
 	/**
-	* Parse the generic package's extra headers from updatepulse.json file.
-	* Returns an array that may contain the following:
-	* 'Icon1x'
-	* 'Icon2x'
-	* 'BannerHigh'
-	* 'BannerLow'
-	* 'RequireLicense'
-	* 'LicensedWith'
-	* @param string $file_contents Contents of the package file
-	* @return array See above for description.
+	* Extracts additional metadata from a generic package's JSON file.
+	*
+	* Parses the updatepulse.json file to retrieve supplementary informationlike icons, banners, and licensing requirements for generic packages.
+	*
+	* The returned array may contain:
+	* 'icons' - Package icons in different resolutions
+	* 'banners' - Banner images in high/low resolutions
+	* 'require_license' - Whether the package requires license validation
+	* 'licensed_with' - Associated licensing system or provider
+	*
+	* @param string $file_contents Contents of the updatepulse.json file
+	* @return array Additional package metadata
 	*/
 	public static function get_generic_extra_headers( $file_contents ) {
 		$decoded_contents = json_decode( $file_contents, true );
@@ -489,23 +476,18 @@ class Parser {
 	}
 
 	/**
-	* Parse the package contents to retrieve icons and banners information.
+	* Extracts visual assets and licensing information from package files.
 	*
-	* Returns an array that may contain the following:
-	* 'icons':
-	* 'Icon1x'
-	* 'Icon2x'
-	* 'banners':
-	* 'BannerHigh'
-	* 'BannerLow'
-	* 'Require License'
-	* 'Licensed With'
+	* Searches plugin and theme files for special headers that define supplementary assets like icons and banners, as well as licensing requirements.
 	*
-	* If the data is not found, the function
-	* will return NULL.
+	* The returned array may include:
+	* 'icons' - Package icon URLs in different resolutions
+	* 'banners' - Banner image URLs in high/low resolutions
+	* 'require_license' - Whether the package requires license validation
+	* 'licensed_with' - Associated licensing system or provider
 	*
-	* @param string $fileContents Contents of the package file
-	* @return array|null See above for description.
+	* @param string $file_contents Contents of a plugin or theme file
+	* @return array|null Supplementary metadata or NULL if none found
 	*/
 	public static function get_extra_headers( $file_contents ) {
 		//[Internal name => Name used in the package file]
@@ -562,19 +544,20 @@ class Parser {
 	}
 
 	/**
-	* Parse the file contents to retrieve its metadata.
+	* Extracts metadata headers from file contents.
 	*
-	* Searches for metadata for a file, such as a package.  Each piece of
-	* metadata must be on its own line. For a field spanning multiple lines, it
-	* must not have any newlines or only parts of it will be displayed.
+	* A low-level utility function that searches for formatted header comments in file content. It supports the standard WordPress header format used for plugins, themes, and other metadata files.
 	*
-	* @param string $file_contents File contents. Can be safely truncated to 8kiB as that's all WP itself scans.
-	* @param array $header_map The list of headers to search for in the file.
-	* @return array
+	* Each header must appear on its own line in the format:
+	* "Header Name: Header Value"
+	*
+	* @param string $file_contents File content to search for headers
+	* @param array $header_map Map of internal header names to their file representation
+	* @return array Extracted header values indexed by internal names
 	*/
 	public static function get_file_headers( $file_contents, $header_map ) {
 		$headers = array();
-		//Support systems that use CR as a line ending.
+		// Support systems that use CR as a line ending.
 		$file_contents = str_replace( "\r", "\n", $file_contents );
 
 		foreach ( $header_map as $field => $pretty_name ) {
@@ -587,7 +570,7 @@ class Parser {
 			);
 
 			if ( ( $found > 0 ) && ! empty( $matches[1] ) ) {
-				//Strip comment markers and closing PHP tags.
+				// Strip comment markers and closing PHP tags.
 				$value             = trim( preg_replace( '/\s*(?:\*\/|\?>).*/', '', $matches[1] ) );
 				$headers[ $field ] = $value;
 			} else {
@@ -599,6 +582,12 @@ class Parser {
 	}
 }
 
+/**
+ * Wrapper class for PHP's built-in ZipArchive.
+ *
+ * Provides a simplified interface for working with ZIP archives,
+ * specifically tailored for parsing WordPress package files.
+ */
 class ZipArchive {
 	/**
 	* @var SystemZipArchive
@@ -610,10 +599,13 @@ class ZipArchive {
 	}
 
 	/**
-	* Open a Zip archive.
+	* Opens a ZIP archive file for reading.
 	*
-	* @param string $zip_file_name
-	* @return bool|ZipArchive
+	* Creates and initializes a ZipArchive instance from a file path.
+	* The method handles the low-level details of opening the archive.
+	*
+	* @param string $zip_file_name Path to the ZIP archive file
+	* @return bool|ZipArchive ZipArchive instance or FALSE on failure
 	*/
 	public static function open( $zip_file_name ) {
 		$zip = new SystemZipArchive();
@@ -625,6 +617,13 @@ class ZipArchive {
 		return new self( $zip );
 	}
 
+	/**
+	* Lists all entries in the ZIP archive.
+	*
+	* Provides information about each file and folder in the archive, including name, size, and whether it's a folder.
+	*
+	* @return array List of entry information arrays
+	*/
 	public function list_entries() {
 		$list = array();
 		$zip  = $this->archive;
@@ -645,6 +644,14 @@ class ZipArchive {
 		return $list;
 	}
 
+	/**
+	* Retrieves the contents of a file within the ZIP archive.
+	*
+	* Extracts and returns the contents of a specific file identified by its information array (typically from list_entries).
+	*
+	* @param array $file_info File information containing 'index' key
+	* @return string File contents
+	*/
 	public function get_file_contents( $file_info ) {
 		return $this->archive->getFromIndex( $file_info['index'] );
 	}

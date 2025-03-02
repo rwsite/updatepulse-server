@@ -4,19 +4,47 @@ namespace Anyape\PackageUpdateChecker;
 
 if ( ! class_exists( UpdateChecker::class, false ) ) :
 
+	/**
+	 * Abstract base class for package update checking functionality.
+	 *
+	 * Provides core functionality for checking updates from various version control systems.
+	 */
 	abstract class UpdateChecker {
 
+		/** @var bool|null Debug mode status */
 		public $debug_mode = null;
+
+		/** @var string Directory name of the package */
 		public $directory_name;
+
+		/** @var string Unique identifier for the package */
 		public $slug;
+
+		/** @var string Absolute path to the package directory */
 		public $package_absolute_path = '';
 
+		/** @var string Branch name to check for updates, defaults to 'main' */
 		protected $branch = 'main';
+
+		/** @var object Version Control System API instance */
 		protected $api;
+
+		/** @var string Current reference (tag/branch) being checked */
 		protected $ref;
+
+		/** @var object Source of the update */
 		protected $update_source;
+
+		/** @var string Path to the main package file */
 		protected $package_file;
 
+		/**
+		 * Triggers an error message when in debug mode.
+		 *
+		 * @param string $message    The error message to display
+		 * @param int    $error_type The type of error to trigger
+		 * @return void
+		 */
 		public function trigger_error( $message, $error_type ) {
 
 			if ( $this->is_debug_mode_enabled() ) {
@@ -25,14 +53,16 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 			}
 		}
 
+		/**
+		 * Extracts header information from a file's content.
+		 *
+		 * @param string $content The content to parse for headers
+		 * @return array Associative array of header fields and their values
+		 */
 		public function get_file_header( $content ) {
 			$content = (string) $content;
-
-			//WordPress only looks at the first 8 KiB of the file, so we do the same.
-			$content = substr( $content, 0, 8192 );
-			//Normalize line endings.
-			$content = str_replace( "\r", "\n", $content );
-
+			$content = substr( $content, 0, 8192 ); // Limit to 8KB
+			$content = str_replace( "\r", "\n", $content ); // Normalize line endings
 			$headers = $this->get_header_names();
 			$results = array();
 
@@ -55,22 +85,45 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 			return $results;
 		}
 
+		/**
+		 * Sets the branch to check for updates.
+		 *
+		 * @param string $branch The branch name
+		 * @return self
+		 */
 		public function set_branch( $branch ) {
 			$this->branch = $branch;
 
 			return $this;
 		}
 
+		/**
+		 * Sets authentication credentials for the API.
+		 *
+		 * @param mixed $credentials The authentication credentials
+		 * @return self
+		 */
 		public function set_authentication( $credentials ) {
 			$this->api->set_authentication( $credentials );
 
 			return $this;
 		}
 
+		/**
+		 * Gets the VCS API instance.
+		 *
+		 * @return object The VCS API instance
+		 */
 		public function get_vcs_api() {
 			return $this->api;
 		}
 
+		/**
+		 * Requests update information from the repository.
+		 *
+		 * @param string $type The type of package (default: 'Generic')
+		 * @return array|WP_Error Update information or error on failure
+		 */
 		public function request_info( $type = 'Generic' ) {
 
 			if ( function_exists( 'set_time_limit' ) ) {
@@ -84,7 +137,6 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 			if ( $update_source ) {
 				$ref = $update_source->name;
 			} else {
-				//There's probably a network problem or an authentication error.
 				return new \WP_Error(
 					'puc-no-update-source',
 					'Could not retrieve version information from the repository for '
@@ -141,15 +193,25 @@ if ( ! class_exists( UpdateChecker::class, false ) ) :
 			return $info;
 		}
 
+		/**
+		 * Extracts version information from the package file.
+		 *
+		 * @param string $file Content of the package file
+		 * @return string Version number
+		 */
 		abstract protected function get_version_from_package_file( $file );
 
 		/**
-		 * @return array Format: ['HeaderKey' => 'Header Name']
+		 * Gets the header field names to look for in the package file.
+		 *
+		 * @return array Associative array of header keys and their names
 		 */
 		abstract protected function get_header_names();
 
 		/**
-		 * @return bool
+		 * Checks if debug mode is enabled.
+		 *
+		 * @return bool True if debug mode is enabled, false otherwise
 		 */
 		protected function is_debug_mode_enabled() {
 

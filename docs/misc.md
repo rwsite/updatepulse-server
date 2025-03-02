@@ -641,7 +641,7 @@ upserv_fire_webhook( string $url, string $secret, string $body, string $action )
 ```
 
 **Description**  
-Immediately send a event notification to `$url`, signed with `$secret` with resulting has stored in `X-UpdatePulse-Signature-256`, with `$action` in `X-UpdatePulse-Action`.  
+Immediately send a event notification to `$url`, signed with `$secret` with resulting hash stored in `X-UpdatePulse-Signature-256`, with `$action` in `X-UpdatePulse-Action`.  
 
 **Parameters**  
 `$url`

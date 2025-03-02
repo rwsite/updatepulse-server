@@ -3,8 +3,9 @@
  * WP Update Migrate
  * WordPress plugins and themes update path library.
  *
- * @author Alexandre Froger
- * @version 1.5
+ * @package UpdatePulseServer
+ * @subpackage WP_Update_Migrate
+ * @version 1.5.0
  */
 
 /*================================================================================================ */
@@ -73,23 +74,81 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 
+	/**
+	 * WP_Update_Migrate class
+	 *
+	 * Handles the migration and update process for WordPress plugins and themes.
+	 */
 	class WP_Update_Migrate {
 
+		/**
+		 * The current version of the WP_Update_Migrate class.
+		 *
+		 * @var string
+		 */
 		const VERSION = '1.5.0';
 
+		/**
+		 * @var string Information about the failed update.
+		 */
 		protected $failed_update_info;
+
+		/**
+		 * @var string Information about the successful update.
+		 */
 		protected $success_update_info;
+
+		/**
+		 * @var string The name of the package.
+		 */
 		protected $package_name;
+
+		/**
+		 * @var string The prefix of the package.
+		 */
 		protected $package_prefix;
+
+		/**
+		 * @var string The directory of the package.
+		 */
 		protected $package_dir;
+
+		/**
+		 * @var string The version to update to.
+		 */
 		protected $to_version;
+
+		/**
+		 * @var string The version to update from.
+		 */
 		protected $from_version;
+
+		/**
+		 * @var bool The result of the update.
+		 */
 		protected $update_result;
+
+		/**
+		 * @var string The type of the package (plugin or theme).
+		 */
 		protected $package_type;
+
+		/**
+		 * @var string The handle of the package.
+		 */
 		protected $package_handle;
 
+		/**
+		 * @var WP_Update_Migrate The instance of the class.
+		 */
 		protected static $instance;
 
+		/**
+		 * Constructor
+		 *
+		 * @param string $package_handle The handle of the package.
+		 * @param string $package_prefix The prefix of the package.
+		 */
 		private function __construct( $package_handle, $package_prefix ) {
 
 			if ( ! wp_doing_ajax() ) {
@@ -105,6 +164,13 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			wp_cache_set( $package_prefix, $this, 'wp-update-migrate' );
 		}
 
+		/**
+		 * Get instance
+		 *
+		 * @param string $package_handle The handle of the package.
+		 * @param string $package_prefix The prefix of the package.
+		 * @return WP_Update_Migrate The instance of the class.
+		 */
 		public static function get_instance( $package_handle, $package_prefix ) {
 			wp_cache_add_non_persistent_groups( 'wp-update-migrate' );
 
@@ -117,10 +183,18 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			return self::$instance;
 		}
 
+		/**
+		 * Get result
+		 *
+		 * @return bool The result of the update.
+		 */
 		public function get_result() {
 			return $this->update_result;
 		}
 
+		/**
+		 * Initialize the package
+		 */
 		public function init() {
 
 			if ( 'plugin' === $this->package_type ) {
@@ -161,24 +235,35 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			}
 		}
 
+		/**
+		 * Display update failed notice
+		 */
 		public function update_failed_notice() {
 			$class   = 'notice notice-error is-dismissible';
 			$message = '<p>' . $this->failed_update_info . '</p>';
-			// translators: %1$s is the package type
+			// Translators: %1$s is the package type
 			$message .= '<p>' . sprintf( esc_html__( 'The %1$s may not have any effect until the issues are resolved.', 'wp-update-migrate' ), $this->package_type ) . '</p>';
 
 			echo wp_kses_post( sprintf( '<div class="%1$s">%2$s</div>', $class, $message ) );
 		}
 
+		/**
+		 * Display update success notice
+		 */
 		public function update_success_notice() {
 			$class = 'notice notice-success is-dismissible';
-			// translators: %1$s is the package version to update to
+			// Translators: %1$s is the package version to update to
 			$title   = $this->package_name . ' - ' . sprintf( __( 'Success updating to version %1$s', 'wp-update-migrate' ), $this->to_version );
 			$message = '<h3>' . $title . '</h3><p>' . $this->success_update_info . '</p>';
 
 			echo wp_kses_post( sprintf( '<div class="%1$s">%2$s</div>', $class, $message ) );
 		}
 
+		/**
+		 * Get content directory
+		 *
+		 * @return string The content directory path.
+		 */
 		protected static function get_content_dir() {
 			WP_Filesystem();
 
@@ -191,6 +276,11 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			return $wp_filesystem->wp_content_dir();
 		}
 
+		/**
+		 * Build update path
+		 *
+		 * @return array The update path.
+		 */
 		protected function build_update_path() {
 			$file_list   = glob( $this->package_dir . 'updates' . DIRECTORY_SEPARATOR . '*.php' );
 			$update_path = array();
@@ -207,6 +297,11 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			return $update_path;
 		}
 
+		/**
+		 * Update the package
+		 *
+		 * @return mixed The result of the update.
+		 */
 		protected function update() {
 			$update_path = $this->build_update_path();
 			$result      = true;
@@ -259,6 +354,12 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			return $result;
 		}
 
+		/**
+		 * Perform the update for a specific version
+		 *
+		 * @param string $version The version to update to.
+		 * @return mixed The result of the update.
+		 */
 		protected function do_update( $version ) {
 			$error       = false;
 			$result      = false;
@@ -278,7 +379,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 				$error = new WP_Error(
 					__METHOD__,
 					sprintf(
-						// translators: %1$s is the missing function name, %2$s is the package type, %3$s is the path to WP_CONTENT_DIR
+						// Translators: %1$s is the missing function name, %2$s is the package type, %3$s is the path to WP_CONTENT_DIR
 						__( '<br/>The update failed: function <code>%1$s</code> not found.<br/>Please restore the previously used version of the %2$s, or delete the %2$s and its files in the <code>%2$s</code> directory if any and install the latest version.', 'wp-update-migrate' ),
 						$function_name,
 						$this->package_type,
@@ -295,7 +396,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 				$result = $this->update_package_version( $version );
 
 				if ( true === $result ) {
-					// translators: %1$s is the version we just updated to
+					// Translators: %1$s is the version we just updated to
 					$this->handle_success( sprintf( __( 'Updates for version %1$s applied.', 'wp-update-migrate' ), $version ) );
 
 					return true;
@@ -305,6 +406,11 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			}
 		}
 
+		/**
+		 * Initialize the package type
+		 *
+		 * @param string $package_prefix The prefix of the package.
+		 */
 		protected function init_package_type( $package_prefix ) {
 			$hook = current_filter();
 
@@ -317,14 +423,32 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			}
 		}
 
+		/**
+		 * Check if update file exists for a specific version
+		 *
+		 * @param string $version The version to check.
+		 * @return bool True if the update file exists, false otherwise.
+		 */
 		protected function update_file_exists_for_version( $version ) {
 			return file_exists( $this->package_dir . 'updates' . DIRECTORY_SEPARATOR . $version . '.php' );
 		}
 
+		/**
+		 * Get the update file path for a specific version
+		 *
+		 * @param string $version The version to get the file path for.
+		 * @return string The update file path.
+		 */
 		protected function get_update_file_path_for_version( $version ) {
 			return $this->package_dir . 'updates' . DIRECTORY_SEPARATOR . $version . '.php';
 		}
 
+		/**
+		 * Update the package version
+		 *
+		 * @param string $version The version to update to.
+		 * @return mixed The result of the update.
+		 */
 		protected function update_package_version( $version ) {
 
 			if ( ! version_compare( $this->from_version, $version, '=' ) ) {
@@ -336,7 +460,7 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			if ( ! $result ) {
 				$result = new WP_Error(
 					__METHOD__,
-					// translators: %1$s is the package prefix, %2$s is the package type, %3$s is the version number we're trying to update to
+					// Translators: %1$s is the package prefix, %2$s is the package type, %3$s is the version number we're trying to update to
 					sprintf( __( 'Failed to update the <code>%1$s_%2$s_version</code> to %3$s in the options table.', 'wp-update-migrate' ), $this->package_prefix, $this->package_type, $version )
 				);
 			}
@@ -344,16 +468,22 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			return $result;
 		}
 
+		/**
+		 * Handle error
+		 *
+		 * @param WP_Error|null $error The error object.
+		 * @return bool False indicating an error occurred.
+		 */
 		protected function handle_error( $error = null ) {
 			$error_title = $this->package_name
 				. ' - '
 				. sprintf(
-					// translators: %1$s is the package version to update to
+					// Translators: %1$s is the package version to update to
 					__( 'Error updating to version %1$s', 'wp-update-migrate' ),
 					$this->to_version
 				);
 			$error_message = sprintf(
-				// translators: %1$s is the path to WP_CONTENT_DIR, %2$s is the package type
+				// Translators: %1$s is the path to WP_CONTENT_DIR, %2$s is the package type
 				__( 'An unexpected error has occured during the update.<br/>Please restore the previously used version of the %2$s, or delete the %2$s and its files in the <code>%1$s</code> directory if any and install the latest version.', 'wp-update-migrate' ),
 				self::get_content_dir(),
 				$this->package_type
@@ -368,6 +498,11 @@ if ( ! class_exists( 'WP_Update_Migrate' ) ) {
 			return false;
 		}
 
+		/**
+		 * Handle success
+		 *
+		 * @param string|null $message The success message.
+		 */
 		protected function handle_success( $message = null ) {
 			$this->success_update_info .= $message . '<br/>';
 		}

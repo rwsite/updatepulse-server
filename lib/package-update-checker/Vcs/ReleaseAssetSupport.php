@@ -4,20 +4,32 @@ namespace Anyape\PackageUpdateChecker\Vcs;
 
 if ( ! trait_exists( ReleaseAssetSupport::class, false ) ) :
 
+	/**
+	 * Trait ReleaseAssetSupport
+	 *
+	 * Provides functionality for handling release assets in version control systems.
+	 * Implements methods for enabling, disabling, and filtering release assets
+	 * during the update process.
+	 */
 	trait ReleaseAssetSupport {
 
 		/**
-		 * @var bool Whether to download release assets instead of the auto-generated
-		 *           source code archives.
+		 * Whether to download release assets instead of the auto-generated source code archives.
+		 *
+		 * @var bool
 		 */
 		protected $release_assets_enabled = false;
 		/**
-		 * @var string|null Regular expression that's used to filter release assets
-		 *                  by file name or URL. Optional.
+		 * Regular expression that's used to filter release assets by file name or URL.
+		 *
+		 * @var string|null Optional regular expression for asset filtering.
 		 */
 		protected $asset_filter_regex = null;
 		/**
 		 * How to handle releases that don't have any matching release assets.
+		 *
+		 * Controls the behavior when no matching assets are found in a release.
+		 * Uses Api::PREFER_RELEASE_ASSETS constant as default.
 		 *
 		 * @var int
 		 */
@@ -29,10 +41,11 @@ if ( ! trait_exists( ReleaseAssetSupport::class, false ) ) :
 		 * If the latest release contains no usable assets, the update checker
 		 * will fall back to using the automatically generated ZIP archive.
 		 *
-		 * @param string|null $nameRegex Optional. Use only those assets where
+		 * @param string|null $name_regex Optional. Use only those assets where
 		 *                               the file name or URL matches this regex.
-		 * @param int $preference Optional. How to handle releases that don't have
-		 *                        any matching release assets.
+		 * @param int        $preference Optional. How to handle releases that don't have
+		 *                              any matching release assets.
+		 * @return void
 		 */
 		public function enable_release_assets( $name_regex = null, $preference = Api::PREFER_RELEASE_ASSETS ) {
 			$this->release_assets_enabled   = true;
@@ -42,6 +55,8 @@ if ( ! trait_exists( ReleaseAssetSupport::class, false ) ) :
 
 		/**
 		 * Disable release assets.
+		 *
+		 * Disables the use of release assets and clears any existing asset filters.
 		 *
 		 * @return void
 		 * @noinspection PhpUnused -- Public API
@@ -54,8 +69,11 @@ if ( ! trait_exists( ReleaseAssetSupport::class, false ) ) :
 		/**
 		 * Does the specified asset match the name regex?
 		 *
-		 * @param mixed $releaseAsset Data type and structure depend on the host/API.
-		 * @return bool
+		 * Checks if a given release asset matches the configured name regex filter.
+		 * If no filter is set, accepts all assets by default.
+		 *
+		 * @param mixed $release_asset Data type and structure depend on the host/API.
+		 * @return bool True if the asset matches the filter or if no filter is set.
 		 */
 		protected function matches_asset_filter( $release_asset ) {
 
@@ -76,8 +94,8 @@ if ( ! trait_exists( ReleaseAssetSupport::class, false ) ) :
 		/**
 		 * Get the part of asset data that will be checked against the filter regex.
 		 *
-		 * @param mixed $releaseAsset
-		 * @return string|null
+		 * @param mixed $release_asset The release asset object to extract the name from.
+		 * @return string|null The filterable name of the asset or null if not available.
 		 */
 		abstract protected function get_filterable_asset_name( $release_asset );
 	}
