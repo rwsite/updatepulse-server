@@ -1093,6 +1093,10 @@ class Package_Manager {
 	}
 
 	public function set_package_metadata( $package_slug, $metadata ) {
+		WP_Filesystem();
+
+		global $wp_filesystem;
+
 		$dir       = upserv_get_data_dir( 'metadata' );
 		$filename  = sanitize_file_name( $package_slug . '.json' );
 		$file_path = trailingslashit( $dir ) . $filename;
@@ -1104,10 +1108,6 @@ class Package_Manager {
 		if ( empty( $data ) ) {
 
 			if ( ! has_filter( 'upserv_did_delete_package_metadata' ) && is_file( $file_path ) ) {
-				WP_Filesystem();
-
-				global $wp_filesystem;
-
 				$result = (bool) $wp_filesystem->delete( $file_path );
 			} else {
 				$result = apply_filters( 'upserv_did_delete_package_metadata', false, $package_slug );

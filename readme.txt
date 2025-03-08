@@ -67,6 +67,8 @@ This section describes how to install the plugin and get it working.
 
 = 1.0.4 =
 * More flexibility when parsing `Require License` header
+* Fix VCS test
+* Fix file system permission check
 
 = 1.0.3 =
 * Minor Package API fix
