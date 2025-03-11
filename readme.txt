@@ -65,6 +65,9 @@ This section describes how to install the plugin and get it working.
 
 == Changelog ==
 
+= 1.0.5 =
+* Fix JSON details modal view - escaping characters
+
 = 1.0.4 =
 * More flexibility when parsing `Require License` header
 * Fix VCS test
