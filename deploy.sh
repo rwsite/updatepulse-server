@@ -135,7 +135,7 @@ execute_or_echo() {
                 "$command" "${args[@]}"
                 local exit_code=$?
                 if [[ $exit_code -ne 0 ]]; then
-                    handle_error "$command" "$exit_code"
+                    handle_error "$command ${args[*]}"
                 fi
             fi
             ;;
@@ -150,7 +150,7 @@ execute_or_echo() {
                 "$command" "${args[@]}"
                 local exit_code=$?
                 if [[ $exit_code -ne 0 ]]; then
-                    handle_error "$command" "$exit_code"
+                    handle_error "$command ${args[*]}"
                 fi
             fi
             ;;
@@ -165,7 +165,7 @@ execute_or_echo() {
                 "$command" "${args[@]}"
                 local exit_code=$?
                 if [[ $exit_code -ne 0 ]]; then
-                    handle_error "$command" "$exit_code"
+                    handle_error "$command ${args[*]}"
                 fi
             fi
             ;;
@@ -177,7 +177,7 @@ execute_or_echo() {
             "$command" "${args[@]}"
             local exit_code=$?
             if [[ $exit_code -ne 0 ]]; then
-                handle_error "$command" "$exit_code"
+                handle_error "$command ${args[*]}"
             fi
         ;;
     esac
