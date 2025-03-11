@@ -135,7 +135,15 @@ execute_or_echo() {
                 "$command" "${args[@]}"
                 local exit_code=$?
                 if [[ $exit_code -ne 0 ]]; then
-                    handle_error "$command ${args[*]}"
+                    # Make exception for git commit when there's nothing to commit
+                    if [[ "$command" == "git" && "${args[0]}" == "commit" && $exit_code -eq 1 ]]; then
+                        # Check if the error is about "nothing to commit"
+                        if git status | grep -q "nothing to commit"; then
+                            echo "Notice: Nothing to commit, continuing with deployment"
+                            return 0
+                        fi
+                    fi
+                    handle_error "$command ${args[*]}" "$exit_code"
                 fi
             fi
             ;;
