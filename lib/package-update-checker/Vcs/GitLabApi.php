@@ -135,7 +135,9 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 				return $response;
 			}
 
-			return $response && isset( $response->path ) && $instance->user_name === $response->path;
+			return $response &&
+				isset( $response->path ) &&
+				trailingslashit( $instance->user_name ) === trailingslashit( $response->path );
 		}
 
 		/**

@@ -67,7 +67,10 @@ if ( ! class_exists( GitHubApi::class, false ) ) :
 				return false;
 			}
 
-			if ( isset( $response->html_url ) && $response->html_url === $url ) {
+			if (
+				isset( $response->html_url ) &&
+				trailingslashit( $url ) === trailingslashit( $response->html_url )
+			) {
 				return true;
 			}
 

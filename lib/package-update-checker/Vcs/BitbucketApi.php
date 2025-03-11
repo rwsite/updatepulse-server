@@ -55,7 +55,11 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 				return $response;
 			}
 
-			if ( $response && isset( $response->username ) && $instance->user_name === $response->username ) {
+			if (
+				$response &&
+				isset( $response->username ) &&
+				trailingslashit( $instance->user_name ) === trailingslashit( $response->username )
+			) {
 				return true;
 			}
 
