@@ -296,21 +296,12 @@ class Zip_Metadata_Parser {
 			$meta = array();
 		}
 
-		php_log(
-			array(
-				'version_time' => isset( $meta['version_time'] ) ? $meta['version_time'] : '',
-				'version'      => isset( $meta['version'] ) ? $meta['version'] : '',
-			),
-		);
-
 		if (
 			! isset( $meta['version'], $meta['version_time'] ) ||
 			$meta['version'] !== $this->metadata['version']
 		) {
 			$meta['version']      = $this->metadata['version'];
 			$meta['version_time'] = gmdate( 'Y-m-d H:i:s', filemtime( $this->filename ) );
-
-			php_log( 'updated version to ' . $meta['version'] . ' at ' . $meta['version_time'] );
 
 			upserv_set_package_metadata( $this->slug, $meta );
 		}
