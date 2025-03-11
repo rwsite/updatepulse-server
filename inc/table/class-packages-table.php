@@ -179,7 +179,8 @@ class Packages_Table extends WP_List_Table {
 				$search         = ! empty( $_REQUEST['s'] ) ? trim( sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$record['info'] = wp_json_encode(
 					$info,
-					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES |
+						JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
 				);
 
 				upserv_get_admin_template(

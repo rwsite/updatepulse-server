@@ -186,7 +186,11 @@ class Licenses_Table extends WP_List_Table {
 			$page        = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			foreach ( $records as $record_key => $record ) {
-				$bulk_value             = wp_json_encode( $record );
+				$bulk_value             = wp_json_encode(
+					$record,
+					JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES |
+						JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+				);
 				$record['status_label'] = Utils::get_status_string( $record['status'] );
 
 				upserv_get_admin_template(
