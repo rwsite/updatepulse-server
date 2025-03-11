@@ -113,6 +113,11 @@ handle_error() {
     local cmd="$1"
     local exit_code="$2"
     echo "Error: $cmd command failed with exit code $exit_code"
+    cd "$GITPATH" || {
+        echo "Error: Unable to change directory to $GITPATH"
+        exit 1
+    }
+    git checkout "$CURRENTBRANCH"
     exit 1
 }
 
