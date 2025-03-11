@@ -162,10 +162,10 @@ class Zip_Metadata_Parser {
 		if ( is_array( $this->package_info ) && ! empty( $this->package_info ) ) {
 			$this->set_info_from_header();
 			$this->set_info_from_readme();
-			$this->set_last_update_date();
 			$this->set_info_from_assets();
 			$this->set_slug();
 			$this->set_type();
+			$this->set_last_update_date();
 		} else {
 			throw new Invalid_Package_Exception(
 				sprintf(
@@ -284,9 +284,29 @@ class Zip_Metadata_Parser {
 	/**
 	* Add last update date to the metadata
 	*/
+		/**
+	* Add last update date to the metadata ; this is tied to the version
+	*/
 	protected function set_last_update_date() {
 
 		if ( ! isset( $this->metadata['last_updated'] ) ) {
+			$meta = upserv_get_package_metadata( $this->slug );
+
+			if ( $meta && isset( $meta['version'], $meta['version_time'] ) ) {
+
+				if ( $meta['version'] !== $this->metadata['version'] ) {
+					$this->metadata['last_updated'] = $meta['version_time'];
+				} else {
+					$this->metadata['last_updated'] = gmdate( 'Y-m-d H:i:s', filemtime( $this->filename ) );
+					$meta['version']                = $this->metadata['version'];
+					$meta['version_time']           = $this->metadata['last_updated'];
+
+					upserv_set_package_metadata( $this->slug, $meta );
+				}
+
+				return;
+			}
+
 			$this->metadata['last_updated'] = gmdate( 'Y-m-d H:i:s', filemtime( $this->filename ) );
 		}
 	}
