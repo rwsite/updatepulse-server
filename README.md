@@ -50,7 +50,7 @@ Package updates may be either uploaded directly, or hosted in a Version Control 
 
 This plugin adds the following major features to WordPress:
 
-* **Packages Overview:** manage package updates with a table showing Package Name, Version, Type, File Name, Size, Last Modified and License Status; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages. Upload updates from your local machine to UpdatePulse Server, or let the system to automatically download them to UpdatePulse Server from a Version Control System. Store packages either locally, or in the Cloud with an S3 compatible service. Packages can also be managed through their own API.
+* **Packages Overview:** manage package updates with a table showing Package Name, Version, Type, File Name, Size, File Modified and License Status; includes bulk operations to delete, download and change the license status, and the ability to delete all the packages. Upload updates from your local machine to UpdatePulse Server, or let the system to automatically download them to UpdatePulse Server from a Version Control System. Store packages either locally, or in the Cloud with an S3 compatible service. Packages can also be managed through their own API.
 * **Version Control Systems:** configure the Version Control Systems of your choice (Bitbucket, Github, Gitlab, or a self-hosted installation of Gitlab) with secure credentials and a branch name where the updates are hosted; choose to check for updates recurringly, or when receiving a webhook notification. UpdatePulse Server acts as a middleman between your reposiroty, your udpates storage (local or Cloud), and your clients.
 * **Licenses:** manage licenses with a table showing ID, License Key, Registered Email, Status, Package Type, Package Slug, Creation Date, and Expiration Date; add and edit them with a form, or use the API for more control. Licenses prevent packages installed on client machines from being updated without a valid license. Licenses are generated automatically by default and the values are unguessable (it is recommended to keep the default). When checking the validity of licenses an extra license signature is also checked to prevent the use of a license on more than the configured allowed domains.
 * **Not limited to WordPress:** with a platform-agnostic API, updates can be served for any type of package, not just WordPress plugins & themes. Basic examples of integration with Node.js, PHP, bash, and Python are provided in the [documentation](https://github.com/anyape/updatepulse-server/blob/main/docs/generic.md).
@@ -117,7 +117,7 @@ UpdatePulse Server provides a user interface to manage packages, manage licenses
 ### Packages Overview
 
 This tab allows administrators to:
-- View the list of packages currently available in UpdatePulse Server, with Package Name, Version, Type (Plugin or Theme), File Name, Size, Last Modified and License Status (if enabled)
+- View the list of packages currently available in UpdatePulse Server, with Package Name, Version, Type (Plugin or Theme), File Name, Size, File Modified (when the package file was changed on the file system) and License Status (if enabled)
 - Download a package
 - Delete a package
 - Apply bulk actions on the list of packages (download, delete)

@@ -3,7 +3,7 @@ Contributors: frogerme
 Tags: Plugin updates, Theme updates, WordPress updates, License
 Requires at least: 6.7
 Tested up to: 6.7
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -37,7 +37,7 @@ Make sure to read the full documentation and the content of the "Help" tab under
 
 This plugin adds the following major features to WordPress:
 
-* **Package management:** to manage update packages, showing a listing with Package Name, Version, Type, File Name, Size, Last Modified and License Status; includes bulk operations to delete and download, and the ability to delete all the packages.
+* **Package management:** to manage update packages, showing a listing with Package Name, Version, Type, File Name, Size, File Modified and License Status; includes bulk operations to delete and download, and the ability to delete all the packages.
 * **Add Packages:** Upload update packages from a local machine to the server, or download them to the server from a Version Control System.
 * **Version Control Systems:** Instead of manually uploading packages, use Version Control Systems to host packages, and download them to UpdatePulse Server automatically. Supports Bitbucket, Github and Gitlab, as well as self-hosted installations of Gitlab.
 * **Cloud Storage**: Instead of storing packages on the file system where UpdatePulse Server is installed, they can be stored on a cloud storage service, as long as it is compatible with Amazon S3's API. Examples: Amazon S3, Cloudflare R2, Backblaze B2, MinIO, and many more!
@@ -67,6 +67,7 @@ This section describes how to install the plugin and get it working.
 
 = 1.0.5 =
 * Fix JSON details modal view - escaping characters
+* Make sure to differenciate between `file_last_modified` ("File Modified", the time the file was changed on the file system) and `last_updated` (package version update time)
 
 = 1.0.4 =
 * More flexibility when parsing `Require License` header

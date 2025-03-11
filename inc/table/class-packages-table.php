@@ -46,7 +46,7 @@ class Packages_Table extends WP_List_Table {
 				'col_type'               => __( 'Type', 'updatepulse-server' ),
 				'col_file_name'          => __( 'File Name', 'updatepulse-server' ),
 				'col_file_size'          => __( 'Size', 'updatepulse-server' ),
-				'col_file_last_modified' => __( 'Last Modified ', 'updatepulse-server' ),
+				'col_file_last_modified' => __( 'File Modified ', 'updatepulse-server' ),
 				'col_origin'             => __( 'Origin', 'updatepulse-server' ),
 			)
 		);

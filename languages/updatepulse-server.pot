@@ -1074,7 +1074,7 @@ msgid ""
 msgstr ""
 
 #: inc/table/class-packages-table.php:49
-msgid "Last Modified "
+msgid "File Modified "
 msgstr ""
 
 #: inc/templates/admin/plugin-remote-sources-page.php:198

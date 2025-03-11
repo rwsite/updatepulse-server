@@ -282,33 +282,40 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Add last update date to the metadata
-	*/
-		/**
 	* Add last update date to the metadata ; this is tied to the version
 	*/
 	protected function set_last_update_date() {
 
-		if ( ! isset( $this->metadata['last_updated'] ) ) {
-			$meta = upserv_get_package_metadata( $this->slug );
-
-			if ( $meta && isset( $meta['version'], $meta['version_time'] ) ) {
-
-				if ( $meta['version'] !== $this->metadata['version'] ) {
-					$this->metadata['last_updated'] = $meta['version_time'];
-				} else {
-					$this->metadata['last_updated'] = gmdate( 'Y-m-d H:i:s', filemtime( $this->filename ) );
-					$meta['version']                = $this->metadata['version'];
-					$meta['version_time']           = $this->metadata['last_updated'];
-
-					upserv_set_package_metadata( $this->slug, $meta );
-				}
-
-				return;
-			}
-
-			$this->metadata['last_updated'] = gmdate( 'Y-m-d H:i:s', filemtime( $this->filename ) );
+		if ( isset( $this->metadata['last_updated'] ) ) {
+			return;
 		}
+
+		$meta = upserv_get_package_metadata( $this->slug );
+
+		if ( ! is_array( $meta ) ) {
+			$meta = array();
+		}
+
+		php_log(
+			array(
+				'version_time' => isset( $meta['version_time'] ) ? $meta['version_time'] : '',
+				'version'      => isset( $meta['version'] ) ? $meta['version'] : '',
+			),
+		);
+
+		if (
+			! isset( $meta['version'], $meta['version_time'] ) ||
+			$meta['version'] !== $this->metadata['version']
+		) {
+			$meta['version']      = $this->metadata['version'];
+			$meta['version_time'] = gmdate( 'Y-m-d H:i:s', filemtime( $this->filename ) );
+
+			php_log( 'updated version to ' . $meta['version'] . ' at ' . $meta['version_time'] );
+
+			upserv_set_package_metadata( $this->slug, $meta );
+		}
+
+		$this->metadata['last_updated'] = $meta['version_time'];
 	}
 
 	protected function set_type() {
