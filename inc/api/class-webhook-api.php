@@ -293,7 +293,6 @@ class Webhook_API {
 			$delay          = $vcs_config['check_delay'];
 			$dir            = Data_Manager::get_data_dir( 'packages' );
 			$package_exists = null;
-			$payload        = $payload ? wp_json_encode( $payload ) : false;
 			$package_exists = apply_filters(
 				'upserv_webhook_package_exists',
 				$package_exists,
@@ -480,7 +479,7 @@ class Webhook_API {
 			}
 		}
 
-		return $decoded;
+		return ! is_array( $decoded ) ? array( 'decoded' => $decoded ) : $decoded;
 	}
 
 	protected function get_payload_vcs_url( $payload ) {
