@@ -8,6 +8,9 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
         * [Acquiring a reusable token or a true nonce - payload](#acquiring-a-reusable-token-or-a-true-nonce---payload)
         * [Responses](#responses)
         * [Building API credentials and API signature](#building-api-credentials-and-api-signature)
+    * [Update API](#update-api)
+        * [The `get_metadata` action](#the-get_metadata-action)
+        * [The `download` action](#the-download-action)
     * [WP CLI](#wp-cli)
     * [Consuming Webhooks](#consuming-webhooks)
     * [Functions](#functions)
@@ -247,6 +250,174 @@ $values = upserv_build_nonce_api_signature( getenv( 'UPSERV_API_KEY_ID' ), geten
 echo '<div>The credentials are: ' . esc_html( $values['credentials'] ) . '</div>';
 echo '<div>The signature is: ' . esc_html( $values['signature'] ) . '</div>';
 ```
+
+## Update API
+
+The Update API is accessible via `GET` requests on the `/updatepulse-server-update-api/` endpoint.  
+It has two actions: `get_metadata` and `download`.
+
+### The `get_metadata` action
+
+The `get_metadata` action is used to check for updates. It accepts the following parameters:
+
+| Parameter | Description | Required |
+| --- | --- | --- |
+| `action` | The action to perform. Must be `get_metadata`. | Yes |
+| `package_id` | The ID of the package to check for updates. | Yes |
+| `installed_version` | The version of the package currently installed. | No |
+| `php` | The PHP version of the client. | No |
+| `locale` | The locale of the client. | No |
+| `checking_for_updates` | A flag indicating whether the client is checking for updates. | No |
+| `license_key` | The license key of the package | Yes (if the package requires a license) |
+| `license_signature` | The license signature of the package | Yes (if the package requires a license) |
+| `update_type` | The type of update. Must be one of `Plugin`, `Theme`, or `Generic`. | Yes |
+
+Example of a request to the Update API with:
+- `get_metadata` action
+- `package_id` set to `dummy-plugin`
+- `installed_version` set to `1.0`
+- `php` set to `8.3`
+- `locale` set to `en_US`
+- `checking_for_updates` set to `1`
+- `license_key` set to `abcdef1234567890`
+- `license_signature` set to `signabcdef1234567890`
+- `update_type` set to `Plugin`
+
+```bash
+curl -X GET "https://server.domain.tld/updatepulse-server-update-api/?action=get_metadata&package_id=dummy-plugin&installed_version=1.0&php=8.3&locale=en_US&checking_for_updates=1&license_key=abcdef1234567890&license_signature=signabcdef1234567890&update_type=Plugin"
+```
+
+Example of a response (success):
+```json
+{
+    "name": "Dummy Plugin",
+    "version": "1.5.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "A Developer",
+    "author_homepage": "https:\/\/domain.tld\/",
+    "description": "Updated Empty plugin to demonstrate the UpdatePulse Updater.",
+    "details_url": "https:\/\/domain.tld\/",
+    "requires": "4.9.8",
+    "tested": "4.9.8",
+    "requires_php": "7.0",
+    "sections": {
+        "description": "<div class=\"readme-section\" data-name=\"Description\"><p>Update Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p><\/div>",
+        "dummy_section": "<div class=\"readme-section\" data-name=\"Dummy Section\"><p>An extra, dummy section.<\/p><\/div>",
+        "installation": "<div class=\"readme-section\" data-name=\"Installation\"><p>Installation instructions.<\/p><\/div>",
+        "changelog": "<div class=\"readme-section\" data-name=\"Changelog\"><p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p><\/div>",
+        "frequently_asked_questions": "<div class=\"readme-section\" data-name=\"Frequently Asked Questions\"><h4>Question<\/h4><p>Answer<\/p><\/div>",
+    },
+    "icons": {
+        "1x": "https:\/\/domain.tld\/path\/to\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/path\/to\/icon-256x256.png",
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/path\/to\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/path\/to\/banner-1544x500.png",
+    },
+    "require_license": "1",
+    "slug": "dummy-plugin",
+    "type": "plugin",
+    "download_url": "https:\/\/server.domain.tld\/updatepulse-server-update-api\/?action=download&package_id=dummy-plugin&token=tokenabcdef1234567890&license_key=abcdef1234567890&license_signature=signabcdef1234567890&update_type=Plugin",
+    "license": {
+        "license_key": "abcdef1234567890",
+        "max_allowed_domains": 2,
+        "allowed_domains": [
+            "domain.tld",
+            "domain2.tld"
+        ],
+        "status": "activated",
+        "txn_id": "",
+        "date_created": "2025-02-04",
+        "date_renewed": "0000-00-00",
+        "date_expiry": "2027-02-04",
+        "package_slug": "dummy-plugin",
+        "package_type": "plugin",
+        "result": "success",
+        "message": "License key details retrieved."
+    },
+    "time_elapsed": "0.139s"
+}
+```
+
+Examples of a response (failure - invalid package):
+```json
+{
+    "error": "no_server",
+    "message": "No server found for this package."
+}
+```
+
+Examples of a response (failure - invalid license):
+```json
+{
+    "name": "Dummy Plugin",
+    "version": "1.5.0",
+    "homepage": "https:\/\/domain.tld\/",
+    "author": "A Developer",
+    "author_homepage": "https:\/\/domain.tld\/",
+    "description": "Updated Empty plugin to demonstrate the UpdatePulse Updater.",
+    "details_url": "https:\/\/domain.tld\/",
+    "requires": "4.9.8",
+    "tested": "4.9.8",
+    "requires_php": "7.0",
+    "sections": {
+        "description": "<div class=\"readme-section\" data-name=\"Description\"><p>Update Plugin description. <strong>Basic HTML<\/strong> can be used in all sections.<\/p><\/div>",
+        "dummy_section": "<div class=\"readme-section\" data-name=\"Dummy Section\"><p>An extra, dummy section.<\/p><\/div>",
+        "installation": "<div class=\"readme-section\" data-name=\"Installation\"><p>Installation instructions.<\/p><\/div>",
+        "changelog": "<div class=\"readme-section\" data-name=\"Changelog\"><p>This section will be displayed by default when the user clicks 'View version x.y.z details'.<\/p><\/div>",
+        "frequently_asked_questions": "<div class=\"readme-section\" data-name=\"Frequently Asked Questions\"><h4>Question<\/h4><p>Answer<\/p><\/div>",
+    },
+    "icons": {
+        "1x": "https:\/\/domain.tld\/path\/to\/icon-128x128.png",
+        "2x": "https:\/\/domain.tld\/path\/to\/icon-256x256.png",
+    },
+    "banners": {
+        "low": "https:\/\/domain.tld\/path\/to\/banner-772x250.png",
+        "high": "https:\/\/domain.tld\/path\/to\/banner-1544x500.png",
+    },
+    "require_license": "1",
+    "slug": "dummy-plugin",
+    "type": "plugin",
+        "license_error": {
+        "code": "invalid_license",
+        "message": "The license key or signature is invalid.",
+        "data": {
+            "license": false
+        }
+    },
+    "time_elapsed": "0.139s"
+}
+```
+
+### The `download` action
+
+The `download` action is used to download the package. It accepts the following parameters:
+
+| Parameter | Description | Required |
+| --- | --- | --- |
+| `action` | The action to perform. Must be `download`. | Yes |
+| `package_id` | The ID of the package to download. | Yes |
+| `token` | The cryptographic token to use to download the package. Generated by the Nonce API. | Yes |
+| `license_key` | The license key of the package | Yes (if the package requires a license) |
+| `license_signature` | The license signature of the package | Yes (if the package requires a license) |
+| `update_type` | The type of update. Must be one of `Plugin`, `Theme`, or `Generic`. | Yes |
+
+Generally, the URL to request this API endpoint would not be put together manually, but rather taken from the field `download_url` in the response of `get_metadata` action.
+
+Example of a request to the Update API with:
+- `download` action
+- `package_id` set to `dummy-plugin`
+- `token` set to `tokenabcdef1234567890`
+- `license_key` set to `abcdef1234567890`
+- `license_signature` set to `signabcdef1234567890`
+- `update_type` set to `Plugin`
+
+```bash
+curl -X GET "https://server.domain.tld/updatepulse-server-update-api/?action=download&package_id=dummy-plugin&token=tokenabcdef1234567890&license_key=abcdef1234567890&license_signature=signabcdef1234567890&update_type=Plugin"
+```
+
+The response is a `zip` file containing the package.
 
 ## WP CLI
 
