@@ -54,7 +54,14 @@ class Package_API {
 		$query['search'] = isset( $query['search'] ) ? trim( esc_html( $query['search'] ) ) : false;
 		$result          = upserv_get_batch_package_info( $query['search'], false );
 		$result['count'] = is_array( $result ) ? count( $result ) : 0;
-		$result          = apply_filters( 'upserv_package_browse', $result, $query );
+		/**
+		 * Filter the result of the `browse` operation of the Package API.
+		 *
+		 * @param array $result The result of the `browse` operation
+		 * @param array $query The query - see browse()
+		 * @return array The filtered result
+		 */
+		$result = apply_filters( 'upserv_package_browse', $result, $query );
 
 		do_action( 'upserv_did_browse_package', $result );
 
@@ -86,6 +93,14 @@ class Package_API {
 			unset( $result['file_path'] );
 		}
 
+		/**
+		 * Filter the result of the `read` operation of the Package API.
+		 *
+		 * @param array $result The result of the `read` operation
+		 * @param string $package_id The slug of the read package
+		 * @param string $type The type of the read package
+		 * @return array The filtered result
+		 */
 		$result = apply_filters( 'upserv_package_read', $result, $package_id, $type );
 
 		do_action( 'upserv_did_read_package', $result );
@@ -118,6 +133,14 @@ class Package_API {
 			$result = $result && ! is_wp_error( $result ) ? upserv_get_package_info( $package_id, false ) : $result;
 		}
 
+		/**
+		 * Filter the result of the `edit` operation of the Package API.
+		 *
+		 * @param array $result The result of the `edit` operation
+		 * @param string $package_id The slug of the edited package
+		 * @param string $type The type of the edited package
+		 * @return array The filtered result
+		 */
 		$result = apply_filters( 'upserv_package_edit', $result, $package_id, $type );
 
 		if ( empty( $exists ) ) {
@@ -162,6 +185,14 @@ class Package_API {
 			$result = $result && ! is_wp_error( $result ) ? upserv_get_package_info( $package_id, false ) : $result;
 		}
 
+		/**
+		 * Filter the result of the `add` operation of the Package API.
+		 *
+		 * @param array $result The result of the `add` operation
+		 * @param string $package_id The slug of the added package
+		 * @param string $type The type of the added package
+		 * @return array The filtered result
+		 */
 		$result = apply_filters( 'upserv_package_add', $result, $package_id, $type );
 
 		if ( ! empty( $exists ) ) {
@@ -193,6 +224,14 @@ class Package_API {
 		do_action( 'upserv_pre_delete_package', $package_id, $type );
 
 		$result = upserv_delete_package( $package_id );
+		/**
+		 * Filter the result of the `delete` operation of the Package API.
+		 *
+		 * @param bool $result The result of the `delete` operation
+		 * @param string $package_id The slug of the deleted package
+		 * @param string $type The type of the deleted package
+		 * @return bool The filtered result
+		 */
 		$result = apply_filters( 'upserv_package_delete', $result, $package_id, $type );
 
 		if ( $result ) {
@@ -230,7 +269,15 @@ class Package_API {
 	public function signed_url( $package_id, $type ) {
 		$package_id = filter_var( $package_id, FILTER_SANITIZE_URL );
 		$type       = filter_var( $type, FILTER_SANITIZE_URL );
-		$token      = apply_filters( 'upserv_package_signed_url_token', false, $package_id, $type );
+		/**
+		 * Filter the token used to sign the URL.
+		 *
+		 * @param mixed $token The token used to sign the URL
+		 * @param string $package_id The slug of the package for which the URL needs to be signed
+		 * @param string $type The type of the package for which the URL needs to be signed
+		 * @return mixed The filtered token
+		 */
+		$token = apply_filters( 'upserv_package_signed_url_token', false, $package_id, $type );
 
 		if ( ! $token ) {
 			$token = upserv_create_nonce(
@@ -244,6 +291,14 @@ class Package_API {
 			);
 		}
 
+		/**
+		 * Filter the result of the `signed_url` operation of the Package API.
+		 *
+		 * @param array $result The result of the `signed_url` operation
+		 * @param string $package_id The slug of the package for which the URL was signed
+		 * @param string $type The type of the package for which the URL was signed
+		 * @return array The filtered result
+		 */
 		$result = apply_filters(
 			'upserv_package_signed_url',
 			array(
@@ -282,7 +337,6 @@ class Package_API {
 			'index.php?type=$matches[1]&package_id=$matches[2]&$matches[3]&__upserv_package_api=1&',
 			'top'
 		);
-
 		add_rewrite_rule(
 			'^updatepulse-server-package-api/*?$',
 			'index.php?$matches[1]&__upserv_package_api=1&',
