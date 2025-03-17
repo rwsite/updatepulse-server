@@ -410,6 +410,11 @@ class License_API {
 	 * @return object Result of the check operation
 	 */
 	public function check( $license_data ) {
+		/**
+		 * Filter the license data payload before checking a license.
+		 *
+		 * @param array $license_data The license data payload.
+		 */
 		$license_data = apply_filters( 'upserv_check_license_dirty_payload', $license_data );
 		$license      = $this->license_server->read_license( $license_data );
 		$raw_result   = array();
@@ -423,8 +428,19 @@ class License_API {
 			$result     = null;
 		}
 
+		/**
+		 * Filter the result of the license check operation.
+		 *
+		 * @param object|null $license      The license object or null if not found.
+		 * @param array       $license_data The license data payload.
+		 */
 		$result = apply_filters( 'upserv_check_license_result', $license, $license_data );
 
+		/**
+		 * Fired after checking a license.
+		 *
+		 * @param mixed $raw_result The raw result of the license check.
+		 */
 		do_action( 'upserv_did_check_license', $raw_result );
 
 		if ( ! is_object( $result ) ) {
@@ -443,6 +459,11 @@ class License_API {
 	 * @return object Result of the activate operation
 	 */
 	public function activate( $license_data ) {
+		/**
+		 * Filter the license data payload before activating a license.
+		 *
+		 * @param array $license_data The license data payload.
+		 */
 		$license_data = apply_filters( 'upserv_activate_license_dirty_payload', $license_data );
 
 		$this->normalize_allowed_domains( $license_data );
@@ -451,6 +472,11 @@ class License_API {
 		$license      = $this->license_server->read_license( $license_data );
 		$domain       = $this->extract_domain_from_license_data( $license_data );
 
+		/**
+		 * Fired before activating a license.
+		 *
+		 * @param object $license The license object.
+		 */
 		do_action( 'upserv_pre_activate_license', $license );
 
 		if ( $this->is_valid_license_for_state_transition( $license, $request_slug, $domain ) ) {
@@ -461,8 +487,22 @@ class License_API {
 
 		$raw_result = isset( $result['raw_result'] ) ? $result['raw_result'] : $result;
 		$result     = isset( $result['result'] ) ? $result['result'] : $result;
-		$result     = apply_filters( 'upserv_activate_license_result', $result, $license_data, $license );
 
+		/**
+		 * Filter the result of the license activation operation.
+		 *
+		 * @param object     $result       The result of the license activation.
+		 * @param array      $license_data The license data payload.
+		 * @param object     $license      The license object.
+		 */
+		$result = apply_filters( 'upserv_activate_license_result', $result, $license_data, $license );
+
+		/**
+		 * Fired after activating a license.
+		 *
+		 * @param mixed $raw_result   The raw result of the license activation.
+		 * @param array $license_data The license data payload.
+		 */
 		do_action( 'upserv_did_activate_license', $raw_result, $license_data );
 
 		return (object) $result;
@@ -477,6 +517,11 @@ class License_API {
 	 * @return object Result of the deactivate operation
 	 */
 	public function deactivate( $license_data ) {
+		/**
+		 * Filter the license data payload before deactivating a license.
+		 *
+		 * @param array $license_data The license data payload.
+		 */
 		$license_data = apply_filters( 'upserv_deactivate_license_dirty_payload', $license_data );
 
 		$this->normalize_allowed_domains( $license_data );
@@ -485,6 +530,11 @@ class License_API {
 		$license      = $this->license_server->read_license( $license_data );
 		$domain       = $this->extract_domain_from_license_data( $license_data );
 
+		/**
+		 * Fired before deactivating a license.
+		 *
+		 * @param object $license The license object.
+		 */
 		do_action( 'upserv_pre_deactivate_license', $license );
 
 		if ( $this->is_valid_license_for_state_transition( $license, $request_slug, $domain ) ) {
@@ -495,8 +545,22 @@ class License_API {
 
 		$raw_result = isset( $result['raw_result'] ) ? $result['raw_result'] : $result;
 		$result     = isset( $result['result'] ) ? $result['result'] : $result;
-		$result     = apply_filters( 'upserv_deactivate_license_result', $result, $license_data, $license );
 
+		/**
+		 * Filter the result of the license deactivation operation.
+		 *
+		 * @param object     $result       The result of the license deactivation.
+		 * @param array      $license_data The license data payload.
+		 * @param object     $license      The license object.
+		 */
+		$result = apply_filters( 'upserv_deactivate_license_result', $result, $license_data, $license );
+
+		/**
+		 * Fired after deactivating a license.
+		 *
+		 * @param mixed $raw_result   The raw result of the license deactivation.
+		 * @param array $license_data The license data payload.
+		 */
 		do_action( 'upserv_did_deactivate_license', $raw_result, $license_data );
 
 		return (object) $result;
@@ -924,6 +988,11 @@ class License_API {
 			self::$config = $config;
 		}
 
+		/**
+		 * Filter the License API configuration.
+		 *
+		 * @param array $config The License API configuration.
+		 */
 		return apply_filters( 'upserv_license_api_config', self::$config );
 	}
 
@@ -1158,6 +1227,12 @@ class License_API {
 		$data = isset( $license->data ) ? $license->data : array();
 
 		if ( ! isset( $data['next_deactivate'] ) || time() > $data['next_deactivate'] ) {
+			/**
+			 * Filter the timestamp for the next allowed deactivation after activation.
+			 *
+			 * @param int    $timestamp The timestamp for the next allowed deactivation.
+			 * @param object $license   The license object.
+			 */
 			$data['next_deactivate'] = apply_filters( 'upserv_activate_license_next_deactivate', time(), $license );
 		}
 
@@ -1170,6 +1245,11 @@ class License_API {
 
 		try {
 			$result = $this->license_server->edit_license(
+				/**
+				 * Filter the payload for license activation.
+				 *
+				 * @param array $payload The license activation payload.
+				 */
 				apply_filters( 'upserv_activate_license_payload', $payload )
 			);
 		} catch ( Exception $e ) {
@@ -1261,7 +1341,13 @@ class License_API {
 	 * @return array|null The result or null if not found
 	 */
 	protected function process_license_deactivation( $license, $domain ) {
-		$data                    = isset( $license->data ) ? $license->data : array();
+		$data = isset( $license->data ) ? $license->data : array();
+		/**
+		 * Filter the timestamp for the next allowed deactivation.
+		 *
+		 * @param int    $timestamp The timestamp for the next allowed deactivation.
+		 * @param object $license   The license object.
+		 */
 		$data['next_deactivate'] = apply_filters(
 			'upserv_deactivate_license_next_deactivate',
 			(bool) ( constant( 'WP_DEBUG' ) ) ? time() + ( MINUTE_IN_SECONDS / 4 ) : time() + MONTH_IN_SECONDS,
@@ -1278,6 +1364,11 @@ class License_API {
 
 		try {
 			$result = $this->license_server->edit_license(
+				/**
+				 * Filter the payload for license deactivation.
+				 *
+				 * @param array $payload The license deactivation payload.
+				 */
 				apply_filters( 'upserv_activate_license_payload', $payload )
 			);
 		} catch ( Exception $e ) {
@@ -1408,6 +1499,11 @@ class License_API {
 	 * @return boolean True if public, false otherwise
 	 */
 	protected function is_api_public( $method ) {
+		/**
+		 * Filter the list of public License API actions.
+		 *
+		 * @param array $public_api_actions List of public License API actions.
+		 */
 		$public_api    = apply_filters(
 			'upserv_license_public_api_actions',
 			array(
@@ -1461,6 +1557,13 @@ class License_API {
 			if ( ! $malformed_request ) {
 				$this->init_server();
 
+				/**
+				 * Filter whether the License API request is authorized.
+				 *
+				 * @param bool   $authorized Whether the License API request is authorized.
+				 * @param string $method     The method of the request.
+				 * @param array  $payload    The payload of the request.
+				 */
 				$authorized = apply_filters(
 					'upserv_license_api_request_authorized',
 					(
@@ -1475,6 +1578,12 @@ class License_API {
 				);
 
 				if ( $authorized ) {
+					/**
+					 * Fired before the License API request is processed.
+					 *
+					 * @param string $method  The License API action.
+					 * @param array  $payload The payload of the request.
+					 */
 					do_action( 'upserv_license_api_request', $method, $payload );
 
 					if ( method_exists( $this, $method ) ) {
@@ -1542,6 +1651,11 @@ class License_API {
 	 *
 	 */
 	protected function init_server() {
+		/**
+		 * Filter the License Server instance.
+		 *
+		 * @param License_Server $license_server The license server instance.
+		 */
 		$this->license_server = apply_filters( 'upserv_license_server', new License_Server() );
 	}
 }
