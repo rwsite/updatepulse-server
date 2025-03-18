@@ -8,8 +8,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use stdClass;
 
+/**
+ * API Manager class
+ *
+ * @since 1.0.0
+ */
 class API_Manager {
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize hooks
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -28,6 +39,15 @@ class API_Manager {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Register admin styles
+	 *
+	 * Add custom styles used by the API admin interface.
+	 *
+	 * @param array $styles Existing admin styles.
+	 * @return array Modified admin styles.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_styles( $styles ) {
 		$styles['api'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/admin/api' . upserv_assets_suffix() . '.css',
@@ -37,6 +57,15 @@ class API_Manager {
 		return $styles;
 	}
 
+	/**
+	 * Register admin scripts
+	 *
+	 * Add custom scripts used by the API admin interface.
+	 *
+	 * @param array $scripts Existing admin scripts.
+	 * @return array Modified admin scripts.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_scripts( $scripts ) {
 		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -93,6 +122,13 @@ class API_Manager {
 		return $scripts;
 	}
 
+	/**
+	 * Register admin menu
+	 *
+	 * Add the API settings page to the admin menu.
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_menu() {
 		$function   = array( $this, 'plugin_page' );
 		$page_title = __( 'UpdatePulse Server - API & Webhooks', 'updatepulse-server' );
@@ -102,6 +138,15 @@ class API_Manager {
 		add_submenu_page( 'upserv-page', $page_title, $menu_title, 'manage_options', $menu_slug, $function );
 	}
 
+	/**
+	 * Register admin tab links
+	 *
+	 * Add API tab to the admin navigation.
+	 *
+	 * @param array $links Existing tab links.
+	 * @return array Modified tab links.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_links( $links ) {
 		$links['api'] = array(
 			admin_url( 'admin.php?page=upserv-page-api' ),
@@ -111,6 +156,16 @@ class API_Manager {
 		return $links;
 	}
 
+	/**
+	 * Register admin tab states
+	 *
+	 * Set active state for API tab in admin navigation.
+	 *
+	 * @param array $states Existing tab states.
+	 * @param string $page Current admin page.
+	 * @return array Modified tab states.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_states( $states, $page ) {
 		$states['api'] = 'upserv-page-api' === $page;
 
@@ -119,6 +174,13 @@ class API_Manager {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Render plugin page
+	 *
+	 * Output the API settings admin interface.
+	 *
+	 * @since 1.0.0
+	 */
 	public function plugin_page() {
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -160,14 +222,35 @@ class API_Manager {
 			'plugin-api-page.php',
 			array(
 				'options'             => $options,
+				/**
+				 * Filter the list of available License API actions.
+				 *
+				 * @param array $actions The list of available License API actions
+				 * @return array The filtered list of actions
+				 * @since 1.0.0
+				 */
 				'license_api_actions' => apply_filters(
 					'upserv_api_license_actions',
 					array()
 				),
+				/**
+				 * Filter the list of available Package API actions.
+				 *
+				 * @param array $actions The list of available Package API actions
+				 * @return array The filtered list of actions
+				 * @since 1.0.0
+				 */
 				'package_api_actions' => apply_filters(
 					'upserv_api_package_actions',
 					array()
 				),
+				/**
+				 * Filter the list of available webhook events.
+				 *
+				 * @param array $webhook_events The list of available webhook events
+				 * @return array The filtered list of webhook events
+				 * @since 1.0.0
+				 */
 				'webhook_events'      => apply_filters(
 					'upserv_api_webhook_events',
 					array(
@@ -189,6 +272,14 @@ class API_Manager {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Handle plugin options
+	 *
+	 * Process and save API settings form submissions.
+	 *
+	 * @return string|array Success message or array of errors.
+	 * @since 1.0.0
+	 */
 	protected function plugin_options_handler() {
 		$errors  = array();
 		$result  = '';
@@ -355,6 +446,16 @@ class API_Manager {
 				}
 			}
 
+			/**
+			 * Filter whether an API option should be updated.
+			 *
+			 * @param bool $condition Whether the condition for updating the option is met
+			 * @param string $option_name The name of the option
+			 * @param array $option_info Information about the option
+			 * @param array $options All submitted options
+			 * @return bool Whether the option should be updated
+			 * @since 1.0.0
+			 */
 			$condition = apply_filters(
 				'upserv_api_option_update',
 				$condition,
@@ -364,6 +465,16 @@ class API_Manager {
 			);
 
 			if ( $condition ) {
+				/**
+				 * Filter the value of an API option before it is saved.
+				 *
+				 * @param mixed $value The value to save
+				 * @param string $option_name The name of the option
+				 * @param array $option_info Information about the option
+				 * @param array $options All submitted options
+				 * @return mixed The filtered value to save
+				 * @since 1.0.0
+				 */
 				$to_save[ $option_info['path'] ] = apply_filters(
 					'upserv_api_option_save_value',
 					$option_info['value'],
@@ -395,12 +506,33 @@ class API_Manager {
 			$result = $errors;
 		}
 
+		/**
+		 * Fired after API options have been updated.
+		 *
+		 * @param array $errors Array of errors that occurred during the update process
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_api_options_updated', $errors );
 
 		return $result;
 	}
 
+	/**
+	 * Get submitted options
+	 *
+	 * Retrieve and sanitize form data from API settings form.
+	 *
+	 * @return array Sanitized form data.
+	 * @since 1.0.0
+	 */
 	protected function get_submitted_options() {
+		/**
+		 * Filter the submitted API configuration options.
+		 *
+		 * @param array $config The submitted API configuration options
+		 * @return array The filtered configuration options
+		 * @since 1.0.0
+		 */
 		return apply_filters(
 			'upserv_submitted_api_config',
 			array(

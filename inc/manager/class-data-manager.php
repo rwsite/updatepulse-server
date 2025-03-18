@@ -12,21 +12,48 @@ use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
 class Data_Manager {
 
+	/**
+	 * Transient data directories
+	 *
+	 * List of directories that store temporary data.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	public static $transient_data_dirs = array(
 		'cache',
 		'logs',
 		'tmp',
 	);
-
+	/**
+	 * Persistent data directories
+	 *
+	 * List of directories that store permanent data.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	public static $persistent_data_dirs = array(
 		'packages',
 		'metadata',
 	);
-
+	/**
+	 * Transient data in database
+	 *
+	 * List of temporary data stored in the database.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	public static $transient_data_db = array(
 		'update_from_remote_locks',
 	);
-
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize hooks.
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -40,6 +67,13 @@ class Data_Manager {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Activate
+	 *
+	 * Actions to perform when the plugin is activated.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function activate() {
 		set_transient( 'upserv_flush', 1, 60 );
 
@@ -64,10 +98,24 @@ class Data_Manager {
 		}
 	}
 
+	/**
+	 * Deactivate
+	 *
+	 * Actions to perform when the plugin is deactivated.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function deactivate() {
 		self::clear_schedules();
 	}
 
+	/**
+	 * Initialize scheduler
+	 *
+	 * Register cleanup events and schedules.
+	 *
+	 * @since 1.0.0
+	 */
 	public function upserv_scheduler_init() {
 		self::register_cleanup_events();
 		self::register_cleanup_schedules();
@@ -75,10 +123,25 @@ class Data_Manager {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Clear schedules
+	 *
+	 * Remove all scheduled cleanup events.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function clear_schedules() {
 		self::clear_cleanup_schedules();
 	}
 
+	/**
+	 * Setup directories
+	 *
+	 * Create data directories if they don't exist.
+	 *
+	 * @return bool True if directories were created successfully, false otherwise.
+	 * @since 1.0.0
+	 */
 	public static function maybe_setup_directories() {
 		$root_dir = self::get_data_dir();
 		$result   = true;
@@ -100,6 +163,14 @@ class Data_Manager {
 		return $result;
 	}
 
+	/**
+	 * Setup MU plugin
+	 *
+	 * Create or update the must-use plugin file.
+	 *
+	 * @return bool True if the MU plugin was setup successfully, false otherwise.
+	 * @since 1.0.0
+	 */
 	public static function maybe_setup_mu_plugin() {
 		global $wp_filesystem;
 
@@ -125,6 +196,15 @@ class Data_Manager {
 		return $result;
 	}
 
+	/**
+	 * Get data directory path
+	 *
+	 * Retrieve the path to a specific data directory.
+	 *
+	 * @param string $dir Directory name or 'root' for the base directory.
+	 * @return string Path to the requested directory.
+	 * @since 1.0.0
+	 */
 	public static function get_data_dir( $dir = 'root' ) {
 		$data_dir = wp_cache_get( 'data_dir_' . $dir, 'updatepulse-server' );
 
@@ -156,6 +236,16 @@ class Data_Manager {
 		return $data_dir;
 	}
 
+	/**
+	 * Check if directory is valid
+	 *
+	 * Determine whether a directory name is a valid data directory.
+	 *
+	 * @param string $dir The directory name to check.
+	 * @param bool $require_persistent Whether the directory must be persistent.
+	 * @return bool Whether the directory is valid.
+	 * @since 1.0.0
+	 */
 	public static function is_valid_data_dir( $dir, $require_persistent = false ) {
 		$is_valid = false;
 
@@ -168,6 +258,16 @@ class Data_Manager {
 		return $is_valid;
 	}
 
+	/**
+	 * Maybe cleanup data
+	 *
+	 * Clean up transient data if needed.
+	 *
+	 * @param string $type The type of data to clean up.
+	 * @param bool $force Whether to force cleanup regardless of conditions.
+	 * @return bool Whether cleanup was performed.
+	 * @since 1.0.0
+	 */
 	public static function maybe_cleanup( $type, $force = false ) {
 
 		if ( in_array( $type, self::$transient_data_db, true ) ) {
@@ -191,6 +291,16 @@ class Data_Manager {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Maybe cleanup data directory
+	 *
+	 * Clean up a data directory if it exceeds its size limit or if forced.
+	 *
+	 * @param string $type The directory to clean up.
+	 * @param bool $force Whether to force cleanup regardless of conditions.
+	 * @return bool Whether cleanup was performed.
+	 * @since 1.0.0
+	 */
 	protected static function maybe_cleanup_data_dir( $type, $force ) {
 		WP_Filesystem();
 
@@ -234,6 +344,15 @@ class Data_Manager {
 				$result = $result && self::generate_restricted_htaccess( $directory );
 			}
 
+			/**
+			 * Fired after a data directory cleanup operation.
+			 *
+			 * @param bool $result Whether the cleanup was successful
+			 * @param string $type The type of data that was cleaned up
+			 * @param int $total_size The total size of the data before cleanup
+			 * @param bool $force Whether the cleanup was forced
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_did_cleanup', $result, $type, $total_size, $force );
 
 			return $result;
@@ -242,6 +361,14 @@ class Data_Manager {
 		return false;
 	}
 
+	/**
+	 * Maybe cleanup update from remote locks
+	 *
+	 * Clean up expired remote update locks from the database.
+	 *
+	 * @return bool Whether cleanup was performed.
+	 * @since 1.0.0
+	 */
 	protected static function maybe_cleanup_update_from_remote_locks() {
 		$locks = get_option( 'upserv_update_from_remote_locks' );
 
@@ -258,6 +385,17 @@ class Data_Manager {
 		}
 	}
 
+	/**
+	 * Create data directory
+	 *
+	 * Create a directory for storing plugin data.
+	 *
+	 * @param string $name The name of the directory to create.
+	 * @param bool $include_htaccess Whether to create an .htaccess file.
+	 * @param bool $is_root_dir Whether this is the root data directory.
+	 * @return bool Whether the directory was created successfully.
+	 * @since 1.0.0
+	 */
 	protected static function create_data_dir( $name, $include_htaccess = true, $is_root_dir = false ) {
 		$wp_upload_dir = wp_upload_dir();
 		$root_dir      = trailingslashit( $wp_upload_dir['basedir'] . '/updatepulse-server' );
@@ -271,6 +409,15 @@ class Data_Manager {
 		return $result;
 	}
 
+	/**
+	 * Generate restricted htaccess
+	 *
+	 * Create an .htaccess file that prevents direct access to files.
+	 *
+	 * @param string $directory The directory path where to create the .htaccess file.
+	 * @return bool Whether the .htaccess file was created successfully.
+	 * @since 1.0.0
+	 */
 	protected static function generate_restricted_htaccess( $directory ) {
 		WP_Filesystem();
 
@@ -288,6 +435,13 @@ class Data_Manager {
 		return $wp_filesystem->put_contents( $htaccess, $contents, 0644 );
 	}
 
+	/**
+	 * Clear cleanup schedules
+	 *
+	 * Unschedule all cleanup events.
+	 *
+	 * @since 1.0.0
+	 */
 	protected static function clear_cleanup_schedules() {
 
 		if ( upserv_is_doing_update_api_request() ) {
@@ -304,10 +458,26 @@ class Data_Manager {
 			}
 
 			Scheduler::get_instance()->unschedule_all_actions( 'upserv_cleanup', $params );
+
+			/**
+			 * Fired after a cleanup schedule has been cleared.
+			 *
+			 * @param string $type The type of data for which the schedule was cleared
+			 * @param array $params The parameters that were used for the schedule
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_cleared_cleanup_schedule', $type, $params );
 		}
 	}
 
+	/**
+	 * Register cleanup schedules
+	 *
+	 * Register action hooks for cleanup events.
+	 *
+	 * @return bool Whether the schedules were registered successfully.
+	 * @since 1.0.0
+	 */
 	protected static function register_cleanup_schedules() {
 
 		if ( upserv_is_doing_update_api_request() ) {
@@ -326,10 +496,25 @@ class Data_Manager {
 			$hook = array( __NAMESPACE__ . '\\Data_Manager', 'maybe_cleanup' );
 
 			add_action( 'upserv_cleanup', $hook, 10, 2 );
+
+			/**
+			 * Fired after a cleanup schedule has been registered.
+			 *
+			 * @param string $type The type of data for which the schedule was registered
+			 * @param array $params The parameters that are used for the schedule
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_registered_cleanup_schedule', $type, $params );
 		}
 	}
 
+	/**
+	 * Register cleanup events
+	 *
+	 * Schedule recurring cleanup events.
+	 *
+	 * @since 1.0.0
+	 */
 	protected static function register_cleanup_events() {
 		$cleanable_datatypes = array_merge( self::$transient_data_dirs, self::$transient_data_db );
 
@@ -342,6 +527,14 @@ class Data_Manager {
 			}
 
 			if ( ! Scheduler::get_instance()->has_scheduled_action( $hook, $params ) ) {
+				/**
+				 * Filter the cleanup schedule frequency.
+				 *
+				 * @param string $frequency The frequency of the cleanup schedule (default 'hourly')
+				 * @param string $type The type of data to clean up
+				 * @return string The filtered frequency
+				 * @since 1.0.0
+				 */
 				$frequency = apply_filters( 'upserv_schedule_cleanup_frequency', 'hourly', $type );
 				$schedules = wp_get_schedules();
 				$timestamp = time();
@@ -352,6 +545,17 @@ class Data_Manager {
 					$params
 				);
 
+				/**
+				 * Fired after a cleanup event has been scheduled.
+				 *
+				 * @param bool $result Whether the scheduling was successful
+				 * @param string $type The type of data for which the event was scheduled
+				 * @param int $timestamp The timestamp at which the event will first run
+				 * @param string $frequency The frequency of the scheduled event
+				 * @param string $hook The hook that will be triggered
+				 * @param array $params The parameters that will be passed to the hook
+				 * @since 1.0.0
+				 */
 				do_action(
 					'upserv_scheduled_cleanup_event',
 					$result,

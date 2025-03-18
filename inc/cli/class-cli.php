@@ -11,11 +11,34 @@ use WP_CLI;
 use WP_Error;
 use Anyape\UpdatePulse\Server\Nonce\Nonce;
 
+/**
+ * CLI commands for UpdatePulse Server.
+ *
+ * @since 1.0.0
+ */
 class CLI extends WP_CLI_Command {
 
+	/**
+	 * Error code for when a resource is not found.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
 	protected const RESOURCE_NOT_FOUND = 3;
-	protected const DEFAULT_ERROR      = 1;
-	protected const LOG_METHODS        = array(
+	/**
+	 * Default error code for general errors.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	protected const DEFAULT_ERROR = 1;
+	/**
+	 * Available log methods for WP_CLI.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	protected const LOG_METHODS = array(
 		'line',
 		'log',
 		'success',
@@ -25,7 +48,13 @@ class CLI extends WP_CLI_Command {
 		'halt',
 		'error_multi_line',
 	);
-	protected const PACKAGE_TYPES      = array(
+	/**
+	 * Available package types supported by the plugin.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	protected const PACKAGE_TYPES = array(
 		'plugin',
 		'theme',
 		'generic',
@@ -41,6 +70,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse cleanup_cache
+	 *
+	 * @since 1.0.0
 	 */
 	public function cleanup_cache() {
 		$this->cleanup( 'cache' );
@@ -52,6 +83,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse cleanup_logs
+	 *
+	 * @since 1.0.0
 	 */
 	public function cleanup_logs() {
 		$this->cleanup( 'logs' );
@@ -63,6 +96,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse cleanup_tmp
+	 *
+	 * @since 1.0.0
 	 */
 	public function cleanup_tmp() {
 		$this->cleanup( 'tmp' );
@@ -74,6 +109,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse cleanup-all
+	 *
+	 * @since 1.0.0
 	 */
 	public function cleanup_all() {
 		$this->cleanup( 'cache' );
@@ -95,6 +132,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse check_remote_package_update my-package plugin
+	 *
+	 * @since 1.0.0
 	 */
 	public function check_remote_package_update( $args, $assoc_args ) {
 		$slug = $args[0];
@@ -134,6 +173,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse download_remote_package my-package plugin --vcs_url='https://vcs-url.tld/identifier/' --branch='main'
+	 *
+	 * @since 1.0.0
 	 */
 
 	public function download_remote_package( $args, $assoc_args ) {
@@ -175,6 +216,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse delete_package my-package
+	 *
+	 * @since 1.0.0
 	 */
 	public function delete_package( $args, $assoc_args ) {
 		$slug            = $args[0];
@@ -196,6 +239,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse get_package_info my-package
+	 *
+	 * @since 1.0.0
 	 */
 	public function get_package_info( $args, $assoc_args ) {
 		$slug          = $args[0];
@@ -228,6 +273,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse create_nonce --true_nonce=true --expiry_length=30 --data='{}' --return=nonce_only --store=true
+	 *
+	 * @since 1.0.0
 	 */
 	public function create_nonce( $args, $assoc_args ) {
 		$assoc_args = wp_parse_args(
@@ -298,6 +345,7 @@ class CLI extends WP_CLI_Command {
 	 *
 	 *     wp updatepulse build_nonce_api_signature --api_key_id='UPDATEPULSE_L_api_key_name' --timestamp=1704067200 --api_key=da9d20647163a1f3c04844387f91e2c3 --payload='{"key": "value"}'
 	 *
+	 * @since 1.0.0
 	 */
 	public function build_nonce_api_signature( $args, $assoc_args ) {
 		$assoc_args            = wp_parse_args(
@@ -333,6 +381,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse clear_nonces
+	 *
+	 * @since 1.0.0
 	 */
 	public function clear_nonces() {
 		$result          = upserv_clear_nonces();
@@ -353,6 +403,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse get_nonce_expiry <nonce>
+	 *
+	 * @since 1.0.0
 	 */
 	public function get_nonce_expiry( $args, $assoc_args ) {
 		$nonce           = $args[0];
@@ -374,6 +426,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse get_nonce_data <nonce>
+	 *
+	 * @since 1.0.0
 	 */
 	public function get_nonce_data( $args, $assoc_args ) {
 		$nonce           = $args[0];
@@ -395,6 +449,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse delete_nonce <nonce>
+	 *
+	 * @since 1.0.0
 	 */
 	public function delete_nonce( $args, $assoc_args ) {
 		$nonce           = $args[0];
@@ -416,6 +472,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse browse_licenses <license_query>
+	 *
+	 * @since 1.0.0
 	 */
 	public function browse_licenses( $args, $assoc_args ) {
 		$result          = upserv_browse_licenses( $args[0] );
@@ -436,6 +494,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse read_license <license_key_or_id>
+	 *
+	 * @since 1.0.0
 	 */
 	public function read_license( $args, $assoc_args ) {
 		$license_data = array();
@@ -464,6 +524,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse add_license <license_data>
+	 *
+	 * @since 1.0.0
 	 */
 	public function add_license( $args, $assoc_args ) {
 		$payload       = json_decode( $args[0], true );
@@ -488,6 +550,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse edit_license <license_data>
+	 *
+	 * @since 1.0.0
 	 */
 	public function edit_license( $args, $assoc_args ) {
 		$payload       = json_decode( $args[0], true );
@@ -512,6 +576,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse delete_license <license_key_or_id>
+	 *
+	 * @since 1.0.0
 	 */
 	public function delete_license( $args, $assoc_args ) {
 		$license_data = array();
@@ -539,6 +605,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse check_license <license_key_or_id>
+	 *
+	 * @since 1.0.0
 	 */
 	public function check_license( $args, $assoc_args ) {
 		$license_data = array();
@@ -576,6 +644,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse activate_license <license_key> <package-slug> <domain>
+	 *
+	 * @since 1.0.0
 	 */
 	public function activate_license( $args, $assoc_args ) {
 		$license_data  = array(
@@ -610,6 +680,8 @@ class CLI extends WP_CLI_Command {
 	 * ## EXAMPLES
 	 *
 	 *     wp updatepulse deactivate_license <license_key> <package-slug> <domain>
+	 *
+	 * @since 1.0.0
 	 */
 	public function deactivate_license( $args, $assoc_args ) {
 		$license_data  = array(
@@ -631,6 +703,13 @@ class CLI extends WP_CLI_Command {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Cleans up a specific folder in the plugin directory.
+	 *
+	 * @param string $method The folder to clean up ('cache', 'logs', or 'tmp').
+	 * @return void
+	 * @since 1.0.0
+	 */
 	protected function cleanup( $method ) {
 		$method          = 'upserv_force_cleanup_' . $method;
 		$result          = $method();
@@ -640,6 +719,17 @@ class CLI extends WP_CLI_Command {
 		$this->process_result( $result, $success_message, $error_message );
 	}
 
+	/**
+	 * Processes the result of a command and outputs a message based on success or failure.
+	 *
+	 * @param mixed  $result          The result to evaluate.
+	 * @param mixed  $success_message Message to display on success.
+	 * @param string $error_message   Message to display on error.
+	 * @param int    $error_code      Error code to return on failure. Default: 1.
+	 * @param string $error_level     WP_CLI error level to use. Default: 'warning'.
+	 * @return void
+	 * @since 1.0.0
+	 */
 	protected function process_result( $result, $success_message, $error_message, $error_code = 1, $error_level = 'warning' ) {
 
 		if ( $result instanceof WP_Error ) {
@@ -680,6 +770,17 @@ class CLI extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Outputs a message to the CLI.
+	 *
+	 * Handles both string and array message formats. If an array is provided,
+	 * it should contain 'level' and 'output' keys. The level determines which
+	 * WP_CLI output method to use.
+	 *
+	 * @param string|array $message The message to output.
+	 * @return void
+	 * @since 1.0.0
+	 */
 	protected function output( $message ) {
 
 		if ( is_string( $message ) ) {

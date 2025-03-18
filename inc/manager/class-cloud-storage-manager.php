@@ -18,18 +18,70 @@ use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Package_Parser\Parser;
 use Anyape\Utils\Utils;
 
+/**
+ * Cloud Storage Manager class
+ *
+ * Handles integration with S3-compatible cloud storage for package management.
+ *
+ * @since 1.0.0
+ */
 class Cloud_Storage_Manager {
 
+	/**
+	 * Instance of the Cloud Storage Manager
+	 *
+	 * @var Cloud_Storage_Manager|null
+	 * @since 1.0.0
+	 */
 	protected static $instance;
+	/**
+	 * Cloud storage configuration
+	 *
+	 * @var array|null
+	 * @since 1.0.0
+	 */
 	protected static $config;
+	/**
+	 * Cloud storage client instance
+	 *
+	 * @var PhpS3|null
+	 * @since 1.0.0
+	 */
 	protected static $cloud_storage;
+	/**
+	 * Virtual directory path in cloud storage
+	 *
+	 * @var string|null
+	 * @since 1.0.0
+	 */
 	protected static $virtual_dir;
+	/**
+	 * Hooks registered by the manager
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected static $hooks = array();
 
+	/**
+	 * Whether we're currently performing a redirect
+	 *
+	 * @var bool
+	 * @since 1.0.0
+	 */
 	protected $doing_redirect = false;
 
+	/**
+	 * Download URL lifetime in seconds
+	 */
 	public const DOWNLOAD_URL_LIFETIME = MINUTE_IN_SECONDS;
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize hooks
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 		$config = self::get_config();
 
@@ -57,6 +109,12 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Initialize cloud storage manager
+	 *
+	 * @param array $config Cloud storage configuration
+	 * @since 1.0.0
+	 */
 	protected function init_manager( $config ) {
 
 		if ( ! self::$cloud_storage instanceof PhpS3 ) {
@@ -70,10 +128,22 @@ class Cloud_Storage_Manager {
 
 			self::$cloud_storage->setExceptions();
 
+			/**
+			 * Filter the virtual directory path used in cloud storage.
+			 *
+			 * @param string $virtual_dir The default virtual directory name
+			 * @return string The filtered virtual directory name
+			 * @since 1.0.0
+			 */
 			self::$virtual_dir = apply_filters( 'upserv_cloud_storage_virtual_dir', 'updatepulse-packages' );
 		}
 	}
 
+	/**
+	 * Add hooks for cloud storage functionality
+	 *
+	 * @since 1.0.0
+	 */
 	protected function add_hooks() {
 
 		if ( ! empty( self::$hooks ) ) {
@@ -136,6 +206,11 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Remove hooks for cloud storage functionality
+	 *
+	 * @since 1.0.0
+	 */
 	protected function remove_hooks() {
 
 		if ( empty( self::$hooks ) ) {
@@ -159,6 +234,13 @@ class Cloud_Storage_Manager {
 		self::$hooks = array();
 	}
 
+	/**
+	 * Get cloud storage configuration
+	 *
+	 * @param boolean $force Whether to force reload the configuration
+	 * @return array Cloud storage configuration
+	 * @since 1.0.0
+	 */
 	public static function get_config( $force = false ) {
 
 		if ( $force || ! self::$config ) {
@@ -168,9 +250,22 @@ class Cloud_Storage_Manager {
 			self::$config = $config;
 		}
 
+		/**
+		 * Filter the configuration of the Cloud Storage Manager.
+		 *
+		 * @param array $config The configuration of the Cloud Storage Manager
+		 * @return array The filtered configuration
+		 * @since 1.0.0
+		 */
 		return apply_filters( 'upserv_cloud_storage_config', self::$config );
 	}
 
+	/**
+	 * Get Cloud Storage Manager instance
+	 *
+	 * @return Cloud_Storage_Manager The singleton instance
+	 * @since 1.0.0
+	 */
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
@@ -180,6 +275,13 @@ class Cloud_Storage_Manager {
 		return self::$instance;
 	}
 
+	/**
+	 * Add cloud storage-specific scripts to admin
+	 *
+	 * @param array $scripts Existing registered scripts
+	 * @return array Modified scripts array
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_scripts( $scripts ) {
 		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -196,6 +298,13 @@ class Cloud_Storage_Manager {
 		return $scripts;
 	}
 
+	/**
+	 * Process submitted package configurations
+	 *
+	 * @param array $config Existing configuration
+	 * @return array Modified configuration
+	 * @since 1.0.0
+	 */
 	public function upserv_submitted_package_config( $config ) {
 		$config = array_merge(
 			$config,
@@ -268,6 +377,16 @@ class Cloud_Storage_Manager {
 		return $config;
 	}
 
+	/**
+	 * Validate package option updates
+	 *
+	 * @param boolean $condition Current validation condition
+	 * @param string $option_name Option being updated
+	 * @param array $option_info Option information
+	 * @param array $options All options being processed
+	 * @return boolean Whether option is valid
+	 * @since 1.0.0
+	 */
 	public function upserv_package_option_update( $condition, $option_name, $option_info, $options ) {
 
 		if ( 'use-cloud-storage' === $option_info['condition'] ) {
@@ -300,6 +419,11 @@ class Cloud_Storage_Manager {
 		return $condition;
 	}
 
+	/**
+	 * Render cloud storage options in template
+	 *
+	 * @since 1.0.0
+	 */
 	public function upserv_template_package_manager_option_before_miscellaneous() {
 		$options = array(
 			'access_key'   => upserv_get_option( 'cloud_storage/access_key' ),
@@ -319,6 +443,13 @@ class Cloud_Storage_Manager {
 		);
 	}
 
+	/**
+	 * Add cloud storage paths to bulk delete
+	 *
+	 * @param array $package_paths Current package paths
+	 * @return array Modified package paths
+	 * @since 1.0.0
+	 */
 	public function upserv_delete_packages_bulk_paths( $package_paths ) {
 		$config = self::get_config();
 
@@ -347,6 +478,15 @@ class Cloud_Storage_Manager {
 		return $package_paths;
 	}
 
+	/**
+	 * Check if package exists in cloud storage
+	 *
+	 * @param boolean $package_exists Current existence state
+	 * @param array $payload Request payload
+	 * @param string $slug Package slug
+	 * @return boolean|null Whether package exists in cloud storage
+	 * @since 1.0.0
+	 */
 	public function upserv_webhook_package_exists( $package_exists, $payload, $slug ) {
 
 		if ( null !== $package_exists ) {
@@ -383,6 +523,15 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Process package removal from cloud storage
+	 *
+	 * @param boolean $result Current removal result
+	 * @param string $type Package type
+	 * @param string $slug Package slug
+	 * @return boolean Whether removal was successful
+	 * @since 1.0.0
+	 */
 	public function upserv_remove_package_result( $result, $type, $slug ) {
 		$config = self::get_config();
 
@@ -427,6 +576,14 @@ class Cloud_Storage_Manager {
 		return $result;
 	}
 
+	/**
+	 * Modify admin template arguments
+	 *
+	 * @param array $args Current template arguments
+	 * @param string $template_name Template being rendered
+	 * @return array Modified template arguments
+	 * @since 1.0.0
+	 */
 	public function upserv_get_admin_template_args( $args, $template_name ) {
 		$template_names = array( 'plugin-packages-page.php', 'plugin-help-page.php', 'plugin-remote-sources-page.php' );
 
@@ -437,6 +594,13 @@ class Cloud_Storage_Manager {
 		return $args;
 	}
 
+	/**
+	 * Test cloud storage connectivity
+	 *
+	 * AJAX handler for testing cloud storage configuration
+	 *
+	 * @since 1.0.0
+	 */
 	public function cloud_storage_test() {
 		$result = array();
 		$nonce  = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'nonce' ) ) );
@@ -527,6 +691,13 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Handle package options update
+	 *
+	 * Set up cloud storage after options are updated
+	 *
+	 * @since 1.0.0
+	 */
 	public function upserv_package_options_updated() {
 		$config = self::get_config( true );
 
@@ -566,6 +737,15 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Update local package metadata from cloud storage
+	 *
+	 * @param array|false $local_meta Current local metadata
+	 * @param object $local_package Local package instance
+	 * @param string $slug Package slug
+	 * @return array|false Updated metadata or false
+	 * @since 1.0.0
+	 */
 	public function upserv_check_remote_package_update_local_meta( $local_meta, $local_package, $slug ) {
 
 		if ( ! $local_meta ) {
@@ -606,6 +786,14 @@ class Cloud_Storage_Manager {
 		return $local_meta;
 	}
 
+	/**
+	 * Handle saving remote package to cloud storage
+	 *
+	 * @param boolean $local_ready Whether local package is ready
+	 * @param string $type Package type
+	 * @param string $slug Package slug
+	 * @since 1.0.0
+	 */
 	public function upserv_saved_remote_package_to_local( $local_ready, $type, $slug ) {
 		$config            = self::get_config();
 		$package_directory = Data_Manager::get_data_dir( 'packages' );
@@ -651,6 +839,14 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Handle manual package upload to cloud storage
+	 *
+	 * @param boolean $result Upload result
+	 * @param string $type Package type
+	 * @param string $slug Package slug
+	 * @since 1.0.0
+	 */
 	public function upserv_did_manual_upload_package( $result, $type, $slug ) {
 
 		if ( ! $result ) {
@@ -684,6 +880,16 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Determine whether to save remote package locally
+	 *
+	 * @param boolean $save Current save decision
+	 * @param string $slug Package slug
+	 * @param string $filename Target filename
+	 * @param boolean $check_remote Whether to check remote storage
+	 * @return boolean Whether to save package locally
+	 * @since 1.0.0
+	 */
 	public function upserv_save_remote_to_local( $save, $slug, $filename, $check_remote ) {
 		$config = self::get_config();
 
@@ -718,6 +924,14 @@ class Cloud_Storage_Manager {
 		return $save;
 	}
 
+	/**
+	 * Handle pre-download actions for packages
+	 *
+	 * @param string $archive_name Archive name
+	 * @param string $archive_path Archive path
+	 * @param array $package_slugs Package slugs to download
+	 * @since 1.0.0
+	 */
 	public function upserv_before_packages_download( $archive_name, $archive_path, $package_slugs ) {
 
 		if ( 1 === count( $package_slugs ) ) {
@@ -753,6 +967,14 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Handle pre-download repack actions for packages
+	 *
+	 * @param string $archive_name Archive name
+	 * @param string $archive_path Archive path
+	 * @param array $package_slugs Package slugs to download
+	 * @since 1.0.0
+	 */
 	public function upserv_before_packages_download_repack( $archive_name, $archive_path, $package_slugs ) {
 
 		if ( ! empty( $package_slugs ) ) {
@@ -783,6 +1005,13 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Handle post-download actions for packages
+	 *
+	 * @param string $archive_name Archive name
+	 * @param string $archive_path Archive path
+	 * @since 1.0.0
+	 */
 	public function upserv_after_packages_download( $archive_name, $archive_path ) {
 
 		if ( is_file( $archive_path ) ) {
@@ -790,6 +1019,13 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Handle package API requests
+	 *
+	 * @param string $method API method being called
+	 * @param array $payload Request payload
+	 * @since 1.0.0
+	 */
 	public function upserv_package_api_request( $method, $payload ) {
 		$config = self::get_config();
 
@@ -828,12 +1064,26 @@ class Cloud_Storage_Manager {
 			);
 			$this->doing_redirect = wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 
+			/**
+			 * Fired after a package is downloaded.
+			 *
+			 * @param string $package_slug the slug of the downloaded package
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_did_download_package', $package_id );
 
 			exit;
 		}
 	}
 
+	/**
+	 * Fetch package from cloud storage when not in cache
+	 *
+	 * @param string $slug Package slug
+	 * @param string $filename Target filename
+	 * @param object $cache Cache instance
+	 * @since 1.0.0
+	 */
 	public function upserv_find_package_no_cache( $slug, $filename, $cache ) {
 
 		if ( is_file( $filename ) ) {
@@ -887,12 +1137,29 @@ class Cloud_Storage_Manager {
 		}
 	}
 
+	/**
+	 * Generate cache key for cloud storage metadata
+	 *
+	 * @param string $cache_key Current cache key
+	 * @param string $slug Package slug
+	 * @param string $filename Package filename
+	 * @return string Modified cache key
+	 * @since 1.0.0
+	 */
 	public function upserv_zip_metadata_parser_cache_key( $cache_key, $slug, $filename ) {
 		$cloud_cache_key = self::build_cache_key( $slug, $filename );
 
 		return $cloud_cache_key ? $cloud_cache_key : $cache_key;
 	}
 
+	/**
+	 * Get package information from cloud storage
+	 *
+	 * @param array|false $package_info Current package information
+	 * @param string $slug Package slug
+	 * @return array|false Updated package information
+	 * @since 1.0.0
+	 */
 	public function upserv_package_manager_get_package_info( $package_info, $slug ) {
 		$cache             = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 		$config            = self::get_config();
@@ -1018,6 +1285,14 @@ class Cloud_Storage_Manager {
 		return $package_info;
 	}
 
+	/**
+	 * Get batch package information from cloud storage
+	 *
+	 * @param array $packages Current packages information
+	 * @param string $search Search term
+	 * @return array Updated packages information
+	 * @since 1.0.0
+	 */
 	public function upserv_package_manager_get_batch_package_info( $packages, $search ) {
 		$config   = self::get_config();
 		$contents = wp_cache_get( 'upserv-getBucket', 'updatepulse-server' );
@@ -1054,6 +1329,14 @@ class Cloud_Storage_Manager {
 						false === strpos( strtolower( $info['slug'] ) . '.zip', strtolower( $search ) )
 					)
 				);
+				/**
+				 * Filter whether to include package information in responses.
+				 *
+				 * @param bool $_include Current inclusion status
+				 * @param array $info Package information
+				 * @return bool Whether to include the package information
+				 * @since 1.0.0
+				 */
 				$include = apply_filters( 'upserv_package_info_include', $include, $info );
 
 				if ( $include ) {
@@ -1076,6 +1359,12 @@ class Cloud_Storage_Manager {
 		return $packages;
 	}
 
+	/**
+	 * Handle package download action
+	 *
+	 * @param object $request Download request
+	 * @since 1.0.0
+	 */
 	public function upserv_update_server_action_download( $request ) {
 		$config = self::get_config();
 		$url    = self::$cloud_storage->getAuthenticatedUrlV4(
@@ -1087,10 +1376,24 @@ class Cloud_Storage_Manager {
 		$this->doing_redirect = wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 	}
 
+	/**
+	 * Check if download request is already handled
+	 *
+	 * @return boolean Whether download is handled
+	 * @since 1.0.0
+	 */
 	public function upserv_update_server_action_download_handled() {
 		return $this->doing_redirect;
 	}
 
+	/**
+	 * Check if package is whitelisted in cloud storage
+	 *
+	 * @param boolean $whitelisted Current whitelist status
+	 * @param string $package_slug Package slug
+	 * @return boolean Updated whitelist status
+	 * @since 1.0.0
+	 */
 	public function upserv_is_package_whitelisted( $whitelisted, $package_slug ) {
 		$data = upserv_get_package_metadata( $package_slug, false );
 
@@ -1107,6 +1410,14 @@ class Cloud_Storage_Manager {
 		return $whitelisted;
 	}
 
+	/**
+	 * Update package data when whitelisted
+	 *
+	 * @param array $data Package data
+	 * @param string $slug Package slug
+	 * @return array Updated package data
+	 * @since 1.0.0
+	 */
 	public function upserv_whitelist_package_data( $data, $slug ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		$data['whitelisted']['cloud'] = array(
 			true,
@@ -1116,6 +1427,14 @@ class Cloud_Storage_Manager {
 		return $data;
 	}
 
+	/**
+	 * Update package data when unwhitelisted
+	 *
+	 * @param array $data Package data
+	 * @param string $slug Package slug
+	 * @return array Updated package data
+	 * @since 1.0.0
+	 */
 	public function upserv_unwhitelist_package_data( $data, $slug ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		$data['whitelisted']['cloud'] = array(
 			false,
@@ -1125,6 +1444,14 @@ class Cloud_Storage_Manager {
 		return $data;
 	}
 
+	/**
+	 * Build cache key for cloud storage items
+	 *
+	 * @param string $slug Package slug
+	 * @param string $filename Package filename
+	 * @return string|false Cache key or false
+	 * @since 1.0.0
+	 */
 	protected static function build_cache_key( $slug, $filename ) {
 		$config    = self::get_config();
 		$info      = wp_cache_get( $slug . '-getObjectInfo', 'updatepulse-server' );
@@ -1147,6 +1474,13 @@ class Cloud_Storage_Manager {
 		return $cache_key;
 	}
 
+	/**
+	 * Check if virtual folder exists in cloud storage
+	 *
+	 * @param string $name Folder name
+	 * @return boolean Whether folder exists
+	 * @since 1.0.0
+	 */
 	protected function virtual_folder_exists( $name ) {
 		$config = self::get_config();
 
@@ -1156,6 +1490,14 @@ class Cloud_Storage_Manager {
 		);
 	}
 
+	/**
+	 * Create a virtual folder in cloud storage
+	 *
+	 * @param string $name Folder name
+	 * @param string|null $storage_unit Storage unit name
+	 * @return boolean Whether folder was created
+	 * @since 1.0.0
+	 */
 	protected function create_virtual_folder( $name, $storage_unit = null ) {
 
 		if ( ! $storage_unit ) {

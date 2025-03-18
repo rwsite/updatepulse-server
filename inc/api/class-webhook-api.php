@@ -13,14 +13,48 @@ use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 use Anyape\Utils\Utils;
 
+/**
+ *Webhook API class
+ *
+ *@since 1.0.0
+ */
 class Webhook_API {
 
+	/**
+	 *Is doing API request
+	 *
+	 *@var bool|null
+	 */
 	protected static $doing_api_request = null;
+
+	/**
+	 *Instance
+	 *
+	 *@var Webhook_API|null
+	 */
 	protected static $instance;
 
+	/**
+	 *Webhooks configuration
+	 *
+	 *@var array
+	 */
 	protected $webhooks;
+
+	/**
+	 *HTTP response code
+	 *
+	 *@var int
+	 */
 	protected $http_response_code = 200;
 
+	/**
+	 *Constructor
+	 *
+	 *@since 1.0.0
+	 *
+	 *@param boolean $init_hooks Whether to initialize hooks
+	 */
 	public function __construct( $init_hooks = false ) {
 		$this->webhooks = upserv_get_option( 'api/webhooks', array() );
 		$vcs_configs    = upserv_get_option( 'vcs', array() );
@@ -51,11 +85,16 @@ class Webhook_API {
 	}
 
 	/*******************************************************************
-	 * Public methods
+	 *Public methods
 	 *******************************************************************/
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 *Add API endpoints
+	 *
+	 *Register the rewrite rules for the Webhook API endpoints.
+	 */
 	public function add_endpoints() {
 		add_rewrite_rule( '^updatepulse-server-webhook$', 'index.php?__upserv_webhook=1&', 'top' );
 		add_rewrite_rule(
@@ -65,6 +104,11 @@ class Webhook_API {
 		);
 	}
 
+	/**
+	 *Parse API requests
+	 *
+	 *Handle incoming API requests to the Webhook API endpoints.
+	 */
 	public function parse_request() {
 		global $wp;
 
@@ -75,6 +119,14 @@ class Webhook_API {
 		}
 	}
 
+	/**
+	 *Register query variables
+	 *
+	 *Add custom query variables used by the Webhook API.
+	 *
+	 *@param array $query_vars Existing query variables.
+	 *@return array Modified query variables.
+	 */
 	public function query_vars( $query_vars ) {
 		$query_vars = array_merge(
 			$query_vars,
@@ -88,6 +140,11 @@ class Webhook_API {
 		return $query_vars;
 	}
 
+	/**
+	 *Handle invalid webhook requests
+	 *
+	 *Display error page for unauthorized webhook requests.
+	 */
 	public function upserv_webhook_invalid_request() {
 		$protocol = empty( $_SERVER['SERVER_PROTOCOL'] ) ? 'HTTP/1.1' : sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) );
 
@@ -105,12 +162,32 @@ class Webhook_API {
 		exit( -1 );
 	}
 
+	/**
+	 *Process webhook requests
+	 *
+	 *Determine whether to process webhook requests based on branch matching.
+	 *
+	 *@param bool $process Current process status.
+	 *@param array $payload Request payload.
+	 *@param string $slug Package slug.
+	 *@param string $type Package type.
+	 *@param bool $package_exists Whether package already exists.
+	 *@param array $vcs_config Version control system configuration.
+	 *@return bool Whether to process the webhook request.
+	 */
 	public function upserv_webhook_process_request( $process, $payload, $slug, $type, $package_exists, $vcs_config ) {
 		return $this->get_payload_vcs_branch( $payload ) === $vcs_config['branch'];
 	}
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 *Check if currently processing an API request
+	 *
+	 *Determine whether the current request is a Webhook API request.
+	 *
+	 *@return bool Whether the current request is a Webhook API request.
+	 */
 	public static function is_doing_api_request() {
 
 		if ( null === self::$doing_api_request ) {
@@ -120,6 +197,13 @@ class Webhook_API {
 		return self::$doing_api_request;
 	}
 
+	/**
+	 *Get Webhook API instance
+	 *
+	 *Retrieve or create the Webhook API singleton instance.
+	 *
+	 *@return Webhook_API The Webhook API instance.
+	 */
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
@@ -129,6 +213,16 @@ class Webhook_API {
 		return self::$instance;
 	}
 
+	/**
+	 *Schedule webhook
+	 *
+	 *Schedule a webhook to be fired based on an event.
+	 *
+	 *@param array $payload Webhook payload data.
+	 *@param string $event_type Event type identifier.
+	 *@param bool $instant Whether to fire webhook immediately.
+	 *@return void|WP_Error WP_Error on failure.
+	 */
 	public function schedule_webhook( $payload, $event_type, $instant = false ) {
 
 		if ( empty( $this->webhooks ) ) {
@@ -169,12 +263,29 @@ class Webhook_API {
 				}
 			}
 
+			/**
+			 * Filter whether to fire the webhook event.
+			 *
+			 * @param bool   $fire           Whether to fire the event.
+			 * @param array  $payload        The payload of the event.
+			 * @param string $url            The target url of the event.
+			 * @param array  $webhook_setting The settings of the webhook.
+			 * @return bool
+			 */
 			if ( apply_filters( 'upserv_webhook_fire', $fire, $payload, $info['url'], $info ) ) {
 				$body   = wp_json_encode( $payload, Utils::JSON_OPTIONS );
 				$hook   = 'upserv_webhook';
 				$params = array( $info['url'], $info['secret'], $body, current_action() );
 
 				if ( ! Scheduler::get_instance()->has_scheduled_action( $hook, $params ) ) {
+					/**
+					 * Filter whether to send the webhook notification immediately.
+					 *
+					 * @param bool   $instant    Whether to send the notification immediately.
+					 * @param array  $payload    The payload of the event.
+					 * @param string $event_type The type of event.
+					 * @return bool
+					 */
 					$instant = apply_filters(
 						'upserv_schedule_webhook_is_instant',
 						$instant,
@@ -194,6 +305,17 @@ class Webhook_API {
 		}
 	}
 
+	/**
+	 *Fire webhook
+	 *
+	 *Send an HTTP request to the webhook endpoint.
+	 *
+	 *@param string $url Webhook endpoint URL.
+	 *@param string $secret Secret key for signature.
+	 *@param string $body Request body.
+	 *@param string $action Current action.
+	 *@return array|WP_Error HTTP response or WP_Error on failure.
+	 */
 	public function fire_webhook( $url, $secret, $body, $action ) {
 		return wp_remote_post(
 			$url,
@@ -210,9 +332,14 @@ class Webhook_API {
 	}
 
 	/*******************************************************************
-	 * Protected methods
+	 *Protected methods
 	 *******************************************************************/
 
+	/**
+	 *Handle remote test
+	 *
+	 *Process and respond to webhook test requests.
+	 */
 	protected function handle_remote_test() {
 
 		if ( empty( $_SERVER['HTTP_X_UPDATEPULSE_SIGNATURE_256'] ) ) {
@@ -266,6 +393,11 @@ class Webhook_API {
 		wp_send_json( $valid, $valid ? 200 : 403, Utils::JSON_OPTIONS );
 	}
 
+	/**
+	 *Handle API request
+	 *
+	 *Process webhook API requests and return appropriate responses.
+	 */
 	protected function handle_api_request() {
 		global $wp;
 
@@ -281,6 +413,11 @@ class Webhook_API {
 		$vcs_key     = hash( 'sha256', trailingslashit( $url ) . '|' . $branch );
 		$vcs_config  = isset( $vcs_configs[ $vcs_key ] ) ? $vcs_configs[ $vcs_key ] : false;
 
+		/**
+		 * Fired before handling a webhook request; fired whether it will be processed or not.
+		 *
+		 * @param array $config The configuration used to handle webhook requests.
+		 */
 		do_action( 'upserv_webhook_before_handling_request', $vcs_config );
 
 		if ( $vcs_config && $this->validate_request( $vcs_config ) ) {
@@ -293,6 +430,16 @@ class Webhook_API {
 			$delay          = $vcs_config['check_delay'];
 			$dir            = Data_Manager::get_data_dir( 'packages' );
 			$package_exists = null;
+			/**
+			 * Filter whether the package exists on the file system before processing the Webhook.
+			 *
+			 * @param bool|null $package_exists Whether the package exists on the file system; return `null` to leave the decision to the default behavior.
+			 * @param array     $payload        The payload of the request.
+			 * @param string    $slug           The slug of the package.
+			 * @param string    $type           The type of the package.
+			 * @param array     $vcs_config     The configuration used to handle webhook requests.
+			 * @return bool|null
+			 */
 			$package_exists = apply_filters(
 				'upserv_webhook_package_exists',
 				$package_exists,
@@ -307,6 +454,17 @@ class Webhook_API {
 				$package_exists = file_exists( $package_path );
 			}
 
+			/**
+			 * Filter whether to process the Webhook request.
+			 *
+			 * @param bool   $process        Whether to process the Webhook request.
+			 * @param array  $payload        The payload of the request.
+			 * @param string $slug           The slug of the package.
+			 * @param string $type           The type of the package.
+			 * @param bool   $package_exists Whether the package exists on the file system.
+			 * @param array  $vcs_config     The configuration used to handle webhook requests.
+			 * @return bool
+			 */
 			$process = apply_filters(
 				'upserv_webhook_process_request',
 				true,
@@ -318,6 +476,15 @@ class Webhook_API {
 			);
 
 			if ( $process ) {
+				/**
+				 * Fired before processing a webhook request.
+				 *
+				 * @param array  $payload        The data sent by the Version Control System.
+				 * @param string $slug           The slug of the package triggering the webhook.
+				 * @param string $type           The type of the package triggering the webhook.
+				 * @param bool   $package_exists Whether the package exists on the file system.
+				 * @param array  $vcs_config     The configuration used to handle webhook requests.
+				 */
 				do_action(
 					'upserv_webhook_before_processing_request',
 					$payload,
@@ -339,15 +506,38 @@ class Webhook_API {
 
 						if ( ! $scheduled_action ) {
 							Scheduler::get_instance()->unschedule_all_actions( $hook );
+							/**
+							 * Fired after a remote check schedule event has been unscheduled for a package.
+							 *
+							 * @param string $package_slug The slug of the package for which a remote check event has been unscheduled.
+							 * @param string $scheduled_hook The remote check event hook that has been unscheduled.
+							 */
 							do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 						}
 
+						/**
+						 * Filter the delay time for remote package checks.
+						 *
+						 * @param int    $delay The delay time in minutes.
+						 * @param string $slug  The slug of the package.
+						 * @return int
+						 */
 						$delay     = apply_filters( 'upserv_check_remote_delay', $delay, $slug );
 						$timestamp = ( $delay ) ?
 							time() + ( abs( intval( $delay ) ) * MINUTE_IN_SECONDS ) :
 							time();
 						$result    = Scheduler::get_instance()->schedule_single_action( $timestamp, $hook, $params );
 
+						/**
+						 * Fired after scheduling a remote check event.
+						 *
+						 * @param bool   $result    Whether the event was successfully scheduled.
+						 * @param string $slug      The slug of the package triggering the webhook.
+						 * @param int    $timestamp The timestamp when the event is scheduled to run.
+						 * @param bool   $is_cron   Whether the event is a cron job.
+						 * @param string $hook      The hook name for the scheduled event.
+						 * @param array  $params    The parameters passed to the scheduled event.
+						 */
 						do_action(
 							'upserv_scheduled_check_remote_event',
 							$result,
@@ -381,6 +571,12 @@ class Webhook_API {
 					}
 				} else {
 					Scheduler::get_instance()->unschedule_all_actions( $hook );
+					/**
+					 * Fired after a remote check schedule event has been unscheduled for a package.
+					 *
+					 * @param string $package_slug The slug of the package for which a remote check event has been unscheduled.
+					 * @param string $scheduled_hook The remote check event hook that has been unscheduled.
+					 */
 					do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 
 					$result = upserv_download_remote_package( $slug, $type );
@@ -402,6 +598,15 @@ class Webhook_API {
 					}
 				}
 
+				/**
+				 * Fired after processing a webhook request.
+				 *
+				 * @param array  $payload        The data sent by the Version Control System.
+				 * @param string $slug           The slug of the package triggering the webhook.
+				 * @param string $type           The type of the package triggering the webhook.
+				 * @param bool   $package_exists Whether the package exists on the file system.
+				 * @param array  $vcs_config     The configuration used to handle webhook requests.
+				 */
 				do_action(
 					'upserv_webhook_after_processing_request',
 					$payload,
@@ -418,6 +623,11 @@ class Webhook_API {
 				'message' => __( 'Invalid request signature', 'updatepulse-server' ),
 			);
 
+			/**
+			 * Fired when a webhook request is invalid.
+			 *
+			 * @param array $config The configuration used to handle webhook requests.
+			 */
 			do_action( 'upserv_webhook_invalid_request', $vcs_config );
 		}
 
@@ -425,19 +635,58 @@ class Webhook_API {
 			$response['time_elapsed'] = Utils::get_time_elapsed();
 		}
 
+		/**
+		 * Filter the response data to send to the Version Control System after handling the webhook request.
+		 *
+		 * @param array $response           The response data to send to the Version Control System.
+		 * @param int   $http_response_code The HTTP response code.
+		 * @param array $vcs_config         The configuration used to handle webhook requests.
+		 * @return array
+		 */
 		$response = apply_filters( 'upserv_webhook_response', $response, $this->http_response_code, $vcs_config );
 
+		/**
+		 * Fired after handling a webhook request; fired whether it was processed or not.
+		 *
+		 * @param array $config   The configuration used to handle webhook requests.
+		 * @param array $response The response data that will be sent to the Version Control System.
+		 */
 		do_action( 'upserv_webhook_after_handling_request', $vcs_config, $response );
 		wp_send_json( $response, $this->http_response_code, Utils::JSON_OPTIONS );
 	}
 
+	/**
+	 *Validate webhook request
+	 *
+	 *Verify webhook request signature against stored secrets.
+	 *
+	 *@param array $vcs_config Version control system configuration.
+	 *@return bool Whether the request signature is valid.
+	 */
 	protected function validate_request( $vcs_config ) {
 		$valid  = false;
 		$sign   = false;
 		$secret = $vcs_config && isset( $vcs_config['webhook_secret'] ) ? $vcs_config['webhook_secret'] : false;
+
+		/**
+		 * Filter the webhook secret used for request validation.
+		 *
+		 * @param string|bool $secret     The secret key for webhook validation.
+		 * @param array       $vcs_config The configuration used to handle webhook requests.
+		 * @return string|bool
+		 */
 		$secret = apply_filters( 'upserv_webhook_secret', $secret, $vcs_config );
 
 		if ( ! $vcs_config || ! $secret ) {
+			/**
+			 * Filter whether the webhook request is valid after validation.
+			 *
+			 * @param bool        $valid      Whether the request signature is valid.
+			 * @param string|bool $sign       The signature from the request.
+			 * @param string      $secret     The secret key for webhook validation.
+			 * @param array       $vcs_config The configuration used to handle webhook requests.
+			 * @return bool
+			 */
 			return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, '', $vcs_config );
 		}
 
@@ -451,6 +700,14 @@ class Webhook_API {
 				$sign = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HUB_SIGNATURE'] ) );
 			}
 
+			/**
+			 * Filter the signature from the webhook request.
+			 *
+			 * @param string|bool $sign       The signature from the request.
+			 * @param string      $secret     The secret key for webhook validation.
+			 * @param array       $vcs_config The configuration used to handle webhook requests.
+			 * @return string|bool
+			 */
 			$sign = apply_filters( 'upserv_webhook_signature', $sign, $secret, $vcs_config );
 
 			if ( $sign ) {
@@ -462,9 +719,25 @@ class Webhook_API {
 			}
 		}
 
+		/**
+		 * Filter whether the webhook request is valid after validation.
+		 *
+		 * @param bool        $valid      Whether the request signature is valid.
+		 * @param string|bool $sign       The signature from the request.
+		 * @param string      $secret     The secret key for webhook validation.
+		 * @param array       $vcs_config The configuration used to handle webhook requests.
+		 * @return bool
+		 */
 		return apply_filters( 'upserv_webhook_validate_request', $valid, $sign, $secret, $vcs_config );
 	}
 
+	/**
+	 *Get webhook payload
+	 *
+	 *Extract and decode the payload from the webhook request.
+	 *
+	 *@return array Decoded webhook payload.
+	 */
 	protected function get_payload() {
 		$payload = @file_get_contents( 'php://input' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		$decoded = json_decode( $payload, true );
@@ -482,6 +755,14 @@ class Webhook_API {
 		return ! is_array( $decoded ) ? array( 'decoded' => $decoded ) : $decoded;
 	}
 
+	/**
+	 *Get VCS URL from payload
+	 *
+	 *Extract the version control system URL from webhook payload.
+	 *
+	 *@param array $payload Webhook payload.
+	 *@return string|false VCS URL or false if not found.
+	 */
 	protected function get_payload_vcs_url( $payload ) {
 		$url = false;
 
@@ -500,6 +781,13 @@ class Webhook_API {
 			$url = $payload['repository']['links']['html']['href'];
 		}
 
+		/**
+		 * Filter the Version Control System URL extracted from the webhook payload.
+		 *
+		 * @param string|bool $url     The URL of the Version Control System.
+		 * @param array       $payload The webhook payload data.
+		 * @return string|bool
+		 */
 		$url        = apply_filters( 'upserv_webhook_vcs_url', $url, $payload );
 		$parsed_url = wp_parse_url( $url );
 
@@ -520,6 +808,14 @@ class Webhook_API {
 		return trailingslashit( $url );
 	}
 
+	/**
+	 *Get VCS branch from payload
+	 *
+	 *Extract the branch information from webhook payload.
+	 *
+	 *@param array $payload Webhook payload.
+	 *@return string|false Branch name or false if not found.
+	 */
 	protected function get_payload_vcs_branch( $payload ) {
 		$branch = false;
 

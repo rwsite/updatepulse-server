@@ -66,7 +66,8 @@ UpdatePulse Server provides an API and offers a series of functions, actions and
         * [upserv\_license\_api\_request\_authorized](#upserv_license_api_request_authorized)
         * [upserv\_license\_bypass\_signature](#upserv_license_bypass_signature)
         * [upserv\_api\_license\_actions](#upserv_api_license_actions)
-        * [upserv\_api\_license\_actions](#upserv_api_license_actions-1)
+        * [upserv\_license\_update\_server\_prepare\_license\_for\_output](#upserv_license_update_server_prepare_license_for_output)
+        * [upserv\_schedule\_license\_frequency](#upserv_schedule_license_frequency)
 
 ___
 ## The License Query
@@ -1622,7 +1623,7 @@ Filter the License API actions available for API access control.
 > (array) the API actions  
 
 ___
-### upserv_api_license_actions
+### upserv_license_update_server_prepare_license_for_output
 
 ```php
 apply_filters( 'upserv_license_update_server_prepare_license_for_output', array $output, object $license );
@@ -1638,4 +1639,16 @@ Filter the license data to send to the remote client.
 `$license`
 > (array) the original license object  
 
+___
+### upserv_schedule_license_frequency
+
+```php
+apply_filters( 'upserv_schedule_license_frequency', string $frequency );
+```
+**Description**
+Filter the frequency at which the license maintenance task runs.
+
+**Parameters**
+`$frequency`
+> (string) the frequency at which the license maintenance task runs. Default is `hourly` (see [WP_Cron](https://developer.wordpress.org/reference/classes/wp_cron/) for more information on the available frequencies)
 ___

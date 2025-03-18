@@ -25,18 +25,21 @@ class Package_API {
 	 * Is doing API request
 	 *
 	 * @var bool|null
+	 * @since 1.0.0
 	 */
 	protected static $doing_api_request = null;
 	/**
 	 * Instance
 	 *
 	 * @var Package_API|null
+	 * @since 1.0.0
 	 */
 	protected static $instance;
 	/**
 	 * Config
 	 *
 	 * @var array|null
+	 * @since 1.0.0
 	 */
 	protected static $config;
 
@@ -44,21 +47,30 @@ class Package_API {
 	 * HTTP response code
 	 *
 	 * @var int|null
+	 * @since 1.0.0
 	 */
 	protected $http_response_code = 200;
 	/**
 	 * API key ID
 	 *
 	 * @var string|null
+	 * @since 1.0.0
 	 */
 	protected $api_key_id;
 	/**
 	 * API access
 	 *
 	 * @var array|null
+	 * @since 1.0.0
 	 */
 	protected $api_access;
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -83,6 +95,15 @@ class Package_API {
 
 	// API action --------------------------------------------------
 
+	/**
+	 * Browse packages
+	 *
+	 * Get information about multiple packages.
+	 *
+	 * @param string|array $query The search query or parameters.
+	 * @return object Response with package information.
+	 * @since 1.0.0
+	 */
 	public function browse( $query ) {
 		$result          = false;
 		$query           = empty( $query ) || ! is_string( $query ) ? array() : json_decode( wp_unslash( $query ), true );
@@ -95,6 +116,7 @@ class Package_API {
 		 * @param array $result The result of the `browse` operation
 		 * @param array $query The query - see browse()
 		 * @return array The filtered result
+		 * @since 1.0.0
 		 */
 		$result = apply_filters( 'upserv_package_browse', $result, $query );
 
@@ -102,6 +124,7 @@ class Package_API {
 		 * Fired after the `browse` Package API action.
 		 *
 		 * @param array $result the result of the action
+		 * @since 1.0.0
 		 */
 		do_action( 'upserv_did_browse_package', $result );
 
@@ -120,6 +143,16 @@ class Package_API {
 		return (object) $result;
 	}
 
+	/**
+	 * Read package information
+	 *
+	 * Get information about a single package.
+	 *
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return object Response with package information.
+	 * @since 1.0.0
+	 */
 	public function read( $package_id, $type ) {
 		$result = upserv_get_package_info( $package_id, false );
 
@@ -140,6 +173,7 @@ class Package_API {
 		 * @param string $package_id The slug of the read package
 		 * @param string $type The type of the read package
 		 * @return array The filtered result
+		 * @since 1.0.0
 		 */
 		$result = apply_filters( 'upserv_package_read', $result, $package_id, $type );
 
@@ -147,6 +181,7 @@ class Package_API {
 		 * Fired after the `read` Package API action.
 		 *
 		 * @param array $result the result of the action
+		 * @since 1.0.0
 		 */
 		do_action( 'upserv_did_read_package', $result );
 
@@ -161,6 +196,16 @@ class Package_API {
 		return (object) $result;
 	}
 
+	/**
+	 * Edit a package
+	 *
+	 * If a package exists, update it by uploading a valid package file, or by downloading it if using a VCS.
+	 *
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return object Response with package information or error.
+	 * @since 1.0.0
+	 */
 	public function edit( $package_id, $type ) {
 		$result = false;
 		$config = self::get_config();
@@ -185,6 +230,7 @@ class Package_API {
 		 * @param string $package_id The slug of the edited package
 		 * @param string $type The type of the edited package
 		 * @return array The filtered result
+		 * @since 1.0.0
 		 */
 		$result = apply_filters( 'upserv_package_edit', $result, $package_id, $type );
 
@@ -211,6 +257,7 @@ class Package_API {
 			 * Fired after the `edit` Package API action.
 			 *
 			 * @param array $result the result of the action
+			 * @since 1.0.0
 			 */
 			do_action( 'upserv_did_edit_package', $result );
 		}
@@ -218,6 +265,16 @@ class Package_API {
 		return (object) $result;
 	}
 
+	/**
+	 * Add a package
+	 *
+	 * If a package does not exist, upload it by providing a valid package file, or download it if using a VCS.
+	 *
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return object Response with package information or error.
+	 * @since 1.0.0
+	 */
 	public function add( $package_id, $type ) {
 		$result = false;
 		$config = self::get_config();
@@ -242,6 +299,7 @@ class Package_API {
 		 * @param string $package_id The slug of the added package
 		 * @param string $type The type of the added package
 		 * @return array The filtered result
+		 * @since 1.0.0
 		 */
 		$result = apply_filters( 'upserv_package_add', $result, $package_id, $type );
 
@@ -268,6 +326,7 @@ class Package_API {
 			 * Fired after the `add` Package API action.
 			 *
 			 * @param array $result the result of the action
+			 * @since 1.0.0
 			 */
 			do_action( 'upserv_did_add_package', $result );
 		}
@@ -275,12 +334,23 @@ class Package_API {
 		return (object) $result;
 	}
 
+	/**
+	 * Delete a package
+	 *
+	 * Remove a package from the system.
+	 *
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return object Response with deletion status or error.
+	 * @since 1.0.0
+	 */
 	public function delete( $package_id, $type ) {
 		/**
 		 * Fired before the `delete` Package API action.
 		 *
 		 * @param string $package_slug the slug of the package to be deleted
 		 * @param string $type the type of the package to be deleted
+		 * @since 1.0.0
 		 */
 		do_action( 'upserv_pre_delete_package', $package_id, $type );
 
@@ -292,6 +362,7 @@ class Package_API {
 		 * @param string $package_id The slug of the deleted package
 		 * @param string $type The type of the deleted package
 		 * @return bool The filtered result
+		 * @since 1.0.0
 		 */
 		$result = apply_filters( 'upserv_package_delete', $result, $package_id, $type );
 
@@ -302,6 +373,7 @@ class Package_API {
 			 * @param bool $result the result of the `delete` operation
 			 * @param string $package_slug the slug of the deleted package
 			 * @param string $type the type of the deleted package
+			 * @since 1.0.0
 			 */
 			do_action( 'upserv_did_delete_package', $result, $package_id, $type );
 		} else {
@@ -315,6 +387,16 @@ class Package_API {
 		return (object) $result;
 	}
 
+	/**
+	 * Download a package
+	 *
+	 * Initiate download of a package file.
+	 *
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return array Error information if package not found.
+	 * @since 1.0.0
+	 */
 	public function download( $package_id, $type ) {
 		$path = upserv_get_local_package_path( $package_id );
 
@@ -333,12 +415,23 @@ class Package_API {
 		 * Fired after the `download` Package API action.
 		 *
 		 * @param string $package_slug the slug of the downloaded package
+		 * @since 1.0.0
 		 */
 		do_action( 'upserv_did_download_package', $package_id );
 
 		exit;
 	}
 
+	/**
+	 * Generate signed URL for package download
+	 *
+	 * Create a secure URL for downloading packages.
+	 *
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return object Response with signed URL information.
+	 * @since 1.0.0
+	 */
 	public function signed_url( $package_id, $type ) {
 		$package_id = filter_var( $package_id, FILTER_SANITIZE_URL );
 		$type       = filter_var( $type, FILTER_SANITIZE_URL );
@@ -349,7 +442,8 @@ class Package_API {
 		 * @param string $package_id The slug of the package for which the URL needs to be signed
 		 * @param string $type The type of the package for which the URL needs to be signed
 		 * @return mixed The filtered token
-		 */
+		 * @since 1.0.0
+		*/
 		$token = apply_filters( 'upserv_package_signed_url_token', false, $package_id, $type );
 
 		if ( ! $token ) {
@@ -371,6 +465,7 @@ class Package_API {
 		 * @param string $package_id The slug of the package for which the URL was signed
 		 * @param string $type The type of the package for which the URL was signed
 		 * @return array The filtered result
+		 * @since 1.0.0
 		 */
 		$result = apply_filters(
 			'upserv_package_signed_url',
@@ -394,6 +489,7 @@ class Package_API {
 			 * Fired after the `signed_url` Package API action.
 			 *
 			 * @param array $result the result of the action
+			 * @since 1.0.0
 			 */
 			do_action( 'upserv_did_signed_url_package', $result );
 		} else {
@@ -409,6 +505,13 @@ class Package_API {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Add API endpoints
+	 *
+	 * Register the rewrite rules for the Package API endpoints.
+	 *
+	 * @since 1.0.0
+	 */
 	public function add_endpoints() {
 		add_rewrite_rule(
 			'^updatepulse-server-package-api/(plugin|theme|generic)/(.+)/*?$',
@@ -422,6 +525,13 @@ class Package_API {
 		);
 	}
 
+	/**
+	 * Parse API requests
+	 *
+	 * Handle incoming API requests to the Package API endpoints.
+	 *
+	 * @since 1.0.0
+	 */
 	public function parse_request() {
 		global $wp;
 
@@ -432,6 +542,15 @@ class Package_API {
 		}
 	}
 
+	/**
+	 * Register query variables
+	 *
+	 * Add custom query variables used by the Package API.
+	 *
+	 * @param array $query_vars Existing query variables.
+	 * @return array Modified query variables.
+	 * @since 1.0.0
+	 */
 	public function query_vars( $query_vars ) {
 		$query_vars = array_merge(
 			$query_vars,
@@ -450,6 +569,16 @@ class Package_API {
 		return $query_vars;
 	}
 
+	/**
+	 * Handle package saved to local event
+	 *
+	 * Actions to perform when a remote package has been saved locally.
+	 *
+	 * @param bool $local_ready Whether the local package is ready.
+	 * @param string $package_type The type of the package.
+	 * @param string $package_slug The slug of the package.
+	 * @since 1.0.0
+	 */
 	public function upserv_saved_remote_package_to_local( $local_ready, $package_type, $package_slug ) {
 
 		if ( ! $local_ready ) {
@@ -468,6 +597,15 @@ class Package_API {
 		upserv_schedule_webhook( $payload, 'package' );
 	}
 
+	/**
+	 * Handle pre-delete package event
+	 *
+	 * Actions to perform before a package is deleted.
+	 *
+	 * @param string $package_slug The slug of the package.
+	 * @param string $package_type The type of the package.
+	 * @since 1.0.0
+	 */
 	public function upserv_pre_delete_package( $package_slug, $package_type ) {
 		wp_cache_set(
 			'upserv_package_deleted_info' . $package_slug . '_' . $package_type,
@@ -476,6 +614,16 @@ class Package_API {
 		);
 	}
 
+	/**
+	 * Handle post-delete package event
+	 *
+	 * Actions to perform after a package is deleted.
+	 *
+	 * @param bool $result The result of the deletion.
+	 * @param string $package_slug The slug of the package.
+	 * @param string $package_type The type of the package.
+	 * @since 1.0.0
+	 */
 	public function upserv_did_delete_package( $result, $package_slug, $package_type ) {
 		$package_info = wp_cache_get(
 			'upserv_package_deleted_info' . $package_slug . '_' . $package_type,
@@ -494,6 +642,14 @@ class Package_API {
 		}
 	}
 
+	/**
+	 * Handle package downloaded event
+	 *
+	 * Actions to perform after a package is downloaded.
+	 *
+	 * @param string $package_slug The slug of the downloaded package.
+	 * @since 1.0.0
+	 */
 	public function upserv_did_download_package( $package_slug ) {
 		$payload = array(
 			'event'       => 'package_downloaded',
@@ -505,6 +661,15 @@ class Package_API {
 		upserv_schedule_webhook( $payload, 'package' );
 	}
 
+	/**
+	 * Register package API actions
+	 *
+	 * Add descriptions for all available Package API actions.
+	 *
+	 * @param array $actions Existing API actions.
+	 * @return array Modified API actions with descriptions.
+	 * @since 1.0.0
+	 */
 	public function upserv_api_package_actions( $actions ) {
 		$actions['browse']     = __( 'Get information about multiple packages', 'updatepulse-server' );
 		$actions['read']       = __( 'Get information about a single package', 'updatepulse-server' );
@@ -516,6 +681,15 @@ class Package_API {
 		return $actions;
 	}
 
+	/**
+	 * Register webhook events
+	 *
+	 * Add supported webhook events for the Package API.
+	 *
+	 * @param array $webhook_events Existing webhook events.
+	 * @return array Modified webhook events.
+	 * @since 1.0.0
+	 */
 	public function upserv_api_webhook_events( $webhook_events ) {
 
 		if ( isset( $webhook_events['package'], $webhook_events['package']['events'] ) ) {
@@ -527,6 +701,18 @@ class Package_API {
 		return $webhook_events;
 	}
 
+	/**
+	 * Fetch nonce for public API
+	 *
+	 * Validate nonce for public API requests.
+	 *
+	 * @param mixed $nonce The nonce to validate.
+	 * @param mixed $true_nonce The true nonce value.
+	 * @param int $expiry The nonce expiry time.
+	 * @param array $data Additional data associated with the nonce.
+	 * @return mixed Validated nonce or null if invalid.
+	 * @since 1.0.0
+	 */
 	public function upserv_fetch_nonce_public( $nonce, $true_nonce, $expiry, $data ) {
 		global $wp;
 
@@ -555,6 +741,18 @@ class Package_API {
 		return $nonce;
 	}
 
+	/**
+	 * Fetch nonce for private API
+	 *
+	 * Validate nonce for private API requests.
+	 *
+	 * @param mixed $nonce The nonce to validate.
+	 * @param mixed $true_nonce The true nonce value.
+	 * @param int $expiry The nonce expiry time.
+	 * @param array $data Additional data associated with the nonce.
+	 * @return mixed Validated nonce or null if invalid.
+	 * @since 1.0.0
+	 */
 	public function upserv_fetch_nonce_private( $nonce, $true_nonce, $expiry, $data ) {
 		$config = self::get_config();
 		$valid  = false;
@@ -592,6 +790,15 @@ class Package_API {
 		return $nonce;
 	}
 
+	/**
+	 * Modify nonce API payload
+	 *
+	 * Adjust the payload for API nonce creation.
+	 *
+	 * @param array $payload The original payload.
+	 * @return array Modified payload.
+	 * @since 1.0.0
+	 */
 	public function upserv_nonce_api_payload( $payload ) {
 		global $wp;
 
@@ -635,12 +842,30 @@ class Package_API {
 		return $payload;
 	}
 
+	/**
+	 * Filter package information inclusion
+	 *
+	 * Determine whether to include package information in responses.
+	 *
+	 * @param bool $_include Current inclusion status.
+	 * @param array $info Package information.
+	 * @return bool Whether to include the package information.
+	 * @since 1.0.0
+	 */
 	public function upserv_package_info_include( $_include, $info ) {
 		return ! upserv_get_option( 'use_vcs' ) || upserv_is_package_whitelisted( $info['slug'] );
 	}
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Check if currently processing an API request
+	 *
+	 * Determine whether the current request is a Package API request.
+	 *
+	 * @return bool Whether the current request is a Package API request.
+	 * @since 1.0.0
+	 */
 	public static function is_doing_api_request() {
 
 		if ( null === self::$doing_api_request ) {
@@ -650,6 +875,14 @@ class Package_API {
 		return self::$doing_api_request;
 	}
 
+	/**
+	 * Get Package API configuration
+	 *
+	 * Retrieve and filter the Package API configuration settings.
+	 *
+	 * @return array Package API configuration.
+	 * @since 1.0.0
+	 */
 	public static function get_config() {
 
 		if ( ! self::$config ) {
@@ -667,10 +900,19 @@ class Package_API {
 		 *
 		 * @param array $config The configuration of the Package API
 		 * @return array The filtered configuration
+		 * @since 1.0.0
 		 */
 		return apply_filters( 'upserv_package_api_config', self::$config );
 	}
 
+	/**
+	 * Get Package API instance
+	 *
+	 * Retrieve or create the Package API singleton instance.
+	 *
+	 * @return Package_API The Package API instance.
+	 * @since 1.0.0
+	 */
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
@@ -684,6 +926,14 @@ class Package_API {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Get uploaded file
+	 *
+	 * Retrieve the uploaded file from a request.
+	 *
+	 * @return array|false File information array or false if no valid file.
+	 * @since 1.0.0
+	 */
 	protected function get_file() {
 		$files  = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$return = false;
@@ -700,6 +950,17 @@ class Package_API {
 		return $return;
 	}
 
+	/**
+	 * Process uploaded package file
+	 *
+	 * Handle validation and processing of an uploaded package file.
+	 *
+	 * @param array $file The file information array.
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 * @since 1.0.0
+	 */
 	protected function process_file( $file, $package_id, $type ) {
 		list(
 			$local_filename,
@@ -801,12 +1062,23 @@ class Package_API {
 		 * @param bool $result `true` in case of success, `false` otherwise
 		 * @param string $type type of the saved package - `"Plugin"`, `"Theme"`, or `"Generic"`
 		 * @param string $package_slug slug of the saved package
+		 * @since 1.0.0
 		 */
 		do_action( 'upserv_saved_remote_package_to_local', true, $type, $package_id );
 
 		return $result;
 	}
 
+	/**
+	 * Download a package file from VCS
+	 *
+	 * Fetch a package from its version control system source.
+	 *
+	 * @param string $package_id The package ID/slug.
+	 * @param string $type The package type.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 * @since 1.0.0
+	 */
 	protected function download_file( $package_id, $type ) {
 		$vcs_url = filter_input( INPUT_POST, 'vcs_url', FILTER_SANITIZE_URL );
 		$branch  = sanitize_text_field( wp_unslash( filter_input( INPUT_POST, 'branch' ) ) );
@@ -822,6 +1094,14 @@ class Package_API {
 		return $result;
 	}
 
+	/**
+	 * Authorize public API request
+	 *
+	 * Validate authorization for public API endpoints.
+	 *
+	 * @return bool Whether the request is authorized.
+	 * @since 1.0.0
+	 */
 	protected function authorize_public() {
 		$nonce = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'token' ) ) );
 
@@ -838,6 +1118,15 @@ class Package_API {
 		return $result;
 	}
 
+	/**
+	 * Authorize private API request
+	 *
+	 * Validate authorization for private API endpoints.
+	 *
+	 * @param string $action The requested API action.
+	 * @return bool Whether the request is authorized.
+	 * @since 1.0.0
+	 */
 	protected function authorize_private( $action ) {
 		$token   = false;
 		$is_auth = false;
@@ -872,6 +1161,15 @@ class Package_API {
 		return $is_auth;
 	}
 
+	/**
+	 * Check if API action is public
+	 *
+	 * Determine if a specific API action is available publicly.
+	 *
+	 * @param string $method The API method to check.
+	 * @return bool Whether the API action is public.
+	 * @since 1.0.0
+	 */
 	protected function is_api_public( $method ) {
 		/**
 		 * Filter the public API actions; public actions can be accessed via the `GET` method and a token,
@@ -879,6 +1177,7 @@ class Package_API {
 		 *
 		 * @param array $public_api_actions The public API actions
 		 * @return array The filtered public API actions
+		 * @since 1.0.0
 		 */
 		$public_api    = apply_filters(
 			'upserv_package_public_api_actions',
@@ -889,6 +1188,13 @@ class Package_API {
 		return $is_api_public;
 	}
 
+	/**
+	 * Handle incoming API requests
+	 *
+	 * Process and respond to Package API requests.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function handle_api_request() {
 		global $wp;
 
@@ -925,6 +1231,7 @@ class Package_API {
 				 * @param string $method The method of the request - `GET` or `POST`
 				 * @param array $payload The payload of the request
 				 * @return bool The filtered authorization status
+				 * @since 1.0.0
 				 */
 				$authorized = apply_filters(
 					'upserv_package_api_request_authorized',
@@ -948,6 +1255,7 @@ class Package_API {
 					 *
 					 * @param string $action the Package API action
 					 * @param array $payload the payload of the request
+					 * @since 1.0.0
 					 */
 					do_action( 'upserv_package_api_request', $method, $payload );
 
@@ -990,6 +1298,14 @@ class Package_API {
 		wp_send_json( $response, $this->http_response_code, Utils::JSON_OPTIONS );
 	}
 
+	/**
+	 * Authorize request by IP address
+	 *
+	 * Validate if the request IP is allowed.
+	 *
+	 * @return bool Whether the request IP is authorized.
+	 * @since 1.0.0
+	 */
 	protected function authorize_ip() {
 		$result = false;
 		$config = self::get_config();

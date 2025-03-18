@@ -13,13 +13,48 @@ use Anyape\UpdatePulse\Server\Table\Licenses_Table;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
+/**
+ * License Manager class
+ *
+ * @since 1.0.0
+ */
 class License_Manager {
 
+	/**
+	 * Licenses table
+	 *
+	 * @var Licenses_Table|null
+	 * @since 1.0.0
+	 */
 	protected $licenses_table;
+	/**
+	 * Message to display
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $message = '';
-	protected $errors  = array();
+	/**
+	 * Error messages
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	protected $errors = array();
+	/**
+	 * License server instance
+	 *
+	 * @var License_Server|null
+	 * @since 1.0.0
+	 */
 	protected $license_server;
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize hooks
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -53,6 +88,13 @@ class License_Manager {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Activate license system
+	 *
+	 * Creates necessary database tables and sets up license expiration schedule.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function activate() {
 		$result = self::maybe_create_or_upgrade_db();
 
@@ -62,22 +104,50 @@ class License_Manager {
 			die( $error_message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
-		$manager   = new self();
+		$manager = new self();
+		/**
+		 * Filter the frequency at which the license maintenance task runs.
+		 *
+		 * @param string $frequency The WordPress schedule frequency (hourly, daily, etc.)
+		 */
 		$frequency = apply_filters( 'upserv_schedule_license_frequency', 'hourly' );
 
 		$manager->register_license_schedules( $frequency );
 	}
 
+	/**
+	 * Deactivate license system
+	 *
+	 * Removes scheduled license expiration tasks.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function deactivate() {
 		Scheduler::get_instance()->unschedule_all_actions( 'upserv_expire_licenses' );
+
+		/**
+		 * Fired after the license maintenance event has been unscheduled.
+		 */
 		do_action( 'upserv_cleared_license_schedule' );
 	}
 
+	/**
+	 * Initialize scheduler
+	 *
+	 * Sets up recurring schedule for license expiration checks.
+	 *
+	 * @since 1.0.0
+	 */
 	public function upserv_scheduler_init() {
 		$hook = 'upserv_expire_licenses';
 
 		if ( ! Scheduler::get_instance()->has_scheduled_action( $hook ) ) {
-			$frequency = apply_filters( 'upserv_schedule_license_frequency', 'daily' );
+			/**
+			 * Filter the frequency at which the license maintenance task runs.
+			 *
+			 * @param string $frequency The WordPress schedule frequency (daily, etc.)
+			 */
+			$frequency = apply_filters( 'upserv_schedule_license_frequency', 'hourly' );
 			$schedules = wp_get_schedules();
 			$d         = new DateTime( 'now', new DateTimeZone( wp_timezone_string() ) );
 
@@ -90,12 +160,27 @@ class License_Manager {
 				$hook
 			);
 
+			/**
+			 * Fired after the license maintenance event has been scheduled.
+			 *
+			 * @param bool $result Whether the event was scheduled successfully
+			 * @param int $timestamp Timestamp for when to run the event the first time
+			 * @param string $frequency Frequency at which the event would be ran
+			 * @param string $hook Event hook to fire when the event is ran
+			 */
 			do_action( 'upserv_scheduled_license_event', $result, $timestamp, $frequency, $hook );
 		}
 
 		$this->register_license_schedules();
 	}
 
+	/**
+	 * Initialize admin area
+	 *
+	 * Sets up license table and processes form submissions.
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_init() {
 
 		if ( ! is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
@@ -188,6 +273,15 @@ class License_Manager {
 		}
 	}
 
+	/**
+	 * Register admin styles
+	 *
+	 * Adds license-specific styles to the admin area.
+	 *
+	 * @param array $styles Existing admin styles
+	 * @return array Modified admin styles
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_styles( $styles ) {
 		$styles['license'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/admin/license' . upserv_assets_suffix() . '.css',
@@ -199,6 +293,15 @@ class License_Manager {
 		return $styles;
 	}
 
+	/**
+	 * Register admin scripts
+	 *
+	 * Adds license-specific scripts to the admin area.
+	 *
+	 * @param array $scripts Existing admin scripts
+	 * @return array Modified admin scripts
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_scripts( $scripts ) {
 		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -221,6 +324,12 @@ class License_Manager {
 			'params' => array(
 				'cm_settings' => wp_enqueue_code_editor( array( 'type' => 'text/json' ) ),
 			),
+			/**
+			 * Filter the internationalization strings passed to the frontend scripts.
+			 *
+			 * @param array $l10n The internationalization strings passed to the frontend scripts
+			 * @param string $handle The handle of the script
+			 */
 			'l10n'   => apply_filters( 'upserv_scripts_l10n', $l10n, 'license' ),
 		);
 
@@ -229,6 +338,13 @@ class License_Manager {
 		return $scripts;
 	}
 
+	/**
+	 * Add page options
+	 *
+	 * Adds screen options for the licenses page.
+	 *
+	 * @since 1.0.0
+	 */
 	public function add_page_options() {
 		$option = 'per_page';
 		$args   = array(
@@ -240,22 +356,61 @@ class License_Manager {
 		add_screen_option( $option, $args );
 	}
 
+	/**
+	 * Save page options
+	 *
+	 * Handles saving of screen options.
+	 *
+	 * @param mixed $status Status of the option
+	 * @param string $option Option name
+	 * @param mixed $value Option value
+	 * @return mixed Filtered option value
+	 * @since 1.0.0
+	 */
 	public function set_page_options( $status, $option, $value ) {
 		return $value;
 	}
 
+	/**
+	 * Add package table columns
+	 *
+	 * Adds license columns to the packages table.
+	 *
+	 * @param array $columns Existing table columns
+	 * @return array Modified table columns
+	 * @since 1.0.0
+	 */
 	public function upserv_packages_table_columns( $columns ) {
 		$columns['col_use_license'] = __( 'License status', 'updatepulse-server' );
 
 		return $columns;
 	}
 
+	/**
+	 * Add sortable columns
+	 *
+	 * Adds sortable license columns to the packages table.
+	 *
+	 * @param array $columns Existing sortable columns
+	 * @return array Modified sortable columns
+	 * @since 1.0.0
+	 */
 	public function upserv_packages_table_sortable_columns( $columns ) {
 		$columns['col_use_license'] = __( 'License status', 'updatepulse-server' );
 
 		return $columns;
 	}
 
+	/**
+	 * Display package table cell content
+	 *
+	 * Populates license status cells in the packages table.
+	 *
+	 * @param string $column_name Name of the column
+	 * @param array $record Record data
+	 * @param string $record_key Record identifier
+	 * @since 1.0.0
+	 */
 	public function upserv_packages_table_cell( $column_name, $record, $record_key ) {
 		$use_license = upserv_is_package_require_license( $record_key );
 
@@ -264,6 +419,13 @@ class License_Manager {
 		}
 	}
 
+	/**
+	 * Add admin menu
+	 *
+	 * Registers the licenses submenu page.
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_menu() {
 		$function    = array( $this, 'plugin_page' );
 		$page_title  = __( 'UpdatePulse Server - Licenses', 'updatepulse-server' );
@@ -275,6 +437,15 @@ class License_Manager {
 		add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
 	}
 
+	/**
+	 * Add admin tab links
+	 *
+	 * Adds licenses tab to the admin navigation.
+	 *
+	 * @param array $links Existing tab links
+	 * @return array Modified tab links
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_links( $links ) {
 		$links['licenses'] = array(
 			admin_url( 'admin.php?page=upserv-page-licenses' ),
@@ -284,6 +455,16 @@ class License_Manager {
 		return $links;
 	}
 
+	/**
+	 * Manage admin tab states
+	 *
+	 * Updates active state for the licenses tab.
+	 *
+	 * @param array $states Current tab states
+	 * @param string $page Current page
+	 * @return array Modified tab states
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_states( $states, $page ) {
 		$states['licenses'] = 'upserv-page-licenses' === $page;
 
@@ -292,17 +473,44 @@ class License_Manager {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Expire licenses
+	 *
+	 * Changes status of expired licenses.
+	 *
+	 * @since 1.0.0
+	 */
 	public function expire_licenses() {
 		$this->license_server->switch_expired_licenses_status();
 	}
 
+	/**
+	 * Register license schedules
+	 *
+	 * Sets up hooks for scheduled license tasks.
+	 *
+	 * @since 1.0.0
+	 */
 	public function register_license_schedules() {
 		$scheduled_hook = array( $this, 'expire_licenses' );
 
 		add_action( 'upserv_expire_licenses', $scheduled_hook, 10, 2 );
+
+		/**
+		 * Fired after the license maintenance action has been registered.
+		 *
+		 * @param string $scheduled_hook The license event hook that has been registered
+		 */
 		do_action( 'upserv_registered_license_schedule', $scheduled_hook );
 	}
 
+	/**
+	 * Display plugin page
+	 *
+	 * Renders the licenses management page.
+	 *
+	 * @since 1.0.0
+	 */
 	public function plugin_page() {
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -349,6 +557,14 @@ class License_Manager {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Create or upgrade database
+	 *
+	 * Sets up and updates the licenses database table.
+	 *
+	 * @return bool Whether database setup was successful
+	 * @since 1.0.0
+	 */
 	protected static function maybe_create_or_upgrade_db() {
 		global $wpdb;
 
@@ -398,6 +614,14 @@ class License_Manager {
 		return true;
 	}
 
+	/**
+	 * Handle plugin options
+	 *
+	 * Processes and saves plugin settings.
+	 *
+	 * @return string|bool Success message or false on failure
+	 * @since 1.0.0
+	 */
 	protected function plugin_options_handler() {
 		$errors  = array();
 		$result  = '';
@@ -456,7 +680,20 @@ class License_Manager {
 		return $result;
 	}
 
+	/**
+	 * Get submitted options
+	 *
+	 * Retrieves and validates options from form submission.
+	 *
+	 * @return array Options array with validation parameters
+	 * @since 1.0.0
+	 */
 	protected function get_submitted_options() {
+		/**
+		 * Filter the submitted license configuration values before saving them.
+		 *
+		 * @param array $config The submitted license configuration values
+		 */
 		return apply_filters(
 			'upserv_submitted_licenses_config',
 			array(
@@ -470,6 +707,15 @@ class License_Manager {
 		);
 	}
 
+	/**
+	 * Change license statuses in bulk
+	 *
+	 * Updates status for multiple licenses at once.
+	 *
+	 * @param string $status New status to apply
+	 * @param array $license_data Licenses to update
+	 * @since 1.0.0
+	 */
 	protected function change_license_statuses_bulk( $status, $license_data ) {
 
 		if ( ! is_array( $license_data ) ) {
@@ -524,6 +770,15 @@ class License_Manager {
 		}
 	}
 
+	/**
+	 * Delete licenses in bulk
+	 *
+	 * Removes multiple licenses from the system.
+	 *
+	 * @param array $license_ids IDs of licenses to delete
+	 * @return array IDs of deleted licenses
+	 * @since 1.0.0
+	 */
 	protected function delete_license_bulk( $license_ids ) {
 
 		if ( ! is_array( $license_ids ) ) {
@@ -550,6 +805,14 @@ class License_Manager {
 		return $license_ids;
 	}
 
+	/**
+	 * Update a license
+	 *
+	 * Updates an existing license with new data.
+	 *
+	 * @param string $license_data JSON encoded license data
+	 * @since 1.0.0
+	 */
 	protected function update_license( $license_data ) {
 		$payload         = json_decode( $license_data, true );
 		$payload['data'] = json_decode( $payload['data'], true );
@@ -564,6 +827,14 @@ class License_Manager {
 		}
 	}
 
+	/**
+	 * Create a new license
+	 *
+	 * Adds a new license to the system.
+	 *
+	 * @param string $license_data JSON encoded license data
+	 * @since 1.0.0
+	 */
 	protected function create_license( $license_data ) {
 		$payload         = json_decode( $license_data, true );
 		$payload['data'] = json_decode( $payload['data'], true );
@@ -578,6 +849,13 @@ class License_Manager {
 		}
 	}
 
+	/**
+	 * Delete all licenses
+	 *
+	 * Removes all licenses from the system.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function delete_all_licenses() {
 		$this->license_server->purge_licenses();
 

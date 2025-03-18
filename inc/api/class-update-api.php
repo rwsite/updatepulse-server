@@ -10,13 +10,42 @@ use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 use Anyape\Utils\Utils;
 
+/**
+ * Update API class
+ *
+ * @since 1.0.0
+ */
 class Update_API {
 
+	/**
+	 * Is doing API request
+	 *
+	 * @var bool|null
+	 * @since 1.0.0
+	 */
 	protected static $doing_api_request = null;
+	/**
+	 * Instance
+	 *
+	 * @var Update_API|null
+	 * @since 1.0.0
+	 */
 	protected static $instance;
 
+	/**
+	 * Update server object
+	 *
+	 * @var object|null
+	 * @since 1.0.0
+	 */
 	protected $update_server;
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize hooks.
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -38,6 +67,13 @@ class Update_API {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Add API endpoints
+	 *
+	 * Register the rewrite rules for the Update API endpoints.
+	 *
+	 * @since 1.0.0
+	 */
 	public function add_endpoints() {
 		add_rewrite_rule(
 			'^updatepulse-server-update-api/*$',
@@ -46,6 +82,13 @@ class Update_API {
 		);
 	}
 
+	/**
+	 * Parse API requests
+	 *
+	 * Handle incoming API requests to the Update API endpoints.
+	 *
+	 * @since 1.0.0
+	 */
 	public function parse_request() {
 		global $wp;
 
@@ -54,6 +97,15 @@ class Update_API {
 		}
 	}
 
+	/**
+	 * Register query variables
+	 *
+	 * Add custom query variables used by the Update API.
+	 *
+	 * @param array $query_vars Existing query variables.
+	 * @return array Modified query variables.
+	 * @since 1.0.0
+	 */
 	public function query_vars( $query_vars ) {
 		$query_vars = array_merge(
 			$query_vars,
@@ -69,10 +121,29 @@ class Update_API {
 		return $query_vars;
 	}
 
+	/**
+	 * Handle checked remote package update event
+	 *
+	 * Actions to perform when a remote package update has been checked.
+	 *
+	 * @param bool $needs_update Whether the package needs an update.
+	 * @param string $type The type of the package.
+	 * @param string $slug The slug of the package.
+	 * @since 1.0.0
+	 */
 	public function upserv_checked_remote_package_update( $needs_update, $type, $slug ) {
 		$this->schedule_check_remote_event( $slug );
 	}
 
+	/**
+	 * Handle package registered from VCS event
+	 *
+	 * Actions to perform when a package has been registered from VCS.
+	 *
+	 * @param bool $result The result of the registration.
+	 * @param string $slug The slug of the package.
+	 * @since 1.0.0
+	 */
 	public function upserv_registered_package_from_vcs( $result, $slug ) {
 
 		if ( $result ) {
@@ -80,6 +151,16 @@ class Update_API {
 		}
 	}
 
+	/**
+	 * Handle package removed event
+	 *
+	 * Actions to perform when a package has been removed.
+	 *
+	 * @param bool $result The result of the removal.
+	 * @param string $type The type of the package.
+	 * @param string $slug The slug of the package.
+	 * @since 1.0.0
+	 */
 	public function upserv_removed_package( $result, $type, $slug ) {
 
 		if ( $result ) {
@@ -87,6 +168,18 @@ class Update_API {
 		}
 	}
 
+	/**
+	 * Pre-filter package information
+	 *
+	 * Filter package information before the update check.
+	 *
+	 * @param array $info Package information.
+	 * @param object $api_obj The API object.
+	 * @param mixed $ref Reference value.
+	 * @param object $update_checker The update checker object.
+	 * @return array Filtered package information.
+	 * @since 1.0.0
+	 */
 	public function puc_request_info_pre_filter( $info, $api_obj, $ref, $update_checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		$vcs_config = upserv_get_package_vcs_config( $info['slug'] );
 
@@ -94,6 +187,13 @@ class Update_API {
 			return $info;
 		}
 
+		/**
+		 * Filter whether to filter the packages retrieved from the Version Control System.
+		 *
+		 * @param bool $filter_packages Whether to filter the packages retrieved from the Version Control System.
+		 * @param array $info The information of the package from the VCS.
+		 * @since 1.0.0
+		 */
 		$filter_packages = apply_filters(
 			'upserv_vcs_filter_packages',
 			$vcs_config['filter_packages'],
@@ -109,6 +209,18 @@ class Update_API {
 		return $info;
 	}
 
+	/**
+	 * Filter package information result
+	 *
+	 * Filter package information after the update check.
+	 *
+	 * @param array $info Package information.
+	 * @param object $api_obj The API object.
+	 * @param mixed $ref Reference value.
+	 * @param object $checker The update checker object.
+	 * @return array Filtered package information.
+	 * @since 1.0.0
+	 */
 	public function puc_request_info_result( $info, $api_obj, $ref, $checker ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		$vcs_config = upserv_get_package_vcs_config( $info['slug'] );
 
@@ -116,6 +228,13 @@ class Update_API {
 			return $info;
 		}
 
+		/**
+		 * Filter whether to filter the packages retrieved from the Version Control System.
+		 *
+		 * @param bool $filter_packages Whether to filter the packages retrieved from the Version Control System.
+		 * @param array $info The information of the package from the VCS.
+		 * @since 1.0.0
+		 */
 		$filter_packages = apply_filters(
 			'upserv_vcs_filter_packages',
 			$vcs_config['filter_packages'],
@@ -133,6 +252,14 @@ class Update_API {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Check if currently processing an API request
+	 *
+	 * Determine whether the current request is an Update API request.
+	 *
+	 * @return bool Whether the current request is an Update API request.
+	 * @since 1.0.0
+	 */
 	public static function is_doing_api_request() {
 
 		if ( null === self::$doing_api_request ) {
@@ -142,6 +269,14 @@ class Update_API {
 		return self::$doing_api_request;
 	}
 
+	/**
+	 * Get Update API instance
+	 *
+	 * Retrieve or create the Update API singleton instance.
+	 *
+	 * @return Update_API The Update API instance.
+	 * @since 1.0.0
+	 */
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
@@ -151,6 +286,16 @@ class Update_API {
 		return self::$instance;
 	}
 
+	/**
+	 * Check for remote package updates
+	 *
+	 * Verify if a remote package has updates available.
+	 *
+	 * @param string $slug The package slug.
+	 * @param string $type The package type.
+	 * @return bool|mixed Result of the remote update check.
+	 * @since 1.0.0
+	 */
 	public function check_remote_update( $slug, $type ) {
 		$this->init_server( $slug );
 
@@ -163,6 +308,17 @@ class Update_API {
 		return $this->update_server->check_remote_package_update( $slug );
 	}
 
+	/**
+	 * Download a remote package
+	 *
+	 * Download and process a package from a remote source.
+	 *
+	 * @param string $slug The package slug.
+	 * @param string|null $type The package type.
+	 * @param bool $force Whether to force the download.
+	 * @return bool Whether the download was successful.
+	 * @since 1.0.0
+	 */
 	public function download_remote_package( $slug, $type = null, $force = false ) {
 		$result = false;
 
@@ -215,6 +371,14 @@ class Update_API {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Schedule remote check event
+	 *
+	 * Set up a scheduled event to check for remote package updates.
+	 *
+	 * @param string $slug The package slug.
+	 * @since 1.0.0
+	 */
 	protected function schedule_check_remote_event( $slug ) {
 		$vcs_config = upserv_get_package_vcs_config( $slug );
 
@@ -238,6 +402,14 @@ class Update_API {
 			return;
 		}
 
+		/**
+		 * Filter the package update remote check frequency set in the configuration.
+		 * Fired during client update API request.
+		 *
+		 * @param string $frequency The frequency set in the configuration.
+		 * @param string $package_slug The slug of the package to check for updates.
+		 * @since 1.0.0
+		 */
 		$frequency = apply_filters(
 			'upserv_check_remote_frequency',
 			$vcs_config['check_frequency'],
@@ -252,6 +424,18 @@ class Update_API {
 			$params
 		);
 
+		/**
+		 * Fired after a remote check event has been scheduled for a package.
+		 * Fired during client update API request.
+		 *
+		 * @param bool $result Whether the event was scheduled.
+		 * @param string $package_slug Slug of the package for which the event was scheduled.
+		 * @param int $timestamp Timestamp for when to run the event the first time after it's been scheduled.
+		 * @param string $frequency Frequency at which the event would be ran.
+		 * @param string $hook Event hook to fire when the event is ran.
+		 * @param array $params Parameters passed to the actions registered to $hook when the event is ran.
+		 * @since 1.0.0
+		 */
 		do_action(
 			'upserv_scheduled_check_remote_event',
 			$result,
@@ -263,6 +447,13 @@ class Update_API {
 		);
 	}
 
+	/**
+	 * Handle API requests
+	 *
+	 * Process and respond to Update API requests.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function handle_api_request() {
 		global $wp;
 
@@ -288,6 +479,13 @@ class Update_API {
 				ARRAY_FILTER_USE_KEY
 			)
 		);
+		/**
+		 * Filter the parameters used to handle the request made by a client plugin, theme, or generic package to the plugin's API.
+		 * Fired during client update API request.
+		 *
+		 * @param array $params The parameters of the request to the API.
+		 * @since 1.0.0
+		 */
 		$params = apply_filters( 'upserv_handle_update_request_params', array_merge( $query, $params ) );
 
 		$this->init_server( $params['slug'] );
@@ -303,10 +501,25 @@ class Update_API {
 			);
 		}
 
+		/**
+		 * Fired before handling the request made by a client plugin, theme, or generic package to the plugin's API.
+		 * Fired during client update API request.
+		 *
+		 * @param array $request_params The parameters or the request to the API.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_before_handle_update_request', $params );
 		$this->update_server->handle_request( $params );
 	}
 
+	/**
+	 * Initialize update server
+	 *
+	 * Set up the update server for a specific package.
+	 *
+	 * @param string $slug The package slug.
+	 * @since 1.0.0
+	 */
 	protected function init_server( $slug ) {
 		$check_manual = false;
 
@@ -341,13 +554,31 @@ class Update_API {
 			'directory'   => Data_Manager::get_data_dir(),
 			'vcs_config'  => isset( $vcs_config ) ? $vcs_config : null,
 		);
+		/**
+		 * Filter the class name to use to instantiate a `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object.
+		 * Fired during client update API request.
+		 *
+		 * @param string $class_name The class name to use to instantiate a `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object.
+		 * @param string $package_slug The slug of the package to serve.
+		 * @param array $config The configuration to use to serve the package.
+		 * @since 1.0.0
+		 */
 		$_class_name = apply_filters(
 			'upserv_server_class_name',
 			str_replace( 'API', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
 			$slug,
 			$filter_args
 		);
-		$args        = apply_filters(
+		/**
+		 * Filter the arguments to pass to the constructor of the `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object.
+		 * Fired during client update API request.
+		 *
+		 * @param array $args The arguments to pass to the constructor of the `Anyape\UpdatePulse\Server\Server\Update\Update_Server` object.
+		 * @param string $package_slug The slug of the package to serve.
+		 * @param array $config The configuration to use to serve the package.
+		 * @since 1.0.0
+		 */
+		$args = apply_filters(
 			'upserv_server_constructor_args',
 			array(
 				home_url( '/updatepulse-server-update-api/' ),
