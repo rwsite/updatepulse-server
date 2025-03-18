@@ -14,15 +14,50 @@ use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Server\Update\Invalid_Package_Exception;
 use Anyape\Utils\Utils;
 
+/**
+ * Package API class
+ *
+ * @since 1.0.0
+ */
 class Package_API {
 
-	protected $http_response_code = 200;
-	protected $api_key_id;
-	protected $api_access;
-
+	/**
+	 * Is doing API request
+	 *
+	 * @var bool|null
+	 */
 	protected static $doing_api_request = null;
+	/**
+	 * Instance
+	 *
+	 * @var Package_API|null
+	 */
 	protected static $instance;
+	/**
+	 * Config
+	 *
+	 * @var array|null
+	 */
 	protected static $config;
+
+	/**
+	 * HTTP response code
+	 *
+	 * @var int|null
+	 */
+	protected $http_response_code = 200;
+	/**
+	 * API key ID
+	 *
+	 * @var string|null
+	 */
+	protected $api_key_id;
+	/**
+	 * API access
+	 *
+	 * @var array|null
+	 */
+	protected $api_access;
 
 	public function __construct( $init_hooks = false ) {
 
@@ -63,6 +98,11 @@ class Package_API {
 		 */
 		$result = apply_filters( 'upserv_package_browse', $result, $query );
 
+		/**
+		 * Fired after the `browse` Package API action.
+		 *
+		 * @param array $result the result of the action
+		 */
 		do_action( 'upserv_did_browse_package', $result );
 
 		if ( empty( $result ) ) {
@@ -103,6 +143,11 @@ class Package_API {
 		 */
 		$result = apply_filters( 'upserv_package_read', $result, $package_id, $type );
 
+		/**
+		 * Fired after the `read` Package API action.
+		 *
+		 * @param array $result the result of the action
+		 */
 		do_action( 'upserv_did_read_package', $result );
 
 		if ( ! $result ) {
@@ -162,6 +207,11 @@ class Package_API {
 				'message' => __( 'Package could not be edited - invalid parameters.', 'updatepulse-server' ),
 			);
 		} else {
+			/**
+			 * Fired after the `edit` Package API action.
+			 *
+			 * @param array $result the result of the action
+			 */
 			do_action( 'upserv_did_edit_package', $result );
 		}
 
@@ -214,6 +264,11 @@ class Package_API {
 				'message' => __( 'Package could not be added - invalid parameters.', 'updatepulse-server' ),
 			);
 		} else {
+			/**
+			 * Fired after the `add` Package API action.
+			 *
+			 * @param array $result the result of the action
+			 */
 			do_action( 'upserv_did_add_package', $result );
 		}
 
@@ -221,6 +276,12 @@ class Package_API {
 	}
 
 	public function delete( $package_id, $type ) {
+		/**
+		 * Fired before the `delete` Package API action.
+		 *
+		 * @param string $package_slug the slug of the package to be deleted
+		 * @param string $type the type of the package to be deleted
+		 */
 		do_action( 'upserv_pre_delete_package', $package_id, $type );
 
 		$result = upserv_delete_package( $package_id );
@@ -235,6 +296,13 @@ class Package_API {
 		$result = apply_filters( 'upserv_package_delete', $result, $package_id, $type );
 
 		if ( $result ) {
+			/**
+			 * Fired after the `delete` Package API action.
+			 *
+			 * @param bool $result the result of the `delete` operation
+			 * @param string $package_slug the slug of the deleted package
+			 * @param string $type the type of the deleted package
+			 */
 			do_action( 'upserv_did_delete_package', $result, $package_id, $type );
 		} else {
 			$this->http_response_code = 404;
@@ -261,6 +329,11 @@ class Package_API {
 		}
 
 		upserv_download_local_package( $package_id, $path, false );
+		/**
+		 * Fired after the `download` Package API action.
+		 *
+		 * @param string $package_slug the slug of the downloaded package
+		 */
 		do_action( 'upserv_did_download_package', $package_id );
 
 		exit;
@@ -317,6 +390,11 @@ class Package_API {
 		);
 
 		if ( $result ) {
+			/**
+			 * Fired after the `signed_url` Package API action.
+			 *
+			 * @param array $result the result of the action
+			 */
 			do_action( 'upserv_did_signed_url_package', $result );
 		} else {
 			$this->http_response_code = 404;
@@ -584,6 +662,12 @@ class Package_API {
 			self::$config = $config;
 		}
 
+		/**
+		 * Filter the configuration of the Package API.
+		 *
+		 * @param array $config The configuration of the Package API
+		 * @return array The filtered configuration
+		 */
 		return apply_filters( 'upserv_package_api_config', self::$config );
 	}
 
@@ -710,6 +794,14 @@ class Package_API {
 			upserv_set_package_metadata( $package_id, $meta );
 		}
 
+		/**
+		 * Fired after an attempt to save a downloaded package on the file system has been performed.
+		 * Fired during client update API request.
+		 *
+		 * @param bool $result `true` in case of success, `false` otherwise
+		 * @param string $type type of the saved package - `"Plugin"`, `"Theme"`, or `"Generic"`
+		 * @param string $package_slug slug of the saved package
+		 */
 		do_action( 'upserv_saved_remote_package_to_local', true, $type, $package_id );
 
 		return $result;
@@ -781,6 +873,13 @@ class Package_API {
 	}
 
 	protected function is_api_public( $method ) {
+		/**
+		 * Filter the public API actions; public actions can be accessed via the `GET` method and a token,
+		 * all other actions are considered private and can only be accessed via the `POST` method.
+		 *
+		 * @param array $public_api_actions The public API actions
+		 * @return array The filtered public API actions
+		 */
 		$public_api    = apply_filters(
 			'upserv_package_public_api_actions',
 			array( 'download' )
@@ -819,6 +918,14 @@ class Package_API {
 			}
 
 			if ( ! $malformed_request ) {
+				/**
+				 * Filter whether the Package API request is authorized
+				 *
+				 * @param bool $authorized Whether the Package API request is authorized
+				 * @param string $method The method of the request - `GET` or `POST`
+				 * @param array $payload The payload of the request
+				 * @return bool The filtered authorization status
+				 */
 				$authorized = apply_filters(
 					'upserv_package_api_request_authorized',
 					(
@@ -836,6 +943,12 @@ class Package_API {
 				);
 
 				if ( $authorized ) {
+					/**
+					 * Fired before the Package API request is processed; useful to bypass the execution of currently implemented actions, or implement new actions.
+					 *
+					 * @param string $action the Package API action
+					 * @param array $payload the payload of the request
+					 */
 					do_action( 'upserv_package_api_request', $method, $payload );
 
 					if ( method_exists( $this, $method ) ) {
