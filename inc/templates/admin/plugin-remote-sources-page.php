@@ -183,7 +183,7 @@
 							);
 							?>
 							<br>
-							<?php esc_html_e( 'Note that UpdatePulse Server does not rely on the content of the payload to schedule a package download, so any type of event can be used to trigger the Webhook.', 'updatepulse-server' ); ?>
+							<?php esc_html_e( 'Note that UpdatePulse Server relies on the content of the push event to schedule a package download.', 'updatepulse-server' ); ?>
 						</p>
 					</td>
 				</tr>
