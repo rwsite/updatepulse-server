@@ -14,46 +14,46 @@ use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 use Anyape\Utils\Utils;
 
 /**
- *Webhook API class
+ * Webhook API class
  *
- *@since 1.0.0
+ * @since 1.0.0
  */
 class Webhook_API {
 
 	/**
-	 *Is doing API request
+	 * Is doing API request
 	 *
-	 *@var bool|null
+	 * @var bool|null
 	 */
 	protected static $doing_api_request = null;
 
 	/**
-	 *Instance
+	 * Instance
 	 *
-	 *@var Webhook_API|null
+	 * @var Webhook_API|null
 	 */
 	protected static $instance;
 
 	/**
-	 *Webhooks configuration
+	 * Webhooks configuration
 	 *
-	 *@var array
+	 * @var array
 	 */
 	protected $webhooks;
 
 	/**
-	 *HTTP response code
+	 * HTTP response code
 	 *
-	 *@var int
+	 * @var int
 	 */
 	protected $http_response_code = 200;
 
 	/**
-	 *Constructor
+	 * Constructor
 	 *
-	 *@since 1.0.0
+	 * @since 1.0.0
 	 *
-	 *@param boolean $init_hooks Whether to initialize hooks
+	 * @param boolean $init_hooks Whether to initialize hooks
 	 */
 	public function __construct( $init_hooks = false ) {
 		$this->webhooks = upserv_get_option( 'api/webhooks', array() );
