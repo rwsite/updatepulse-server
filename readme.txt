@@ -121,6 +121,9 @@ This section describes how to install the plugin and get it working.
 
 = 1.0.6 =
 * Fix webhook payload handling (thanks @eHtmlu on github)
+* Fix webhook payload scheduling (thanks @BabaYaga0179 on github)
+* Implement a VCS candidates logic to handle events that do not specify a branch; gracefully fail with a message in the response if multiple candidates are found
+* Major in-code and .md documentation improvements
 
 = 1.0.5 =
 * Fix JSON details modal view - escaping characters
