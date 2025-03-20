@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdatePulse Server\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-20 00:10+0000\n"
+"POT-Creation-Date: 2025-03-20 03:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -722,7 +722,7 @@ msgid "Failed to create the necessary database table(s)."
 msgstr ""
 
 #. %s: package ID
-#: inc/api/class-webhook-api.php:595
+#: inc/api/class-webhook-api.php:615
 #, php-format
 msgid "Failed to download package %s."
 msgstr ""
@@ -732,7 +732,7 @@ msgid "Failed to insert the license record in the database."
 msgstr ""
 
 #. %s: package ID
-#: inc/api/class-webhook-api.php:568
+#: inc/api/class-webhook-api.php:588
 #, php-format
 msgid "Failed to sechedule download for package %s."
 msgstr ""
@@ -1027,7 +1027,7 @@ msgstr ""
 msgid "Invalid relationship operator. Only \"AND\" and \"OR\" are allowed."
 msgstr ""
 
-#: inc/api/class-webhook-api.php:623
+#: inc/api/class-webhook-api.php:643
 msgid "Invalid request"
 msgstr ""
 
@@ -1258,6 +1258,14 @@ msgstr ""
 msgid "More help..."
 msgstr ""
 
+#: inc/api/class-webhook-api.php:649
+msgid ""
+"Multiple candidate VCS configurations found ; the event has not be processed."
+" Please limit the events sent to the webhook to events specifying the branch "
+"in their payload (such as push), or update your UpdatePulse Server VCS "
+"configuration to avoid branch conflicts."
+msgstr ""
+
 #. %1$s is <code>https://version-control-system.tld/identifier/</code>, %2$s is <code>identifier</code>
 #: inc/templates/admin/plugin-remote-sources-page.php:74
 #: inc/templates/admin/plugin-remote-sources-page.php:274
@@ -1386,13 +1394,13 @@ msgid "Owner Name"
 msgstr ""
 
 #. %1$s: package ID, %2$s: scheduled date and time
-#: inc/api/class-webhook-api.php:559
+#: inc/api/class-webhook-api.php:579
 #, php-format
 msgid "Package %1$s has been scheduled for download: %2$s."
 msgstr ""
 
 #. %s: package ID
-#: inc/api/class-webhook-api.php:587
+#: inc/api/class-webhook-api.php:607
 #, php-format
 msgid "Package %s downloaded."
 msgstr ""
@@ -2087,7 +2095,7 @@ msgid ""
 " and NOT IN operators."
 msgstr ""
 
-#: functions.php:1138 inc/api/class-webhook-api.php:235
+#: functions.php:1138 inc/api/class-webhook-api.php:239
 msgid "The webhook payload must contain an event string and a content."
 msgstr ""
 

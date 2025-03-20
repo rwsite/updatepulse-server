@@ -166,6 +166,8 @@ class Webhook_API {
 	 * Process webhook requests
 	 *
 	 * Determine whether to process webhook requests based on branch matching.
+	 * If no branch is specified, the request will be processed to account for events
+	 * registered to the webhook that do not have a branch associated with them.
 	 *
 	 * @param bool $process Current process status.
 	 * @param array $payload Request payload.
@@ -176,7 +178,9 @@ class Webhook_API {
 	 * @return bool Whether to process the webhook request.
 	 */
 	public function upserv_webhook_process_request( $process, $payload, $slug, $type, $package_exists, $vcs_config ) {
-		return $this->get_payload_vcs_branch( $payload ) === $vcs_config['branch'];
+		$branch = $this->get_payload_vcs_branch( $payload );
+
+		return $process && ( $branch === $vcs_config['branch'] || ! $branch );
 	}
 
 	// Misc. -------------------------------------------------------
@@ -405,13 +409,29 @@ class Webhook_API {
 			$this->handle_remote_test();
 		}
 
-		$response    = array();
-		$payload     = $this->get_payload();
-		$url         = $this->get_payload_vcs_url( $payload );
-		$branch      = $this->get_payload_vcs_branch( $payload );
-		$vcs_configs = upserv_get_option( 'vcs', array() );
-		$vcs_key     = hash( 'sha256', trailingslashit( $url ) . '|' . $branch );
-		$vcs_config  = isset( $vcs_configs[ $vcs_key ] ) ? $vcs_configs[ $vcs_key ] : false;
+		$response       = array();
+		$payload        = $this->get_payload();
+		$url            = $this->get_payload_vcs_url( $payload );
+		$branch         = $this->get_payload_vcs_branch( $payload );
+		$vcs_configs    = upserv_get_option( 'vcs', array() );
+		$vcs_key        = hash( 'sha256', trailingslashit( $url ) . '|' . $branch );
+		$vcs_config     = isset( $vcs_configs[ $vcs_key ] ) ? $vcs_configs[ $vcs_key ] : false;
+		$vcs_candidates = $vcs_config ? array( $vcs_key => $vcs_config ) : array();
+
+		if ( empty( $vcs_candidates ) ) {
+
+			foreach ( $vcs_configs as $config ) {
+
+				if ( 0 === strpos( $config['url'], trailingslashit( $url ) ) ) {
+					$vcs_candidates[] = $config;
+					$vcs_candidates[] = $config;
+				}
+			}
+		}
+
+		if ( 1 === count( $vcs_candidates ) ) {
+			$vcs_config = reset( $vcs_candidates );
+		}
 
 		/**
 		 * Fired before handling a webhook request; fired whether it will be processed or not.
@@ -420,7 +440,7 @@ class Webhook_API {
 		 */
 		do_action( 'upserv_webhook_before_handling_request', $vcs_config );
 
-		if ( $this->validate_request( $vcs_config ) ) {
+		if ( $vcs_config && $this->validate_request( $vcs_config ) ) {
 			$slug           = isset( $wp->query_vars['slug'] ) ?
 				trim( rawurldecode( $wp->query_vars['slug'] ) ) :
 				null;
@@ -616,13 +636,30 @@ class Webhook_API {
 					$vcs_config
 				);
 			}
-		} else {
+		} elseif ( empty( $vcs_candidates ) ) {
 			$this->http_response_code = 403;
 			$response                 = array(
-				'code'    => 'unauthorized',
+				'code'    => 'invalid_request',
 				'message' => __( 'Invalid request', 'updatepulse-server' ),
 			);
-
+		} elseif ( 1 < count( $vcs_candidates ) ) {
+			$this->http_response_code = 409;
+			$response                 = array(
+				'code'    => 'conflict',
+				'message' => __( 'Multiple candidate VCS configurations found ; the event has not be processed. Please limit the events sent to the webhook to events specifying the branch in their payload (such as push), or update your UpdatePulse Server VCS configuration to avoid branch conflicts.', 'updatepulse-server' ),
+				'details' => array(
+					'vcs_candidates' => array_map(
+						function ( $config ) {
+							return array(
+								'url'    => $config['url'],
+								'branch' => $config['branch'],
+							);
+						},
+						$vcs_candidates
+					),
+				),
+			);
+		} else {
 			/**
 			 * Fired when a webhook request is invalid.
 			 *
@@ -631,9 +668,7 @@ class Webhook_API {
 			do_action( 'upserv_webhook_invalid_request', $vcs_config );
 		}
 
-		if ( 200 === $this->http_response_code ) {
-			$response['time_elapsed'] = Utils::get_time_elapsed();
-		}
+		$response['time_elapsed'] = Utils::get_time_elapsed();
 
 		/**
 		 * Filter the response data to send to the Version Control System after handling the webhook request.
@@ -666,7 +701,7 @@ class Webhook_API {
 	protected function validate_request( $vcs_config ) {
 		$valid  = false;
 		$sign   = false;
-		$secret = $vcs_config && isset( $vcs_config['webhook_secret'] ) ? $vcs_config['webhook_secret'] : false;
+		$secret = isset( $vcs_config['webhook_secret'] ) ? $vcs_config['webhook_secret'] : false;
 
 		/**
 		 * Filter the webhook secret used for request validation.
@@ -677,7 +712,7 @@ class Webhook_API {
 		 */
 		$secret = apply_filters( 'upserv_webhook_secret', $secret, $vcs_config );
 
-		if ( ! $vcs_config || ! $secret ) {
+		if ( ! $secret ) {
 			/**
 			 * Filter whether the webhook request is valid after validation.
 			 *
@@ -833,8 +868,40 @@ class Webhook_API {
 				'',
 				$payload['push']['changes'][0]['new']['name']
 			);
+		} elseif ( isset( $payload['ref'] ) ) {
+			$branch = str_replace( 'refs/heads/', '', $payload['ref'] );
+		} else {
+			$branch = $this->find_branch_recursively( $payload );
 		}
 
 		return $branch;
+	}
+
+	/**
+	 * Recursively search for branch references in payload
+	 *
+	 * Search through nested arrays to find values starting with 'refs/heads/'.
+	 *
+	 * @param mixed $data Part of the payload to search through.
+	 * @return string|false Branch name or false if not found.
+	 */
+	protected function find_branch_recursively( $data ) {
+
+		if ( is_string( $data ) && 0 === strpos( $data, 'refs/heads/' ) ) {
+			return str_replace( 'refs/heads/', '', $data );
+		}
+
+		if ( is_array( $data ) ) {
+
+			foreach ( $data as $value ) {
+				$result = $this->find_branch_recursively( $value );
+
+				if ( false === $result ) {
+					return $result;
+				}
+			}
+		}
+
+		return false;
 	}
 }
