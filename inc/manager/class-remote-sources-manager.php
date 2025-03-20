@@ -89,7 +89,7 @@ class Remote_Sources_Manager {
 
 		foreach ( $vcs_configs as $vcs_c ) {
 
-			if ( $vcs_c['use_webhooks'] || ! isset( $vcs_c['url'] ) ) {
+			if ( ! isset( $vcs_c['url'] ) ) {
 				continue;
 			}
 
