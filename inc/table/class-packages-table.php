@@ -9,14 +9,51 @@ if ( ! defined( 'ABSPATH' ) ) {
 use WP_List_Table;
 use DateTimeZone;
 
+/**
+ * Packages Table class
+ *
+ * Manages the display of packages in the admin area
+ *
+ * @since 1.0.0
+ */
 class Packages_Table extends WP_List_Table {
 
+	/**
+	 * Bulk action error message
+	 *
+	 * @var string|null
+	 * @since 1.0.0
+	 */
 	public $bulk_action_error;
+	/**
+	 * Nonce action name
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	public $nonce_action;
 
+	/**
+	 * Table rows data
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $rows;
+	/**
+	 * Package manager instance
+	 *
+	 * @var object
+	 * @since 1.0.0
+	 */
 	protected $package_manager;
 
+	/**
+	 * Constructor
+	 *
+	 * @param object $package_manager The package manager instance
+	 * @since 1.0.0
+	 */
 	public function __construct( $package_manager ) {
 		parent::__construct(
 			array(
@@ -36,7 +73,22 @@ class Packages_Table extends WP_List_Table {
 
 	// Overrides ---------------------------------------------------
 
+	/**
+	 * Get table columns
+	 *
+	 * Define the columns shown in the packages table.
+	 *
+	 * @return array Table columns
+	 * @since 1.0.0
+	 */
 	public function get_columns() {
+		/**
+		 * Filter the columns shown in the packages table.
+		 *
+		 * @param array $columns The default columns for the packages table
+		 * @return array The filtered columns
+		 * @since 1.0.0
+		 */
 		$columns = apply_filters(
 			'upserv_packages_table_columns',
 			array(
@@ -54,11 +106,36 @@ class Packages_Table extends WP_List_Table {
 		return $columns;
 	}
 
+	/**
+	 * Default column renderer
+	 *
+	 * Default handler for columns without specific renderers.
+	 *
+	 * @param array $item The current row item
+	 * @param string $column_name The current column name
+	 * @return mixed Column content
+	 * @since 1.0.0
+	 */
 	public function column_default( $item, $column_name ) {
 		return $item[ $column_name ];
 	}
 
+	/**
+	 * Get sortable columns
+	 *
+	 * Define which columns can be sorted in the table.
+	 *
+	 * @return array Sortable columns configuration
+	 * @since 1.0.0
+	 */
 	public function get_sortable_columns() {
+		/**
+		 * Filter the sortable columns in the packages table.
+		 *
+		 * @param array $columns The default sortable columns
+		 * @return array The filtered sortable columns
+		 * @since 1.0.0
+		 */
 		$columns = apply_filters(
 			'upserv_packages_table_sortable_columns',
 			array(
@@ -75,6 +152,13 @@ class Packages_Table extends WP_List_Table {
 		return $columns;
 	}
 
+	/**
+	 * Prepare table items
+	 *
+	 * Process data for table display including pagination.
+	 *
+	 * @since 1.0.0
+	 */
 	public function prepare_items() {
 		$total_items = count( $this->rows );
 		$offset      = 0;
@@ -111,7 +195,13 @@ class Packages_Table extends WP_List_Table {
 		uasort( $this->items, array( &$this, 'uasort_reorder' ) );
 	}
 
-
+	/**
+	 * Display table rows
+	 *
+	 * Render the rows of the packages table.
+	 *
+	 * @since 1.0.0
+	 */
 	public function display_rows() {
 		$records = $this->items;
 		$table   = $this;
@@ -206,10 +296,28 @@ class Packages_Table extends WP_List_Table {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Set table rows
+	 *
+	 * Set the rows data for the table.
+	 *
+	 * @param array $rows Table rows data
+	 * @since 1.0.0
+	 */
 	public function set_rows( $rows ) {
 		$this->rows = $rows;
 	}
 
+	/**
+	 * Custom sorting function
+	 *
+	 * Sort table items based on request parameters.
+	 *
+	 * @param array $a First item to compare
+	 * @param array $b Second item to compare
+	 * @return int Comparison result
+	 * @since 1.0.0
+	 */
 	public function uasort_reorder( $a, $b ) {
 		$order_by = ! empty( $_REQUEST['orderby'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['orderby'] ) ) : 'name'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$order    = ! empty( $_REQUEST['order'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['order'] ) ) : 'asc'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -242,6 +350,14 @@ class Packages_Table extends WP_List_Table {
 
 	// Overrides ---------------------------------------------------
 
+	/**
+	 * Display extra table navigation
+	 *
+	 * Add additional controls above or below the table.
+	 *
+	 * @param string $which Position ('top' or 'bottom')
+	 * @since 1.0.0
+	 */
 	protected function extra_tablenav( $which ) {
 
 		if ( 'top' === $which ) {
@@ -258,6 +374,14 @@ class Packages_Table extends WP_List_Table {
 		}
 	}
 
+	/**
+	 * Get table CSS classes
+	 *
+	 * Define the CSS classes for the table.
+	 *
+	 * @return array Table CSS classes
+	 * @since 1.0.0
+	 */
 	protected function get_table_classes() {
 		$mode       = get_user_setting( 'posts_list_mode', 'list' );
 		$mode_class = esc_attr( 'table-view-' . $mode );
@@ -265,7 +389,22 @@ class Packages_Table extends WP_List_Table {
 		return array( 'widefat', 'striped', $mode_class, $this->_args['plural'] );
 	}
 
+	/**
+	 * Get bulk actions
+	 *
+	 * Define available bulk actions for the table.
+	 *
+	 * @return array Bulk actions
+	 * @since 1.0.0
+	 */
 	protected function get_bulk_actions() {
+		/**
+		 * Filter the bulk actions available in the packages table.
+		 *
+		 * @param array $actions The default bulk actions
+		 * @return array The filtered bulk actions
+		 * @since 1.0.0
+		 */
 		$actions = apply_filters(
 			'upserv_packages_table_bulk_actions',
 			array(
@@ -277,6 +416,15 @@ class Packages_Table extends WP_List_Table {
 		return $actions;
 	}
 
+	/**
+	 * Get VCS icon class
+	 *
+	 * Get the appropriate icon class for a VCS provider.
+	 *
+	 * @param array $vcs_config VCS configuration
+	 * @return string CSS class for the VCS icon
+	 * @since 1.0.0
+	 */
 	protected function get_vcs_class( $vcs_config ) {
 
 		switch ( $vcs_config['type'] ) {

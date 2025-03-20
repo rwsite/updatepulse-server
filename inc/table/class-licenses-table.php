@@ -9,13 +9,43 @@ if ( ! defined( 'ABSPATH' ) ) {
 use WP_List_Table;
 use Anyape\Utils\Utils;
 
+/**
+ * Licenses table class
+ *
+ * @since 1.0.0
+ */
 class Licenses_Table extends WP_List_Table {
 
+	/**
+	 * Bulk action error
+	 *
+	 * @var mixed
+	 * @since 1.0.0
+	 */
 	public $bulk_action_error;
+	/**
+	 * Nonce action name
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	public $nonce_action;
 
+	/**
+	 * Table rows data
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $rows;
 
+	/**
+	 * Constructor
+	 *
+	 * Sets up the table properties and hooks
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 		parent::__construct(
 			array(
@@ -34,6 +64,14 @@ class Licenses_Table extends WP_List_Table {
 
 	// Overrides ---------------------------------------------------
 
+	/**
+	 * Get table columns
+	 *
+	 * Define the columns for the licenses table
+	 *
+	 * @return array The table columns
+	 * @since 1.0.0
+	 */
 	public function get_columns() {
 		return array(
 			'cb'               => '<input type="checkbox" />',
@@ -48,10 +86,28 @@ class Licenses_Table extends WP_List_Table {
 		);
 	}
 
+	/**
+	 * Default column rendering
+	 *
+	 * Default handler for displaying column data
+	 *
+	 * @param array $item The row item
+	 * @param string $column_name The column name
+	 * @return mixed The column value
+	 * @since 1.0.0
+	 */
 	public function column_default( $item, $column_name ) {
 		return $item[ $column_name ];
 	}
 
+	/**
+	 * Get sortable columns
+	 *
+	 * Define which columns can be sorted
+	 *
+	 * @return array The sortable columns
+	 * @since 1.0.0
+	 */
 	public function get_sortable_columns() {
 		return array(
 			'col_status'       => array( 'status', false ),
@@ -64,6 +120,13 @@ class Licenses_Table extends WP_List_Table {
 		);
 	}
 
+	/**
+	 * Prepare table items
+	 *
+	 * Query the database and set up the items for display
+	 *
+	 * @since 1.0.0
+	 */
 	public function prepare_items() {
 		global $wpdb;
 
@@ -174,6 +237,13 @@ class Licenses_Table extends WP_List_Table {
 		$this->items = $items;
 	}
 
+	/**
+	 * Display table rows
+	 *
+	 * Output the HTML for each row in the table
+	 *
+	 * @since 1.0.0
+	 */
 	public function display_rows() {
 		$records = $this->items;
 		$table   = $this;
@@ -214,6 +284,14 @@ class Licenses_Table extends WP_List_Table {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Set table rows
+	 *
+	 * Set the row data for the table
+	 *
+	 * @param array $rows The rows data
+	 * @since 1.0.0
+	 */
 	public function set_rows( $rows ) {
 		$this->rows = $rows;
 	}
@@ -224,6 +302,16 @@ class Licenses_Table extends WP_List_Table {
 
 	// Overrides ---------------------------------------------------
 
+	/**
+	 * Generate row actions
+	 *
+	 * Create action links for each row
+	 *
+	 * @param array $actions The actions array
+	 * @param bool $always_visible Whether actions should be always visible
+	 * @return string HTML for the row actions
+	 * @since 1.0.0
+	 */
 	protected function row_actions( $actions, $always_visible = false ) {
 		$action_count = count( $actions );
 		$i            = 0;
@@ -248,6 +336,14 @@ class Licenses_Table extends WP_List_Table {
 		return $out;
 	}
 
+	/**
+	 * Display extra tablenav
+	 *
+	 * Add additional controls above or below the table
+	 *
+	 * @param string $which The location ('top' or 'bottom')
+	 * @since 1.0.0
+	 */
 	protected function extra_tablenav( $which ) {
 
 		if ( 'bottom' === $which ) {
@@ -255,6 +351,14 @@ class Licenses_Table extends WP_List_Table {
 		}
 	}
 
+	/**
+	 * Get bulk actions
+	 *
+	 * Define available bulk actions for the table
+	 *
+	 * @return array The available bulk actions
+	 * @since 1.0.0
+	 */
 	protected function get_bulk_actions() {
 		$actions = array(
 			'pending'     => __( 'Set to Pending', 'updatepulse-server' ),
@@ -268,6 +372,14 @@ class Licenses_Table extends WP_List_Table {
 		return $actions;
 	}
 
+	/**
+	 * Get table classes
+	 *
+	 * Define CSS classes for the table
+	 *
+	 * @return array The table CSS classes
+	 * @since 1.0.0
+	 */
 	protected function get_table_classes() {
 		$mode = get_user_setting( 'posts_list_mode', 'list' );
 

@@ -288,6 +288,13 @@ class Update_Server {
 			}
 		}
 
+		/**
+		 * Fires after pre-filtering package information
+		 *
+		 * Allows developers to perform actions after the package information has been initially filtered.
+		 *
+		 * @param array $info The package information array after pre-filtering
+		 */
 		do_action( 'upserv_pre_filter_package_info', $info );
 
 		return $info;
@@ -314,6 +321,13 @@ class Update_Server {
 		 */
 		$info = apply_filters( 'upserv_filter_package_info', $info, $this->filter_packages_file_content );
 
+		/**
+		 * Fires after filtering package information
+		 *
+		 * Allows developers to perform actions after the package information has been filtered.
+		 *
+		 * @param array $info The package information array after filtering
+		 */
 		do_action( 'upserv_filter_package_info', $info );
 
 		return $info;
@@ -365,6 +379,13 @@ class Update_Server {
 					) ) {
 						$this->remove_package( $safe_slug, true );
 
+						/**
+						 * Fires when a remote package download is aborted
+						 *
+						 * @param string $safe_slug The sanitized package slug
+						 * @param string $type The package type
+						 * @param array $info The package information
+						 */
 						do_action( 'upserv_download_remote_package_aborted', $safe_slug, $this->type, $info );
 
 						return $info;
@@ -375,6 +396,13 @@ class Update_Server {
 
 						$package = $this->download_remote_package( $info['download_url'] );
 
+						/**
+						 * Fires after a remote package has been downloaded
+						 *
+						 * @param string $package Path to the downloaded package file
+						 * @param string $type The package type
+						 * @param string $safe_slug The sanitized package slug
+						 */
 						do_action( 'upserv_downloaded_remote_package', $package, $info['type'], $safe_slug );
 
 						$package_manager = new Zip_Package_Manager(
@@ -385,6 +413,13 @@ class Update_Server {
 						);
 						$local_ready     = $package_manager->clean_package();
 
+						/**
+						 * Fires after a remote package has been saved to local storage
+						 *
+						 * @param bool $local_ready Whether the package was successfully saved locally
+						 * @param string $type The package type
+						 * @param string $safe_slug The sanitized package slug
+						 */
 						do_action(
 							'upserv_saved_remote_package_to_local',
 							$local_ready,
@@ -429,6 +464,11 @@ class Update_Server {
 	 * @since 1.0.0
 	 */
 	public function check_remote_package_update( $slug ) {
+		/**
+		 * Fires before checking if a remote package needs to be updated
+		 *
+		 * @param string $slug The package slug
+		 */
 		do_action( 'upserv_check_remote_update', $slug );
 
 		$needs_update  = true;
@@ -491,6 +531,13 @@ class Update_Server {
 			$needs_update = null;
 		}
 
+		/**
+		 * Fires after checking if a remote package needs to be updated
+		 *
+		 * @param bool|null $needs_update Whether the package needs to be updated
+		 * @param string $type The package type
+		 * @param string $slug The package slug
+		 */
 		do_action( 'upserv_checked_remote_package_update', $needs_update, $this->type, $slug );
 
 		return $needs_update;
@@ -552,6 +599,13 @@ class Update_Server {
 			$this->cache->clear( $cache_key );
 		}
 
+		/**
+		 * Fires after a package has been removed
+		 *
+		 * @param bool $result Whether the package was successfully removed
+		 * @param string $type The package type
+		 * @param string $slug The package slug
+		 */
 		do_action( 'upserv_removed_package', $result, $type, $slug );
 		self::unlock_update_from_remote( $slug );
 
@@ -709,6 +763,11 @@ class Update_Server {
 	 * @since 1.0.0
 	 */
 	protected function action_download( Request $request ) {
+		/**
+		 * Fires when processing a download action
+		 *
+		 * @param Request $request The current request object
+		 */
 		do_action( 'upserv_update_server_action_download', $request );
 
 		/**
@@ -846,6 +905,13 @@ class Update_Server {
 			}
 
 			if ( null === $cached_value ) {
+				/**
+				 * Fires when no cached package metadata is available
+				 *
+				 * @param string $safe_slug The sanitized package slug
+				 * @param string $filename The local filename path
+				 * @param Cache $cache The cache instance
+				 */
 				do_action( 'upserv_find_package_no_cache', $safe_slug, $filename, $this->cache );
 			}
 

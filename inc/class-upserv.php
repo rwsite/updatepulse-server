@@ -11,12 +11,41 @@ use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\Manager\Package_Manager;
 use Anyape\Utils\Utils;
 
+/**
+ * Main server class for UpdatePulse
+ *
+ * @since 1.0.0
+ */
 class UPServ {
 
+	/**
+	 * Class instance
+	 *
+	 * @var UPServ|null
+	 * @since 1.0.0
+	 */
 	protected static $instance;
+	/**
+	 * Default plugin options
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected static $default_options;
+	/**
+	 * Current plugin options
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected static $options;
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize hooks
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 		self::$default_options = array(
 			'use_vcs'           => 0,
@@ -79,6 +108,16 @@ class UPServ {
 	 * Public methods
 	 *******************************************************************/
 
+	/**
+	 * Handle Action Scheduler failed execution
+	 *
+	 * Logs information about failed scheduled actions when debug mode is enabled.
+	 *
+	 * @param int $action_id The ID of the failed action
+	 * @param Exception $exception The exception that was thrown
+	 * @param string $context Additional context information
+	 * @since 1.0.0
+	 */
 	public function action_scheduler_failed_execution( $action_id, Exception $exception, $context = '' ) {
 
 		if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
@@ -96,6 +135,13 @@ class UPServ {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Activate plugin
+	 *
+	 * Runs on plugin activation to verify requirements and initialize settings.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function activate() {
 
 		if ( ! version_compare( phpversion(), '8.0', '>=' ) ) {
@@ -127,25 +173,70 @@ class UPServ {
 		}
 	}
 
+	/**
+	 * Deactivate plugin
+	 *
+	 * Runs on plugin deactivation.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function deactivate() {
 		flush_rewrite_rules();
 	}
 
+	/**
+	 * Uninstall plugin
+	 *
+	 * Runs on plugin uninstallation.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function uninstall() {
 		require_once UPSERV_PLUGIN_PATH . 'uninstall.php';
 	}
 
+	/**
+	 * Get all plugin options
+	 *
+	 * Retrieves the plugin's options from the database.
+	 *
+	 * @return array Plugin options
+	 * @since 1.0.0
+	 */
 	public function get_options() {
 		$options = get_option( 'upserv_options' );
 		$options = json_decode( $options, true );
 		$options = $options ? $options : array();
 		$options = array_merge( self::$default_options, $options );
 
+		/**
+		 * Filter the plugin options.
+		 *
+		 * @param array $options The plugin options
+		 * @return array The filtered options
+		 * @since 1.0.0
+		 */
 		return apply_filters( 'upserv_get_options', $options );
 	}
 
+	/**
+	 * Update plugin options
+	 *
+	 * Updates the plugin's options in the database.
+	 *
+	 * @param array $options New options to update
+	 * @return bool Whether the update was successful
+	 * @since 1.0.0
+	 */
 	public function update_options( $options ) {
 		$options = array_merge( self::$options, $options );
+		/**
+		 * Filter the options before updating.
+		 *
+		 * @param array $options The options to update
+		 * @return array The filtered options
+		 * @since 1.0.0
+		 */
 		$options = apply_filters( 'upserv_update_options', $options );
 		$options = wp_json_encode(
 			$options,
@@ -160,6 +251,16 @@ class UPServ {
 		return $result;
 	}
 
+	/**
+	 * Get single option value
+	 *
+	 * Retrieves a specific option by its path.
+	 *
+	 * @param string|array $path Option path
+	 * @param mixed $_default Default value if option not found
+	 * @return mixed Option value
+	 * @since 1.0.0
+	 */
 	public function get_option( $path, $_default ) {
 		$options = $this->get_options();
 		$option  = Utils::access_nested_array( $options, $path );
@@ -168,9 +269,27 @@ class UPServ {
 			$option = $_default;
 		}
 
+		/**
+		 * Filter a specific option value.
+		 *
+		 * @param mixed $option The option value
+		 * @param string|array $path The option path
+		 * @return mixed The filtered option value
+		 * @since 1.0.0
+		 */
 		return apply_filters( 'upserv_get_option', $option, $path );
 	}
 
+	/**
+	 * Set option in memory
+	 *
+	 * Sets an option value in memory without saving to database.
+	 *
+	 * @param string|array $path Option path
+	 * @param mixed $value Option value
+	 * @return array Updated options
+	 * @since 1.0.0
+	 */
 	public function set_option( $path, $value ) {
 		$options = self::$options;
 
@@ -181,6 +300,16 @@ class UPServ {
 		return self::$options;
 	}
 
+	/**
+	 * Update single option
+	 *
+	 * Updates a specific option by its path and saves to database.
+	 *
+	 * @param string|array $path Option path
+	 * @param mixed $value Option value
+	 * @return bool Whether the update was successful
+	 * @since 1.0.0
+	 */
 	public function update_option( $path, $value ) {
 		$options = $this->get_options();
 
@@ -189,6 +318,13 @@ class UPServ {
 		return $this->update_options( $options );
 	}
 
+	/**
+	 * Initialize plugin
+	 *
+	 * Runs during WordPress init hook to set up the plugin.
+	 *
+	 * @since 1.0.0
+	 */
 	public function init() {
 
 		if ( get_transient( 'upserv_flush' ) ) {
@@ -207,10 +343,26 @@ class UPServ {
 		}
 	}
 
+	/**
+	 * Load text domain
+	 *
+	 * Loads the plugin's translations.
+	 *
+	 * @since 1.0.0
+	 */
 	public function load_textdomain() {
 		load_plugin_textdomain( 'updatepulse-server', false, '/languages' );
 	}
 
+	/**
+	 * Register admin styles
+	 *
+	 * Adds stylesheets for the admin interface.
+	 *
+	 * @param array $styles Existing styles
+	 * @return array Modified styles
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_styles( $styles ) {
 		$styles['main']        = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/admin/main' . upserv_assets_suffix() . '.css',
@@ -232,6 +384,15 @@ class UPServ {
 		return $styles;
 	}
 
+	/**
+	 * Register admin scripts
+	 *
+	 * Adds JavaScript files for the admin interface.
+	 *
+	 * @param array $scripts Existing scripts
+	 * @return array Modified scripts
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_scripts( $scripts ) {
 		$scripts['main'] = array(
 			'path'   => UPSERV_PLUGIN_PATH . 'js/admin/main' . upserv_assets_suffix() . '.js',
@@ -246,6 +407,16 @@ class UPServ {
 		return $scripts;
 	}
 
+	/**
+	 * Process script localization
+	 *
+	 * Formats localization strings for JavaScript files.
+	 *
+	 * @param array $l10n Localization data
+	 * @param string $script Script name
+	 * @return array Modified localization data
+	 * @since 1.0.0
+	 */
 	public function upserv_scripts_l10n( $l10n, $script ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
 		foreach ( $l10n as $key => $values ) {
@@ -260,6 +431,14 @@ class UPServ {
 		return $l10n;
 	}
 
+	/**
+	 * Enqueue admin scripts and styles
+	 *
+	 * Loads the necessary assets for admin pages.
+	 *
+	 * @param string $hook Current admin page hook
+	 * @since 1.0.0
+	 */
 	public function admin_enqueue_scripts( $hook ) {
 
 		if ( false !== strpos( $hook, 'page_upserv' ) ) {
@@ -268,6 +447,13 @@ class UPServ {
 		}
 	}
 
+	/**
+	 * Register main admin menu
+	 *
+	 * Adds the main UpdatePulse menu item to the admin menu.
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_menu() {
 		$page_title = __( 'UpdatePulse', 'updatepulse-server' );
 		$menu_title = $page_title;
@@ -276,6 +462,13 @@ class UPServ {
 		add_menu_page( $page_title, $menu_title, 'manage_options', 'upserv-page', '', $icon );
 	}
 
+	/**
+	 * Register help page in admin menu
+	 *
+	 * Adds the help submenu to the UpdatePulse menu.
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_menu_help() {
 		$function   = array( $this, 'help_page' );
 		$page_title = __( 'UpdatePulse Server - Help', 'updatepulse-server' );
@@ -285,6 +478,15 @@ class UPServ {
 		add_submenu_page( 'upserv-page', $page_title, $menu_title, 'manage_options', $menu_slug, $function );
 	}
 
+	/**
+	 * Add tab links for admin interface
+	 *
+	 * Registers navigation tabs for the admin interface.
+	 *
+	 * @param array $links Existing tab links
+	 * @return array Modified tab links
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_links( $links ) {
 		$links['help'] = array(
 			admin_url( 'admin.php?page=upserv-page-help' ),
@@ -294,12 +496,31 @@ class UPServ {
 		return $links;
 	}
 
+	/**
+	 * Add tab states for admin interface
+	 *
+	 * Sets active states for navigation tabs.
+	 *
+	 * @param array $states Existing tab states
+	 * @param string $page Current page
+	 * @return array Modified tab states
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_states( $states, $page ) {
 		$states['help'] = 'upserv-page-help' === $page;
 
 		return $states;
 	}
 
+	/**
+	 * Add plugin action links
+	 *
+	 * Adds custom links to the plugin's entry in the plugins list.
+	 *
+	 * @param array $links Existing plugin action links
+	 * @return array Modified plugin action links
+	 * @since 1.0.0
+	 */
 	public function add_action_links( $links ) {
 		$link = array(
 			'<a href="' . admin_url( 'admin.php?page=upserv-page-help' ) . '">' . __( 'Help', 'updatepulse-server' ) . '</a>',
@@ -308,10 +529,28 @@ class UPServ {
 		return array_merge( $links, $link );
 	}
 
+	/**
+	 * Set action scheduler retention period
+	 *
+	 * Controls how long scheduled actions are kept in the database.
+	 *
+	 * @return int Retention period in seconds
+	 * @since 1.0.0
+	 */
 	public function action_scheduler_retention_period() {
 		return DAY_IN_SECONDS;
 	}
 
+	/**
+	 * Modify admin template arguments
+	 *
+	 * Adds or modifies arguments passed to admin templates.
+	 *
+	 * @param array $args Existing template arguments
+	 * @param string $template_name Name of the template
+	 * @return array Modified template arguments
+	 * @since 1.0.0
+	 */
 	public function upserv_get_admin_template_args( $args, $template_name ) {
 
 		if ( preg_match( '/^plugin-.*-page\.php$/', $template_name ) ) {
@@ -323,6 +562,14 @@ class UPServ {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Get class instance
+	 *
+	 * Retrieves or creates the singleton instance of this class.
+	 *
+	 * @return UPServ The class instance
+	 * @since 1.0.0
+	 */
 	public static function get_instance() {
 
 		if ( ! isset( self::$instance ) ) {
@@ -332,20 +579,47 @@ class UPServ {
 		return self::$instance;
 	}
 
+	/**
+	 * Locate template file
+	 *
+	 * Finds a template file in the theme or plugin directories.
+	 *
+	 * @param string $template_name Template name
+	 * @param bool $load Whether to load the template
+	 * @param bool $required_once Whether to use require_once or require
+	 * @return string Template path
+	 * @since 1.0.0
+	 */
 	public static function locate_template( $template_name, $load = false, $required_once = true ) {
-		$name     = str_replace( 'templates/', '', $template_name );
-		$paths    = array(
+		$name  = str_replace( 'templates/', '', $template_name );
+		$paths = array(
 			'plugins/updatepulse-server/templates/' . $name,
 			'plugins/updatepulse-server/' . $name,
 			'updatepulse-server/templates/' . $name,
 			'updatepulse-server/' . $name,
 		);
+		/**
+		 * Filter the paths where templates can be located.
+		 *
+		 * @param array $paths Array of template paths
+		 * @return array The filtered paths
+		 * @since 1.0.0
+		 */
 		$template = locate_template( apply_filters( 'upserv_locate_template_paths', $paths ) );
 
 		if ( empty( $template ) ) {
 			$template = UPSERV_PLUGIN_PATH . 'inc/templates/' . $template_name;
 		}
 
+		/**
+		 * Filter the located template.
+		 *
+		 * @param string $template The path to the template
+		 * @param string $template_name The template name
+		 * @param string $template_path The template path
+		 * @return string The filtered template path
+		 * @since 1.0.0
+		 */
 		$template = apply_filters(
 			'upserv_locate_template',
 			$template,
@@ -360,7 +634,27 @@ class UPServ {
 		return $template;
 	}
 
+	/**
+	 * Locate admin template file
+	 *
+	 * Finds an admin template file in the plugin directory.
+	 *
+	 * @param string $template_name Template name
+	 * @param bool $load Whether to load the template
+	 * @param bool $required_once Whether to use require_once or require
+	 * @return string Template path
+	 * @since 1.0.0
+	 */
 	public static function locate_admin_template( $template_name, $load = false, $required_once = true ) {
+		/**
+		 * Filter the admin template location.
+		 *
+		 * @param string $template The path to the template
+		 * @param string $template_name The template name
+		 * @param string $template_path The template path
+		 * @return string The filtered template path
+		 * @since 1.0.0
+		 */
 		$template = apply_filters(
 			'upserv_locate_admin_template',
 			UPSERV_PLUGIN_PATH . 'inc/templates/admin/' . $template_name,
@@ -375,6 +669,13 @@ class UPServ {
 		return $template;
 	}
 
+	/**
+	 * Display MU plugin setup failure notice
+	 *
+	 * Shows admin notice when MU plugin couldn't be installed.
+	 *
+	 * @since 1.0.0
+	 */
 	public function setup_mu_plugin_failure_notice() {
 		$class   = 'notice notice-error';
 		$message = sprintf(
@@ -387,6 +688,13 @@ class UPServ {
 		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
+	/**
+	 * Display MU plugin setup success notice
+	 *
+	 * Shows admin notice when MU plugin was successfully installed.
+	 *
+	 * @since 1.0.0
+	 */
 	public function setup_mu_plugin_success_notice() {
 		$class   = 'notice notice-info is-dismissible';
 		$message = sprintf(
@@ -398,6 +706,14 @@ class UPServ {
 		printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
+	/**
+	 * Display settings header
+	 *
+	 * Renders the header for settings pages with notices.
+	 *
+	 * @param string|array $notice Optional notice to display
+	 * @since 1.0.0
+	 */
 	public function display_settings_header( $notice ) {
 		echo '<h1>' . esc_html__( 'UpdatePulse Server', 'updatepulse-server' ) . '</h1>';
 
@@ -429,6 +745,13 @@ class UPServ {
 		$this->display_tabs();
 	}
 
+	/**
+	 * Render help page
+	 *
+	 * Displays the plugin's help documentation.
+	 *
+	 * @since 1.0.0
+	 */
 	public function help_page() {
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -453,6 +776,13 @@ class UPServ {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Display navigation tabs
+	 *
+	 * Renders the tab navigation for admin pages.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function display_tabs() {
 		$states = $this->get_tab_states();
 		$state  = array_filter( $states );
@@ -463,6 +793,13 @@ class UPServ {
 
 		$state = array_keys( $state );
 		$state = reset( $state );
+		/**
+		 * Filter the admin tab links.
+		 *
+		 * @param array $links The existing tab links
+		 * @return array The modified tab links
+		 * @since 1.0.0
+		 */
 		$links = apply_filters( 'upserv_admin_tab_links', array() );
 
 		upserv_get_admin_template(
@@ -475,20 +812,51 @@ class UPServ {
 		);
 	}
 
+	/**
+	 * Get tab states
+	 *
+	 * Determines which tab is currently active.
+	 *
+	 * @return array Tab states
+	 * @since 1.0.0
+	 */
 	protected function get_tab_states() {
 		$page   = sanitize_text_field( wp_unslash( filter_input( INPUT_GET, 'page' ) ) );
 		$states = array();
 
 		if ( 0 === strpos( $page, 'upserv-page' ) ) {
+			/**
+			 * Filter the admin tab states.
+			 *
+			 * @param array $states The existing tab states
+			 * @param string $page The current page
+			 * @return array The modified tab states
+			 * @since 1.0.0
+			 */
 			$states = apply_filters( 'upserv_admin_tab_states', $states, $page );
 		}
 
 		return $states;
 	}
 
+	/**
+	 * Enqueue styles
+	 *
+	 * Loads stylesheets for the admin interface.
+	 *
+	 * @param array $styles Styles to enqueue
+	 * @return array Enqueued styles
+	 * @since 1.0.0
+	 */
 	protected function enqueue_styles( $styles ) {
-		$filter = 'upserv_admin_styles';
-		$styles = apply_filters( $filter, $styles );
+		/**
+		 * Filter the admin styles to be enqueued.
+		 *
+		 * @param array $styles Array of styles to be enqueued
+		 * @return array Modified array of styles
+		 * @since 1.0.0
+		 */
+		$styles = apply_filters( 'upserv_admin_styles', $styles );
 
 		if ( ! empty( $styles ) ) {
 
@@ -516,9 +884,24 @@ class UPServ {
 		return $styles;
 	}
 
+	/**
+	 * Enqueue scripts
+	 *
+	 * Loads JavaScript files for the admin interface.
+	 *
+	 * @param array $scripts Scripts to enqueue
+	 * @return array Enqueued scripts
+	 * @since 1.0.0
+	 */
 	protected function enqueue_scripts( $scripts ) {
-		$filter  = 'upserv_admin_scripts';
-		$scripts = apply_filters( $filter, $scripts );
+		/**
+		 * Filter the admin scripts to be enqueued.
+		 *
+		 * @param array $scripts Array of scripts to be enqueued
+		 * @return array Modified array of scripts
+		 * @since 1.0.0
+		 */
+		$scripts = apply_filters( 'upserv_admin_scripts', $scripts );
 
 		if ( ! empty( $scripts ) ) {
 

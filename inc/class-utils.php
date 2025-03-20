@@ -10,15 +10,26 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class Utils
  *
  * @package Anyape\Utils
+ * @since 1.0.0
  */
 class Utils {
 
-	// JSON options
+	/**
+	 * JSON encoding options
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
 	const JSON_OPTIONS = JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE;
 
 	/**
-	 * @param string $message
-	 * @param string $prefix
+	 * Log a message to PHP error log
+	 *
+	 * Adds class/method context information to the log message.
+	 *
+	 * @param string $message Message to log
+	 * @param string $prefix Optional prefix for the log message
+	 * @since 1.0.0
 	 */
 	public static function php_log( $message = '', $prefix = '' ) {
 		$prefix   = $prefix ? ' ' . $prefix . ' => ' : ' => ';
@@ -33,10 +44,14 @@ class Utils {
 	}
 
 	/**
-	 * @param string $ip
-	 * @param string $range
+	 * Check if IP address is within CIDR range
 	 *
-	 * @return bool
+	 * Validates whether a given IP address falls within the specified CIDR range.
+	 *
+	 * @param string $ip IP address to check
+	 * @param string $range CIDR range notation (e.g., 192.168.1.0/24)
+	 * @return bool True if IP is in range, false otherwise
+	 * @since 1.0.0
 	 */
 	public static function cidr_match( $ip, $range ) {
 		list ( $subnet, $bits ) = explode( '/', $range );
@@ -54,12 +69,16 @@ class Utils {
 	}
 
 	/**
-	 * @param array  $_array
-	 * @param string $path
-	 * @param null   $value
-	 * @param bool   $update
+	 * Access or update nested array using path notation
 	 *
-	 * @return mixed|null
+	 * Gets or sets a value in a nested array using a path string with / as separator.
+	 *
+	 * @param array  $_array Reference to the array to access
+	 * @param string $path Path notation to the nested element (e.g., 'parent/child/item')
+	 * @param mixed  $value Optional value to set if updating
+	 * @param bool   $update Whether to update the array (true) or just read (false)
+	 * @return mixed|null Retrieved value or null if path doesn't exist
+	 * @since 1.0.0
 	 */
 	public static function access_nested_array( &$_array, $path, $value = null, $update = false ) {
 		$keys    = explode( '/', $path );
@@ -87,10 +106,13 @@ class Utils {
 	}
 
 	/**
-	 * @param string $path
-	 * @param string $regex
+	 * Check if URL subpath matches a regex pattern
 	 *
-	 * @return int|null
+	 * Tests if the first segment of the current request URI matches the provided regex.
+	 *
+	 * @param string $regex Regular expression to match against the first path segment
+	 * @return int|null 1 if match found, 0 if no match, null if host couldn't be determined
+	 * @since 1.0.0
 	 */
 	public static function is_url_subpath_match( $regex ) {
 		$host = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : false;
@@ -111,10 +133,12 @@ class Utils {
 	}
 
 	/**
-	 * @param string $path
-	 * @param string $regex
+	 * Get time elapsed since request start
 	 *
-	 * @return int|null
+	 * Calculates the time elapsed since the request started in seconds.
+	 *
+	 * @return string|null Time elapsed in seconds with 3 decimal precision, or null if request time not available
+	 * @since 1.0.0
 	 */
 	public static function get_time_elapsed() {
 
@@ -132,10 +156,12 @@ class Utils {
 	}
 
 	/**
-	 * @param string $path
-	 * @param string $regex
+	 * Get remote IP address
 	 *
-	 * @return int|null
+	 * Safely retrieves the remote IP address of the client.
+	 *
+	 * @return string IP address of the client or '0.0.0.0' if not available or invalid
+	 * @since 1.0.0
 	 */
 	public static function get_remote_ip() {
 
@@ -152,6 +178,15 @@ class Utils {
 		return $ip;
 	}
 
+	/**
+	 * Get human-readable status string
+	 *
+	 * Converts a status code to a localized human-readable string.
+	 *
+	 * @param string $status Status code to convert
+	 * @return string Localized human-readable status string
+	 * @since 1.0.0
+	 */
 	public static function get_status_string( $status ) {
 		switch ( $status ) {
 			case 'pending':

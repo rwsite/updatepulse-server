@@ -14,14 +14,24 @@ use Anyape\UpdatePulse\Package_Parser\Parser;
 class Zip_Metadata_Parser {
 
 	/**
-	* @var int $cache_time  How long the package metadata should be cached in seconds.
-	*                       Defaults to 1 week ( 7 * 24 * 60 * 60 ).
-	*/
+	 * Cache time
+	 *
+	 * How long the package metadata should be cached in seconds.
+	 * Defaults to 1 week ( 7 * 24 * 60 * 60 ).
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
 	public static $cache_time = 604800;
 
 	/**
-	* @var array Package PHP header mapping, i.e. which tags to add to the metadata under which array key
-	*/
+	 * Header map
+	 *
+	 * Package PHP header mapping, i.e. which tags to add to the metadata under which array key.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $header_map = array(
 		'Name'        => 'name',
 		'Version'     => 'version',
@@ -36,49 +46,76 @@ class Zip_Metadata_Parser {
 		'Depends'     => 'depends',
 		'Provides'    => 'provides',
 	);
-
 	/**
-	* @var array Plugin readme file mapping, i.e. which tags to add to the metadata
-	*/
+	 * Readme map
+	 *
+	 * Plugin readme file mapping, i.e. which tags to add to the metadata.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $readme_map = array(
 		'requires',
 		'tested',
 		'requires_php',
 	);
-
 	/**
-	* @var array Package info as retrieved by the parser
-	*/
+	 * Package info
+	 *
+	 * Package info as retrieved by the parser.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $package_info;
-
 	/**
-	* @var string Path to the Zip archive that contains the package.
-	*/
+	 * Filename
+	 *
+	 * Path to the Zip archive that contains the package.
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $filename;
-
 	/**
-	* @var string Package slug.
-	*/
+	 * Slug
+	 *
+	 * Package slug.
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $slug;
-
 	/**
-	* @var Cache object.
-	*/
+	 * Cache
+	 *
+	 * Cache object.
+	 *
+	 * @var object
+	 * @since 1.0.0
+	 */
 	protected $cache;
-
 	/**
-	* @var array Package metadata in a format suitable for the update checker.
-	*/
+	 * Metadata
+	 *
+	 * Package metadata in a format suitable for the update checker.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $metadata;
 
 
 	/**
-	* Get the metadata from a zip file.
-	*
-	* @param string $slug
-	* @param string $filename
-	* @param $cache
-	*/
+	 * Constructor
+	 *
+	 * Get the metadata from a zip file.
+	 *
+	 * @param string $slug Package slug.
+	 * @param string $filename Path to the Zip archive.
+	 * @param object $cache Cache object.
+	 * @since 1.0.0
+	 */
 	public function __construct( $slug, $filename, $cache = null ) {
 		$this->slug     = $slug;
 		$this->filename = $filename;
@@ -88,8 +125,15 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Build the cache key (cache filename) for a file
-	*/
+	 * Build cache key
+	 *
+	 * Build the cache key (cache filename) for a file.
+	 *
+	 * @param string $slug Package slug.
+	 * @param string $filename Path to the Zip archive.
+	 * @return string The cache key.
+	 * @since 1.0.0
+	 */
 	public static function build_cache_key( $slug, $filename ) {
 		$cache_key = $slug . '-b64-';
 
@@ -97,6 +141,15 @@ class Zip_Metadata_Parser {
 			$cache_key .= md5( $filename . '|' . filesize( $filename ) . '|' . filemtime( $filename ) );
 		}
 
+		/**
+		 * Filter the cache key used for storing package metadata.
+		 *
+		 * @param string $cache_key The generated cache key for the package.
+		 * @param string $slug      The package slug.
+		 * @param string $filename  The path to the Zip archive.
+		 * @return string The filtered cache key.
+		 * @since 1.0.0
+		 */
 		return apply_filters(
 			'upserv_zip_metadata_parser_cache_key',
 			$cache_key,
@@ -106,20 +159,27 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Get metadata.
-	*
-	* @return array
-	*/
+	 * Get metadata
+	 *
+	 * Get the package metadata.
+	 *
+	 * @return array Package metadata.
+	 * @since 1.0.0
+	 */
 	public function get() {
 		return $this->metadata;
 	}
 
 	/**
-	* Load metadata information from a cache or create it.
-	*
-	* We'll try to load processed metadata from the cache first (if available), and if that
-	* fails we'll extract package details from the specified Zip file.
-	*/
+	 * Set metadata
+	 *
+	 * Load metadata information from a cache or create it.
+	 *
+	 * We'll try to load processed metadata from the cache first (if available), and if that
+	 * fails we'll extract package details from the specified Zip file.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_metadata() {
 		$cache_key = self::build_cache_key( $this->slug, $this->filename );
 
@@ -151,11 +211,14 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract package headers and readme contents from a ZIP file and convert them
-	* into a structure compatible with the custom update checker.
-	*
-	* @throws Invalid_Package_Exception if the input file can't be parsed as a package.
-	*/
+	 * Extract metadata
+	 *
+	 * Extract package headers and readme contents from a ZIP file and convert them
+	 * into a structure compatible with the custom update checker.
+	 *
+	 * @throws Invalid_Package_Exception if the input file can't be parsed as a package.
+	 * @since 1.0.0
+	 */
 	protected function extract_metadata() {
 		$this->package_info = Parser::parse_package( $this->filename, true );
 
@@ -177,8 +240,12 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract relevant metadata from the package header information
-	*/
+	 * Set info from header
+	 *
+	 * Extract relevant metadata from the package header information.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_info_from_header() {
 
 		if ( isset( $this->package_info['header'] ) && ! empty( $this->package_info['header'] ) ) {
@@ -188,8 +255,12 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract relevant metadata from the plugin readme
-	*/
+	 * Set info from readme
+	 *
+	 * Extract relevant metadata from the plugin readme.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_info_from_readme() {
 
 		if ( ! empty( $this->package_info['readme'] ) ) {
@@ -202,15 +273,18 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract selected metadata from the retrieved package info
-	*
-	* @see http://codex.wordpress.org/File_Header
-	* @see https://wordpress.org/plugins/about/readme.txt
-	*
-	* @param array $input The package info sub-array to use to retrieve the info from
-	* @param array $map   The key mapping for that sub-array where the key is the key as used in the
-	*                     input array and the value is the key to use for the output array
-	*/
+	 * Set mapped fields
+	 *
+	 * Extract selected metadata from the retrieved package info.
+	 *
+	 * @see http://codex.wordpress.org/File_Header
+	 * @see https://wordpress.org/plugins/about/readme.txt
+	 *
+	 * @param array $input The package info sub-array to use to retrieve the info from.
+	 * @param array $map The key mapping for that sub-array where the key is the key as used in the
+	 *                    input array and the value is the key to use for the output array.
+	 * @since 1.0.0
+	 */
 	protected function set_mapped_fields( $input, $map ) {
 
 		foreach ( $map as $field_key => $meta_key ) {
@@ -222,12 +296,16 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Determine the details url for themes
-	*
-	* Theme metadata should include a "details_url" that specifies the page to display
-	* when the user clicks "View version x.y.z details". If the developer didn't provide
-	* it by setting the "Details URI" header, we'll default to the theme homepage ( "Theme URI" ).
-	*/
+	 * Set theme details URL
+	 *
+	 * Determine the details url for themes.
+	 *
+	 * Theme metadata should include a "details_url" that specifies the page to display
+	 * when the user clicks "View version x.y.z details". If the developer didn't provide
+	 * it by setting the "Details URI" header, we'll default to the theme homepage ( "Theme URI" ).
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_theme_details_url() {
 
 		if (
@@ -239,10 +317,13 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract the texual information sections from a readme file
-	*
-	* @see https://wordpress.org/plugins/about/readme.txt
-	*/
+	 * Set readme sections
+	 *
+	 * Extract the texual information sections from a readme file.
+	 *
+	 * @see https://wordpress.org/plugins/about/readme.txt
+	 * @since 1.0.0
+	 */
 	protected function set_readme_sections() {
 
 		if (
@@ -263,10 +344,13 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract the upgrade notice for the current version from a readme file
-	*
-	* @see https://wordpress.org/plugins/about/readme.txt
-	*/
+	 * Set readme upgrade notice
+	 *
+	 * Extract the upgrade notice for the current version from a readme file.
+	 *
+	 * @see https://wordpress.org/plugins/about/readme.txt
+	 * @since 1.0.0
+	 */
 	protected function set_readme_upgrade_notice() {
 
 		//Check if we have an upgrade notice for this version
@@ -282,8 +366,12 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Add last update date to the metadata ; this is tied to the version
-	*/
+	 * Set last update date
+	 *
+	 * Add last update date to the metadata; this is tied to the version.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_last_update_date() {
 
 		if ( isset( $this->metadata['last_updated'] ) ) {
@@ -309,10 +397,24 @@ class Zip_Metadata_Parser {
 		$this->metadata['last_updated'] = $meta['version_time'];
 	}
 
+	/**
+	 * Set type
+	 *
+	 * Set the package type in the metadata.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_type() {
 		$this->metadata['type'] = $this->package_info['type'];
 	}
 
+	/**
+	 * Set slug
+	 *
+	 * Set the package slug in the metadata.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_slug() {
 
 		if ( 'plugin' === $this->package_info['type'] ) {
@@ -327,8 +429,12 @@ class Zip_Metadata_Parser {
 	}
 
 	/**
-	* Extract icons and banners info for plugins
-	*/
+	 * Set info from assets
+	 *
+	 * Extract icons and banners info for plugins.
+	 *
+	 * @since 1.0.0
+	 */
 	protected function set_info_from_assets() {
 
 		if ( ! empty( $this->package_info['extra'] ) ) {
