@@ -21,27 +21,146 @@ use Anyape\UpdatePulse\Server\Manager\Zip_Package_Manager;
 use Anyape\UpdatePulse\Server\Server\License\License_Server;
 use Anyape\Utils\Utils;
 
+/**
+ * Update Server class
+ *
+ * @since 1.0.0
+ */
 class Update_Server {
 
+	/**
+	 * Lock duration for remote updates in seconds
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
 	const LOCK_REMOTE_UPDATE_SEC = 10;
 
+	/**
+	 * Directory for package storage
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $package_dir;
+	/**
+	 * Directory for log storage
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $log_dir;
+	/**
+	 * Cache instance
+	 *
+	 * @var Cache
+	 * @since 1.0.0
+	 */
 	protected $cache;
+	/**
+	 * Server URL
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $server_url;
+	/**
+	 * Server timezone
+	 *
+	 * @var DateTimeZone
+	 * @since 1.0.0
+	 */
 	protected $timezone;
+	/**
+	 * Server directory
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $server_dir;
+	/**
+	 * Version control system URL
+	 *
+	 * @var string|false
+	 * @since 1.0.0
+	 */
 	protected $vcs_url;
+	/**
+	 * Branch name
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $branch;
+	/**
+	 * VCS credentials
+	 *
+	 * @var array|null
+	 * @since 1.0.0
+	 */
 	protected $credentials;
+	/**
+	 * Version control system type
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $vcs_type;
+	/**
+	 * Whether VCS is self-hosted
+	 *
+	 * @var bool
+	 * @since 1.0.0
+	 */
 	protected $self_hosted;
+	/**
+	 * Update checker instance
+	 *
+	 * @var object|null
+	 * @since 1.0.0
+	 */
 	protected $update_checker;
+	/**
+	 * Package type
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $type;
+	/**
+	 * Content of the packages file for filtering
+	 *
+	 * @var string|null
+	 * @since 1.0.0
+	 */
 	protected $filter_packages_file_content;
+	/**
+	 * License key
+	 *
+	 * @var string|null
+	 * @since 1.0.0
+	 */
 	protected $license_key;
+	/**
+	 * License signature
+	 *
+	 * @var string|null
+	 * @since 1.0.0
+	 */
 	protected $license_signature;
 
+	/**
+	 * Constructor
+	 *
+	 * @param string $server_url The server URL
+	 * @param string $server_dir The server directory
+	 * @param string|false $vcs_url The VCS URL
+	 * @param string $branch The branch name
+	 * @param array|null $credentials The VCS credentials
+	 * @param string $vcs_type The VCS type
+	 * @param bool $self_hosted Whether VCS is self-hosted
+	 * @since 1.0.0
+	 */
 	public function __construct( $server_url, $server_dir, $vcs_url, $branch, $credentials, $vcs_type, $self_hosted ) {
 		$this->server_dir  = $this->normalize_file_path( untrailingslashit( $server_dir ) );
 		$this->server_url  = $server_url;
@@ -62,9 +181,12 @@ class Update_Server {
 	 *******************************************************************/
 
 	/**
-	 * Process an update API request.
+	 * Process an update API request
 	 *
-	 * @param array $query Query parameters.
+	 * Handles incoming update requests by initializing, validating, and dispatching them.
+	 *
+	 * @param array $query Query parameters
+	 * @since 1.0.0
 	 */
 	public function handle_request( $query ) {
 		$request = $this->init_request( $query );
@@ -80,22 +202,60 @@ class Update_Server {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Get VCS URL
+	 *
+	 * @return string|false The VCS URL
+	 * @since 1.0.0
+	 */
 	public function get_vcs_url() {
 		return $this->vcs_url;
 	}
 
+	/**
+	 * Get branch name
+	 *
+	 * @return string The branch name
+	 * @since 1.0.0
+	 */
 	public function get_branch() {
 		return $this->branch;
 	}
 
+	/**
+	 * Pre-filter package information
+	 *
+	 * Filter package information before it's processed by the update system.
+	 *
+	 * @param array $info Package information
+	 * @param object $api API instance
+	 * @param mixed $ref Reference
+	 * @return array Filtered package information
+	 * @since 1.0.0
+	 */
 	public function pre_filter_package_info( $info, $api, $ref ) {
-		$abort        = true;
+		$abort = true;
+		/**
+		 * Filters the name of the file used to filter the packages retrieved from the VCS
+		 *
+		 * @param string $file_name The name of the file used to filter the packages retrieved from the VCS
+		 * @return string Modified file name
+		 */
 		$_file        = apply_filters( 'upserv_filter_packages_filename', 'updatepulse.json' );
 		$file_content = $api->get_remote_file( $_file, $ref );
 
 		$this->filter_packages_file_content = $file_content;
 
 		if ( ! empty( $file_content ) ) {
+			/**
+			 * Filters package information before processing
+			 *
+			 * Allows modification of package data before it's processed by the update system.
+			 *
+			 * @param array $info The package information array
+			 * @param string $file_content The content of the updatepulse.json file
+			 * @return array Modified package information
+			 */
 			$info          = apply_filters( 'upserv_pre_filter_package_info', $info, $file_content );
 			$file_contents = json_decode( $file_content, true );
 
@@ -133,7 +293,25 @@ class Update_Server {
 		return $info;
 	}
 
+	/**
+	 * Filter package information
+	 *
+	 * Apply filters to package information after processing.
+	 *
+	 * @param array $info Package information
+	 * @return array Filtered package information
+	 * @since 1.0.0
+	 */
 	public function filter_package_info( $info ) {
+		/**
+		 * Filters package information after processing
+		 *
+		 * Allows modification of package data after initial processing.
+		 *
+		 * @param array $info The package information array
+		 * @param string $filter_packages_file_content The content of the packages file
+		 * @return array Modified package information
+		 */
 		$info = apply_filters( 'upserv_filter_package_info', $info, $this->filter_packages_file_content );
 
 		do_action( 'upserv_filter_package_info', $info );
@@ -141,6 +319,16 @@ class Update_Server {
 		return $info;
 	}
 
+	/**
+	 * Save remote package to local storage
+	 *
+	 * Download and save a package from remote repository to local storage.
+	 *
+	 * @param string $safe_slug Sanitized package slug
+	 * @param bool $force Whether to force update even if locked
+	 * @return bool|mixed Whether the package was saved successfully
+	 * @since 1.0.0
+	 */
 	public function save_remote_package_to_local( $safe_slug, $force = false ) {
 		$local_ready = false;
 
@@ -157,15 +345,24 @@ class Update_Server {
 				try {
 					$info = $this->update_checker->request_info();
 
-					if (
-						! apply_filters(
-							'upserv_download_remote_package',
-							! ( is_array( $info ) && isset( $info['abort_request'] ) && $info['abort_request'] ),
-							$safe_slug,
-							$this->type,
-							$info
-						)
-					) {
+					/**
+					 * Filters whether to download a remote package
+					 *
+					 * Allows plugins to control whether a package should be downloaded from remote repository.
+					 *
+					 * @param bool $download Whether to download the package
+					 * @param string $safe_slug The sanitized package slug
+					 * @param string $type The package type
+					 * @param array $info The package information
+					 * @return bool Whether to proceed with download
+					 */
+					if ( ! apply_filters(
+						'upserv_download_remote_package',
+						! ( is_array( $info ) && isset( $info['abort_request'] ) && $info['abort_request'] ),
+						$safe_slug,
+						$this->type,
+						$info
+					) ) {
 						$this->remove_package( $safe_slug, true );
 
 						do_action( 'upserv_download_remote_package_aborted', $safe_slug, $this->type, $info );
@@ -208,6 +405,12 @@ class Update_Server {
 		return $local_ready;
 	}
 
+	/**
+	 * Set package type
+	 *
+	 * @param string $type Package type
+	 * @since 1.0.0
+	 */
 	public function set_type( $type ) {
 		$type = is_string( $type ) ? ucfirst( strtolower( $type ) ) : false;
 
@@ -216,6 +419,15 @@ class Update_Server {
 		}
 	}
 
+	/**
+	 * Check if remote package needs update
+	 *
+	 * Compare local and remote package versions to determine if update is needed.
+	 *
+	 * @param string $slug Package slug
+	 * @return bool|null Whether the package needs update
+	 * @since 1.0.0
+	 */
 	public function check_remote_package_update( $slug ) {
 		do_action( 'upserv_check_remote_update', $slug );
 
@@ -224,7 +436,15 @@ class Update_Server {
 
 		if ( $local_package instanceof Package ) {
 			$package_path = $local_package->get_filename();
-			$meta         = apply_filters(
+			/**
+			 * Filters the package information gathered from the file system before checking for updates in the VCS
+			 *
+			 * @param array $package_info The package information
+			 * @param Package $package The package object retrieved from the file system
+			 * @param string $package_slug The slug of the package
+			 * @return array Modified package information
+			 */
+			$meta = apply_filters(
 				'upserv_check_remote_package_update_local_meta',
 				Package_Parser::parse_package( $package_path, true ),
 				$local_package,
@@ -232,6 +452,14 @@ class Update_Server {
 			);
 
 			if ( ! $meta ) {
+				/**
+				 * Filters whether the package needs to be updated when no metadata is found
+				 *
+				 * @param bool $needs_update Whether the package needs to be updated
+				 * @param Package $package The package object retrieved from the file system
+				 * @param string $package_slug The slug of the package
+				 * @return bool Whether the package needs to be updated
+				 */
 				$needs_update = apply_filters(
 					'upserv_check_remote_package_update_no_local_meta_needs_update',
 					$needs_update,
@@ -268,6 +496,16 @@ class Update_Server {
 		return $needs_update;
 	}
 
+	/**
+	 * Remove a package
+	 *
+	 * Delete a package from the filesystem and clear cache.
+	 *
+	 * @param string $slug Package slug
+	 * @param bool $force Whether to force removal even if locked
+	 * @return bool Whether the package was removed successfully
+	 * @since 1.0.0
+	 */
 	public function remove_package( $slug, $force = false ) {
 		WP_Filesystem();
 
@@ -295,6 +533,14 @@ class Update_Server {
 			$result      = $wp_filesystem->delete( $package_path );
 		}
 
+		/**
+		 * Filters whether the package was removed from the file system
+		 *
+		 * @param bool $removed Whether the package was removed from the file system
+		 * @param string $type The type of the package
+		 * @param string $package_slug The slug of the package
+		 * @return bool Whether the package was removed from the file system
+		 */
 		$result = apply_filters( 'upserv_remove_package_result', $result, $type, $slug );
 
 		if ( $result && $cache_key ) {
@@ -317,12 +563,14 @@ class Update_Server {
 	 *******************************************************************/
 
 	/**
-	 * Add one or more query arguments to a URL.
-	 * Setting an argument to `null` removes it.
+	 * Add query arguments to a URL
 	 *
-	 * @param array $args An associative array of query arguments.
-	 * @param string $url The old URL. Optional, defaults to the request url without query arguments.
-	 * @return string New URL.
+	 * Adds or removes query parameters from a URL.
+	 *
+	 * @param array $args An associative array of query arguments
+	 * @param string $url The old URL
+	 * @return string New URL
+	 * @since 1.0.0
 	 */
 	protected static function add_query_arg( $args, $url ) {
 
@@ -349,6 +597,14 @@ class Update_Server {
 		return $base . http_build_query( $query, '', '&' );
 	}
 
+	/**
+	 * Dispatch request to appropriate handler
+	 *
+	 * Routes the request to the proper action handler.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
+	 */
 	protected function dispatch( $request ) {
 
 		if ( 'get_metadata' === $request->action ) {
@@ -360,6 +616,15 @@ class Update_Server {
 		}
 	}
 
+	/**
+	 * Initialize request
+	 *
+	 * Parse and prepare the request parameters.
+	 *
+	 * @param array $query Query parameters
+	 * @return Request Initialized request object
+	 * @since 1.0.0
+	 */
 	protected function init_request( $query ) {
 		$headers     = Headers::parse_current();
 		$client_ip   = Utils::get_remote_ip();
@@ -387,6 +652,14 @@ class Update_Server {
 		return $this->init_license_request( $request );
 	}
 
+	/**
+	 * Check authorization
+	 *
+	 * Verify if the request has proper authorization.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
+	 */
 	protected function check_authorization( $request ) {
 
 		if (
@@ -401,6 +674,15 @@ class Update_Server {
 		$this->check_license_authorization( $request );
 	}
 
+	/**
+	 * Generate download URL
+	 *
+	 * Create a URL for package download with appropriate parameters.
+	 *
+	 * @param Package $package Package instance
+	 * @return string Download URL
+	 * @since 1.0.0
+	 */
 	protected function generate_download_url( Package $package ) {
 		$metadata = $package->get_metadata();
 
@@ -418,9 +700,26 @@ class Update_Server {
 		return self::add_query_arg( $query, $this->server_url );
 	}
 
+	/**
+	 * Handle download action
+	 *
+	 * Process a download request for a package.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
+	 */
 	protected function action_download( Request $request ) {
 		do_action( 'upserv_update_server_action_download', $request );
 
+		/**
+		 * Filters whether the download action has been handled
+		 *
+		 * Allows plugins to take over the download action processing.
+		 *
+		 * @param bool $handled Whether the download has been handled
+		 * @param Request $request The current request object
+		 * @return bool Whether the download has been handled
+		 */
 		if ( apply_filters( 'upserv_update_server_action_download_handled', false, $request ) ) {
 			return;
 		}
@@ -441,9 +740,12 @@ class Update_Server {
 	}
 
 	/**
-	 * Basic request validation. Every request must specify an action and a valid package slug.
+	 * Validate request parameters
 	 *
-	 * @param Wpup_Request $request
+	 * Check if the request contains required parameters.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
 	 */
 	protected function validate_request( $request ) {
 
@@ -461,9 +763,12 @@ class Update_Server {
 	}
 
 	/**
-	 * Load the requested package into the request instance.
+	 * Load package for request
 	 *
-	 * @param Wpup_Request $request
+	 * Find and load the requested package.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
 	 */
 	protected function load_package_for( $request ) {
 
@@ -486,15 +791,36 @@ class Update_Server {
 		}
 	}
 
+	/**
+	 * Find package by slug
+	 *
+	 * Locate a package in local storage or download from remote if needed.
+	 *
+	 * @param string $slug Package slug
+	 * @param bool $check_remote Whether to check remote repositories
+	 * @return Package|false Package instance or false if not found
+	 * @since 1.0.0
+	 */
 	protected function find_package( $slug, $check_remote = true ) {
 
 		if ( ! $this->cache ) {
 			$this->cache = new Cache( Data_Manager::get_data_dir( 'cache' ) );
 		}
 
-		$safe_slug     = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
-		$package       = false;
-		$filename      = trailingslashit( $this->package_dir ) . $safe_slug . '.zip';
+		$safe_slug = preg_replace( '@[^a-z0-9\-_\.,+!]@i', '', $slug );
+		$package   = false;
+		$filename  = trailingslashit( $this->package_dir ) . $safe_slug . '.zip';
+		/**
+		 * Filters whether to save remote package to local storage
+		 *
+		 * Determines if the package should be fetched from remote repository and saved locally.
+		 *
+		 * @param bool $save_to_local Whether to save the package locally
+		 * @param string $safe_slug The sanitized package slug
+		 * @param string $filename The local filename path
+		 * @param bool $check_remote Whether to check remote repositories
+		 * @return bool Whether to save the package locally
+		 */
 		$save_to_local = apply_filters(
 			'upserv_save_remote_to_local',
 			! is_file( $filename ) || ! is_readable( $filename ),
@@ -536,6 +862,14 @@ class Update_Server {
 		return $package;
 	}
 
+	/**
+	 * Handle metadata action
+	 *
+	 * Process a request for package metadata.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
+	 */
 	protected function action_get_metadata( Request $request ) {
 		$meta = array();
 
@@ -555,6 +889,16 @@ class Update_Server {
 		exit;
 	}
 
+	/**
+	 * Filter metadata
+	 *
+	 * Apply filters to package metadata.
+	 *
+	 * @param array $meta Package metadata
+	 * @param Request $request Request instance
+	 * @return array Filtered metadata
+	 * @since 1.0.0
+	 */
 	protected function filter_metadata( $meta, $request ) {
 		$meta = array_filter(
 			$meta,
@@ -571,10 +915,13 @@ class Update_Server {
 	}
 
 	/**
+	 * Normalize file path
+	 *
 	 * Convert all directory separators to forward slashes.
 	 *
-	 * @param string $path
-	 * @return string
+	 * @param string $path File path
+	 * @return string Normalized path
+	 * @since 1.0.0
 	 */
 	protected function normalize_file_path( $path ) {
 
@@ -586,9 +933,12 @@ class Update_Server {
 	}
 
 	/**
-	 * Log an API request.
+	 * Log a request
 	 *
-	 * @param Wpup_Request $request
+	 * Record details of an API request to log file.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
 	 */
 	protected function log_request( $request ) {
 		$log_file = $this->get_log_file_name();
@@ -629,7 +979,12 @@ class Update_Server {
 	}
 
 	/**
-	 * @return string
+	 * Get log file name
+	 *
+	 * Generate the name of the log file for the current date.
+	 *
+	 * @return string Log file path
+	 * @since 1.0.0
 	 */
 	protected function get_log_file_name() {
 		$path  = $this->log_dir . '/request';
@@ -640,20 +995,26 @@ class Update_Server {
 	}
 
 	/**
-	 * Escapes passed log data so it can be safely written into a plain text file.
+	 * Escape log information
 	 *
-	 * @param string[] $columns List of columns in the log entry.
-	 * @return string[] Escaped $columns.
+	 * Sanitize data for safe storage in log files.
+	 *
+	 * @param string[] $columns List of columns in the log entry
+	 * @return string[] Escaped columns
+	 * @since 1.0.0
 	 */
 	protected function escape_log_info( $columns ) {
 		return array_map( array( $this, 'escape_log_value' ), $columns );
 	}
 
 	/**
-	 * Escapes passed value to be safely written into a plain text file.
+	 * Escape log value
 	 *
-	 * @param string|null $value Value to escape.
-	 * @return string|null Escaped value.
+	 * Escape a single value for safe storage in log files.
+	 *
+	 * @param string|null $value Value to escape
+	 * @return string|null Escaped value
+	 * @since 1.0.0
 	 */
 	protected function escape_log_value( $value ) {
 
@@ -690,6 +1051,15 @@ class Update_Server {
 		return $value;
 	}
 
+	/**
+	 * Exit with error
+	 *
+	 * Terminate execution and display error message.
+	 *
+	 * @param string $message Error message
+	 * @param int $http_status HTTP status code
+	 * @since 1.0.0
+	 */
 	protected function exit_with_error( $message = '', $http_status = 500 ) {
 		$status_messages = array(
 			// This is not a full list of HTTP status messages. We only need the errors.
@@ -749,9 +1119,12 @@ class Update_Server {
 	}
 
 	/**
-	 * Output data as JSON.
+	 * Output data as JSON
 	 *
-	 * @param mixed $response
+	 * Send data as JSON response with appropriate headers.
+	 *
+	 * @param mixed $response Response data
+	 * @since 1.0.0
 	 */
 	protected function output_as_json( $response ) {
 		header( 'Content-Type: application/json; charset=utf-8' );
@@ -761,6 +1134,14 @@ class Update_Server {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Unlock update from remote
+	 *
+	 * Remove lock for remote update process.
+	 *
+	 * @param string $slug Package slug
+	 * @since 1.0.0
+	 */
 	protected static function unlock_update_from_remote( $slug ) {
 		$locks = get_option( 'upserv_update_from_remote_locks' );
 		$locks = is_array( $locks ) ? $locks : array();
@@ -772,6 +1153,14 @@ class Update_Server {
 		update_option( 'upserv_update_from_remote_locks', $locks );
 	}
 
+	/**
+	 * Lock update from remote
+	 *
+	 * Create lock for remote update process.
+	 *
+	 * @param string $slug Package slug
+	 * @since 1.0.0
+	 */
 	protected static function lock_update_from_remote( $slug ) {
 		$locks = get_option( 'upserv_update_from_remote_locks', array() );
 		$locks = is_array( $locks ) ? $locks : array();
@@ -783,6 +1172,15 @@ class Update_Server {
 		}
 	}
 
+	/**
+	 * Check if update from remote is locked
+	 *
+	 * Determine if there's an active lock for remote update.
+	 *
+	 * @param string $slug Package slug
+	 * @return bool Whether the update is locked
+	 * @since 1.0.0
+	 */
 	protected static function is_update_from_remote_locked( $slug ) {
 		$locks     = get_option( 'upserv_update_from_remote_locks' );
 		$is_locked = is_array( $locks ) && array_key_exists( $slug, $locks ) && $locks[ $slug ] >= time();
@@ -790,6 +1188,16 @@ class Update_Server {
 		return $is_locked;
 	}
 
+	/**
+	 * Build update checker
+	 *
+	 * Create instance of appropriate update checker for package type.
+	 *
+	 * @param string $slug Package slug
+	 * @param string $package_filename Package filename
+	 * @return object|false Update checker instance or false if not supported
+	 * @since 1.0.0
+	 */
 	protected function build_update_checker( $slug, $package_filename ) {
 		$repo_url  = trailingslashit( $this->vcs_url ) . $slug;
 		$service   = upserv_get_vcs_name( $this->vcs_type, 'edit' );
@@ -809,7 +1217,27 @@ class Update_Server {
 		return new $checker_class( ...$params );
 	}
 
+	/**
+	 * Initialize update checker
+	 *
+	 * Set up the update checker with appropriate credentials and settings.
+	 *
+	 * @param string $slug Package slug
+	 * @since 1.0.0
+	 */
 	protected function init_update_checker( $slug ) {
+		/**
+		 * Filters the checker object used to perform remote checks and downloads
+		 *
+		 * @param mixed $update_checker The checker object
+		 * @param string $package_slug The slug of the package using the checker object
+		 * @param string $type The type of the package using the checker object
+		 * @param string $vcs_url URL of the VCS where the remote packages are located
+		 * @param string $branch The branch of the VCS repository where the packages are located
+		 * @param mixed $credentials The credentials to access the VCS where the packages are located
+		 * @param bool $self_hosted Whether the VCS is self-hosted
+		 * @return mixed Modified update checker object
+		 */
 		$this->update_checker = apply_filters(
 			'upserv_update_checker',
 			$this->update_checker,
@@ -847,6 +1275,16 @@ class Update_Server {
 		}
 	}
 
+	/**
+	 * Download remote package
+	 *
+	 * Fetch a package file from a remote URL.
+	 *
+	 * @param string $url Remote file URL
+	 * @param int $timeout Request timeout in seconds
+	 * @return string|WP_Error Local filename or error
+	 * @since 1.0.0
+	 */
 	protected function download_remote_package( $url, $timeout = 300 ) {
 
 		if ( ! $url ) {
@@ -906,6 +1344,15 @@ class Update_Server {
 
 	// Licenses -------------------------------------------------------
 
+	/**
+	 * Initialize license request
+	 *
+	 * Prepare a request with license information.
+	 *
+	 * @param Request $request Request instance
+	 * @return Request Modified request with license data
+	 * @since 1.0.0
+	 */
 	protected function init_license_request( $request ) {
 
 		if ( ! $request->param( 'license_key' ) ) {
@@ -949,6 +1396,16 @@ class Update_Server {
 		return $request;
 	}
 
+	/**
+	 * Filter license metadata
+	 *
+	 * Modify metadata based on license status.
+	 *
+	 * @param array $meta Package metadata
+	 * @param Request $request Request instance
+	 * @return array Filtered metadata
+	 * @since 1.0.0
+	 */
 	protected function filter_license_metadata( $meta, $request ) {
 
 		if ( ! upserv_is_package_require_license( $meta['slug'] ) ) {
@@ -963,6 +1420,16 @@ class Update_Server {
 		}
 
 		if (
+			/**
+			 * Filters whether a license is valid
+			 *
+			 * Allows plugins to override license validation logic.
+			 *
+			 * @param bool $is_valid Whether the license is valid based on internal validation
+			 * @param object $license The license object
+			 * @param string $license_signature The license signature
+			 * @return bool Whether the license is valid
+			 */
 			apply_filters(
 				'upserv_license_valid',
 				$this->is_license_valid( $license, $license_signature ),
@@ -985,6 +1452,15 @@ class Update_Server {
 		return $meta;
 	}
 
+	/**
+	 * Filter license download query
+	 *
+	 * Add license parameters to download URL.
+	 *
+	 * @param array $query Query parameters
+	 * @return array Modified query parameters
+	 * @since 1.0.0
+	 */
 	protected function filter_license_download_query( $query ) {
 
 		if ( upserv_is_package_require_license( $query['package_id'] ) ) {
@@ -996,6 +1472,14 @@ class Update_Server {
 		return $query;
 	}
 
+	/**
+	 * Check license authorization
+	 *
+	 * Verify if the license is valid for the requested action.
+	 *
+	 * @param Request $request Request instance
+	 * @since 1.0.0
+	 */
 	protected function check_license_authorization( $request ) {
 
 		if ( ! upserv_is_package_require_license( $request->slug ) ) {
@@ -1008,12 +1492,29 @@ class Update_Server {
 
 		if (
 			'download' === $request->action &&
+			/**
+			 * Filters whether a license is valid when requesting for an update
+			 *
+			 * @param bool $is_valid Whether the license is valid
+			 * @param mixed $license The license to validate
+			 * @param string $license_signature The signature of the license
+			 * @return bool Whether the license is valid
+			 */
 			! apply_filters( 'upserv_license_valid', $valid, $license, $license_signature )
 		) {
 			$this->exit_with_error( 'Invalid license key or signature.', 403 );
 		}
 	}
 
+	/**
+	 * Get license error
+	 *
+	 * Format error information for invalid license.
+	 *
+	 * @param mixed $license License data or error
+	 * @return object Error information
+	 * @since 1.0.0
+	 */
 	protected function get_license_error( $license ) {
 
 		if ( is_wp_error( $license ) ) {
@@ -1045,6 +1546,17 @@ class Update_Server {
 		return $error;
 	}
 
+	/**
+	 * Verify license exists
+	 *
+	 * Check if a license exists and is valid for the package.
+	 *
+	 * @param string $slug Package slug
+	 * @param string $type Package type
+	 * @param string $license_key License key
+	 * @return object|false License data or false if invalid
+	 * @since 1.0.0
+	 */
 	protected function verify_license_exists( $slug, $type, $license_key ) {
 		$license_server = new License_Server();
 		$payload        = array( 'license_key' => $license_key );
@@ -1066,6 +1578,15 @@ class Update_Server {
 		return $result;
 	}
 
+	/**
+	 * Prepare license for output
+	 *
+	 * Filter sensitive data from license information.
+	 *
+	 * @param object|array $license License data
+	 * @return array License data safe for output
+	 * @since 1.0.0
+	 */
 	protected function prepare_license_for_output( $license ) {
 		$output = json_decode( wp_json_encode( $license ), true );
 
@@ -1077,14 +1598,42 @@ class Update_Server {
 		unset( $output['email'] );
 		unset( $output['company_name'] );
 
+		/**
+		 * Filters license data prepared for output
+		 *
+		 * Allows modification of license information before sending to client.
+		 *
+		 * @param array $output The prepared license data with sensitive information removed
+		 * @param object|array $license The original license data
+		 * @return array Modified license data for output
+		 */
 		return apply_filters( 'upserv_license_update_server_prepare_license_for_output', $output, $license );
 	}
 
+	/**
+	 * Check if license is valid
+	 *
+	 * Verify license key and signature.
+	 *
+	 * @param object $license License data
+	 * @param string $license_signature License signature
+	 * @return bool Whether the license is valid
+	 * @since 1.0.0
+	 */
 	protected function is_license_valid( $license, $license_signature ) {
 		$valid = false;
 
 		if ( is_object( $license ) && ! is_wp_error( $license ) && 'activated' === $license->status ) {
 
+			/**
+			 * Filters whether to bypass signature validation
+			 *
+			 * Allows plugins to skip signature validation for certain licenses.
+			 *
+			 * @param bool $bypass Whether to bypass signature validation
+			 * @param object $license The license object
+			 * @return bool Whether to bypass signature validation
+			 */
 			if ( apply_filters( 'upserv_license_bypass_signature', false, $license ) ) {
 				$valid = $this->license_key === $license->license_key;
 			} else {
