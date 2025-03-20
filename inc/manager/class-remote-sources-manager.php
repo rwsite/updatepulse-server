@@ -11,8 +11,19 @@ use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\API\Update_API;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
+/**
+ * Remote Sources Manager class
+ *
+ * @since 1.0.0
+ */
 class Remote_Sources_Manager {
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize WordPress hooks.
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -40,14 +51,35 @@ class Remote_Sources_Manager {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Activate
+	 *
+	 * Register schedules when the plugin is activated.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function activate() {
 		self::register_schedules();
 	}
 
+	/**
+	 * Deactivate
+	 *
+	 * Clear schedules when the plugin is deactivated.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function deactivate() {
 		self::clear_schedules();
 	}
 
+	/**
+	 * Enqueue admin scripts
+	 *
+	 * @param array $scripts List of scripts to enqueue.
+	 * @return array Modified list of scripts.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_scripts( $scripts ) {
 		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -64,6 +96,13 @@ class Remote_Sources_Manager {
 		return $scripts;
 	}
 
+	/**
+	 * Enqueue admin styles
+	 *
+	 * @param array $styles List of styles to enqueue.
+	 * @return array Modified list of styles.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_styles( $styles ) {
 		$styles['remote_sources'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/admin/remote-sources' . upserv_assets_suffix() . '.css',
@@ -73,6 +112,11 @@ class Remote_Sources_Manager {
 		return $styles;
 	}
 
+	/**
+	 * Register remote check scheduled hooks
+	 *
+	 * @since 1.0.0
+	 */
 	public function register_remote_check_scheduled_hooks() {
 
 		if ( upserv_is_doing_update_api_request() ) {
@@ -104,6 +148,15 @@ class Remote_Sources_Manager {
 
 			foreach ( $slugs as $slug ) {
 				add_action( 'upserv_check_remote_' . $slug, $action_hook, 10, 3 );
+
+				/**
+				 * Fired after a remote check action has been registered for a package.
+				 * Fired during client update API request.
+				 *
+				 * @param string $package_slug    The slug of the package for which an action has been registered
+				 * @param string $scheduled_hook  The event hook the action has been registered to
+				 * @param string $action_hook     The action that has been registered
+				 */
 				do_action(
 					'upserv_registered_check_remote_schedule',
 					$slug,
@@ -114,6 +167,13 @@ class Remote_Sources_Manager {
 		}
 	}
 
+	/**
+	 * Clear remote check scheduled hooks
+	 *
+	 * @param array|null $vcs_configs VCS configurations.
+	 * @return bool True on success, false on failure.
+	 * @since 1.0.0
+	 */
 	public function clear_remote_check_scheduled_hooks( $vcs_configs = null ) {
 
 		if ( upserv_is_doing_update_api_request() ) {
@@ -144,6 +204,14 @@ class Remote_Sources_Manager {
 				$scheduled_hook = 'upserv_check_remote_' . $slug;
 
 				Scheduler::get_instance()->unschedule_all_actions( $scheduled_hook );
+
+				/**
+				 * Fired after a remote check schedule event has been unscheduled for a package.
+				 * Fired during client update API request.
+				 *
+				 * @param string $package_slug    The slug of the package for which a remote check event has been unscheduled
+				 * @param string $scheduled_hook  The remote check event hook that has been unscheduled
+				 */
 				do_action( 'upserv_cleared_check_remote_schedule', $slug, $scheduled_hook );
 			}
 		}
@@ -151,6 +219,11 @@ class Remote_Sources_Manager {
 		return true;
 	}
 
+	/**
+	 * Add admin menu
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_menu() {
 		$function   = array( $this, 'plugin_page' );
 		$page_title = __( 'UpdatePulse Server - Version Control Systems ', 'updatepulse-server' );
@@ -160,6 +233,13 @@ class Remote_Sources_Manager {
 		add_submenu_page( 'upserv-page', $page_title, $menu_title, 'manage_options', $menu_slug, $function );
 	}
 
+	/**
+	 * Add admin tab links
+	 *
+	 * @param array $links List of admin tab links.
+	 * @return array Modified list of admin tab links.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_links( $links ) {
 		$links['remote-sources'] = array(
 			admin_url( 'admin.php?page=upserv-page-remote-sources' ),
@@ -169,12 +249,25 @@ class Remote_Sources_Manager {
 		return $links;
 	}
 
+	/**
+	 * Add admin tab states
+	 *
+	 * @param array $states List of admin tab states.
+	 * @param string $page Current admin page.
+	 * @return array Modified list of admin tab states.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_states( $states, $page ) {
 		$states['remote-sources'] = 'upserv-page-remote-sources' === $page;
 
 		return $states;
 	}
 
+	/**
+	 * Force clean
+	 *
+	 * @since 1.0.0
+	 */
 	public function force_clean() {
 		$result = false;
 		$type   = false;
@@ -225,6 +318,11 @@ class Remote_Sources_Manager {
 		}
 	}
 
+	/**
+	 * VCS test
+	 *
+	 * @since 1.0.0
+	 */
 	public function vcs_test() {
 		$result = false;
 
@@ -301,12 +399,23 @@ class Remote_Sources_Manager {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Clear schedules
+	 *
+	 * @return bool True on success, false on failure.
+	 * @since 1.0.0
+	 */
 	public static function clear_schedules() {
 		$manager = new self();
 
 		return $manager->clear_remote_check_scheduled_hooks();
 	}
 
+	/**
+	 * Register schedules
+	 *
+	 * @since 1.0.0
+	 */
 	public static function register_schedules() {
 		$options     = get_option( 'upserv_options' );
 		$options     = json_decode( $options, true );
@@ -329,6 +438,13 @@ class Remote_Sources_Manager {
 		}
 	}
 
+	/**
+	 * Reschedule remote check recurring events
+	 *
+	 * @param array $vcs_c VCS configuration.
+	 * @return bool True on success, false on failure.
+	 * @since 1.0.0
+	 */
 	public function reschedule_remote_check_recurring_events( $vcs_c ) {
 
 		if (
@@ -346,10 +462,17 @@ class Remote_Sources_Manager {
 		}
 
 		foreach ( $slugs as $slug ) {
-			$meta      = upserv_get_package_metadata( $slug );
-			$type      = isset( $meta['type'] ) ? $meta['type'] : null;
-			$hook      = 'upserv_check_remote_' . $slug;
-			$params    = array( $slug, $type, false );
+			$meta   = upserv_get_package_metadata( $slug );
+			$type   = isset( $meta['type'] ) ? $meta['type'] : null;
+			$hook   = 'upserv_check_remote_' . $slug;
+			$params = array( $slug, $type, false );
+
+			/**
+			 * Filter the frequency at which remote checks for updates are performed for a package.
+			 *
+			 * @param string $frequency      The frequency at which remote checks are performed
+			 * @param string $package_slug   The slug of the package
+			 */
 			$frequency = apply_filters(
 				'upserv_check_remote_frequency',
 				isset( $vcs_c['check_frequency'] ) ? $vcs_c['check_frequency'] : 'daily',
@@ -359,6 +482,14 @@ class Remote_Sources_Manager {
 			$schedules = wp_get_schedules();
 
 			Scheduler::get_instance()->unschedule_all_actions( $hook, $params );
+
+			/**
+			 * Fired after a remote check schedule event has been unscheduled for a package.
+			 * Fired during client update API request.
+			 *
+			 * @param string $package_slug    The slug of the package for which a remote check event has been unscheduled
+			 * @param string $scheduled_hook  The remote check event hook that has been unscheduled
+			 */
 			do_action( 'upserv_cleared_check_remote_schedule', $slug, $hook );
 
 			$result = Scheduler::get_instance()->schedule_recurring_action(
@@ -368,6 +499,17 @@ class Remote_Sources_Manager {
 				$params
 			);
 
+			/**
+			 * Fired after a remote check event has been scheduled for a package.
+			 * Fired during client update API request.
+			 *
+			 * @param bool   $result         Whether the event was scheduled
+			 * @param string $package_slug   The slug of the package for which the event was scheduled
+			 * @param int    $timestamp      Timestamp for when to run the event the first time after it's been scheduled
+			 * @param string $frequency      Frequency at which the event would be ran
+			 * @param string $hook           Event hook to fire when the event is ran
+			 * @param array  $params         Parameters passed to the actions registered to $hook when the event is ran
+			 */
 			do_action(
 				'upserv_scheduled_check_remote_event',
 				$result,
@@ -382,6 +524,11 @@ class Remote_Sources_Manager {
 		return true;
 	}
 
+	/**
+	 * Plugin page
+	 *
+	 * @since 1.0.0
+	 */
 	public function plugin_page() {
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -419,6 +566,12 @@ class Remote_Sources_Manager {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Plugin options handler
+	 *
+	 * @return array|string Result of the options update.
+	 * @since 1.0.0
+	 */
 	protected function plugin_options_handler() {
 		$errors          = array();
 		$result          = '';
@@ -454,6 +607,14 @@ class Remote_Sources_Manager {
 				$option_info['value'] = (bool) $option_info['value'];
 			}
 
+			/**
+			 * Filter whether to update the remote source option.
+			 *
+			 * @param bool   $condition      Whether to update the option
+			 * @param string $option_name    The name of the option
+			 * @param array  $option_info    Information about the option
+			 * @param array  $options        All submitted options
+			 */
 			$condition = apply_filters(
 				'upserv_remote_source_option_update',
 				$condition,
@@ -463,6 +624,14 @@ class Remote_Sources_Manager {
 			);
 
 			if ( $condition ) {
+				/**
+				 * Filter the value of the remote source option before saving it.
+				 *
+				 * @param mixed  $value         The value of the option
+				 * @param string $option_name   The name of the option
+				 * @param array  $option_info   Information about the option
+				 * @param array  $options       All submitted options
+				 */
 				$to_save[ $option_info['path'] ] = apply_filters(
 					'upserv_remote_sources_option_save_value',
 					$option_info['value'],
@@ -567,11 +736,26 @@ class Remote_Sources_Manager {
 		}
 
 		set_transient( 'upserv_flush', 1, 60 );
+
+		/**
+		 * Fired after the options in "Remote Sources" have been updated.
+		 *
+		 * @param array|string $result The result of the options update, an array of errors or a success message
+		 */
 		do_action( 'upserv_remote_sources_options_updated', $result );
 
 		return $result;
 	}
 
+	/**
+	 * Filter JSON input
+	 *
+	 * @param array $inputs JSON input data.
+	 * @param string $option_name Option name.
+	 * @param array $errors List of errors.
+	 * @return array Filtered JSON input data.
+	 * @since 1.0.0
+	 */
 	protected function filter_json_input( $inputs, $option_name, &$errors ) {
 		$filtered    = array();
 		$index       = 0;
@@ -642,7 +826,19 @@ class Remote_Sources_Manager {
 		return $filtered;
 	}
 
+	/**
+	 * Get submitted options
+	 *
+	 * @return array List of submitted options.
+	 * @since 1.0.0
+	 */
 	protected function get_submitted_options() {
+		/**
+		 * Filter the submitted remote sources configuration values before using them.
+		 *
+		 * @param array $config The submitted remote sources configuration values
+		 * @return array The filtered configuration
+		 */
 		return apply_filters(
 			'upserv_submitted_remote_sources_config',
 			array(
@@ -663,6 +859,13 @@ class Remote_Sources_Manager {
 		);
 	}
 
+	/**
+	 * Get package slugs
+	 *
+	 * @param string $vcs_url VCS URL.
+	 * @return array List of package slugs.
+	 * @since 1.0.0
+	 */
 	protected function get_package_slugs( $vcs_url ) {
 		$slugs = wp_cache_get( 'package_slugs', 'updatepulse-server' );
 

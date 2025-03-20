@@ -10,16 +10,32 @@ if ( ! defined( 'ABSPATH' ) ) {
  * This class represents the collection of files and metadata that make up
  * a WordPress plugin or theme, or a generic software package.
  *
+ * @since 1.0.0
  */
 class Package {
 
-	/** @var string Path to the Zip archive that contains the package. */
+	/**
+	 * Path to the Zip archive that contains the package.
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $filename;
 
-	/** @var array Package metadata in a format suitable for the update checker. */
+	/**
+	 * Package metadata in a format suitable for the update checker.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $metadata = array();
 
-	/** @var string Package slug. */
+	/**
+	 * Package slug.
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	public $slug;
 
 	/**
@@ -29,9 +45,10 @@ class Package {
 	 * of instantiating this class directly. Still, you can do it if you want to, for example,
 	 * load package metadata from the database instead of extracting it from a Zip file.
 	 *
-	 * @param string $slug
-	 * @param string $filename
-	 * @param array $metadata
+	 * @param string $slug The package slug.
+	 * @param string $filename The path to the package file.
+	 * @param array $metadata The package metadata.
+	 * @since 1.0.0
 	 */
 	public function __construct( $slug, $filename = null, $metadata = array() ) {
 		$this->slug     = $slug;
@@ -42,7 +59,8 @@ class Package {
 	/**
 	 * Get the full file path of this package.
 	 *
-	 * @return string
+	 * @return string The full file path of the package.
+	 * @since 1.0.0
 	 */
 	public function get_filename() {
 		return $this->filename;
@@ -52,7 +70,8 @@ class Package {
 	 * Get package metadata.
 	 *
 	 * @see self::extractMetadata()
-	 * @return array
+	 * @return array The package metadata merged with the slug.
+	 * @since 1.0.0
 	 */
 	public function get_metadata() {
 		return array_merge( $this->metadata, array( 'slug' => $this->slug ) );
@@ -63,10 +82,11 @@ class Package {
 	 *
 	 * @param string $filename Path to a Zip archive that contains a package.
 	 * @param string $slug Optional package slug. Will be detected automatically.
-	 * @param Cache $cache
-	 * @return Package
+	 * @param Cache|null $cache Optional cache object for metadata.
+	 * @return Package A new Package instance with the extracted metadata.
+	 * @since 1.0.0
 	 */
-	public static function from_archive( $filename, $slug = null, Cache $cache = null ) {
+	public static function from_archive( $filename, $slug = null, $cache = null ) {
 		$meta_obj = new Zip_Metadata_Parser( $slug, $filename, $cache );
 		$metadata = $meta_obj->get();
 
@@ -80,7 +100,8 @@ class Package {
 	/**
 	 * Get the size of the package (in bytes).
 	 *
-	 * @return int
+	 * @return int The size of the package file in bytes.
+	 * @since 1.0.0
 	 */
 	public function get_file_size() {
 		return filesize( $this->filename );
@@ -89,7 +110,8 @@ class Package {
 	/**
 	 * Get the Unix timestamp of the last time this package was modified.
 	 *
-	 * @return int
+	 * @return int The Unix timestamp when the package was last modified.
+	 * @since 1.0.0
 	 */
 	public function get_last_modified() {
 		return filemtime( $this->filename );

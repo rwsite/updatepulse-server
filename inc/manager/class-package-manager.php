@@ -20,22 +20,77 @@ use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\Table\Packages_Table;
 use Anyape\Utils\Utils;
 
+/**
+ * Package Manager class
+ *
+ * @since 1.0.0
+ */
 class Package_Manager {
 
-	const DEFAULT_LOGS_MAX_SIZE    = 10;
-	const DEFAULT_CACHE_MAX_SIZE   = 100;
+	/**
+	 * Default logs maximum size in MB
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	const DEFAULT_LOGS_MAX_SIZE = 10;
+	/**
+	 * Default cache maximum size in MB
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	const DEFAULT_CACHE_MAX_SIZE = 100;
+	/**
+	 * Default archive maximum size in MB
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
 	const DEFAULT_ARCHIVE_MAX_SIZE = 20;
 
+	/**
+	 * Filesystem clean types
+	 *
+	 * Types of filesystem data that can be cleaned.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	public static $filesystem_clean_types = array(
 		'cache',
 		'logs',
 	);
 
+	/**
+	 * Instance
+	 *
+	 * @var Package_Manager|null
+	 * @since 1.0.0
+	 */
 	protected static $instance;
 
+	/**
+	 * Packages table
+	 *
+	 * @var Packages_Table|null
+	 * @since 1.0.0
+	 */
 	protected $packages_table;
+	/**
+	 * Package rows
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $rows = array();
 
+	/**
+	 * Constructor
+	 *
+	 * @param boolean $init_hooks Whether to initialize WordPress hooks.
+	 * @since 1.0.0
+	 */
 	public function __construct( $init_hooks = false ) {
 
 		if ( $init_hooks ) {
@@ -63,6 +118,13 @@ class Package_Manager {
 
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Admin init hook
+	 *
+	 * Handles admin initialization tasks.
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_init() {
 
 		if ( ! is_admin() || wp_doing_ajax() || wp_doing_cron() ) {
@@ -126,10 +188,24 @@ class Package_Manager {
 		} elseif ( $delete_all_packages ) {
 			$this->delete_packages_bulk();
 		} else {
+			/**
+			 * Fired when a request action that is not handled by default is received.
+			 *
+			 * @param string $action The action received in the request.
+			 * @param array|string|false $packages The packages involved in the action.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_udpdate_manager_request_action', $action, $packages );
 		}
 	}
 
+	/**
+	 * Admin menu hook
+	 *
+	 * Adds the plugin page to the admin menu.
+	 *
+	 * @since 1.0.0
+	 */
 	public function admin_menu() {
 		$page_title = __( 'UpdatePulse Server', 'updatepulse-server' );
 		$capability = 'manage_options';
@@ -139,6 +215,13 @@ class Package_Manager {
 		add_submenu_page( 'upserv-page', $page_title, $menu_title, $capability, 'upserv-page', $function );
 	}
 
+	/**
+	 * Add page options
+	 *
+	 * Adds screen options for the plugin page.
+	 *
+	 * @since 1.0.0
+	 */
 	public function add_page_options() {
 		$option = 'per_page';
 		$args   = array(
@@ -150,6 +233,15 @@ class Package_Manager {
 		add_screen_option( $option, $args );
 	}
 
+	/**
+	 * Enqueue admin scripts
+	 *
+	 * Enqueues admin scripts for the plugin page.
+	 *
+	 * @param array $scripts Existing scripts.
+	 * @return array Modified scripts.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_scripts( $scripts ) {
 		$page = ! empty( $_REQUEST['page'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
@@ -191,12 +283,29 @@ class Package_Manager {
 				'debug'    => (bool) ( constant( 'WP_DEBUG' ) ),
 				'ajax_url' => admin_url( 'admin-ajax.php' ),
 			),
+			/**
+			 * Filter the internationalization strings passed to the frontend scripts.
+			 *
+			 * @param array $l10n The internationalization strings passed to the frontend scripts.
+			 * @param string $handle The handle of the script.
+			 * @return array The filtered internationalization strings.
+			 * @since 1.0.0
+			 */
 			'l10n'   => apply_filters( 'upserv_scripts_l10n', $l10n, 'package' ),
 		);
 
 		return $scripts;
 	}
 
+	/**
+	 * Enqueue admin styles
+	 *
+	 * Enqueues admin styles for the plugin page.
+	 *
+	 * @param array $styles Existing styles.
+	 * @return array Modified styles.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_styles( $styles ) {
 		$styles['package'] = array(
 			'path' => UPSERV_PLUGIN_PATH . 'css/admin/package' . upserv_assets_suffix() . '.css',
@@ -206,10 +315,30 @@ class Package_Manager {
 		return $styles;
 	}
 
+	/**
+	 * Set page options
+	 *
+	 * Sets screen options for the plugin page.
+	 *
+	 * @param mixed $status Screen option status.
+	 * @param string $option Screen option name.
+	 * @param mixed $value Screen option value.
+	 * @return mixed Screen option value.
+	 * @since 1.0.0
+	 */
 	public function set_page_options( $status, $option, $value ) {
 		return $value;
 	}
 
+	/**
+	 * Admin tab links
+	 *
+	 * Adds tab links for the plugin page.
+	 *
+	 * @param array $links Existing tab links.
+	 * @return array Modified tab links.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_links( $links ) {
 		$links['main'] = array(
 			admin_url( 'admin.php?page=upserv-page' ),
@@ -219,12 +348,29 @@ class Package_Manager {
 		return $links;
 	}
 
+	/**
+	 * Admin tab states
+	 *
+	 * Sets tab states for the plugin page.
+	 *
+	 * @param array $states Existing tab states.
+	 * @param string $page Current page.
+	 * @return array Modified tab states.
+	 * @since 1.0.0
+	 */
 	public function upserv_admin_tab_states( $states, $page ) {
 		$states['main'] = 'upserv-page' === $page;
 
 		return $states;
 	}
 
+	/**
+	 * Force clean
+	 *
+	 * Forces a cleanup of the specified filesystem data type.
+	 *
+	 * @since 1.0.0
+	 */
 	public function force_clean() {
 		$result = false;
 		$type   = false;
@@ -255,10 +401,27 @@ class Package_Manager {
 		}
 	}
 
+	/**
+	 * Download remote package aborted
+	 *
+	 * Handles the event when a remote package download is aborted.
+	 *
+	 * @param string $safe_slug Safe slug of the package.
+	 * @param string $type Type of the package.
+	 * @param array $info Additional information.
+	 * @since 1.0.0
+	 */
 	public function upserv_download_remote_package_aborted( $safe_slug, $type, $info ) {
 		wp_cache_set( 'upserv_download_remote_package_aborted', $info, 'updatepulse-server' );
 	}
 
+	/**
+	 * Register package from VCS
+	 *
+	 * Registers a package from a Version Control System (VCS).
+	 *
+	 * @since 1.0.0
+	 */
 	public function register_package_from_vcs() {
 		$result = false;
 		$error  = false;
@@ -310,6 +473,13 @@ class Package_Manager {
 			wp_cache_delete( 'upserv_download_remote_package_aborted', 'updatepulse-server' );
 		}
 
+		/**
+		 * Fired after a package has been registered from a VCS.
+		 *
+		 * @param bool $result Whether the package was successfully registered.
+		 * @param string $slug The slug of the registered package.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_registered_package_from_vcs', $result, $slug );
 
 		if ( ! $error && $result ) {
@@ -327,6 +497,13 @@ class Package_Manager {
 		}
 	}
 
+	/**
+	 * Manual package upload
+	 *
+	 * Handles manual package uploads.
+	 *
+	 * @since 1.0.0
+	 */
 	public function manual_package_upload() {
 		$result      = false;
 		$slug        = 'N/A';
@@ -401,6 +578,14 @@ class Package_Manager {
 			$sanitized_part( $files['package']['tmp_name'] ) !== $files['package']['tmp_name'] ||
 			sanitize_file_name( $files['package']['name'] ) !== $files['package']['name']
 		) {
+			/**
+			 * Fired after an attempt to manually upload a package.
+			 *
+			 * @param bool $result Whether the upload was successful.
+			 * @param string $type The package type.
+			 * @param string $slug The package slug.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 			wp_send_json_error(
 				new WP_Error(
@@ -421,6 +606,14 @@ class Package_Manager {
 
 		if ( ! in_array( $files['package']['type'], $valid_archive_formats, true ) ) {
 			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			/**
+			 * Fired after an attempt to manually upload a package.
+			 *
+			 * @param bool $result Whether the upload was successful.
+			 * @param string $type The package type.
+			 * @param string $slug The package slug.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 			wp_send_json_error(
 				new WP_Error(
@@ -470,6 +663,14 @@ class Package_Manager {
 			}
 
 			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			/**
+			 * Fired after an attempt to manually upload a package.
+			 *
+			 * @param bool $result Whether the upload was successful.
+			 * @param string $type The package type.
+			 * @param string $slug The package slug.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 			wp_send_json_error(
 				new WP_Error(
@@ -481,6 +682,14 @@ class Package_Manager {
 
 		if ( 0 >= $files['package']['size'] ) {
 			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			/**
+			 * Fired after an attempt to manually upload a package.
+			 *
+			 * @param bool $result Whether the upload was successful.
+			 * @param string $type The package type.
+			 * @param string $slug The package slug.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 			wp_send_json_error(
 				new WP_Error(
@@ -496,6 +705,14 @@ class Package_Manager {
 
 		if ( ! $parsed_info ) {
 			$wp_filesystem->delete( $files['package']['tmp_name'] );
+			/**
+			 * Fired after an attempt to manually upload a package.
+			 *
+			 * @param bool $result Whether the upload was successful.
+			 * @param string $type The package type.
+			 * @param string $slug The package slug.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 			wp_send_json_error(
 				new WP_Error(
@@ -513,6 +730,14 @@ class Package_Manager {
 		$dest     = Data_Manager::get_data_dir( 'packages' ) . $filename;
 		$result   = $wp_filesystem->move( $files['package']['tmp_name'], $dest, true );
 
+		/**
+		 * Fired after an attempt to manually upload a package.
+		 *
+		 * @param bool $result Whether the upload was successful.
+		 * @param string $type The package type.
+		 * @param string $slug The package slug.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_did_manual_upload_package', $result, $type, $slug );
 
 		if ( $result ) {
@@ -536,12 +761,28 @@ class Package_Manager {
 		}
 	}
 
+	/**
+	 * Pre delete package hook
+	 *
+	 * Handles tasks before a package is deleted.
+	 *
+	 * @param string $package_slug Package slug.
+	 * @since 1.0.0
+	 */
 	public function upserv_package_manager_pre_delete_package( $package_slug ) {
 		$info = upserv_get_package_info( $package_slug, false );
 
 		wp_cache_set( 'upserv_package_manager_pre_delete_package_info', $info, 'updatepulse-server' );
 	}
 
+	/**
+	 * Package deleted hook
+	 *
+	 * Handles tasks after a package is deleted.
+	 *
+	 * @param string $package_slug Package slug.
+	 * @since 1.0.0
+	 */
 	public function upserv_package_manager_deleted_package( $package_slug ) {
 		$package_info = wp_cache_get( 'upserv_package_manager_pre_delete_package_info', 'updatepulse-server' );
 
@@ -559,6 +800,14 @@ class Package_Manager {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Get instance
+	 *
+	 * Returns the singleton instance of the class.
+	 *
+	 * @return Package_Manager
+	 * @since 1.0.0
+	 */
 	public static function get_instance() {
 
 		if ( ! self::$instance ) {
@@ -568,6 +817,13 @@ class Package_Manager {
 		return self::$instance;
 	}
 
+	/**
+	 * Plugin page
+	 *
+	 * Renders the plugin page.
+	 *
+	 * @since 1.0.0
+	 */
 	public function plugin_page() {
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -619,13 +875,31 @@ class Package_Manager {
 		);
 	}
 
+	/**
+	 * Delete packages in bulk
+	 *
+	 * Deletes multiple packages in bulk.
+	 *
+	 * @param array $package_slugs Package slugs to delete.
+	 * @return array|false Deleted package slugs or false if no packages were deleted.
+	 * @since 1.0.0
+	 */
 	public function delete_packages_bulk( $package_slugs = array() ) {
 		$package_directory     = Data_Manager::get_data_dir( 'packages' );
 		$package_paths         = glob( trailingslashit( $package_directory ) . '*.zip' );
 		$package_names         = array();
 		$deleted_package_slugs = array();
 		$delete_all            = false;
-		$package_paths         = apply_filters(
+
+		/**
+		 * Filter the package paths to be deleted in bulk.
+		 *
+		 * @param array $package_paths Paths to package files.
+		 * @param array $package_slugs Package slugs to delete.
+		 * @return array The filtered package paths.
+		 * @since 1.0.0
+		 */
+		$package_paths = apply_filters(
 			'upserv_delete_packages_bulk_paths',
 			$package_paths,
 			$package_slugs
@@ -649,16 +923,32 @@ class Package_Manager {
 			return;
 		}
 
-		$url           = home_url( '/updatepulse-server-update-api/' );
-		$filter_args   = array(
-			'url' => $url,
-		);
-		$_class_name   = apply_filters(
+		$url         = home_url( '/updatepulse-server-update-api/' );
+		$filter_args = array( 'url' => $url );
+		/**
+		 * Filter the class name used for the update server.
+		 *
+		 * @param string $class_name The default class name.
+		 * @param mixed $null Null value.
+		 * @param array $filter_args Arguments for the filter.
+		 * @return string The filtered class name.
+		 * @since 1.0.0
+		 */
+		$_class_name = apply_filters(
 			'upserv_server_class_name',
 			str_replace( 'Manager', 'Server\\Update', __NAMESPACE__ ) . '\\Update_Server',
 			null,
 			$filter_args
 		);
+		/**
+		 * Filter the constructor arguments for the update server.
+		 *
+		 * @param array $args Constructor arguments.
+		 * @param mixed $null Null value.
+		 * @param array $filter_args Arguments for the filter.
+		 * @return array The filtered constructor arguments.
+		 * @since 1.0.0
+		 */
 		$args          = apply_filters(
 			'upserv_server_constructor_args',
 			array( $url, Data_Manager::get_data_dir(), '', '', '', '', false ),
@@ -667,16 +957,35 @@ class Package_Manager {
 		);
 		$update_server = new $_class_name( ...$args );
 
+		/**
+		 * Fired before deleting multiple packages in bulk.
+		 *
+		 * @param array $package_slugs Slugs of packages about to be deleted.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_package_manager_pre_delete_packages_bulk', $package_slugs );
 
 		foreach ( $package_slugs as $slug ) {
 			$package_name = $slug . '.zip';
 
 			if ( in_array( $package_name, $package_names, true ) ) {
+				/**
+				 * Fired before a package is deleted.
+				 *
+				 * @param string $slug The slug of the package to be deleted.
+				 * @since 1.0.0
+				 */
 				do_action( 'upserv_package_manager_pre_delete_package', $slug );
 
 				$result = $update_server->remove_package( $slug );
 
+				/**
+				 * Fired after a package has been deleted.
+				 *
+				 * @param string $slug The slug of the deleted package.
+				 * @param bool $result Whether the package was successfully deleted.
+				 * @since 1.0.0
+				 */
 				do_action( 'upserv_package_manager_deleted_package', $slug, $result );
 
 				if ( $result ) {
@@ -690,12 +999,27 @@ class Package_Manager {
 		}
 
 		if ( ! empty( $deleted_package_slugs ) ) {
+			/**
+			 * Fired after multiple packages have been deleted in bulk.
+			 *
+			 * @param array $deleted_package_slugs Slugs of packages that were deleted.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_package_manager_deleted_packages_bulk', $deleted_package_slugs );
 		}
 
 		return empty( $deleted_package_slugs ) ? false : $deleted_package_slugs;
 	}
 
+	/**
+	 * Download packages in bulk
+	 *
+	 * Downloads multiple packages in bulk.
+	 *
+	 * @param array $package_slugs Package slugs to download.
+	 * @return void
+	 * @since 1.0.0
+	 */
 	public function download_packages_bulk( $package_slugs ) {
 		WP_Filesystem();
 
@@ -713,6 +1037,14 @@ class Package_Manager {
 			$archive_name = reset( $package_slugs );
 			$archive_path = trailingslashit( $package_directory ) . $archive_name . '.zip';
 
+			/**
+			 * Fired before packages are downloaded.
+			 *
+			 * @param string $archive_name The name of the archive.
+			 * @param string $archive_path The path to the archive.
+			 * @param array $package_slugs The slugs of the packages to download.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_before_packages_download', $archive_name, $archive_path, $package_slugs );
 
 			foreach ( $package_slugs as $package_slug ) {
@@ -734,6 +1066,14 @@ class Package_Manager {
 		$archive_name   = 'archive-' . time();
 		$archive_path   = trailingslashit( $temp_directory ) . $archive_name . '.zip';
 
+		/**
+		 * Fired before packages are repackaged for download.
+		 *
+		 * @param string $archive_name The name of the archive.
+		 * @param string $archive_path The path to the archive.
+		 * @param array $package_slugs The slugs of the packages to repackage.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_before_packages_download_repack', $archive_name, $archive_path, $package_slugs );
 
 		foreach ( $package_slugs as $package_slug ) {
@@ -762,10 +1102,28 @@ class Package_Manager {
 
 		$zip->close();
 
+		/**
+		 * Fired before packages are downloaded.
+		 *
+		 * @param string $archive_name The name of the archive.
+		 * @param string $archive_path The path to the archive.
+		 * @param array $package_slugs The slugs of the packages to download.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_before_packages_download', $archive_name, $archive_path, $package_slugs );
 		$this->trigger_packages_download( $archive_name, $archive_path );
 	}
 
+	/**
+	 * Trigger packages download
+	 *
+	 * Triggers the download of the specified archive.
+	 *
+	 * @param string $archive_name Archive name.
+	 * @param string $archive_path Archive path.
+	 * @param boolean $exit_or_die Whether to exit or die after download.
+	 * @since 1.0.0
+	 */
 	public function trigger_packages_download( $archive_name, $archive_path, $exit_or_die = true ) {
 
 		if ( ! empty( $archive_path ) && is_file( $archive_path ) && ! empty( $archive_name ) ) {
@@ -848,11 +1206,25 @@ class Package_Manager {
 			header( 'Content-Transfer-Encoding: binary' );
 			header( 'Content-Length: ' . filesize( $archive_path ) );
 
+			/**
+			 * Fired when a packages download is triggered.
+			 *
+			 * @param string $archive_name The name of the archive.
+			 * @param string $archive_path The path to the archive.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_triggered_packages_download', $archive_name, $archive_path );
 
 			echo @file_get_contents( $archive_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
+		/**
+		 * Fired after packages have been downloaded.
+		 *
+		 * @param string $archive_name The name of the archive.
+		 * @param string $archive_path The path to the archive.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_after_packages_download', $archive_name, $archive_path );
 
 		if ( $exit_or_die ) {
@@ -860,6 +1232,15 @@ class Package_Manager {
 		}
 	}
 
+	/**
+	 * Get package info
+	 *
+	 * Retrieves information about a package.
+	 *
+	 * @param string $slug Package slug.
+	 * @return array|false Package information or false if not found.
+	 * @since 1.0.0
+	 */
 	public function get_package_info( $slug ) {
 		$package_info = wp_cache_get( 'package_info_' . $slug, 'updatepulse-server' );
 
@@ -867,9 +1248,24 @@ class Package_Manager {
 			return $package_info;
 		}
 
+		/**
+		 * Fired when retrieving package information.
+		 *
+		 * @param mixed $package_info Package information or false.
+		 * @param string $slug Package slug.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_get_package_info', $package_info, $slug );
 
 		if ( has_filter( 'upserv_package_manager_get_package_info' ) ) {
+			/**
+			 * Filter the package information for a specific package.
+			 *
+			 * @param mixed $package_info Package information or false.
+			 * @param string $slug Package slug.
+			 * @return array The filtered package information.
+			 * @since 1.0.0
+			 */
 			$package_info = apply_filters( 'upserv_package_manager_get_package_info', $package_info, $slug );
 		} else {
 			$package_directory = Data_Manager::get_data_dir( 'packages' );
@@ -910,11 +1306,28 @@ class Package_Manager {
 			$package_info['metadata'] = $this->get_package_metadata( $slug );
 		}
 
+		/**
+		 * Filter the package information before returning it.
+		 *
+		 * @param array $package_info Package information.
+		 * @param string $slug Package slug.
+		 * @return array The filtered package information.
+		 * @since 1.0.0
+		 */
 		$package_info = apply_filters( 'upserv_package_manager_package_info', $package_info, $slug );
 
 		return $package_info;
 	}
 
+	/**
+	 * Get batch package info
+	 *
+	 * Retrieves information about multiple packages.
+	 *
+	 * @param string|false $search Search term.
+	 * @return array Package information.
+	 * @since 1.0.0
+	 */
 	public function get_batch_package_info( $search = false ) {
 		$packages = wp_cache_get( 'packages', 'updatepulse-server' );
 
@@ -923,6 +1336,14 @@ class Package_Manager {
 		}
 
 		if ( has_filter( 'upserv_package_manager_get_batch_package_info' ) ) {
+			/**
+			 * Filter the batch package information.
+			 *
+			 * @param mixed $packages Package information or false.
+			 * @param string|false $search Search term.
+			 * @return array The filtered batch package information.
+			 * @since 1.0.0
+			 */
 			$packages = apply_filters( 'upserv_package_manager_get_batch_package_info', $packages, $search );
 			wp_cache_set( 'packages', $packages, 'updatepulse-server' );
 
@@ -966,6 +1387,15 @@ class Package_Manager {
 						false === strpos( strtolower( $meta['slug'] ) . '.zip', strtolower( $search ) )
 					)
 				);
+
+				/**
+				 * Filter whether to include a package in the batch info results.
+				 *
+				 * @param bool $include Whether to include the package.
+				 * @param array $meta Package metadata.
+				 * @return bool The filtered inclusion decision.
+				 * @since 1.0.0
+				 */
 				$include = apply_filters( 'upserv_package_info_include', $include, $meta );
 
 				if ( ! $include ) {
@@ -993,6 +1423,14 @@ class Package_Manager {
 			}
 		}
 
+		/**
+		 * Filter the batch package information before returning it.
+		 *
+		 * @param array $packages Package information.
+		 * @param string|false $search Search term.
+		 * @return array The filtered batch package information.
+		 * @since 1.0.0
+		 */
 		$packages = apply_filters( 'upserv_package_manager_batch_package_info', $packages, $search );
 
 		wp_cache_set( 'packages', $packages, 'updatepulse-server' );
@@ -1004,9 +1442,26 @@ class Package_Manager {
 		return $packages;
 	}
 
+	/**
+	 * Check if package is whitelisted
+	 *
+	 * Checks if a package is whitelisted.
+	 *
+	 * @param string $package_slug Package slug.
+	 * @return boolean True if whitelisted, false otherwise.
+	 * @since 1.0.0
+	 */
 	public function is_package_whitelisted( $package_slug ) {
 
 		if ( has_filter( 'upserv_is_package_whitelisted' ) ) {
+			/**
+			 * Filter whether a package is whitelisted.
+			 *
+			 * @param bool $is_whitelisted Whether the package is whitelisted.
+			 * @param string $package_slug Package slug.
+			 * @return bool The filtered whitelisted status.
+			 * @since 1.0.0
+			 */
 			return apply_filters( 'upserv_is_package_whitelisted', false, $package_slug );
 		}
 
@@ -1025,6 +1480,15 @@ class Package_Manager {
 		return false;
 	}
 
+	/**
+	 * Whitelist package
+	 *
+	 * Whitelists a package.
+	 *
+	 * @param string $package_slug Package slug.
+	 * @return boolean True if successful, false otherwise.
+	 * @since 1.0.0
+	 */
 	public function whitelist_package( $package_slug ) {
 		$data = $this->get_package_metadata( $package_slug, false );
 
@@ -1033,6 +1497,14 @@ class Package_Manager {
 		}
 
 		if ( has_filter( 'upserv_whitelist_package_data' ) ) {
+			/**
+			 * Filter the data used to whitelist a package.
+			 *
+			 * @param array $data Package metadata.
+			 * @param string $package_slug Package slug.
+			 * @return array The filtered package metadata.
+			 * @since 1.0.0
+			 */
 			$data = apply_filters( 'upserv_whitelist_package_data', $data, $package_slug );
 		} else {
 			$data['whitelisted']['local'] = array( true, time() );
@@ -1040,11 +1512,28 @@ class Package_Manager {
 
 		$result = $this->set_package_metadata( $package_slug, $data );
 
+		/**
+		 * Fired after a package has been whitelisted.
+		 *
+		 * @param string $package_slug Package slug.
+		 * @param array $data Package metadata.
+		 * @param bool $result Whether the metadata was successfully updated.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_whitelist_package', $package_slug, $data, $result );
 
 		return $result;
 	}
 
+	/**
+	 * Unwhitelist package
+	 *
+	 * Unwhitelists a package.
+	 *
+	 * @param string $package_slug Package slug.
+	 * @return boolean True if successful, false otherwise.
+	 * @since 1.0.0
+	 */
 	public function unwhitelist_package( $package_slug ) {
 		$data = $this->get_package_metadata( $package_slug, false );
 
@@ -1053,6 +1542,14 @@ class Package_Manager {
 		}
 
 		if ( has_filter( 'upserv_unwhitelist_package_data' ) ) {
+			/**
+			 * Filter the data used to unwhitelist a package.
+			 *
+			 * @param array $data Package metadata.
+			 * @param string $package_slug Package slug.
+			 * @return array The filtered package metadata.
+			 * @since 1.0.0
+			 */
 			$data = apply_filters( 'upserv_unwhitelist_package_data', $data, $package_slug );
 		} else {
 			$data['whitelisted']['local'] = array( false, time() );
@@ -1060,11 +1557,28 @@ class Package_Manager {
 
 		$result = $this->set_package_metadata( $package_slug, $data );
 
+		/**
+		 * Fired after a package has been unwhitelisted.
+		 *
+		 * @param string $package_slug Package slug.
+		 * @param bool $result Whether the metadata was successfully updated.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_unwhitelist_package', $package_slug, $result );
 
 		return $result;
 	}
 
+	/**
+	 * Get package metadata
+	 *
+	 * Retrieves metadata for a package.
+	 *
+	 * @param string $package_slug Package slug.
+	 * @param boolean $json_encode Whether to return JSON encoded data.
+	 * @return array|string Package metadata.
+	 * @since 1.0.0
+	 */
 	public function get_package_metadata( $package_slug, $json_encode = false ) {
 		$data = wp_cache_get( 'package_metadata_' . $package_slug, 'updatepulse-server' );
 
@@ -1080,6 +1594,15 @@ class Package_Manager {
 		if ( ! has_filter( 'upserv_get_package_metadata' ) && is_file( $file_path ) ) {
 			$data = @file_get_contents( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
 		} elseif ( has_filter( 'upserv_get_package_metadata' ) ) {
+			/**
+			 * Filter the package metadata for a specific package.
+			 *
+			 * @param string $data JSON encoded package metadata.
+			 * @param string $package_slug Package slug.
+			 * @param bool $json_encode Whether to return JSON encoded data.
+			 * @return string The filtered package metadata.
+			 * @since 1.0.0
+			 */
 			$data = apply_filters( 'upserv_get_package_metadata', $data, $package_slug, $json_encode );
 		}
 
@@ -1092,6 +1615,16 @@ class Package_Manager {
 		return $data;
 	}
 
+	/**
+	 * Set package metadata
+	 *
+	 * Sets metadata for a package.
+	 *
+	 * @param string $package_slug Package slug.
+	 * @param array $metadata Package metadata.
+	 * @return boolean True if successful, false otherwise.
+	 * @since 1.0.0
+	 */
 	public function set_package_metadata( $package_slug, $metadata ) {
 		WP_Filesystem();
 
@@ -1101,7 +1634,16 @@ class Package_Manager {
 		$filename  = sanitize_file_name( $package_slug . '.json' );
 		$file_path = trailingslashit( $dir ) . $filename;
 		$result    = false;
-		$data      = apply_filters( 'upserv_set_package_metadata_data', $metadata, $package_slug );
+
+		/**
+		 * Filter the metadata to be set for a package.
+		 *
+		 * @param array $metadata Package metadata.
+		 * @param string $package_slug Package slug.
+		 * @return array The filtered package metadata.
+		 * @since 1.0.0
+		 */
+		$data = apply_filters( 'upserv_set_package_metadata_data', $metadata, $package_slug );
 
 		wp_cache_delete( 'package_metadata_' . $package_slug, 'updatepulse-server' );
 
@@ -1110,9 +1652,24 @@ class Package_Manager {
 			if ( ! has_filter( 'upserv_did_delete_package_metadata' ) && is_file( $file_path ) ) {
 				$result = (bool) $wp_filesystem->delete( $file_path );
 			} else {
+				/**
+				 * Filter the result of deleting package metadata.
+				 *
+				 * @param bool $result Whether deletion was successful.
+				 * @param string $package_slug Package slug.
+				 * @return bool The filtered result.
+				 * @since 1.0.0
+				 */
 				$result = apply_filters( 'upserv_did_delete_package_metadata', false, $package_slug );
 			}
 
+			/**
+			 * Fired after package metadata has been deleted.
+			 *
+			 * @param string $package_slug Package slug.
+			 * @param bool $result Whether the metadata was successfully deleted.
+			 * @since 1.0.0
+			 */
 			do_action( 'upserv_delete_package_metadata', $package_slug, $result );
 
 			return $result;
@@ -1133,9 +1690,26 @@ class Package_Manager {
 				FS_CHMOD_FILE
 			);
 		} else {
+			/**
+			 * Filter the result of setting package metadata.
+			 *
+			 * @param bool $result Whether the operation was successful.
+			 * @param string $package_slug Package slug.
+			 * @param array $data Package metadata.
+			 * @return bool The filtered result.
+			 * @since 1.0.0
+			 */
 			$result = apply_filters( 'upserv_did_set_package_metadata', false, $package_slug, $data );
 		}
 
+		/**
+		 * Fired after package metadata has been set.
+		 *
+		 * @param string $package_slug Package slug.
+		 * @param array $data Package metadata.
+		 * @param bool $result Whether the metadata was successfully updated.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_set_package_metadata', $package_slug, $data, $result );
 
 		return $result;
@@ -1145,6 +1719,15 @@ class Package_Manager {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Get directory size in MB
+	 *
+	 * Retrieves the size of the specified directory in MB.
+	 *
+	 * @param string $type Directory type.
+	 * @return string Directory size in MB.
+	 * @since 1.0.0
+	 */
 	protected static function get_dir_size_mb( $type ) {
 		$result = 'N/A';
 
@@ -1174,6 +1757,14 @@ class Package_Manager {
 		return $result;
 	}
 
+	/**
+	 * Plugin options handler
+	 *
+	 * Handles the submission of plugin options.
+	 *
+	 * @return array|string Result of the options update.
+	 * @since 1.0.0
+	 */
 	protected function plugin_options_handler() {
 		$errors = array();
 		$result = '';
@@ -1198,6 +1789,16 @@ class Package_Manager {
 				$condition = is_numeric( $option_info['value'] );
 			}
 
+			/**
+			 * Filter whether to update a package option.
+			 *
+			 * @param bool $condition Whether the option should be updated.
+			 * @param string $option_name Option name.
+			 * @param array $option_info Option information.
+			 * @param array $options All submitted options.
+			 * @return bool The filtered update condition.
+			 * @since 1.0.0
+			 */
 			$condition = apply_filters(
 				'upserv_package_option_update',
 				$condition,
@@ -1232,13 +1833,34 @@ class Package_Manager {
 			$result = $errors;
 		}
 
+		/**
+		 * Fired after package options have been updated.
+		 *
+		 * @param array|string $result The result of the update operation.
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_package_options_updated', $result );
 
 		return $result;
 	}
 
+	/**
+	 * Get submitted options
+	 *
+	 * Retrieves the submitted options from the form.
+	 *
+	 * @return array Submitted options.
+	 * @since 1.0.0
+	 */
 	protected function get_submitted_options() {
 
+		/**
+		 * Filter the submitted package configuration options.
+		 *
+		 * @param array $config Default package configuration.
+		 * @return array The filtered package configuration.
+		 * @since 1.0.0
+		 */
 		return apply_filters(
 			'upserv_submitted_package_config',
 			array(
@@ -1267,6 +1889,16 @@ class Package_Manager {
 		);
 	}
 
+	/**
+	 * Get package
+	 *
+	 * Retrieves a package object from the specified file.
+	 *
+	 * @param string $filename Package file name.
+	 * @param string $slug Package slug.
+	 * @return Package|false Package object or false if not found.
+	 * @since 1.0.0
+	 */
 	protected function get_package( $filename, $slug ) {
 		$package      = false;
 		$cache        = new Cache( Data_Manager::get_data_dir( 'cache' ) );
@@ -1280,6 +1912,14 @@ class Package_Manager {
 			}
 
 			if ( null === $cached_value ) {
+				/**
+				 * Fired when a package is not found in the cache.
+				 *
+				 * @param string $slug Package slug.
+				 * @param string $filename Path to the package file.
+				 * @param Cache $cache Cache object.
+				 * @since 1.0.0
+				 */
 				do_action( 'upserv_find_package_no_cache', $slug, $filename, $cache );
 			}
 

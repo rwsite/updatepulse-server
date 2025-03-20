@@ -12,25 +12,91 @@ use PasswordHash;
 use Anyape\Utils\Utils;
 use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 
+/**
+ * Nonce class
+ *
+ * @since 1.0.0
+ */
 class Nonce {
 
+	/**
+	 * Default expiry length
+	 *
+	 * Default time in seconds before a nonce expires.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
 	const DEFAULT_EXPIRY_LENGTH = MINUTE_IN_SECONDS / 2;
-	const NONCE_ONLY            = 1;
-	const NONCE_INFO_ARRAY      = 2;
+	/**
+	 * Nonce only return type
+	 *
+	 * Constant indicating to return just the nonce string.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	const NONCE_ONLY = 1;
+	/**
+	 * Nonce info array return type
+	 *
+	 * Constant indicating to return the nonce with additional information.
+	 *
+	 * @var int
+	 * @since 1.0.0
+	 */
+	const NONCE_INFO_ARRAY = 2;
 
+	/**
+	 * True nonce flag
+	 *
+	 * Indicates if a nonce is a true nonce.
+	 *
+	 * @var bool|null
+	 * @since 1.0.0
+	 */
 	protected static $true_nonce;
+	/**
+	 * Expiry length
+	 *
+	 * Time in seconds before a nonce expires.
+	 *
+	 * @var int|null
+	 * @since 1.0.0
+	 */
 	protected static $expiry_length;
+	/**
+	 * API request flag
+	 *
+	 * Indicates if the current request is an API request.
+	 *
+	 * @var bool|null
+	 * @since 1.0.0
+	 */
 	protected static $doing_api_request = null;
+	/**
+	 * Private keys
+	 *
+	 * Array of private keys used for authentication.
+	 *
+	 * @var array|null
+	 * @since 1.0.0
+	 */
 	protected static $private_keys;
 
 	/*******************************************************************
 	 * Public methods
 	 *******************************************************************/
 
-	// API action --------------------------------------------------
-
 	// WordPress hooks ---------------------------------------------
 
+	/**
+	 * Activate
+	 *
+	 * Setup necessary database tables on plugin activation.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function activate() {
 		$result = self::maybe_create_or_upgrade_db();
 
@@ -41,12 +107,33 @@ class Nonce {
 		}
 	}
 
+	/**
+	 * Deactivate
+	 *
+	 * Clean up scheduled actions on plugin deactivation.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function deactivate() {
 		Scheduler::get_instance()->unschedule_all_actions( 'upserv_nonce_cleanup' );
 	}
 
+	/**
+	 * Uninstall
+	 *
+	 * Placeholder for uninstall logic.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function uninstall() {}
 
+	/**
+	 * Initialize scheduler
+	 *
+	 * Schedule recurring actions for nonce cleanup.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function upserv_scheduler_init() {
 
 		if ( Scheduler::get_instance()->has_scheduled_action( 'upserv_nonce_cleanup' ) ) {
@@ -63,6 +150,13 @@ class Nonce {
 		);
 	}
 
+	/**
+	 * Add endpoints
+	 *
+	 * Add rewrite rules for nonce and token endpoints.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function add_endpoints() {
 		add_rewrite_rule(
 			'^updatepulse-server-token/*?$',
@@ -76,6 +170,13 @@ class Nonce {
 		);
 	}
 
+	/**
+	 * Parse request
+	 *
+	 * Handle incoming requests to the nonce and token endpoints.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function parse_request() {
 		global $wp;
 
@@ -101,6 +202,12 @@ class Nonce {
 
 			unset( $payload['action'] );
 
+			/**
+			 * Filter the payload sent to the Nonce API.
+			 *
+			 * @param array $payload The payload sent to the Nonce API
+			 * @param string $method The api action - `token` or `nonce`
+			 */
 			$payload = apply_filters( 'upserv_nonce_api_payload', $payload, $method );
 
 			if (
@@ -128,12 +235,35 @@ class Nonce {
 			}
 		}
 
-		$code     = apply_filters( 'upserv_nonce_api_code', $code, $wp->query_vars );
+		/**
+		 * Filter the HTTP response code to be sent by the Nonce API.
+		 *
+		 * @param string $code The HTTP response code to be sent by the Nonce API
+		 * @param array $request_params The request's parameters
+		 */
+		$code = apply_filters( 'upserv_nonce_api_code', $code, $wp->query_vars );
+
+		/**
+		 * Filter the response to be sent by the Nonce API.
+		 *
+		 * @param array $response The response to be sent by the Nonce API
+		 * @param string $code The HTTP response code sent by the Nonce API
+		 * @param array $request_params The request's parameters
+		 */
 		$response = apply_filters( 'upserv_nonce_api_response', $response, $code, $wp->query_vars );
 
 		wp_send_json( $response, $code );
 	}
 
+	/**
+	 * Add query vars
+	 *
+	 * Add custom query variables for nonce and token endpoints.
+	 *
+	 * @param array $query_vars Existing query variables.
+	 * @return array Modified query variables.
+	 * @since 1.0.0
+	 */
 	public static function query_vars( $query_vars ) {
 		$query_vars = array_merge(
 			$query_vars,
@@ -150,10 +280,16 @@ class Nonce {
 		return $query_vars;
 	}
 
-	// Overrides ---------------------------------------------------
-
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Create or upgrade database
+	 *
+	 * Create or upgrade the necessary database tables.
+	 *
+	 * @return bool True on success, false on failure.
+	 * @since 1.0.0
+	 */
 	public static function maybe_create_or_upgrade_db() {
 		global $wpdb;
 
@@ -191,6 +327,13 @@ class Nonce {
 		return true;
 	}
 
+	/**
+	 * Register hooks
+	 *
+	 * Register WordPress hooks for the nonce functionality.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function register() {
 
 		if ( ! self::is_doing_api_request() ) {
@@ -204,10 +347,26 @@ class Nonce {
 		add_filter( 'query_vars', array( __CLASS__, 'query_vars' ), -99, 1 );
 	}
 
+	/**
+	 * Initialize authentication
+	 *
+	 * Initialize the private keys used for authentication.
+	 *
+	 * @param array $private_keys Array of private keys.
+	 * @since 1.0.0
+	 */
 	public static function init_auth( $private_keys ) {
 		self::$private_keys = $private_keys;
 	}
 
+	/**
+	 * Check if doing API request
+	 *
+	 * Check if the current request is an API request.
+	 *
+	 * @return bool True if doing API request, false otherwise.
+	 * @since 1.0.0
+	 */
 	public static function is_doing_api_request() {
 
 		if ( null === self::$doing_api_request ) {
@@ -217,6 +376,19 @@ class Nonce {
 		return self::$doing_api_request;
 	}
 
+	/**
+	 * Create nonce
+	 *
+	 * Create a new nonce.
+	 *
+	 * @param bool $true_nonce Indicates if the nonce is a true nonce.
+	 * @param int $expiry_length Time in seconds before the nonce expires.
+	 * @param array $data Additional data to store with the nonce.
+	 * @param int $return_type Return type (nonce only or nonce info array).
+	 * @param bool $store Indicates if the nonce should be stored in the database.
+	 * @return mixed The nonce or nonce info array.
+	 * @since 1.0.0
+	 */
 	public static function create_nonce(
 		$true_nonce = true,
 		$expiry_length = self::DEFAULT_EXPIRY_LENGTH,
@@ -224,6 +396,17 @@ class Nonce {
 		$return_type = self::NONCE_ONLY,
 		$store = true
 	) {
+		/**
+		 * Filter the value of the nonce before it is created; if $nonce_value is truthy,
+		 * the value is used as nonce and the default generation algorithm is bypassed;
+		 * developers must respect the $return_type.
+		 *
+		 * @param bool|string|array $nonce_value The value of the nonce before it is created - if truthy, the nonce is considered created with this value
+		 * @param bool $true_nonce Whether the nonce is a true, one-time-use nonce
+		 * @param int $expiry_length The expiry length of the nonce in seconds
+		 * @param array $data Data to store along the nonce
+		 * @param int $return_type UPServ_Nonce::NONCE_ONLY or UPServ_Nonce::NONCE_INFO_ARRAY
+		 */
 		$nonce = apply_filters(
 			'upserv_created_nonce',
 			false,
@@ -279,6 +462,15 @@ class Nonce {
 		return $return;
 	}
 
+	/**
+	 * Get nonce expiry
+	 *
+	 * Get the expiry time of a nonce.
+	 *
+	 * @param string $nonce The nonce string.
+	 * @return int The expiry time in seconds.
+	 * @since 1.0.0
+	 */
 	public static function get_nonce_expiry( $nonce ) {
 		global $wpdb;
 
@@ -304,6 +496,15 @@ class Nonce {
 		return intval( $nonce_expiry );
 	}
 
+	/**
+	 * Get nonce data
+	 *
+	 * Get the data associated with a nonce.
+	 *
+	 * @param string $nonce The nonce string.
+	 * @return array The nonce data.
+	 * @since 1.0.0
+	 */
 	public static function get_nonce_data( $nonce ) {
 		global $wpdb;
 
@@ -329,6 +530,15 @@ class Nonce {
 		return $data;
 	}
 
+	/**
+	 * Validate nonce
+	 *
+	 * Validate a nonce.
+	 *
+	 * @param string $value The nonce string.
+	 * @return bool True if the nonce is valid, false otherwise.
+	 * @since 1.0.0
+	 */
 	public static function validate_nonce( $value ) {
 
 		if ( empty( $value ) ) {
@@ -341,7 +551,15 @@ class Nonce {
 		return $valid;
 	}
 
-
+	/**
+	 * Delete nonce
+	 *
+	 * Delete a nonce from the database.
+	 *
+	 * @param string $value The nonce string.
+	 * @return bool True on success, false on failure.
+	 * @since 1.0.0
+	 */
 	public static function delete_nonce( $value ) {
 		global $wpdb;
 
@@ -352,6 +570,13 @@ class Nonce {
 		return (bool) $result;
 	}
 
+	/**
+	 * Nonce cleanup
+	 *
+	 * Clean up expired nonces from the database.
+	 *
+	 * @since 1.0.0
+	 */
 	public static function upserv_nonce_cleanup() {
 
 		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
@@ -373,7 +598,21 @@ class Nonce {
 			) OR
 			JSON_VALID(`data`) = 0;";
 		$sql_args = array( time() - self::DEFAULT_EXPIRY_LENGTH );
-		$sql      = apply_filters( 'upserv_clear_nonces_query', $sql, $sql_args );
+
+		/**
+		 * Filter the SQL query used to clear expired nonces.
+		 *
+		 * @param string $sql The SQL query used to clear expired nonces
+		 * @param array $sql_args The arguments passed to the SQL query used to clear expired nonces
+		 */
+		$sql = apply_filters( 'upserv_clear_nonces_query', $sql, $sql_args );
+
+		/**
+		 * Filter the arguments passed to the SQL query used to clear expired nonces.
+		 *
+		 * @param array $sql_args The arguments passed to the SQL query used to clear expired nonces
+		 * @param string $sql The SQL query used to clear expired nonces
+		 */
 		$sql_args = apply_filters( 'upserv_clear_nonces_query_args', $sql_args, $sql );
 		$result   = $wpdb->query( $wpdb->prepare( $sql, $sql_args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
@@ -386,14 +625,42 @@ class Nonce {
 
 	// API action --------------------------------------------------
 
+	/**
+	 * Generate token API response
+	 *
+	 * Generate a response for the token API endpoint.
+	 *
+	 * @param array $payload The request payload.
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	protected static function generate_token_api_response( $payload ) {
 		return self::generate_api_response( $payload, false );
 	}
 
+	/**
+	 * Generate nonce API response
+	 *
+	 * Generate a response for the nonce API endpoint.
+	 *
+	 * @param array $payload The request payload.
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	protected static function generate_nonce_api_response( $payload ) {
 		return self::generate_api_response( $payload, true );
 	}
 
+	/**
+	 * Generate API response
+	 *
+	 * Generate a response for the API endpoint.
+	 *
+	 * @param array $payload The request payload.
+	 * @param bool $is_nonce Indicates if the response is for a nonce.
+	 * @return array The API response.
+	 * @since 1.0.0
+	 */
 	protected static function generate_api_response( $payload, $is_nonce ) {
 		return self::create_nonce(
 			$is_nonce,
@@ -407,6 +674,15 @@ class Nonce {
 
 	// Misc. -------------------------------------------------------
 
+	/**
+	 * Fetch nonce
+	 *
+	 * Fetch a nonce from the database.
+	 *
+	 * @param string $value The nonce string.
+	 * @return string|null The nonce or null if not found.
+	 * @since 1.0.0
+	 */
 	protected static function fetch_nonce( $value ) {
 		global $wpdb;
 
@@ -442,6 +718,16 @@ class Nonce {
 		}
 
 		if ( $row->expiry < time() && ! $permanent ) {
+			/**
+			 * Filter whether to consider the nonce has expired.
+			 *
+			 * @param bool $expire_nonce Whether to consider the nonce has expired
+			 * @param string $nonce_value The value of the nonce
+			 * @param bool $true_nonce Whether the nonce is a true, one-time-use nonce
+			 * @param int $expiry The timestamp at which the nonce expires
+			 * @param array $data Data stored along the nonce
+			 * @param object $row The database record corresponding to the nonce
+			 */
 			$row->nonce = apply_filters(
 				'upserv_expire_nonce',
 				null,
@@ -453,6 +739,16 @@ class Nonce {
 			);
 		}
 
+		/**
+		 * Filter whether to delete the nonce.
+		 *
+		 * @param bool $delete Whether to delete the nonce
+		 * @param string $nonce_value The value of the nonce
+		 * @param bool $true_nonce Whether the nonce is a true, one-time-use nonce
+		 * @param int $expiry The timestamp at which the nonce expires
+		 * @param array $data Data stored along the nonce
+		 * @param object $row The database record corresponding to the nonce
+		 */
 		$delete_nonce = apply_filters(
 			'upserv_delete_nonce',
 			$row->true_nonce || null === $row->nonce,
@@ -466,11 +762,32 @@ class Nonce {
 			self::delete_nonce( $value );
 		}
 
+		/**
+		 * Filter the value of the nonce after it has been fetched from the database.
+		 *
+		 * @param string $nonce_value The value of the nonce after it has been fetched from the database
+		 * @param bool $true_nonce Whether the nonce is a true, one-time-use nonce
+		 * @param int $expiry The timestamp at which the nonce expires
+		 * @param array $data Data stored along the nonce
+		 * @param object $row The database record corresponding to the nonce
+		 */
 		$nonce = apply_filters( 'upserv_fetch_nonce', $row->nonce, $row->true_nonce, $row->expiry, $data, $row );
 
 		return $nonce;
 	}
 
+	/**
+	 * Store nonce
+	 *
+	 * Store a nonce in the database.
+	 *
+	 * @param string $nonce The nonce string.
+	 * @param bool $true_nonce Indicates if the nonce is a true nonce.
+	 * @param int $expiry The expiry time in seconds.
+	 * @param string $data The nonce data.
+	 * @return array|false The stored nonce data or false on failure.
+	 * @since 1.0.0
+	 */
 	protected static function store_nonce( $nonce, $true_nonce, $expiry, $data ) {
 		global $wpdb;
 
@@ -489,6 +806,14 @@ class Nonce {
 		return false;
 	}
 
+	/**
+	 * Generate ID
+	 *
+	 * Generate a unique ID.
+	 *
+	 * @return string The generated ID.
+	 * @since 1.0.0
+	 */
 	protected static function generate_id() {
 		require_once ABSPATH . 'wp-includes/class-phpass.php';
 
@@ -497,6 +822,14 @@ class Nonce {
 		return md5( $hasher->get_random_bytes( 100, false ) );
 	}
 
+	/**
+	 * Authorize request
+	 *
+	 * Authorize the incoming request using the provided credentials and signature.
+	 *
+	 * @return bool True if the request is authorized, false otherwise.
+	 * @since 1.0.0
+	 */
 	protected static function authorize() {
 		$sign         = false;
 		$key_id       = false;
@@ -560,6 +893,13 @@ class Nonce {
 			$auth    = hash_equals( $values['signature'], $sign );
 		}
 
+		/**
+		 * Filter whether the request for a nonce is authorized.
+		 *
+		 * @param bool $authorized Whether the request is authorized
+		 * @param string $received_key The key use to attempt the authorization
+		 * @param array $private_auth_keys The valid authorization keys
+		 */
 		return apply_filters(
 			'upserv_nonce_authorize',
 			$auth,

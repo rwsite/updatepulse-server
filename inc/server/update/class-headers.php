@@ -12,6 +12,11 @@ use Countable;
 use ArrayIterator;
 use Traversable;
 
+/**
+ * Headers class
+ *
+ * @since 1.0.0
+ */
 class Headers implements ArrayAccess, IteratorAggregate, Countable {
 
 	/**
@@ -19,6 +24,7 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	 * These special headers don't have that prefix, so we need an explicit list to identify them.
 	 *
 	 * @var array
+	 * @since 1.0.0
 	 */
 	protected static $unprefixed_names = array(
 		'CONTENT_TYPE',
@@ -29,8 +35,24 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 		'AUTH_TYPE',
 	);
 
+	/**
+	 * Headers collection
+	 *
+	 * Stores all HTTP headers.
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $headers = array();
 
+	/**
+	 * Constructor
+	 *
+	 * Initialize headers from provided array.
+	 *
+	 * @param array $headers Initial headers to set.
+	 * @since 1.0.0
+	 */
 	public function __construct( $headers = array() ) {
 
 		foreach ( $headers as $name => $value ) {
@@ -41,8 +63,9 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	/**
 	 * Extract HTTP headers from an array of data ( usually $_SERVER ).
 	 *
-	 * @param array $environment
-	 * @return array
+	 * @param array $environment Server environment variables.
+	 * @return array Extracted HTTP headers.
+	 * @since 1.0.0
 	 */
 	protected static function parse_server() {
 		$results     = array();
@@ -65,8 +88,9 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	/**
 	 * Check if a $_SERVER key looks like a HTTP header name.
 	 *
-	 * @param string $key
-	 * @return bool
+	 * @param string $key The key to check.
+	 * @return bool Whether the key is a HTTP header name.
+	 * @since 1.0.0
 	 */
 	protected static function is_header_name( $key ) {
 		return (
@@ -80,7 +104,8 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	 * Parse headers for the current HTTP request.
 	 * Will automatically choose the best way to get the headers from PHP.
 	 *
-	 * @return array
+	 * @return array HTTP headers from the current request.
+	 * @since 1.0.0
 	 */
 	public static function parse_current() {
 
@@ -98,8 +123,9 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	/**
 	 * Convert a header name to "Title-Case-With-Dashes".
 	 *
-	 * @param string $name
-	 * @return string
+	 * @param string $name Header name to normalize.
+	 * @return string Normalized header name.
+	 * @since 1.0.0
 	 */
 	protected function normalize_name( $name ) {
 		$name = strtolower( $name );
@@ -113,9 +139,10 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	/**
 	 * Check if a string starts with the given prefix.
 	 *
-	 * @param string $string
-	 * @param string $prefix
-	 * @return bool
+	 * @param string $_string The string to check.
+	 * @param string $prefix The prefix to look for.
+	 * @return bool Whether the string starts with the prefix.
+	 * @since 1.0.0
 	 */
 	protected static function starts_with( $_string, $prefix ) {
 		return ( substr( $_string, 0, strlen( $prefix ) ) === $prefix );
@@ -126,7 +153,8 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	 *
 	 * @param string $name Header name.
 	 * @param mixed $_default The default value to return if the header doesn't exist.
-	 * @return string|null
+	 * @return string|null Header value or default if not found.
+	 * @since 1.0.0
 	 */
 	public function get( $name, $_default = null ) {
 		$name = $this->normalize_name( $name );
@@ -141,8 +169,9 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 	/**
 	 * Set a header to value.
 	 *
-	 * @param string $name
-	 * @param string $value
+	 * @param string $name Header name.
+	 * @param string $value Header value.
+	 * @since 1.0.0
 	 */
 	public function set( $name, $value ) {
 		$name                   = $this->normalize_name( $name );
@@ -151,34 +180,83 @@ class Headers implements ArrayAccess, IteratorAggregate, Countable {
 
 	/* ArrayAccess interface */
 
+	/**
+	 * Check if header exists
+	 *
+	 * Implementation for ArrayAccess interface.
+	 *
+	 * @param mixed $offset The header name.
+	 * @return bool Whether the header exists.
+	 * @since 1.0.0
+	 */
 	#[\ReturnTypeWillChange]
 	public function offsetExists( $offset ): bool {
 		return array_key_exists( $offset, $this->headers );
 	}
 
+	/**
+	 * Get header value
+	 *
+	 * Implementation for ArrayAccess interface.
+	 *
+	 * @param mixed $offset The header name.
+	 * @return mixed The header value.
+	 * @since 1.0.0
+	 */
 	#[\ReturnTypeWillChange]
 	public function offsetGet( $offset ): mixed {
 		return $this->get( $offset );
 	}
 
+	/**
+	 * Set header value
+	 *
+	 * Implementation for ArrayAccess interface.
+	 *
+	 * @param mixed $offset The header name.
+	 * @param mixed $value The header value.
+	 * @since 1.0.0
+	 */
 	#[\ReturnTypeWillChange]
 	public function offsetSet( $offset, $value ): void {
 		$this->set( $offset, $value );
 	}
 
+	/**
+	 * Unset header
+	 *
+	 * Implementation for ArrayAccess interface.
+	 *
+	 * @param mixed $offset The header name.
+	 * @since 1.0.0
+	 */
 	#[\ReturnTypeWillChange]
 	public function offsetUnset( $offset ): void {
 		$name = $this->normalize_name( $offset );
 		unset( $this->headers[ $name ] );
 	}
 
-	/* Countable interface */
+	/**
+	 * Count headers
+	 *
+	 * Implementation for Countable interface.
+	 *
+	 * @return int Number of headers.
+	 * @since 1.0.0
+	 */
 	#[\ReturnTypeWillChange]
 	public function count(): int {
 		return count( $this->headers );
 	}
 
-	/* IteratorAggregate interface  */
+	/**
+	 * Get iterator for headers
+	 *
+	 * Implementation for IteratorAggregate interface.
+	 *
+	 * @return Traversable Iterator for headers.
+	 * @since 1.0.0
+	 */
 	#[\ReturnTypeWillChange]
 	public function getIterator(): Traversable {
 		return new ArrayIterator( $this->headers );

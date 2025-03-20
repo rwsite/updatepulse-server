@@ -8,29 +8,94 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Simple request class for the update server.
+ *
+ * Handles incoming update requests, parsing parameters and headers.
  */
 class Request {
 
-	/** @var array Query parameters. */
+	/**
+	 * Query parameters
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	public $query = array();
-	/** @var string Client's IP address. */
+	/**
+	 * Client's IP address
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	public $client_ip;
-	/** @var string The HTTP method, e.g. "POST" or "GET". */
+	/**
+	 * The HTTP method
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	public $http_method;
-	/** @var string The name of the current action. For example, "get_metadata". */
+	/**
+	 * The name of the current action
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	public $action;
-	/** @var string Package slug from the current request. */
+	/**
+	 * Package slug from the current request
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	public $slug;
-	/** @var Package The package that matches the current slug, if any. */
+	/**
+	 * The package that matches the current slug
+	 *
+	 * @var Package|null
+	 * @since 1.0.0
+	 */
 	public $package = null;
-	/** @var string WordPress version number as extracted from the User-Agent header. */
+	/**
+	 * WordPress version number
+	 *
+	 * @var string|null
+	 * @since 1.0.0
+	 */
 	public $wp_version = null;
-	/** @var string WordPress site URL, also from the User-Agent. */
+	/**
+	 * WordPress site URL
+	 *
+	 * @var string|null
+	 * @since 1.0.0
+	 */
 	public $wp_site_url = null;
+	/**
+	 * Request headers container
+	 *
+	 * @var Headers
+	 * @since 1.0.0
+	 */
+	public $headers;
 
-	/** @var array Other, arbitrary request properties. */
+	/**
+	 * Other, arbitrary request properties
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	protected $props = array();
 
+	/**
+	 * Constructor
+	 *
+	 * Initialize a new request object with query parameters, headers and connection info.
+	 *
+	 * @param array $query Request query parameters.
+	 * @param array $headers Request HTTP headers.
+	 * @param string $client_ip Client's IP address, defaults to '0.0.0.0'.
+	 * @param string $http_method HTTP method used for the request, defaults to 'GET'.
+	 * @since 1.0.0
+	 */
 	public function __construct( $query, $headers, $client_ip = '0.0.0.0', $http_method = 'GET' ) {
 		$this->query       = $query;
 		$this->headers     = new Headers( $headers );
@@ -58,9 +123,12 @@ class Request {
 	/**
 	 * Get the value of a query parameter.
 	 *
-	 * @param string $name Parameter name.
+	 * Safely retrieves a parameter from the query array with an optional default value.
+	 *
+	 * @param string $name Parameter name to retrieve.
 	 * @param mixed $_default The value to return if the parameter doesn't exist. Defaults to null.
-	 * @return mixed
+	 * @return mixed The parameter value or default if not found.
+	 * @since 1.0.0
 	 */
 	public function param( $name, $_default = null ) {
 
@@ -71,6 +139,15 @@ class Request {
 		}
 	}
 
+	/**
+	 * Magic getter for dynamic properties
+	 *
+	 * Retrieves dynamically stored properties from the props array.
+	 *
+	 * @param string $name Property name to retrieve.
+	 * @return mixed The property value or null if not found.
+	 * @since 1.0.0
+	 */
 	public function __get( $name ) {
 
 		if ( array_key_exists( $name, $this->props ) ) {
@@ -80,14 +157,40 @@ class Request {
 		return null;
 	}
 
+	/**
+	 * Magic setter for dynamic properties
+	 *
+	 * Sets values in the dynamic props array.
+	 *
+	 * @param string $name Property name to set.
+	 * @param mixed $value Value to assign to the property.
+	 * @since 1.0.0
+	 */
 	public function __set( $name, $value ) {
 		$this->props[ $name ] = $value;
 	}
 
+	/**
+	 * Magic isset checker for dynamic properties
+	 *
+	 * Checks if a dynamic property exists in the props array.
+	 *
+	 * @param string $name Property name to check.
+	 * @return bool Whether the property exists.
+	 * @since 1.0.0
+	 */
 	public function __isset( $name ) {
 		return isset( $this->props[ $name ] );
 	}
 
+	/**
+	 * Magic unset for dynamic properties
+	 *
+	 * Removes a property from the props array.
+	 *
+	 * @param string $name Property name to remove.
+	 * @since 1.0.0
+	 */
 	public function __unset( $name ) {
 		unset( $this->props[ $name ] );
 	}

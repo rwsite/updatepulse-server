@@ -9,13 +9,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Cache class.
  *
- * Cache data to the filesystem.
+ * @since 1.0.0
  */
 class Cache {
 
+	/**
+	 * Cache directory path
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $cache_directory;
+
+	/**
+	 * File extension for cache files
+	 *
+	 * @var string
+	 * @since 1.0.0
+	 */
 	protected $extension;
 
+	/**
+	 * Constructor
+	 *
+	 * @param string $cache_directory Directory to store cache files.
+	 * @param string $extension File extension for cache files. Default 'dat'.
+	 * @since 1.0.0
+	 */
 	public function __construct( $cache_directory, $extension = 'dat' ) {
 		$this->cache_directory = $cache_directory;
 		$this->extension       = $extension;
@@ -24,8 +44,11 @@ class Cache {
 	/**
 	 * Get cached value.
 	 *
-	 * @param string $key
-	 * @return mixed|null
+	 * Retrieves a value from the cache if it exists and hasn't expired.
+	 *
+	 * @param string $key Cache key identifier.
+	 * @return mixed|null Cached value or null if not found or expired.
+	 * @since 1.0.0
 	 */
 	public function get( $key ) {
 		$filename = $this->get_cache_filename( $key );
@@ -53,10 +76,13 @@ class Cache {
 	/**
 	 * Update the cache.
 	 *
-	 * @param string $key Cache key.
+	 * Stores a value in the cache with the specified expiration time.
+	 *
+	 * @param string $key Cache key identifier.
 	 * @param mixed $value The value to store in the cache.
 	 * @param int $expiration Time until expiration, in seconds. Optional. Default `0`.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function set( $key, $value, $expiration = 0 ) {
 		$cache = array(
@@ -75,8 +101,11 @@ class Cache {
 	/**
 	 * Clear the cache by key.
 	 *
-	 * @param string $key Cache key.
+	 * Removes a specific cached value by its key.
+	 *
+	 * @param string $key Cache key identifier.
 	 * @return void
+	 * @since 1.0.0
 	 */
 	public function clear( $key ) {
 		$file = $this->get_cache_filename( $key );
@@ -87,8 +116,13 @@ class Cache {
 	}
 
 	/**
-	 * @param string $key
-	 * @return string
+	 * Get cache filename
+	 *
+	 * Constructs the full path to a cache file based on its key.
+	 *
+	 * @param string $key Cache key identifier.
+	 * @return string Full path to the cache file.
+	 * @since 1.0.0
 	 */
 	protected function get_cache_filename( $key ) {
 		return $this->cache_directory . '/' . $key . '.' . $this->extension;

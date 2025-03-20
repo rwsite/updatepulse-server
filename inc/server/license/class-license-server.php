@@ -13,8 +13,19 @@ use WP_Error;
 use Anyape\Crypto\Crypto;
 use Anyape\Utils\Utils;
 
+/**
+ * License Server class
+ *
+ * @since 1.0.0
+ */
 class License_Server {
 
+	/**
+	 * License definition template
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	public static $license_definition = array(
 		'id'                  => 0,
 		'license_key'         => '',
@@ -32,13 +43,27 @@ class License_Server {
 		'package_type'        => '',
 		'data'                => array(),
 	);
-	public static $browsing_query     = array(
+
+	/**
+	 * Default browsing query settings
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	public static $browsing_query = array(
 		'relationship' => 'AND',
 		'limit'        => 999,
 		'offset'       => 0,
 		'order_by'     => 'date_created',
 		'criteria'     => array(),
 	);
+
+	/**
+	 * Supported browsing operators
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
 	public static $browsing_operators = array(
 		'=',
 		'!=',
@@ -53,7 +78,14 @@ class License_Server {
 		'LIKE',
 		'NOT LIKE',
 	);
-	public static $license_statuses   = array(
+
+	/**
+	 * Supported license statuses
+	 *
+	 * @var array
+	 * @since 1.0.0
+	 */
+	public static $license_statuses = array(
 		'pending',
 		'activated',
 		'deactivated',
@@ -62,12 +94,26 @@ class License_Server {
 		'expired',
 	);
 
+	/**
+	 * Constructor
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {}
 
 	/*******************************************************************
 	 * Public methods
 	 *******************************************************************/
 
+	/**
+	 * Build license payload
+	 *
+	 * Creates a properly structured license payload from input data.
+	 *
+	 * @param array $payload The raw license data.
+	 * @return array The processed license payload.
+	 * @since 1.0.0
+	 */
 	public function build_license_payload( $payload ) {
 		$payload = $this->extend_license_payload( $this->filter_license_payload( $payload ) );
 
@@ -76,11 +122,27 @@ class License_Server {
 		return $this->cleanup_license_payload( $payload );
 	}
 
+	/**
+	 * Browse licenses
+	 *
+	 * Retrieve multiple licenses based on query criteria.
+	 *
+	 * @param array $payload The query parameters.
+	 * @return array|WP_Error Array of licenses or WP_Error on failure.
+	 * @since 1.0.0
+	 */
 	public function browse_licenses( $payload ) {
 		global $wpdb;
 
 		$prepare_args = array();
-		$payload      = apply_filters( 'upserv_browse_licenses_payload', $payload );
+		/**
+		 * Filter the payload used to browse licenses - before the payload has been cleaned up and the License Query has been validated.
+		 * Fired during client license API request.
+		 *
+		 * @param array $payload A dirty payload for a License Query
+		 * @since 1.0.0
+		 */
+		$payload = apply_filters( 'upserv_browse_licenses_payload', $payload );
 
 		try {
 			$browsing_query = $this->build_browsing_query( $payload );
@@ -138,11 +200,29 @@ class License_Server {
 			}
 		}
 
+		/**
+		 * Fired after browsing license records.
+		 * Fired during client license API request.
+		 *
+		 * @param array $licenses The license records retrieved or an empty array
+		 * @param array $payload The payload of the request
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_did_browse_licenses', $licenses, $payload );
 
 		return $licenses;
 	}
 
+	/**
+	 * Read license
+	 *
+	 * Retrieve a single license by ID or license key.
+	 *
+	 * @param array $payload The query parameters containing ID or license key.
+	 * @param bool $force Whether to bypass cache.
+	 * @return object|WP_Error License object or WP_Error on failure.
+	 * @since 1.0.0
+	 */
 	public function read_license( $payload, $force = false ) {
 		$where_field = isset( $payload['license_key'] ) ? 'license_key' : 'id';
 		$where_value = isset( $payload[ $where_field ] ) ? $payload[ $where_field ] : null;
@@ -151,7 +231,14 @@ class License_Server {
 		$validation  = $this->validate_license_payload( $payload, true );
 
 		if ( ( $force || ! $found ) && true === $validation ) {
-			$payload    = $this->filter_license_payload( $payload );
+			$payload = $this->filter_license_payload( $payload );
+			/**
+			 * Filter the payload used to read a license record - after the payload has been cleaned up, before the payload has been validated.
+			 * Fired during client license API request.
+			 *
+			 * @param array $payload Payload used to read a license record
+			 * @since 1.0.0
+			 */
 			$payload    = apply_filters( 'upserv_read_license_payload', $payload );
 			$validation = $this->validate_license_payload( $payload, true );
 			$return     = $validation;
@@ -177,13 +264,37 @@ class License_Server {
 			$return = $validation;
 		}
 
+		/**
+		 * Fired after reading a license record.
+		 * Fired during client license API request.
+		 *
+		 * @param mixed $return The result of the operation - a license object record or an empty array
+		 * @param array $payload The payload of the request
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_did_read_license', $return, $payload );
 
 		return $return;
 	}
 
+	/**
+	 * Edit license
+	 *
+	 * Update an existing license.
+	 *
+	 * @param array $payload The license data to update.
+	 * @return object|WP_Error Updated license object or WP_Error on failure.
+	 * @since 1.0.0
+	 */
 	public function edit_license( $payload ) {
-		$payload    = $this->cleanup_license_payload( $this->filter_license_payload( $payload ) );
+		$payload = $this->cleanup_license_payload( $this->filter_license_payload( $payload ) );
+		/**
+		 * Filter the payload used to edit a license record - after the payload has been cleaned up, before the payload has been validated.
+		 * Fired during client license API request.
+		 *
+		 * @param array $payload Payload used to edit a license record
+		 * @since 1.0.0
+		 */
 		$payload    = apply_filters( 'upserv_edit_license_payload', $payload );
 		$validation = $this->validate_license_payload( $payload, true );
 		$return     = $validation;
@@ -221,13 +332,38 @@ class License_Server {
 			}
 		}
 
+		/**
+		 * Fired after editing a license record.
+		 * Fired during client license API request.
+		 *
+		 * @param mixed $return The result of the operation - a license record object or an array of errors
+		 * @param array $payload The payload of the request
+		 * @param mixed $original The original record to edit - a license record object or an array of errors
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_did_edit_license', $return, $payload, $original );
 
 		return $return;
 	}
 
+	/**
+	 * Add license
+	 *
+	 * Create a new license.
+	 *
+	 * @param array $payload The license data.
+	 * @return object|WP_Error New license object or WP_Error on failure.
+	 * @since 1.0.0
+	 */
 	public function add_license( $payload ) {
-		$payload    = $this->build_license_payload( $payload );
+		$payload = $this->build_license_payload( $payload );
+		/**
+		 * Filter the payload used to add a license record - after the payload has been cleaned up, before the payload has been validated.
+		 * Fired during client license API request.
+		 *
+		 * @param array $payload Payload used to add a license record
+		 * @since 1.0.0
+		 */
 		$payload    = apply_filters( 'upserv_add_license_payload', $payload );
 		$validation = $this->validate_license_payload( $payload );
 		$return     = $validation;
@@ -266,13 +402,37 @@ class License_Server {
 			}
 		}
 
+		/**
+		 * Fired after adding a license record.
+		 * Fired during client license API request.
+		 *
+		 * @param mixed $return The result of the operation - a license record object or an array of errors
+		 * @param array $payload The payload of the request
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_did_add_license', $return, $payload );
 
 		return $return;
 	}
 
+	/**
+	 * Delete license
+	 *
+	 * Remove a license from the system.
+	 *
+	 * @param array $payload The license identifier data.
+	 * @return object|WP_Error Deleted license object or WP_Error on failure.
+	 * @since 1.0.0
+	 */
 	public function delete_license( $payload ) {
-		$payload    = $this->filter_license_payload( $payload );
+		$payload = $this->filter_license_payload( $payload );
+		/**
+		 * Filter the payload used to delete a license record - after the payload has been cleaned up, before the payload has been validated.
+		 * Fired during client license API request.
+		 *
+		 * @param array $payload Payload used to delete a license record
+		 * @since 1.0.0
+		 */
 		$payload    = apply_filters( 'upserv_delete_license_payload', $payload );
 		$validation = $this->validate_license_payload( $payload, true );
 		$return     = $validation;
@@ -305,11 +465,29 @@ class License_Server {
 			}
 		}
 
+		/**
+		 * Fired after deleting a license record.
+		 * Fired during client license API request.
+		 *
+		 * @param mixed $return The result of the operation - a license record object or an empty array
+		 * @param array $payload The payload of the request
+		 * @since 1.0.0
+		 */
 		do_action( 'upserv_did_delete_license', $return, $payload );
 
 		return $return;
 	}
 
+	/**
+	 * Generate license signature
+	 *
+	 * Create a cryptographic signature for a license and domain.
+	 *
+	 * @param object $license The license object.
+	 * @param string $domain The domain to generate signature for.
+	 * @return string The generated signature.
+	 * @since 1.0.0
+	 */
 	public function generate_license_signature( $license, $domain ) {
 		$hmac_key      = $license->hmac_key;
 		$crypto_key    = $license->crypto_key;
@@ -319,6 +497,16 @@ class License_Server {
 		return $signature;
 	}
 
+	/**
+	 * Is signature valid
+	 *
+	 * Verify if a license signature is valid.
+	 *
+	 * @param string $license_key The license key.
+	 * @param string $license_signature The signature to validate.
+	 * @return bool Whether the signature is valid.
+	 * @since 1.0.0
+	 */
 	public function is_signature_valid( $license_key, $license_signature ) {
 		$valid      = false;
 		$crypt      = $license_signature;
@@ -344,7 +532,15 @@ class License_Server {
 					in_array( $domain, $license->allowed_domains, true ) &&
 					$license->package_slug === $package_slug
 				) {
-					$valid = true;
+					/**
+					 * Filter whether to bypass the license signature check.
+					 * Fired during client license API request.
+					 *
+					 * @param bool $bypass Whether to bypass the license signature check
+					 * @param object $license The license object
+					 * @since 1.0.0
+					 */
+					$valid = apply_filters( 'upserv_license_bypass_signature', true, $license );
 				}
 			}
 		}
@@ -352,6 +548,13 @@ class License_Server {
 		return $valid;
 	}
 
+	/**
+	 * Switch expired licenses status
+	 *
+	 * Update status of licenses that have reached their expiry date.
+	 *
+	 * @since 1.0.0
+	 */
 	public function switch_expired_licenses_status() {
 		global $wpdb;
 
@@ -401,6 +604,15 @@ class License_Server {
 				$item->data['operation']           = 'edit';
 				$item->data['operation_id']        = bin2hex( random_bytes( 16 ) );
 
+				/**
+				 * Fired after editing a license record.
+				 * Fired during client license API request.
+				 *
+				 * @param mixed $item The result of the operation - a license record object or an array of errors
+				 * @param array $payload The payload of the request
+				 * @param mixed $original The original record to edit - a license record object or an array of errors
+				 * @since 1.0.0
+				 */
 				do_action(
 					'upserv_did_edit_license',
 					$item,
@@ -414,6 +626,15 @@ class License_Server {
 		}
 	}
 
+	/**
+	 * Update licenses status
+	 *
+	 * Bulk update status for multiple licenses.
+	 *
+	 * @param string $status The new status to set.
+	 * @param array $license_ids Optional array of license IDs to update.
+	 * @since 1.0.0
+	 */
 	public function update_licenses_status( $status, $license_ids = array() ) {
 		$license_query = array( 'limit' => '-1' );
 
@@ -455,6 +676,15 @@ class License_Server {
 				$item->data['operation']           = 'edit';
 				$item->data['operation_id']        = bin2hex( random_bytes( 16 ) );
 
+				/**
+				 * Fired after editing a license record.
+				 * Fired during client license API request.
+				 *
+				 * @param mixed $item The result of the operation - a license record object or an array of errors
+				 * @param array $payload The payload of the request
+				 * @param mixed $original The original record to edit - a license record object or an array of errors
+				 * @since 1.0.0
+				 */
 				do_action(
 					'upserv_did_edit_license',
 					$item,
@@ -468,6 +698,14 @@ class License_Server {
 		}
 	}
 
+	/**
+	 * Purge licenses
+	 *
+	 * Delete licenses from the database.
+	 *
+	 * @param array $license_ids Optional array of license IDs to delete.
+	 * @since 1.0.0
+	 */
 	public function purge_licenses( $license_ids = array() ) {
 		$license_query = array( 'limit' => '-1' );
 
@@ -509,6 +747,14 @@ class License_Server {
 				$item->data['operation']           = 'delete';
 				$item->data['operation_id']        = bin2hex( random_bytes( 16 ) );
 
+				/**
+				 * Fired after deleting a license record.
+				 * Fired during client license API request.
+				 *
+				 * @param mixed $item The result of the operation - a license record object or an empty array
+				 * @param array $payload The payload of the request
+				 * @since 1.0.0
+				 */
 				do_action( 'upserv_did_delete_license', $item, array( $item->license_key ) );
 			}
 		}
@@ -518,6 +764,16 @@ class License_Server {
 	 * Protected methods
 	 *******************************************************************/
 
+	/**
+	 * Build browsing query
+	 *
+	 * Construct a valid query structure for browsing licenses.
+	 *
+	 * @param array $payload The raw query parameters.
+	 * @return array The processed query structure.
+	 * @throws Exception If query parameters are invalid.
+	 * @since 1.0.0
+	 */
 	protected function build_browsing_query( $payload ) {
 		$original = $payload;
 		$payload  = array_intersect_key( $payload, self::$browsing_query );
@@ -669,6 +925,15 @@ class License_Server {
 		return $payload;
 	}
 
+	/**
+	 * Cleanup license payload
+	 *
+	 * Fill in default values for missing license data.
+	 *
+	 * @param array $payload The license data to clean up.
+	 * @return array The processed license data.
+	 * @since 1.0.0
+	 */
 	protected function cleanup_license_payload( $payload ) {
 
 		if ( isset( $payload['license_key'] ) && empty( $payload['license_key'] ) ) {
@@ -688,14 +953,41 @@ class License_Server {
 		return $payload;
 	}
 
+	/**
+	 * Filter license payload
+	 *
+	 * Remove any properties not in the license definition.
+	 *
+	 * @param array $payload The license data to filter.
+	 * @return array The filtered license data.
+	 * @since 1.0.0
+	 */
 	protected function filter_license_payload( $payload ) {
 		return is_array( $payload ) ? array_intersect_key( $payload, self::$license_definition ) : self::$license_definition;
 	}
 
+	/**
+	 * Extend license payload
+	 *
+	 * Add default values for missing properties in license data.
+	 *
+	 * @param array $payload The license data to extend.
+	 * @return array The extended license data.
+	 * @since 1.0.0
+	 */
 	protected function extend_license_payload( $payload ) {
 		return array_merge( self::$license_definition, $payload );
 	}
 
+	/**
+	 * Sanitize payload
+	 *
+	 * Clean and validate license data.
+	 *
+	 * @param array $license The license data to sanitize.
+	 * @return array The sanitized license data.
+	 * @since 1.0.0
+	 */
 	protected function sanitize_payload( $license ) {
 
 		foreach ( $license as $key => $value ) {
@@ -749,6 +1041,16 @@ class License_Server {
 		return $license;
 	}
 
+	/**
+	 * Validate license payload
+	 *
+	 * Check if license data is valid.
+	 *
+	 * @param array $license The license data to validate.
+	 * @param bool $partial Whether to perform partial validation.
+	 * @return bool|array True if valid, array of errors otherwise.
+	 * @since 1.0.0
+	 */
 	protected function validate_license_payload( $license, $partial = false ) {
 		global $wpdb;
 
@@ -835,7 +1137,20 @@ class License_Server {
 				! ( $partial && ! isset( $license['status'] ) ) &&
 				! in_array( $license['status'], self::$license_statuses, true )
 			) {
-				$errors['invalid_status'] = __( 'The license status is invalid.', 'updatepulse-server' );
+				/**
+				 * Filter whether a license is valid when requesting for an update.
+				 * Fired during client license API request.
+				 *
+				 * @param bool $is_valid Whether the license is valid
+				 * @param mixed $license The license to validate
+				 * @param string $license_signature The signature of the license
+				 * @since 1.0.0
+				 */
+				$valid_status = apply_filters( 'upserv_license_valid', false, $license, '' );
+
+				if ( ! $valid_status ) {
+					$errors['invalid_status'] = __( 'The license status is invalid.', 'updatepulse-server' );
+				}
 			}
 
 			if (
