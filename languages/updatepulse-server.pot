@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: UpdatePulse Server\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-27 04:00+0000\n"
+"POT-Creation-Date: 2025-03-20 00:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -20,12 +20,12 @@ msgstr ""
 msgid " (discouraged)"
 msgstr ""
 
-#: functions.php:627
+#: functions.php:1168
 msgid "$url must be a valid url and $body must be a JSON string."
 msgstr ""
 
 #. %1$d is the number of events, %s is the type of events
-#: inc/manager/class-api-manager.php:80
+#: inc/manager/class-api-manager.php:109
 #, php-format
 msgid "%1$d %2$s events"
 msgstr ""
@@ -37,12 +37,12 @@ msgid "%1$s: Method %2$s does not exist."
 msgstr ""
 
 #. %d is the number of actions
-#: inc/manager/class-api-manager.php:69
+#: inc/manager/class-api-manager.php:98
 msgid "%d actions"
 msgstr ""
 
 #. %d is the number of actions
-#: inc/manager/class-api-manager.php:71
+#: inc/manager/class-api-manager.php:100
 msgid "%d actions (all records)"
 msgstr ""
 
@@ -55,20 +55,20 @@ msgid "(required)"
 msgstr ""
 
 #. %s is the type of event
-#: inc/manager/class-api-manager.php:78
+#: inc/manager/class-api-manager.php:107
 #, php-format
 msgid "1 %s event"
 msgstr ""
 
-#: inc/manager/class-api-manager.php:66
+#: inc/manager/class-api-manager.php:95
 msgid "1 action"
 msgstr ""
 
-#: inc/manager/class-api-manager.php:67
+#: inc/manager/class-api-manager.php:96
 msgid "1 action (all records)"
 msgstr ""
 
-#: inc/api/class-webhook-api.php:99 inc/api/class-webhook-api.php:100
+#: inc/api/class-webhook-api.php:156 inc/api/class-webhook-api.php:157
 msgid "401 Unauthorized"
 msgstr ""
 
@@ -128,7 +128,7 @@ msgstr ""
 msgid "Action Scheduler"
 msgstr ""
 
-#: inc/table/class-licenses-table.php:257
+#: inc/table/class-licenses-table.php:261
 msgid "Activate"
 msgstr ""
 
@@ -182,7 +182,7 @@ msgstr ""
 msgid "Add a Webhook"
 msgstr ""
 
-#: inc/table/class-licenses-table.php:250
+#: inc/table/class-licenses-table.php:254
 #: inc/templates/admin/plugin-licenses-page.php:15
 msgid "Add License"
 msgstr ""
@@ -231,16 +231,16 @@ msgid "Alexandre Froger"
 msgstr ""
 
 #. %s is the type of events
-#: inc/manager/class-api-manager.php:76
+#: inc/manager/class-api-manager.php:105
 #, php-format
 msgid "All %s events"
 msgstr ""
 
-#: inc/manager/class-api-manager.php:72
+#: inc/manager/class-api-manager.php:101
 msgid "All actions"
 msgstr ""
 
-#: inc/manager/class-api-manager.php:73
+#: inc/manager/class-api-manager.php:102
 msgid "All actions (all records)"
 msgstr ""
 
@@ -250,7 +250,7 @@ msgid ""
 "superior to 5 characters."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:74
+#: inc/manager/class-api-manager.php:103
 #: inc/templates/admin/plugin-api-page.php:153
 msgid "All events"
 msgstr ""
@@ -263,11 +263,11 @@ msgstr ""
 msgid "All packages will be permanently deleted."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:584
+#: inc/manager/class-license-manager.php:862
 msgid "All the licenses have been deleted."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:211
+#: inc/manager/class-license-manager.php:314
 msgid "All the records will be permanently deleted."
 msgstr ""
 
@@ -276,12 +276,12 @@ msgid "Also grant access to affect other records (all records)"
 msgstr ""
 
 #. %s is operation slug
-#: inc/api/class-license-api.php:489
+#: inc/api/class-license-api.php:725
 #, php-format
 msgid "An error occured for License operation `%s` on UpdatePulse Server."
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:520
+#: inc/manager/class-cloud-storage-manager.php:684
 msgid ""
 "An error occured when attempting to communicate with the Cloud Storage "
 "Service. Please check all the settings and try again."
@@ -303,7 +303,7 @@ msgstr ""
 msgid "An unknown file upload error occurred."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:99 inc/manager/class-api-manager.php:108
+#: inc/manager/class-api-manager.php:135 inc/manager/class-api-manager.php:153
 msgid "API & Webhooks"
 msgstr ""
 
@@ -312,7 +312,7 @@ msgstr ""
 msgid "Archive max size (in MB)"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:216
+#: inc/manager/class-license-manager.php:319
 msgid "Are you sure you want to delete this license?"
 msgstr ""
 
@@ -322,9 +322,9 @@ msgstr ""
 
 #: inc/manager/class-package-manager.php:175
 #: inc/manager/class-package-manager.php:182
-#: inc/manager/class-license-manager.php:214
-#: inc/manager/class-api-manager.php:52 inc/manager/class-api-manager.php:58
-#: inc/manager/class-api-manager.php:64
+#: inc/manager/class-license-manager.php:317
+#: inc/manager/class-api-manager.php:81 inc/manager/class-api-manager.php:87
+#: inc/manager/class-api-manager.php:93
 msgid "Are you sure you want to do this?"
 msgstr ""
 
@@ -337,11 +337,11 @@ msgid ""
 "UpdatePulse Server installation."
 msgstr ""
 
-#: functions.php:29 inc/templates/admin/plugin-remote-sources-page.php:49
+#: functions.php:50 inc/templates/admin/plugin-remote-sources-page.php:49
 msgid "Bitbucket"
 msgstr ""
 
-#: inc/table/class-licenses-table.php:259
+#: inc/table/class-licenses-table.php:263
 msgid "Block"
 msgstr ""
 
@@ -349,7 +349,7 @@ msgstr ""
 msgid "Blocked"
 msgstr ""
 
-#: inc/api/class-license-api.php:452
+#: inc/api/class-license-api.php:668
 msgid "Browse multiple license records"
 msgstr ""
 
@@ -421,31 +421,31 @@ msgstr ""
 msgid "Cloud Storage"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:216
+#: inc/manager/class-cloud-storage-manager.php:325
 #: inc/templates/admin/cloud-storage-options.php:26
 msgid "Cloud Storage Access Key"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:238
+#: inc/manager/class-cloud-storage-manager.php:347
 #: inc/templates/admin/cloud-storage-options.php:48
 msgid "Cloud Storage Endpoint"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:260
+#: inc/manager/class-cloud-storage-manager.php:369
 #: inc/templates/admin/cloud-storage-options.php:77
 msgid "Cloud Storage Region"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:227
+#: inc/manager/class-cloud-storage-manager.php:336
 #: inc/templates/admin/cloud-storage-options.php:37
 msgid "Cloud Storage Secret Key"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:491
+#: inc/manager/class-cloud-storage-manager.php:655
 msgid "Cloud Storage Service was reached sucessfully."
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:249
+#: inc/manager/class-cloud-storage-manager.php:358
 #: inc/templates/admin/cloud-storage-options.php:66
 msgid "Cloud Storage Unit"
 msgstr ""
@@ -468,7 +468,7 @@ msgstr ""
 msgid "Could not create temporary file."
 msgstr ""
 
-#: inc/api/class-license-api.php:455
+#: inc/api/class-license-api.php:671
 msgid "Create license records"
 msgstr ""
 
@@ -496,7 +496,7 @@ msgstr ""
 msgid "Date Renewed"
 msgstr ""
 
-#: inc/table/class-licenses-table.php:258
+#: inc/table/class-licenses-table.php:262
 msgid "Deactivate"
 msgstr ""
 
@@ -516,23 +516,23 @@ msgid ""
 "Repository for package updates when the Webhook has been called."
 msgstr ""
 
-#: inc/table/class-licenses-table.php:261
+#: inc/table/class-licenses-table.php:265
 msgid "Delete"
 msgstr ""
 
-#: inc/api/class-package-api.php:381
+#: inc/api/class-package-api.php:678
 msgid "Delete a package"
 msgstr ""
 
-#: inc/table/class-licenses-table.php:250
+#: inc/table/class-licenses-table.php:254
 msgid "Delete All Licenses"
 msgstr ""
 
-#: inc/table/class-packages-table.php:243
+#: inc/table/class-packages-table.php:257
 msgid "Delete All Packages"
 msgstr ""
 
-#: inc/api/class-license-api.php:456
+#: inc/api/class-license-api.php:672
 msgid "Delete license records"
 msgstr ""
 
@@ -545,7 +545,7 @@ msgid "Details"
 msgstr ""
 
 #. %1$s is the path to the plugin's data directory
-#: inc/manager/class-data-manager.php:139
+#: inc/manager/class-data-manager.php:219
 #, php-format
 msgid ""
 "Directory <code>%1$s</code> is not a valid UpdatePulse Server data directory."
@@ -555,12 +555,12 @@ msgstr ""
 msgid "Domains currently allowed to use this license."
 msgstr ""
 
-#: inc/table/class-packages-table.php:260
+#: inc/table/class-packages-table.php:273
 #: inc/templates/admin/packages-table-row.php:20
 msgid "Download"
 msgstr ""
 
-#: inc/table/class-packages-table.php:237
+#: inc/table/class-packages-table.php:251
 msgid ""
 "Download: Archive max size exceeded - try to adjust it in the settings below."
 msgstr ""
@@ -585,7 +585,7 @@ msgstr ""
 msgid "Edit License"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:465
+#: inc/manager/class-license-manager.php:702
 #: inc/templates/admin/plugin-licenses-page.php:182
 msgid "Enable Package Licenses"
 msgstr ""
@@ -665,14 +665,14 @@ msgstr ""
 msgid "Error - Please check the provided Version Control System URL."
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:448
-#: inc/manager/class-cloud-storage-manager.php:460
+#: inc/manager/class-cloud-storage-manager.php:612
+#: inc/manager/class-cloud-storage-manager.php:624
 #: inc/manager/class-remote-sources-manager.php:241
 #: inc/manager/class-remote-sources-manager.php:253
 msgid "Error - Received invalid data; please reload the page and try again."
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:486
+#: inc/manager/class-cloud-storage-manager.php:650
 msgid "Error - Storage Unit not found"
 msgstr ""
 
@@ -705,7 +705,7 @@ msgstr ""
 msgid "Expiration date of the license. Leave empty for no expiry."
 msgstr ""
 
-#: inc/table/class-licenses-table.php:260
+#: inc/table/class-licenses-table.php:264
 msgid "Expire"
 msgstr ""
 
@@ -717,32 +717,36 @@ msgstr ""
 msgid "Extra Data"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:60 inc/nonce/class-nonce.php:38
+#: inc/manager/class-license-manager.php:102 inc/nonce/class-nonce.php:38
 msgid "Failed to create the necessary database table(s)."
 msgstr ""
 
 #. %s: package ID
-#: inc/api/class-webhook-api.php:400
+#: inc/api/class-webhook-api.php:595
 #, php-format
 msgid "Failed to download package %s."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:576
+#: inc/manager/class-license-manager.php:847
 msgid "Failed to insert the license record in the database."
 msgstr ""
 
 #. %s: package ID
-#: inc/api/class-webhook-api.php:379
+#: inc/api/class-webhook-api.php:568
 #, php-format
 msgid "Failed to sechedule download for package %s."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:562
+#: inc/manager/class-license-manager.php:825
 msgid "Failed to update the license record in the database."
 msgstr ""
 
 #: inc/manager/class-package-manager.php:459
 msgid "Failed to write file to disk."
+msgstr ""
+
+#: inc/table/class-packages-table.php:49
+msgid "File Modified "
 msgstr ""
 
 #: inc/table/class-packages-table.php:47
@@ -792,11 +796,11 @@ msgid ""
 "%s directory by entering the package slug."
 msgstr ""
 
-#: inc/api/class-package-api.php:378
+#: inc/api/class-package-api.php:675
 msgid "Get information about a single package"
 msgstr ""
 
-#: inc/api/class-package-api.php:377
+#: inc/api/class-package-api.php:674
 msgid "Get information about multiple packages"
 msgstr ""
 
@@ -804,11 +808,11 @@ msgstr ""
 msgid "Get remote package"
 msgstr ""
 
-#: inc/api/class-license-api.php:453
+#: inc/api/class-license-api.php:669
 msgid "Get single license records"
 msgstr ""
 
-#: functions.php:25
+#: functions.php:46
 msgid "GitHub"
 msgstr ""
 
@@ -816,7 +820,7 @@ msgstr ""
 msgid "Github"
 msgstr ""
 
-#: functions.php:27
+#: functions.php:48
 msgid "GitLab"
 msgstr ""
 
@@ -866,13 +870,13 @@ msgstr ""
 msgid "ID"
 msgstr ""
 
-#: inc/api/class-package-api.php:379
+#: inc/api/class-package-api.php:676
 msgid ""
 "If a package does exist, update it by uploading a valid package file, or by "
 "downloading it if using a VCS"
 msgstr ""
 
-#: inc/api/class-package-api.php:380
+#: inc/api/class-package-api.php:677
 msgid ""
 "If a package does not exist, upload it by providing a valid package file, or "
 "download it if using a VCS"
@@ -917,17 +921,17 @@ msgid ""
 "check the provided token has the permissions to access members information."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:56
+#: inc/manager/class-api-manager.php:85
 msgid ""
 "If you proceed, the Payload URL will not receive the configured events "
 "anymore."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:62
+#: inc/manager/class-api-manager.php:91
 msgid "If you proceed, the Payload URL will receive events for ALL licenses."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:50
+#: inc/manager/class-api-manager.php:79
 msgid ""
 "If you proceed, the remote systems using it will not be able to access the "
 "API anymore."
@@ -996,10 +1000,10 @@ msgstr ""
 msgid "Invalid keys. The following values are valid: %s"
 msgstr ""
 
-#: inc/api/class-license-api.php:177 inc/api/class-license-api.php:215
-#: inc/api/class-license-api.php:228 inc/api/class-license-api.php:235
-#: inc/api/class-license-api.php:266 inc/api/class-license-api.php:273
-#: inc/api/class-license-api.php:280 inc/api/class-license-api.php:302
+#: inc/api/class-license-api.php:245 inc/api/class-license-api.php:290
+#: inc/api/class-license-api.php:303 inc/api/class-license-api.php:310
+#: inc/api/class-license-api.php:348 inc/api/class-license-api.php:355
+#: inc/api/class-license-api.php:362 inc/api/class-license-api.php:391
 msgid "Invalid license data."
 msgstr ""
 
@@ -1023,11 +1027,11 @@ msgstr ""
 msgid "Invalid relationship operator. Only \"AND\" and \"OR\" are allowed."
 msgstr ""
 
-#: inc/api/class-webhook-api.php:419
-msgid "Invalid request signature"
+#: inc/api/class-webhook-api.php:623
+msgid "Invalid request"
 msgstr ""
 
-#: inc/api/class-webhook-api.php:101
+#: inc/api/class-webhook-api.php:158
 msgid "Invalid signature"
 msgstr ""
 
@@ -1073,10 +1077,6 @@ msgid ""
 "core from executing beyond what is strictly necessary."
 msgstr ""
 
-#: inc/table/class-packages-table.php:49
-msgid "File Modified "
-msgstr ""
-
 #: inc/templates/admin/plugin-remote-sources-page.php:198
 #: inc/templates/admin/remote-webhook-options.php:39
 msgid ""
@@ -1089,15 +1089,15 @@ msgstr ""
 msgid "Leave blank to allow any IP address (not recommended)."
 msgstr ""
 
-#: inc/api/class-license-api.php:464
+#: inc/api/class-license-api.php:687
 msgid "License activated"
 msgstr ""
 
-#: inc/api/class-license-api.php:466
+#: inc/api/class-license-api.php:689
 msgid "License added"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:573
+#: inc/manager/class-license-manager.php:844
 msgid "License added successfully."
 msgstr ""
 
@@ -1105,7 +1105,7 @@ msgstr ""
 msgid "License API"
 msgstr ""
 
-#: inc/api/class-license-api.php:1145
+#: inc/api/class-license-api.php:1620
 msgid "License API action not found."
 msgstr ""
 
@@ -1113,27 +1113,27 @@ msgstr ""
 msgid "License creation failed - database insertion error."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:577
+#: inc/manager/class-license-manager.php:848
 msgid "License creation failed."
 msgstr ""
 
-#: inc/api/class-license-api.php:465
+#: inc/api/class-license-api.php:688
 msgid "License deactivated"
 msgstr ""
 
-#: inc/api/class-license-api.php:468
+#: inc/api/class-license-api.php:691
 msgid "License deleted"
 msgstr ""
 
-#: inc/api/class-license-api.php:467
+#: inc/api/class-license-api.php:690
 msgid "License edited"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:559
+#: inc/manager/class-license-manager.php:822
 msgid "License edited successfully."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:179
+#: inc/manager/class-api-manager.php:262
 msgid "License events"
 msgstr ""
 
@@ -1150,9 +1150,9 @@ msgstr ""
 msgid "License Key ID"
 msgstr ""
 
-#: inc/api/class-license-api.php:171 inc/api/class-license-api.php:184
-#: inc/api/class-license-api.php:221 inc/api/class-license-api.php:242
-#: inc/api/class-license-api.php:296 inc/api/class-license-api.php:309
+#: inc/api/class-license-api.php:239 inc/api/class-license-api.php:252
+#: inc/api/class-license-api.php:296 inc/api/class-license-api.php:317
+#: inc/api/class-license-api.php:385 inc/api/class-license-api.php:398
 msgid "License not found."
 msgstr ""
 
@@ -1168,8 +1168,8 @@ msgstr ""
 msgid "License Status"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:248
-#: inc/manager/class-license-manager.php:254
+#: inc/manager/class-license-manager.php:384
+#: inc/manager/class-license-manager.php:399
 msgid "License status"
 msgstr ""
 
@@ -1177,21 +1177,21 @@ msgstr ""
 msgid "License update failed - database update error."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:563
+#: inc/manager/class-license-manager.php:826
 msgid "License update failed."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:270
-#: inc/manager/class-license-manager.php:281
+#: inc/manager/class-license-manager.php:432
+#: inc/manager/class-license-manager.php:452
 #: inc/templates/admin/plugin-licenses-page.php:8
 msgid "Licenses"
 msgstr ""
 
-#: inc/api/class-license-api.php:138
+#: inc/api/class-license-api.php:199
 msgid "Licenses not found."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:235
+#: inc/manager/class-license-manager.php:351
 msgid "Licenses per page"
 msgstr ""
 
@@ -1219,7 +1219,7 @@ msgstr ""
 msgid "Malformed request"
 msgstr ""
 
-#: inc/api/class-package-api.php:818 inc/api/class-license-api.php:1159
+#: inc/api/class-package-api.php:1293 inc/api/class-license-api.php:1634
 msgid "Malformed request."
 msgstr ""
 
@@ -1277,11 +1277,11 @@ msgstr ""
 msgid "No file was uploaded."
 msgstr ""
 
-#: inc/api/class-package-api.php:69
+#: inc/api/class-package-api.php:139
 msgid "No packages found."
 msgstr ""
 
-#: inc/api/class-update-api.php:299
+#: inc/api/class-update-api.php:497
 msgid "No server found for this package."
 msgstr ""
 
@@ -1296,20 +1296,20 @@ msgid "Not a valid number"
 msgstr ""
 
 #: inc/manager/class-remote-sources-manager.php:658
-#: inc/manager/class-api-manager.php:410 inc/manager/class-api-manager.php:422
-#: inc/manager/class-api-manager.php:434
+#: inc/manager/class-api-manager.php:542 inc/manager/class-api-manager.php:554
+#: inc/manager/class-api-manager.php:566
 msgid "Not a valid payload"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:217
-#: inc/manager/class-cloud-storage-manager.php:228
-#: inc/manager/class-cloud-storage-manager.php:239
-#: inc/manager/class-cloud-storage-manager.php:250
-#: inc/manager/class-cloud-storage-manager.php:261
+#: inc/manager/class-cloud-storage-manager.php:326
+#: inc/manager/class-cloud-storage-manager.php:337
+#: inc/manager/class-cloud-storage-manager.php:348
+#: inc/manager/class-cloud-storage-manager.php:359
+#: inc/manager/class-cloud-storage-manager.php:370
 msgid "Not a valid string"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:263
+#: inc/manager/class-license-manager.php:418
 msgid "Not Required"
 msgstr ""
 
@@ -1342,25 +1342,25 @@ msgstr ""
 msgid "open an issue on Github"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:523
+#: inc/manager/class-license-manager.php:769
 msgid ""
 "Operation failed: all the selected licenses have passed their expiry date, "
 "or already have the selected status - IDs: "
 msgstr ""
 
-#: inc/manager/class-license-manager.php:476
+#: inc/manager/class-license-manager.php:722
 msgid "Operation failed: an unexpected error occured (invalid license data)."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:513
+#: inc/manager/class-license-manager.php:759
 msgid "Operation failed: an unexpected error occured (invalid license status)."
 msgstr ""
 
 #. %1$s is the option display name, %2$s is the condition for update
 #: inc/manager/class-remote-sources-manager.php:477
 #: inc/manager/class-package-manager.php:1214
-#: inc/manager/class-license-manager.php:434
-#: inc/manager/class-api-manager.php:377
+#: inc/manager/class-license-manager.php:658
+#: inc/manager/class-api-manager.php:488
 #, php-format
 msgid "Option %1$s was not updated. Reason: %2$s"
 msgstr ""
@@ -1386,22 +1386,22 @@ msgid "Owner Name"
 msgstr ""
 
 #. %1$s: package ID, %2$s: scheduled date and time
-#: inc/api/class-webhook-api.php:370
+#: inc/api/class-webhook-api.php:559
 #, php-format
 msgid "Package %1$s has been scheduled for download: %2$s."
 msgstr ""
 
 #. %s: package ID
-#: inc/api/class-webhook-api.php:392
+#: inc/api/class-webhook-api.php:587
 #, php-format
 msgid "Package %s downloaded."
 msgstr ""
 
-#: inc/api/class-package-api.php:390
+#: inc/api/class-package-api.php:696
 msgid "Package added or updated"
 msgstr ""
 
-#: inc/api/class-package-api.php:171
+#: inc/api/class-package-api.php:310
 msgid "Package already exists."
 msgstr ""
 
@@ -1409,31 +1409,31 @@ msgstr ""
 msgid "Package API"
 msgstr ""
 
-#: inc/api/class-package-api.php:804
+#: inc/api/class-package-api.php:1279
 msgid "Package API action not found."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:409
+#: inc/manager/class-api-manager.php:541
 msgid "Package API Authentication Keys"
 msgstr ""
 
-#: inc/api/class-package-api.php:183
+#: inc/api/class-package-api.php:322
 msgid "Package could not be added - invalid parameters."
 msgstr ""
 
-#: inc/api/class-package-api.php:139
+#: inc/api/class-package-api.php:253
 msgid "Package could not be edited - invalid parameters."
 msgstr ""
 
-#: inc/api/class-package-api.php:391
+#: inc/api/class-package-api.php:697
 msgid "Package deleted"
 msgstr ""
 
-#: inc/api/class-package-api.php:392
+#: inc/api/class-package-api.php:698
 msgid "Package downloaded via a signed URL"
 msgstr ""
 
-#: inc/manager/class-api-manager.php:175
+#: inc/manager/class-api-manager.php:258
 msgid "Package events"
 msgstr ""
 
@@ -1445,13 +1445,13 @@ msgstr ""
 msgid "Package Name"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:814
+#: inc/manager/class-cloud-storage-manager.php:1050
 msgid "Package not found"
 msgstr ""
 
-#: inc/api/class-package-api.php:97 inc/api/class-package-api.php:127
-#: inc/api/class-package-api.php:204 inc/api/class-package-api.php:219
-#: inc/api/class-package-api.php:270
+#: inc/api/class-package-api.php:192 inc/api/class-package-api.php:241
+#: inc/api/class-package-api.php:383 inc/api/class-package-api.php:408
+#: inc/api/class-package-api.php:499
 msgid "Package not found."
 msgstr ""
 
@@ -1488,7 +1488,7 @@ msgstr ""
 msgid "Packages per page"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:212
+#: inc/manager/class-license-manager.php:315
 msgid ""
 "Packages requiring these licenses will not be able to get a successful "
 "response from this server."
@@ -1503,7 +1503,7 @@ msgid "Pending"
 msgstr ""
 
 #. %1$s is the path to the plugin's data directory
-#: inc/manager/class-data-manager.php:51
+#: inc/manager/class-data-manager.php:85
 #, php-format
 msgid ""
 "Permission errors creating %1$s - could not setup the data directory. Please "
@@ -1545,7 +1545,7 @@ msgid ""
 "Version Control System when calling the Webhook."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:421
+#: inc/manager/class-api-manager.php:553
 msgid "Private API Authentication Key"
 msgstr ""
 
@@ -1606,11 +1606,11 @@ msgstr ""
 msgid "Requests optimisation"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:263
+#: inc/manager/class-license-manager.php:418
 msgid "Required"
 msgstr ""
 
-#: inc/api/class-package-api.php:382
+#: inc/api/class-package-api.php:679
 msgid "Retrieve secure URLs for downloading packages"
 msgstr ""
 
@@ -1656,7 +1656,7 @@ msgstr ""
 msgid "Select a VCS"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:548
+#: inc/manager/class-license-manager.php:803
 msgid "Selected licenses deleted - IDs: "
 msgstr ""
 
@@ -1677,7 +1677,7 @@ msgstr ""
 msgid "Send a test request to the Version Control System."
 msgstr ""
 
-#: inc/table/class-licenses-table.php:256
+#: inc/table/class-licenses-table.php:260
 msgid "Set to Pending"
 msgstr ""
 
@@ -1691,7 +1691,7 @@ msgstr ""
 msgid "Size"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:206
+#: inc/manager/class-cloud-storage-manager.php:315
 msgid "Something went wrong"
 msgstr ""
 
@@ -1699,7 +1699,7 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:521
+#: inc/manager/class-license-manager.php:767
 msgid ""
 "Status of the selected licenses updated successfully where applicable - IDs "
 "of updated licenses: "
@@ -1825,40 +1825,40 @@ msgid "The ID must be an integer."
 msgstr ""
 
 #. %s is the license key
-#: inc/api/class-license-api.php:523
+#: inc/api/class-license-api.php:759
 #, php-format
 msgid "The license `%s` has been activated on UpdatePulse Server"
 msgstr ""
 
 #. %s is the license key
-#: inc/api/class-license-api.php:513
+#: inc/api/class-license-api.php:749
 #, php-format
 msgid "The license `%s` has been added on UpdatePulse Server"
 msgstr ""
 
 #. %s is the license key
-#: inc/api/class-license-api.php:528
+#: inc/api/class-license-api.php:764
 #, php-format
 msgid "The license `%s` has been deactivated on UpdatePulse Server"
 msgstr ""
 
 #. %s is the license key
-#: inc/api/class-license-api.php:518
+#: inc/api/class-license-api.php:754
 #, php-format
 msgid "The license `%s` has been deleted on UpdatePulse Server"
 msgstr ""
 
 #. %s is the license key
-#: inc/api/class-license-api.php:508
+#: inc/api/class-license-api.php:744
 #, php-format
 msgid "The license `%s` has been edited on UpdatePulse Server"
 msgstr ""
 
-#: inc/api/class-license-api.php:830
+#: inc/api/class-license-api.php:1178
 msgid "The license cannot be activated due to its current status."
 msgstr ""
 
-#: inc/api/class-license-api.php:936
+#: inc/api/class-license-api.php:1341
 msgid "The license cannot be deactivated before the specified date."
 msgstr ""
 
@@ -1867,15 +1867,15 @@ msgstr ""
 msgid "The license cannot be found."
 msgstr ""
 
-#: inc/api/class-license-api.php:846
+#: inc/api/class-license-api.php:1201
 msgid "The license has reached the maximum allowed activations for domains."
 msgstr ""
 
-#: inc/api/class-license-api.php:856
+#: inc/api/class-license-api.php:1218
 msgid "The license is already activated for the specified domain."
 msgstr ""
 
-#: inc/api/class-license-api.php:926
+#: inc/api/class-license-api.php:1324
 msgid "The license is already deactivated for the specified domain."
 msgstr ""
 
@@ -1920,14 +1920,14 @@ msgid "The Package Key ID must contain only numbers, letters, %1$s and %2$s."
 msgstr ""
 
 #. %s is the package slug
-#: inc/api/class-package-api.php:369
+#: inc/api/class-package-api.php:657
 #, php-format
 msgid ""
 "The package of `%s` has been securely downloaded from UpdatePulse Server"
 msgstr ""
 
 #. %1$s is the package type, %2$s is the package slug
-#: inc/api/class-package-api.php:357 inc/manager/class-package-manager.php:552
+#: inc/api/class-package-api.php:637 inc/manager/class-package-manager.php:552
 #, php-format
 msgid ""
 "The package of type `%1$s` and slug `%2$s` has been deleted on UpdatePulse "
@@ -1935,7 +1935,7 @@ msgid ""
 msgstr ""
 
 #. %1$s is the package type, %2$s is the pakage slug
-#: inc/api/class-package-api.php:332
+#: inc/api/class-package-api.php:593
 #, php-format
 msgid ""
 "The package of type `%1$s` and slug `%2$s` has been updated on UpdatePulse "
@@ -1966,23 +1966,23 @@ msgid ""
 "dashes are allowed."
 msgstr ""
 
-#: inc/api/class-package-api.php:577
+#: inc/api/class-package-api.php:976
 msgid "The provided file does not match the provided hash."
 msgstr ""
 
-#: inc/api/class-package-api.php:626
+#: inc/api/class-package-api.php:1025
 msgid "The provided file is not a valid package."
 msgstr ""
 
-#: inc/api/class-package-api.php:596
+#: inc/api/class-package-api.php:995
 msgid "The provided file is not a valid ZIP file."
 msgstr ""
 
-#: inc/api/class-license-api.php:991
+#: inc/api/class-license-api.php:1425
 msgid "The provided license key is invalid."
 msgstr ""
 
-#: functions.php:277 inc/api/class-package-api.php:650
+#: functions.php:560 inc/api/class-package-api.php:1049
 msgid "The provided VCS information is not valid"
 msgstr ""
 
@@ -2087,7 +2087,7 @@ msgid ""
 " and NOT IN operators."
 msgstr ""
 
-#: functions.php:608 inc/api/class-webhook-api.php:141
+#: functions.php:1138 inc/api/class-webhook-api.php:235
 msgid "The webhook payload must contain an event string and a content."
 msgstr ""
 
@@ -2103,8 +2103,8 @@ msgstr ""
 
 #: inc/manager/class-remote-sources-manager.php:431
 #: inc/manager/class-package-manager.php:1183
-#: inc/manager/class-license-manager.php:408
-#: inc/manager/class-api-manager.php:199
+#: inc/manager/class-license-manager.php:632
+#: inc/manager/class-api-manager.php:290
 msgid ""
 "There was an error validating the form. It may be outdated. Please reload "
 "the page."
@@ -2117,7 +2117,7 @@ msgid ""
 "UpdatePulse Server is uninstalled."
 msgstr ""
 
-#: inc/api/class-license-api.php:1005
+#: inc/api/class-license-api.php:1439
 msgid "This is an unexpected error. Please contact support."
 msgstr ""
 
@@ -2186,12 +2186,12 @@ msgid ""
 "editing."
 msgstr ""
 
-#: inc/api/class-package-api.php:811 inc/api/class-license-api.php:1152
+#: inc/api/class-package-api.php:1286 inc/api/class-license-api.php:1627
 #: inc/nonce/class-nonce.php:96
 msgid "Unauthorized access."
 msgstr ""
 
-#: inc/api/class-package-api.php:751 inc/api/class-license-api.php:1096
+#: inc/api/class-package-api.php:1210 inc/api/class-license-api.php:1556
 msgid "Unauthorized GET method."
 msgstr ""
 
@@ -2199,7 +2199,7 @@ msgstr ""
 msgid "Unavailable file system."
 msgstr ""
 
-#: functions.php:31
+#: functions.php:52
 msgid "Undefined"
 msgstr ""
 
@@ -2213,9 +2213,9 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: inc/api/class-license-api.php:214 inc/api/class-license-api.php:234
-#: inc/api/class-license-api.php:265 inc/api/class-license-api.php:279
-#: inc/api/class-license-api.php:998
+#: inc/api/class-license-api.php:289 inc/api/class-license-api.php:309
+#: inc/api/class-license-api.php:347 inc/api/class-license-api.php:361
+#: inc/api/class-license-api.php:1432
 msgid "Unknown error."
 msgstr ""
 
@@ -2231,7 +2231,7 @@ msgid ""
 "file in %2$s would be %3$s."
 msgstr ""
 
-#: inc/api/class-license-api.php:454
+#: inc/api/class-license-api.php:670
 msgid "Update license records"
 msgstr ""
 
@@ -2244,7 +2244,7 @@ msgstr ""
 msgid "UpdatePulse Server"
 msgstr ""
 
-#: inc/manager/class-api-manager.php:98
+#: inc/manager/class-api-manager.php:134
 msgid "UpdatePulse Server - API & Webhooks"
 msgstr ""
 
@@ -2252,7 +2252,7 @@ msgstr ""
 msgid "UpdatePulse Server - Help"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:269
+#: inc/manager/class-license-manager.php:431
 msgid "UpdatePulse Server - Licenses"
 msgstr ""
 
@@ -2266,28 +2266,28 @@ msgstr ""
 msgid "UpdatePulse Server Integration"
 msgstr ""
 
-#: inc/manager/class-license-manager.php:415
+#: inc/manager/class-license-manager.php:639
 msgid "UpdatePulse Server license options successfully updated."
 msgstr ""
 
 #: inc/manager/class-remote-sources-manager.php:438
 #: inc/manager/class-package-manager.php:1190
-#: inc/manager/class-api-manager.php:206
+#: inc/manager/class-api-manager.php:297
 msgid "UpdatePulse Server options successfully updated"
 msgstr ""
 
 #. the separator between summaries; example: All package events, 3 license events
-#: inc/manager/class-api-manager.php:84
+#: inc/manager/class-api-manager.php:113
 msgctxt "UpdatePulse Server separator between API summaries"
 msgid ", "
 msgstr ""
 
-#: inc/manager/class-api-manager.php:82
+#: inc/manager/class-api-manager.php:111
 msgctxt "UpdatePulse Server webhook event type"
 msgid "license"
 msgstr ""
 
-#: inc/manager/class-api-manager.php:81
+#: inc/manager/class-api-manager.php:110
 msgctxt "UpdatePulse Server webhook event type"
 msgid "package"
 msgstr ""
@@ -2300,7 +2300,7 @@ msgstr ""
 msgid "Upload package"
 msgstr ""
 
-#: inc/manager/class-cloud-storage-manager.php:205
+#: inc/manager/class-cloud-storage-manager.php:314
 #: inc/templates/admin/cloud-storage-options.php:8
 msgid "Use Cloud Storage"
 msgstr ""
@@ -2371,13 +2371,13 @@ msgid "Version Control Systems "
 msgstr ""
 
 #. %s is the virtual folder
-#: inc/manager/class-cloud-storage-manager.php:509
+#: inc/manager/class-cloud-storage-manager.php:673
 #, php-format
 msgid "Virtual folder \"%s\" found."
 msgstr ""
 
 #. %s is the virtual folder
-#: inc/manager/class-cloud-storage-manager.php:498
+#: inc/manager/class-cloud-storage-manager.php:662
 #, php-format
 msgid "Virtual folder \"%s\" was created successfully."
 msgstr ""
@@ -2407,8 +2407,8 @@ msgid ""
 msgstr ""
 
 #. %s is the virtual folder
-#: inc/manager/class-cloud-storage-manager.php:503
-#: inc/manager/class-cloud-storage-manager.php:551
+#: inc/manager/class-cloud-storage-manager.php:667
+#: inc/manager/class-cloud-storage-manager.php:722
 #, php-format
 msgid ""
 "WARNING: Unable to create Virtual folder \"%s\". The Cloud Storage feature "
@@ -2432,7 +2432,7 @@ msgid ""
 "and %6$s is the slug of the package to register."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:433
+#: inc/manager/class-api-manager.php:565
 #: inc/templates/admin/plugin-api-page.php:140
 #: inc/templates/admin/plugin-api-page.php:140
 msgid "Webhooks"
@@ -2475,15 +2475,15 @@ msgid ""
 "also loaded, with its own plugins and themes."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:61
+#: inc/manager/class-api-manager.php:90
 msgid "You are about to add a Webhook without License API Key ID."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:55
+#: inc/manager/class-api-manager.php:84
 msgid "You are about to delete a Webhook."
 msgstr ""
 
-#: inc/manager/class-license-manager.php:210
+#: inc/manager/class-license-manager.php:313
 msgid "You are about to delete all the licenses from this server."
 msgstr ""
 
@@ -2492,7 +2492,7 @@ msgstr ""
 msgid "You are about to delete all the packages from this server."
 msgstr ""
 
-#: inc/manager/class-api-manager.php:49
+#: inc/manager/class-api-manager.php:78
 msgid "You are about to delete an API key."
 msgstr ""
 

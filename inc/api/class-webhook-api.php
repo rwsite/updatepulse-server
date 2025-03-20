@@ -420,14 +420,14 @@ class Webhook_API {
 		 */
 		do_action( 'upserv_webhook_before_handling_request', $vcs_config );
 
-		if ( $vcs_config && $this->validate_request( $vcs_config ) ) {
+		if ( $this->validate_request( $vcs_config ) ) {
 			$slug           = isset( $wp->query_vars['slug'] ) ?
 				trim( rawurldecode( $wp->query_vars['slug'] ) ) :
 				null;
 			$type           = isset( $wp->query_vars['type'] ) ?
 				trim( rawurldecode( $wp->query_vars['type'] ) ) :
 				null;
-			$delay          = $vcs_config['check_delay'];
+			$delay          = $vcs_config ? $vcs_config['check_delay'] : 0;
 			$dir            = Data_Manager::get_data_dir( 'packages' );
 			$package_exists = null;
 			/**
@@ -616,11 +616,11 @@ class Webhook_API {
 					$vcs_config
 				);
 			}
-		} elseif ( $vcs_config ) {
+		} else {
 			$this->http_response_code = 403;
 			$response                 = array(
 				'code'    => 'unauthorized',
-				'message' => __( 'Invalid request signature', 'updatepulse-server' ),
+				'message' => __( 'Invalid request', 'updatepulse-server' ),
 			);
 
 			/**
