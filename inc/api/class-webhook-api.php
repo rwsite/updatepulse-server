@@ -85,15 +85,15 @@ class Webhook_API {
 	}
 
 	/*******************************************************************
-	 *Public methods
+	 * Public methods
 	 *******************************************************************/
 
 	// WordPress hooks ---------------------------------------------
 
 	/**
-	 *Add API endpoints
+	 * Add API endpoints
 	 *
-	 *Register the rewrite rules for the Webhook API endpoints.
+	 * Register the rewrite rules for the Webhook API endpoints.
 	 */
 	public function add_endpoints() {
 		add_rewrite_rule( '^updatepulse-server-webhook$', 'index.php?__upserv_webhook=1&', 'top' );
@@ -105,9 +105,9 @@ class Webhook_API {
 	}
 
 	/**
-	 *Parse API requests
+	 * Parse API requests
 	 *
-	 *Handle incoming API requests to the Webhook API endpoints.
+	 * Handle incoming API requests to the Webhook API endpoints.
 	 */
 	public function parse_request() {
 		global $wp;
@@ -120,12 +120,12 @@ class Webhook_API {
 	}
 
 	/**
-	 *Register query variables
+	 * Register query variables
 	 *
-	 *Add custom query variables used by the Webhook API.
+	 * Add custom query variables used by the Webhook API.
 	 *
-	 *@param array $query_vars Existing query variables.
-	 *@return array Modified query variables.
+	 * @param array $query_vars Existing query variables.
+	 * @return array Modified query variables.
 	 */
 	public function query_vars( $query_vars ) {
 		$query_vars = array_merge(
@@ -141,9 +141,9 @@ class Webhook_API {
 	}
 
 	/**
-	 *Handle invalid webhook requests
+	 * Handle invalid webhook requests
 	 *
-	 *Display error page for unauthorized webhook requests.
+	 * Display error page for unauthorized webhook requests.
 	 */
 	public function upserv_webhook_invalid_request() {
 		$protocol = empty( $_SERVER['SERVER_PROTOCOL'] ) ? 'HTTP/1.1' : sanitize_text_field( wp_unslash( $_SERVER['SERVER_PROTOCOL'] ) );
@@ -163,17 +163,17 @@ class Webhook_API {
 	}
 
 	/**
-	 *Process webhook requests
+	 * Process webhook requests
 	 *
-	 *Determine whether to process webhook requests based on branch matching.
+	 * Determine whether to process webhook requests based on branch matching.
 	 *
-	 *@param bool $process Current process status.
-	 *@param array $payload Request payload.
-	 *@param string $slug Package slug.
-	 *@param string $type Package type.
-	 *@param bool $package_exists Whether package already exists.
-	 *@param array $vcs_config Version control system configuration.
-	 *@return bool Whether to process the webhook request.
+	 * @param bool $process Current process status.
+	 * @param array $payload Request payload.
+	 * @param string $slug Package slug.
+	 * @param string $type Package type.
+	 * @param bool $package_exists Whether package already exists.
+	 * @param array $vcs_config Version control system configuration.
+	 * @return bool Whether to process the webhook request.
 	 */
 	public function upserv_webhook_process_request( $process, $payload, $slug, $type, $package_exists, $vcs_config ) {
 		return $this->get_payload_vcs_branch( $payload ) === $vcs_config['branch'];
@@ -182,11 +182,11 @@ class Webhook_API {
 	// Misc. -------------------------------------------------------
 
 	/**
-	 *Check if currently processing an API request
+	 * Check if currently processing an API request
 	 *
-	 *Determine whether the current request is a Webhook API request.
+	 * Determine whether the current request is a Webhook API request.
 	 *
-	 *@return bool Whether the current request is a Webhook API request.
+	 * @return bool Whether the current request is a Webhook API request.
 	 */
 	public static function is_doing_api_request() {
 
@@ -198,11 +198,11 @@ class Webhook_API {
 	}
 
 	/**
-	 *Get Webhook API instance
+	 * Get Webhook API instance
 	 *
-	 *Retrieve or create the Webhook API singleton instance.
+	 * Retrieve or create the Webhook API singleton instance.
 	 *
-	 *@return Webhook_API The Webhook API instance.
+	 * @return Webhook_API The Webhook API instance.
 	 */
 	public static function get_instance() {
 
@@ -214,14 +214,14 @@ class Webhook_API {
 	}
 
 	/**
-	 *Schedule webhook
+	 * Schedule webhook
 	 *
-	 *Schedule a webhook to be fired based on an event.
+	 * Schedule a webhook to be fired based on an event.
 	 *
-	 *@param array $payload Webhook payload data.
-	 *@param string $event_type Event type identifier.
-	 *@param bool $instant Whether to fire webhook immediately.
-	 *@return void|WP_Error WP_Error on failure.
+	 * @param array $payload Webhook payload data.
+	 * @param string $event_type Event type identifier.
+	 * @param bool $instant Whether to fire webhook immediately.
+	 * @return void|WP_Error WP_Error on failure.
 	 */
 	public function schedule_webhook( $payload, $event_type, $instant = false ) {
 
@@ -306,15 +306,15 @@ class Webhook_API {
 	}
 
 	/**
-	 *Fire webhook
+	 * Fire webhook
 	 *
-	 *Send an HTTP request to the webhook endpoint.
+	 * Send an HTTP request to the webhook endpoint.
 	 *
-	 *@param string $url Webhook endpoint URL.
-	 *@param string $secret Secret key for signature.
-	 *@param string $body Request body.
-	 *@param string $action Current action.
-	 *@return array|WP_Error HTTP response or WP_Error on failure.
+	 * @param string $url Webhook endpoint URL.
+	 * @param string $secret Secret key for signature.
+	 * @param string $body Request body.
+	 * @param string $action Current action.
+	 * @return array|WP_Error HTTP response or WP_Error on failure.
 	 */
 	public function fire_webhook( $url, $secret, $body, $action ) {
 		return wp_remote_post(
@@ -332,13 +332,13 @@ class Webhook_API {
 	}
 
 	/*******************************************************************
-	 *Protected methods
+	 * Protected methods
 	 *******************************************************************/
 
 	/**
-	 *Handle remote test
+	 * Handle remote test
 	 *
-	 *Process and respond to webhook test requests.
+	 * Process and respond to webhook test requests.
 	 */
 	protected function handle_remote_test() {
 
@@ -394,9 +394,9 @@ class Webhook_API {
 	}
 
 	/**
-	 *Handle API request
+	 * Handle API request
 	 *
-	 *Process webhook API requests and return appropriate responses.
+	 * Process webhook API requests and return appropriate responses.
 	 */
 	protected function handle_api_request() {
 		global $wp;
@@ -656,12 +656,12 @@ class Webhook_API {
 	}
 
 	/**
-	 *Validate webhook request
+	 * Validate webhook request
 	 *
-	 *Verify webhook request signature against stored secrets.
+	 * Verify webhook request signature against stored secrets.
 	 *
-	 *@param array $vcs_config Version control system configuration.
-	 *@return bool Whether the request signature is valid.
+	 * @param array $vcs_config Version control system configuration.
+	 * @return bool Whether the request signature is valid.
 	 */
 	protected function validate_request( $vcs_config ) {
 		$valid  = false;
@@ -732,11 +732,11 @@ class Webhook_API {
 	}
 
 	/**
-	 *Get webhook payload
+	 * Get webhook payload
 	 *
-	 *Extract and decode the payload from the webhook request.
+	 * Extract and decode the payload from the webhook request.
 	 *
-	 *@return array Decoded webhook payload.
+	 * @return array Decoded webhook payload.
 	 */
 	protected function get_payload() {
 		$payload = @file_get_contents( 'php://input' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged
@@ -756,12 +756,12 @@ class Webhook_API {
 	}
 
 	/**
-	 *Get VCS URL from payload
+	 * Get VCS URL from payload
 	 *
-	 *Extract the version control system URL from webhook payload.
+	 * Extract the version control system URL from webhook payload.
 	 *
-	 *@param array $payload Webhook payload.
-	 *@return string|false VCS URL or false if not found.
+	 * @param array $payload Webhook payload.
+	 * @return string|false VCS URL or false if not found.
 	 */
 	protected function get_payload_vcs_url( $payload ) {
 		$url = false;
@@ -809,12 +809,12 @@ class Webhook_API {
 	}
 
 	/**
-	 *Get VCS branch from payload
+	 * Get VCS branch from payload
 	 *
-	 *Extract the branch information from webhook payload.
+	 * Extract the branch information from webhook payload.
 	 *
-	 *@param array $payload Webhook payload.
-	 *@return string|false Branch name or false if not found.
+	 * @param array $payload Webhook payload.
+	 * @return string|false Branch name or false if not found.
 	 */
 	protected function get_payload_vcs_branch( $payload ) {
 		$branch = false;
