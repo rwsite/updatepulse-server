@@ -517,7 +517,7 @@ class Update_Server {
 
 				$remote_info = $this->update_checker->request_info();
 
-				if ( $remote_info && ! is_wp_error( $remote_info ) ) {
+				if ( ! is_wp_error( $remote_info ) && isset( $remote_info['version'] ) ) {
 					$needs_update = version_compare( $remote_info['version'], $meta['header']['Version'], '>' );
 				} else {
 					Utils::php_log(

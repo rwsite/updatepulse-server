@@ -885,7 +885,7 @@ class Remote_Sources_Manager {
 				}
 			}
 
-			if ( empty( $slugs ) ) {
+			if ( ! empty( $slugs ) ) {
 
 				foreach ( $slugs as $idx => $slug ) {
 					$meta = upserv_get_package_metadata( $slug );

@@ -18,6 +18,7 @@ use Anyape\UpdatePulse\Server\Server\Update\Package;
 use Anyape\UpdatePulse\Server\Manager\Data_Manager;
 use Anyape\UpdatePulse\Server\API\Package_API;
 use Anyape\UpdatePulse\Server\Table\Packages_Table;
+use Anyape\UpdatePulse\Server\Scheduler\Scheduler;
 use Anyape\Utils\Utils;
 
 /**
@@ -445,6 +446,25 @@ class Package_Manager {
 				upserv_set_package_metadata( $slug, $meta );
 
 				$result = upserv_download_remote_package( $slug, null );
+
+				if ( wp_cache_get( 'upserv_download_remote_package_aborted', 'updatepulse-server' ) ) {
+					$vcs_config = upserv_get_package_vcs_config( $slug );
+					$error      = isset( $vcs_config['filter_packages'] ) && $vcs_config['filter_packages'] ?
+						new WP_Error(
+							__METHOD__,
+							__( 'Error - could not get remote package. The package was filtered out because it is not linked to this server.', 'updatepulse-server' )
+						) :
+						new WP_Error(
+							__METHOD__,
+							__( 'Error - could not get remote package. The package was found and is valid, but the download was aborted. Please check the package is satisfying the requirements for this server.', 'updatepulse-server' )
+						);
+
+					wp_cache_delete( 'upserv_download_remote_package_aborted', 'updatepulse-server' );
+				}
+
+				if ( ! $result || isset( $result['abort_request'] ) ) {
+					upserv_set_package_metadata( $slug, null );
+				}
 			} else {
 				$error = new WP_Error(
 					__METHOD__,
@@ -456,21 +476,6 @@ class Package_Manager {
 				__METHOD__,
 				__( 'Error - could not get remote package. The page has expired - please reload the page and try again.', 'updatepulse-server' )
 			);
-		}
-
-		if ( wp_cache_get( 'upserv_download_remote_package_aborted', 'updatepulse-server' ) ) {
-			$vcs_config = upserv_get_package_vcs_config( $slug );
-			$error      = isset( $vcs_config['filter_packages'] ) && $vcs_config['filter_packages'] ?
-				new WP_Error(
-					__METHOD__,
-					__( 'Error - could not get remote package. The package was filtered out because it is not linked to this server.', 'updatepulse-server' )
-				) :
-				new WP_Error(
-					__METHOD__,
-					__( 'Error - could not get remote package. The package was found and is valid, but the download was aborted. Please check the package is satisfying the requirements for this server.', 'updatepulse-server' )
-				);
-
-			wp_cache_delete( 'upserv_download_remote_package_aborted', 'updatepulse-server' );
 		}
 
 		/**
@@ -989,7 +994,19 @@ class Package_Manager {
 				do_action( 'upserv_package_manager_deleted_package', $slug, $result );
 
 				if ( $result ) {
+					$scheduled_hook = 'upserv_check_remote_' . $slug;
+
 					upserv_unwhitelist_package( $slug );
+					Scheduler::get_instance()->unschedule_all_actions( $scheduled_hook );
+
+					/**
+					 * Fired after a remote check schedule event has been unscheduled for a package.
+					 * Fired during client update API request.
+					 *
+					 * @param string $package_slug    The slug of the package for which a remote check event has been unscheduled
+					 * @param string $scheduled_hook  The remote check event hook that has been unscheduled
+					 */
+					do_action( 'upserv_cleared_check_remote_schedule', $slug, $scheduled_hook );
 
 					$deleted_package_slugs[] = $slug;
 

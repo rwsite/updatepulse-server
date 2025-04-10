@@ -3,7 +3,7 @@ Contributors: frogerme
 Tags: Plugin updates, Theme updates, WordPress updates, License
 Requires at least: 6.7
 Tested up to: 6.7
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -60,6 +60,15 @@ Each **bug** report will be addressed in a timely manner if properly documented 
 **Only issues occurring with WordPress core, WooCommerce, and default WordPress themes (incl. WooCommerce Storefront) will be considered.**
 
 **Troubleshooting involving 3rd-party plugins or themes will not be addressed on the WordPress support forum.**
+
+== Upgrade Notice ==
+
+= 1.0.8 =
+
+For installations using VCS in schedule mode (as opposed to webhook mode):
+- delete all packages and re-register them
+- remove any remaining `json` files from `wp-content/uploads/updatepulse-server/metadata` folder
+- use the "Force Clear & Reschedule" button in the VCS settings
 
 == FAQ ==
 
@@ -118,6 +127,9 @@ This section describes how to install the plugin and get it working.
 3. Edit plugin settings
 
 == Changelog ==
+
+= 1.0.8 =
+* Fix scheduled mode package overrides. After update, if using this mode: delete all packages and re-register them ; remove any remaining `json` files from `wp-content/uploads/updatepulse-server/metadata` folder ; use the "Force Clear & Reschedule" button in the VCS settings
 
 = 1.0.7 =
 * Full documentation of all classes and functions
