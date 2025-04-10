@@ -424,7 +424,6 @@ class Webhook_API {
 
 				if ( 0 === strpos( $config['url'], trailingslashit( $url ) ) ) {
 					$vcs_candidates[] = $config;
-					$vcs_candidates[] = $config;
 				}
 			}
 		}

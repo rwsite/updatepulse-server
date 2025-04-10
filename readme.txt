@@ -130,6 +130,7 @@ This section describes how to install the plugin and get it working.
 
 = 1.0.8 =
 * Fix scheduled mode package overrides. After update, if using this mode: delete all packages and re-register them ; remove any remaining `json` files from `wp-content/uploads/updatepulse-server/metadata` folder ; use the "Force Clear & Reschedule" button in the VCS settings
+* Fix VCS candidates with webhook mode
 
 = 1.0.7 =
 * Full documentation of all classes and functions
