@@ -3,7 +3,7 @@ Contributors: frogerme
 Tags: Plugin updates, Theme updates, WordPress updates, License
 Requires at least: 6.7
 Tested up to: 6.7
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -63,7 +63,7 @@ Each **bug** report will be addressed in a timely manner if properly documented 
 
 == Upgrade Notice ==
 
-= 1.0.8 =
+= 1.0.9 =
 
 For installations using VCS in schedule mode (as opposed to webhook mode):
 - delete all packages and re-register them
@@ -127,6 +127,10 @@ This section describes how to install the plugin and get it working.
 3. Edit plugin settings
 
 == Changelog ==
+
+= 1.0.9 =
+* Schedule mode: remove package metadata files when deleting packages
+* Schedule mode: make sure to reinitialise the update checker to avoid slug conflicts
 
 = 1.0.8 =
 * Fix scheduled mode package overrides. After update, if using this mode: delete all packages and re-register them ; remove any remaining `json` files from `wp-content/uploads/updatepulse-server/metadata` folder ; use the "Force Clear & Reschedule" button in the VCS settings

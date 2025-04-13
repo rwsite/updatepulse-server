@@ -997,6 +997,7 @@ class Package_Manager {
 					$scheduled_hook = 'upserv_check_remote_' . $slug;
 
 					upserv_unwhitelist_package( $slug );
+					upserv_set_package_metadata( $slug, null );
 					Scheduler::get_instance()->unschedule_all_actions( $scheduled_hook );
 
 					/**

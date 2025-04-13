@@ -1315,7 +1315,7 @@ class Update_Server {
 			$this->self_hosted
 		);
 
-		if ( $this->update_checker ) {
+		if ( $this->update_checker && $this->update_checker->slug === $slug ) {
 			return;
 		}
 
