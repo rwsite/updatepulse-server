@@ -1,5 +1,6 @@
 === UpdatePulse Server ===
 Contributors: frogerme
+Donate link: https://paypal.me/frogerme
 Tags: Plugin updates, Theme updates, WordPress updates, License
 Requires at least: 6.7
 Tested up to: 6.7
