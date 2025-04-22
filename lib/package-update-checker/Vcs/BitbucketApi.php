@@ -84,7 +84,10 @@ if ( ! class_exists( BitbucketApi::class, false ) ) :
 				return $this->get_branch( $config_branch );
 			};
 
-			if ( ( 'main' === $config_branch || 'master' === $config_branch ) ) {
+			if (
+				( 'main' === $config_branch || 'master' === $config_branch ) &&
+				( ! defined( PUC_FORCE_BRANCH ) || ! PUC_FORCE_BRANCH )
+			) {
 				$strategies[ self::STRATEGY_LATEST_TAG ] = array( $this, 'get_latest_tag' );
 			}
 

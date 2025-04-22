@@ -440,7 +440,10 @@ if ( ! class_exists( GitLabApi::class, false ) ) :
 		protected function get_update_detection_strategies( $config_branch ) {
 			$strategies = array();
 
-			if ( ( 'main' === $config_branch ) || ( 'master' === $config_branch ) ) {
+			if (
+				( 'main' === $config_branch ) || ( 'master' === $config_branch ) &&
+				( ! defined( PUC_FORCE_BRANCH ) || ! PUC_FORCE_BRANCH )
+			) {
 				$strategies[ self::STRATEGY_LATEST_RELEASE ] = array( $this, 'get_latest_release' );
 				$strategies[ self::STRATEGY_LATEST_TAG ]     = array( $this, 'get_latest_tag' );
 			}
