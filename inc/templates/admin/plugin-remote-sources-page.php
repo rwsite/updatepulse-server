@@ -107,7 +107,16 @@
 					<td>
 						<input class="vcs-setting regular-text" type="text" id="upserv_vcs_branch" data-prop="branch" value="">
 						<p class="description">
-							<?php esc_html_e( 'The branch to download when getting remote packages from the Version Control System.', 'updatepulse-server' ); ?>
+							<?php
+							printf(
+								// translators: %1$s line break, %2$s is <code>PUC_FORCE_BRANCH</code>, %3$s is <code>true</code>, %4$s is <code>wp-config.php</code>
+								esc_html__( 'The branch to download when getting remote packages from the Version Control System.%1$sIf the VCS supports releases or tags, they will be prioritised over the branch name (release first, then tag, then branch).%1$sTo bypass this behaviour and exclusively rely on the branch, set the %2$s constant to %3$s in %4$s.', 'updatepulse-server' ),
+								'<br/>',
+								'<code>PUC_FORCE_BRANCH</code>',
+								'<code>true</code>',
+								'<code>wp-config.php</code>'
+							);
+							?>
 						</p>
 					</td>
 				</tr>
@@ -295,7 +304,16 @@
 					<td>
 						<input class="regular-text" type="text" id="upserv_add_vcs_branch" data-prop="branch" value="">
 						<p class="description">
-							<?php esc_html_e( 'The branch to download when getting remote packages from the Version Control System.', 'updatepulse-server' ); ?>
+							<?php
+							printf(
+								// translators: %1$s line break, %2$s is <code>PUC_FORCE_BRANCH</code>, %3$s is <code>true</code>, %4$s is <code>wp-config.php</code>
+								esc_html__( 'The branch to download when getting remote packages from the Version Control System.%1$sIf the VCS supports releases or tags, they will be prioritised over the branch name (release first, then tag, then branch).%1$sTo bypass this behaviour and exclusively rely on the branch, set the %2$s constant to %3$s in %4$s.', 'updatepulse-server' ),
+								'<br/>',
+								'<code>PUC_FORCE_BRANCH</code>',
+								'<code>true</code>',
+								'<code>wp-config.php</code>'
+							);
+							?>
 						</p>
 					</td>
 				</tr>
