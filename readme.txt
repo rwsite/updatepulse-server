@@ -47,6 +47,15 @@ This plugin adds the following major features to WordPress:
 * **API:** UpdatePulse Server provides APIs to manage packages and licenses. The APIs keys are secured with a system of tokens: the API keys are never shared over the network, acquiring a token requires signed payloads, and the tokens have a limited lifetime. For more details about tokens and security, see [the Nonce API documentation](https://github.com/anyape/updatepulse-server/blob/main/docs/misc.md#nonce-api).
 
 To connect their plugins or themes and UpdatePulse Server, developers can find integration examples in the [UpdatePulse Server Integration Examples](https://github.com/Anyape/updatepulse-server-integration) repository - theme and plugin examples rely heavily on the popular [Plugin Update Checker](https://github.com/YahnisElsts/plugin-update-checker) by [Yahnis Elsts](https://github.com/YahnisElsts).
+== Companion Plugins ==
+
+The following plugins are compatible with UpdatePulse Server and can be used to extend its functionality:
+* [Updatepulse Blocks](https://store.anyape.com/product/updatepulse-blocks/): a seamless way to display packages from UpdatePulse Server directly within your site using the WordPress Block Editor or shortcodes.
+* [UpdatePulse for WooCommerce](https://store.anyape.com/product/updatepulse-for-woocommerce/): a WooCommerce connector for UpdatePulse Server, allowing you to sell licensed packages through your WooCommerce store, either on the same WordPress installation or a separate store site.
+
+Developers are encouraged to build plugins and themes [integrated](https://github.com/anyape/updatepulse-server/blob/main/README.md) with UpdatePulse Server, leveraging its publicly available functions, actions and filters, or by making use of the provided APIs.
+
+If you wish to see your plugin added to this list, please [contact the author](mailto:updatepulse@anyape.com).
 
 == Troubleshooting ==
 
