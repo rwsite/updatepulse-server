@@ -140,6 +140,7 @@ This section describes how to install the plugin and get it working.
 
 = 1.0.10 =
 * Introduce constant `PUC_FORCE_BRANCH` to bypass tags & releases in VCS detection strategies
+* Minor fix
 
 = 1.0.9 =
 * Schedule mode: remove package metadata files when deleting packages
