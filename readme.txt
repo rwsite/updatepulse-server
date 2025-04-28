@@ -50,8 +50,8 @@ To connect their plugins or themes and UpdatePulse Server, developers can find i
 == Companion Plugins ==
 
 The following plugins are compatible with UpdatePulse Server and can be used to extend its functionality:
-* [Updatepulse Blocks](https://store.anyape.com/product/updatepulse-blocks/): a seamless way to display packages from UpdatePulse Server directly within your site using the WordPress Block Editor or shortcodes.
-* [UpdatePulse for WooCommerce](https://store.anyape.com/product/updatepulse-for-woocommerce/): a WooCommerce connector for UpdatePulse Server, allowing you to sell licensed packages through your WooCommerce store, either on the same WordPress installation or a separate store site.
+* [Updatepulse Blocks](https://store.anyape.com/product/updatepulse-blocks/?wl=1): a seamless way to display packages from UpdatePulse Server directly within your site using the WordPress Block Editor or shortcodes.
+* [UpdatePulse for WooCommerce](https://store.anyape.com/product/updatepulse-for-woocommerce/?wl=1): a WooCommerce connector for UpdatePulse Server, allowing you to sell licensed packages through your WooCommerce store, either on the same WordPress installation or a separate store site.
 
 Developers are encouraged to build plugins and themes [integrated](https://github.com/anyape/updatepulse-server/blob/main/README.md) with UpdatePulse Server, leveraging its publicly available functions, actions and filters, or by making use of the provided APIs.
 
