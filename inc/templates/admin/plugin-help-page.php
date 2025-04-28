@@ -52,7 +52,7 @@
 					printf(
 						// translators: %s is <code>upserv_download_remote_package( string $package_slug, string $type );</code>
 						esc_html__( '[expert] calling the %s method in your own code, with the VCS-related parameters corresponding to a VCS configuration saved in UpdatePulse Server', 'updatepulse-server' ),
-						'<code>upserv_download_remote_package( string $package_slug, string $type, string $vcs_url = false, string branch = \'main\');</code>'
+						'<code>upserv_download_remote_package( string $package_slug, string $type, string $vcs_url = false, string branch = \'main\' );</code>'
 					);
 				?>
 			</li>
