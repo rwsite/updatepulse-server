@@ -588,15 +588,17 @@ class Nonce {
 		$sql      = "DELETE FROM {$wpdb->prefix}upserv_nonce
 			WHERE expiry < %d
 			AND (
-				JSON_VALID(`data`) = 1
-				AND (
-					JSON_EXTRACT(`data` , '$.permanent') IS NULL
-					OR JSON_EXTRACT(`data` , '$.permanent') = 0
-					OR JSON_EXTRACT(`data` , '$.permanent') = '0'
-					OR JSON_EXTRACT(`data` , '$.permanent') = false
+				JSON_VALID(`data`) = 0
+				OR (
+					JSON_VALID(`data`) = 1
+					AND (
+						JSON_EXTRACT(`data` , '$.permanent') IS NULL
+						OR JSON_EXTRACT(`data` , '$.permanent') = 0
+						OR JSON_EXTRACT(`data` , '$.permanent') = '0'
+						OR JSON_EXTRACT(`data` , '$.permanent') = false
+					)
 				)
-			) OR
-			JSON_VALID(`data`) = 0;";
+			);";
 		$sql_args = array( time() - self::DEFAULT_EXPIRY_LENGTH );
 
 		/**
