@@ -172,6 +172,8 @@ class Data_Manager {
 	 * @since 1.0.0
 	 */
 	public static function maybe_setup_mu_plugin() {
+		WP_Filesystem();
+
 		global $wp_filesystem;
 
 		$result        = true;
