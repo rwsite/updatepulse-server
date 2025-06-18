@@ -231,11 +231,11 @@ jQuery(document).ready(function ($) {
         var url = $('#upserv_add_vcs_url').val();
         var branch = $('#upserv_add_vcs_branch').val();
 
-        if (!url || !url.match(/^https?:\/\/[^\/]+\/[^\/]+\/$/)) {
+        /*if (!url || !url.match(/^https?:\/\/[^\/]+\/[^\/]+\/$/)) {
             $('.upserv-modal .error.invalid-url').removeClass('hidden');
 
             return;
-        }
+        }*/
 
         if (!branch || !isNaN(branch)) {
             $('.upserv-modal .error.invalid-branch').removeClass('hidden');

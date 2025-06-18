@@ -543,7 +543,7 @@ class Package_Manager {
 
 		$sanitized_part = function ( $part ) {
 
-			if ( 'application/zip' === $part ) {
+			if ( 'application/zip' === $part || 'application/x-zip-compressed' === $part ) {
 				return $part;
 			}
 
