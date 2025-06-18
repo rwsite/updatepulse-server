@@ -1075,7 +1075,7 @@ if ( ! function_exists( 'upserv_build_nonce_api_signature' ) ) {
 	* @param string $api_key_id The ID of the Private API Key
 	* @param string $api_key The Private API Key - will not be sent over the Internet
 	* @param int    $timestamp The timestamp used to limit the validity of the signature (validity is MINUTE_IN_SECONDS)
-	* @param int    $payload The payload to acquire a reusable token or a true nonce
+	* @param array    $payload The payload to acquire a reusable token or a true nonce
 	* @return array An array with keys `credentials` and `signature`
 	*/
 	function upserv_build_nonce_api_signature( $api_key_id, $api_key, $timestamp, $payload ) {
