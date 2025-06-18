@@ -1,0 +1,15 @@
+{
+  "name": "rwsite/updatepulse-server",
+  "description": "UpdatePulse Server - Run your own update server",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "type": "wordpress-plugin",
+  "authors": [
+    {
+      "name": "Aleksei Tikhomirov",
+      "email": "alex@rwsite.ru"
+    }
+  ],
+  "require": {
+  }
+}
