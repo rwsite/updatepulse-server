@@ -446,7 +446,7 @@ class Remote_Sources_Manager {
 	 * @since 1.0.0
 	 */
 	public function reschedule_remote_check_recurring_events( $vcs_c ) {
-
+        require_once UPSERV_PLUGIN_PATH . '/functions.php';
 		if (
 			upserv_is_doing_update_api_request() ||
 			! isset( $vcs_c['url'], $vcs_c['use_webhooks'] ) ||
