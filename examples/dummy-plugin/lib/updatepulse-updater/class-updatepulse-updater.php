@@ -963,7 +963,7 @@ if ( ! class_exists( __NAMESPACE__ . '\UpdatePulse_Updater' ) ) {
 			$may_deactivate  = false;
 			$deactivate_text = '';
 
-			if ( time() < $next_deactivate ) {
+			if (strtotime(wp_date(DATE_W3C, time())) < $next_deactivate ) {
 				$deactivate_text = __( 'Deactivation is possible after:', 'updatepulse-updater' );
 			} else {
 				$may_deactivate  = true;

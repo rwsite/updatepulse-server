@@ -71,7 +71,8 @@ class License_Manager {
 			}
 
 			add_filter( 'upserv_admin_scripts', array( $this, 'upserv_admin_scripts' ), 10, 1 );
-			add_filter( 'upserv_admin_styles', array( $this, 'upserv_admin_styles' ), 10, 1 );
+			add_filter( 'upserv_admin_styles', array( $this, 'upserv_admin_styles' ), 9, 1 );
+
 			add_action( 'admin_init', array( $this, 'admin_init' ), 10, 0 );
 			add_action( 'admin_menu', array( $this, 'admin_menu' ), 20, 0 );
 			add_filter( 'upserv_admin_tab_links', array( $this, 'upserv_admin_tab_links' ), 20, 1 );

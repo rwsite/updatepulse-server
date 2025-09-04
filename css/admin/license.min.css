@@ -1,1 +1,244 @@
-#upserv-licenses-list{margin-bottom:20px}#upserv_license_panel,.upserv-add-license-label,.upserv-edit-license-label,.upserv-license-show-if-edit{display:none}label.upserv-license-error{display:none!important}input.upserv-license-error{border-color:#a00}input[type=date]:focus.upserv-license-error,input[type=email]:focus.upserv-license-error,input[type=number]:focus.upserv-license-error,input[type=text]:focus.upserv-license-error{border-color:#a00;box-shadow:0 0 2px rgba(170,0,0,.8)}#upserv_license_panel{margin-top:20px!important;margin-top:20px!important}#upserv_license_panel .inside{opacity:0}#upserv_license{padding:10px 15px 0}#upserv_license h3{margin:0}#upserv_license .license-column-container{display:flex;align-items:flex-start;gap:2%}#upserv_license .license-column{border-right:1px solid #e6e6e6;max-width:750px}#upserv_license .license-column:last-child{padding-right:0;padding-left:2%;border:none;box-sizing:border-box}#upserv_license .license-column p{padding:0!important}#upserv_license .license-column .form-field{float:left;clear:left;width:48%;padding:0;margin:9px 0 0}#upserv_license .license-column .form-field label{display:block;padding:0 0 3px}#upserv_license .license-column .form-field input,#upserv_license .license-column .form-field textarea{width:100%}#upserv_license .license-column .form-field select{width:100%}#upserv_license .license-column .form-field .select2-container{width:100%!important}#upserv_license .license-column .form-field .date-picker{width:50%}#upserv_license .license-column .form-field small{display:block;margin:5px 0 0;color:#999}#upserv_license .license-column .form-field.last{float:right;clear:right}#upserv_license .license-column .form-field-wide{width:100%;clear:both}#upserv_license .license-column .form-field-wide input,#upserv_license .license-column .form-field-wide select,#upserv_license .license-column .form-field-wide textarea{width:100%}#upserv_license #upserv_license_save{margin:1px 8px 0 0}#upserv_license_registered_domains ul{margin:0 0 0 14px;font-size:12px;overflow:auto;list-style:none}#upserv_license_registered_domains li.upserv-domain-template,.upserv-domains-list{display:none}#upserv_license_registered_domains li{display:inline-block;margin-right:25px;font-size:13px;line-height:1.8em;cursor:default;max-width:100%;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px}#upserv_license_registered_domains button{position:absolute;width:24px;height:24px;border:none;margin:0 0 0 -19px;padding:0;background:0 0;cursor:pointer;text-indent:0}span.upserv-domain-value{margin-left:5px}#upserv_license_data{width:250px}.license-form-extra-data{padding-bottom:2em}@media only screen and (max-width:945px){#upserv_license .license-column,#upserv_license .license-column:first-child,#upserv_license .license-column:last-child{border:none;padding:0;margin:0}#upserv_license .license-column-container{flex-direction:column;gap:0}}
+#upserv-licenses-list {
+    margin-bottom: 20px;
+}
+
+#upserv_license_panel,
+.upserv-edit-license-label,
+.upserv-add-license-label,
+.upserv-license-show-if-edit {
+    display: none;
+}
+
+label.upserv-license-error {
+    display: none !important;
+}
+
+input.upserv-license-error {
+    border-color: #a00;
+}
+
+input[type=text]:focus.upserv-license-error,
+input[type=date]:focus.upserv-license-error,
+input[type=email]:focus.upserv-license-error,
+input[type=number]:focus.upserv-license-error {
+    border-color: #a00;
+    box-shadow: 0 0 2px rgba(170, 0, 0, .8);
+}
+
+#upserv_license_panel {
+    margin-top: 20px !important;
+    margin-top: 20px !important;
+}
+
+#upserv_license_panel .inside {
+    opacity: 0;
+}
+
+#upserv_license {
+    padding: 10px 15px 0px;
+}
+
+#upserv_license h3 {
+    margin: 0;
+}
+
+#upserv_license .license-column-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 2%;
+}
+
+#upserv_license .license-column {
+    border-right: 1px solid #e6e6e6;
+    max-width: 750px;
+}
+
+#upserv_license .license-column:last-child {
+    padding-right: 0;
+    padding-left: 2%;
+    border: none;
+    box-sizing: border-box;
+}
+
+#upserv_license .license-column p {
+    padding: 0!important;
+}
+
+#upserv_license .license-column .form-field {
+    float: left;
+    clear: left;
+    width: 48%;
+    padding: 0;
+    margin: 9px 0 0;
+}
+
+#upserv_license .license-column .form-field label {
+    display: block;
+    padding: 0 0 3px;
+}
+
+#upserv_license .license-column .form-field input,
+#upserv_license .license-column .form-field textarea {
+    width: 100%;
+}
+
+#upserv_license .license-column .form-field select {
+    width: 100%;
+}
+
+#upserv_license .license-column .form-field .select2-container {
+    width: 100%!important;
+}
+
+#upserv_license .license-column .form-field .date-picker {
+    width: 50%;
+}
+
+#upserv_license .license-column .form-field small {
+    display: block;
+    margin: 5px 0 0;
+    color: #999;
+}
+
+#upserv_license .license-column .form-field.last {
+    float: right;
+    clear: right;
+}
+
+#upserv_license .license-column .form-field-wide {
+    width: 100%;
+    clear: both;
+}
+
+#upserv_license .license-column .form-field-wide input,
+#upserv_license .license-column .form-field-wide select,
+#upserv_license .license-column .form-field-wide textarea {
+    width: 100%;
+}
+
+#upserv_license #upserv_license_save {
+    margin: 1px 8px 0 0;
+}
+
+#upserv_license_registered_domains ul {
+    margin: 0 0 0 14px;
+    font-size: 12px;
+    overflow: auto;
+    list-style: none;
+}
+
+.upserv-domains-list,
+#upserv_license_registered_domains li.upserv-domain-template {
+    display: none;
+}
+
+#upserv_license_registered_domains li {
+    display: inline-block;
+    margin-right: 25px;
+    font-size: 13px;
+    line-height: 1.8em;
+    cursor: default;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+}
+
+#upserv_license_registered_domains button {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: none;
+    margin: 0 0 0 -19px;
+    padding: 0;
+    background: 0 0;
+    cursor: pointer;
+    text-indent: 0;
+}
+
+span.upserv-domain-value {
+    margin-left: 5px;
+}
+
+#upserv_license_data {
+    width: 250px;
+}
+
+.license-form-extra-data {
+    padding-bottom: 2em;
+}
+
+@media only screen and (max-width: 945px) {
+    #upserv_license .license-column,
+    #upserv_license .license-column:last-child,
+    #upserv_license .license-column:first-child{
+        border:none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #upserv_license .license-column-container {
+        flex-direction: column;
+        gap: 0;
+    }
+
+}
+
+@media screen and (min-width: 783px) {
+    #upserv-licenses-list th,
+    #upserv-licenses-list td {
+        text-align: center;
+    }
+
+    #upserv-licenses-list th a {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+#upserv-licenses-list .col_status {
+    vertical-align: middle;
+}
+
+#upserv-licenses-list .col_status mark {
+    display: inline-flex;
+    line-height: 2.5em;
+    color: #454545;
+    background: #e5e5e5;
+    border-radius: 4px;
+    border-bottom: 1px solid rgba(0,0,0,.05);
+    margin: -.25em 0;
+    cursor: inherit!important;
+    white-space: nowrap;
+    max-width: 100%
+}
+
+#upserv-licenses-list .col_status mark > span {
+    margin: 0 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#upserv-licenses-list .col_status.pending mark {
+    background: #c8d7e1;
+    color: #003d66;
+}
+
+#upserv-licenses-list .col_status.blocked mark {
+    background: #eba3a3;
+    color: #570000;
+}
+
+#upserv-licenses-list .col_status.activated mark,
+#upserv-licenses-list .col_status.deactivated mark {
+    background: #c6e1c6;
+    color: #2c4700;
+}
+
+#upserv-licenses-list .col_status.expired mark,
+#upserv-licenses-list .col_status.on-hold mark {
+    background: #f8dda7;
+    color: #573b00;
+}
